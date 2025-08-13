@@ -58,7 +58,7 @@ const BUILD_PLUGINS = [
 
         const targetOutputFile = path.join(
           config.build.outDir,
-          '../../public/index.html.gz'
+          'index.html.gz'
         );
         fs.writeFileSync(targetOutputFile, compressed);
       },
