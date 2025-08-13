@@ -410,7 +410,7 @@ function ChatInput({
                     </button>
                   ) : (
                     <button
-                      className="btn btn-primary w-8 h-8 p-0 rounded-full"
+                      className="btn btn-neutral w-8 h-8 p-0 rounded-full"
                       onClick={onSend}
                       aria-label="Send message"
                     >
