@@ -117,7 +117,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                 Cancel
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-neutral"
                 onClick={() => handlePrompt(inputRef.current?.value)}
               >
                 Submit

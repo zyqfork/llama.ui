@@ -455,7 +455,7 @@ export default function SettingDialog({
           <button className="btn" onClick={onClose}>
             Close
           </button>
-          <button className="btn btn-primary" onClick={handleSave}>
+          <button className="btn btn-neutral" onClick={handleSave}>
             Save
           </button>
         </div>
