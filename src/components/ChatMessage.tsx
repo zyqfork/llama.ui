@@ -25,7 +25,8 @@ export default function ChatMessage({
   siblingCurrIdx,
   id,
   onRegenerateMessage,
-  onEditMessage,
+  onEditUserMessage,
+  onEditAssistantMessage,
   onChangeSibling,
   isPending,
 }: {
@@ -34,7 +35,8 @@ export default function ChatMessage({
   siblingCurrIdx: number;
   id?: string;
   onRegenerateMessage(msg: Message): void;
-  onEditMessage(msg: Message, content: string): void;
+  onEditUserMessage(msg: Message, content: string): void;
+  onEditAssistantMessage(msg: Message, content: string): void;
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
@@ -122,24 +124,41 @@ export default function ChatMessage({
                 value={editingContent}
                 onChange={(e) => setEditingContent(e.target.value)}
               ></textarea>
-              <br />
-              <button
-                className="btn btn-ghost mt-2 mr-2"
-                onClick={() => setEditingContent(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn mt-2"
-                onClick={() => {
-                  if (msg.content !== null) {
-                    setEditingContent(null);
-                    onEditMessage(msg as Message, editingContent);
-                  }
-                }}
-              >
-                Submit
-              </button>
+
+              <div className="flex flex-row">
+                <button
+                  className="btn btn-ghost mt-2 mr-2"
+                  onClick={() => setEditingContent(null)}
+                >
+                  Cancel
+                </button>
+
+                {msg.role === 'user' && (
+                  <button
+                    className="btn mt-2"
+                    onClick={() => {
+                      if (msg.content == null) return;
+                      setEditingContent(null);
+                      onEditUserMessage(msg as Message, editingContent);
+                    }}
+                  >
+                    Send
+                  </button>
+                )}
+
+                {msg.role === 'assistant' && (
+                  <button
+                    className="btn mt-2"
+                    onClick={() => {
+                      if (msg.content == null) return;
+                      setEditingContent(null);
+                      onEditAssistantMessage(msg as Message, editingContent);
+                    }}
+                  >
+                    Save
+                  </button>
+                )}
+              </div>
             </>
           )}
           {/* not editing content, render message */}
@@ -232,7 +251,8 @@ export default function ChatMessage({
           )}
 
           {/* edit message */}
-          {msg.role === 'user' && (
+          {(msg.role === 'user' ||
+            (msg.role === 'assistant' && !isPending)) && (
             <BtnWithTooltips
               className="btn-mini w-8 h-8"
               onClick={() => setEditingContent(msg.content)}

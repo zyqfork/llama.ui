@@ -32,11 +32,16 @@ interface AppContextValue {
     onChunk: CallbackGeneratedChunk
   ) => Promise<boolean>;
   stopGenerating: (convId: string) => void;
+  replaceMessage: (
+    convId: string,
+    msg: Message,
+    content: string | null,
+    onChunk: CallbackGeneratedChunk
+  ) => Promise<void>;
   replaceMessageAndGenerate: (
     convId: string,
-    parentNodeId: Message['id'], // the parent node of the message to be replaced
+    msg: Message, // the parent node of the message to be replaced
     content: string | null,
-    extra: Message['extra'],
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
 
@@ -349,16 +354,48 @@ export const AppContextProvider = ({
     aborts[convId]?.abort();
   };
 
-  // if content is undefined, we remove last assistant message
-  const replaceMessageAndGenerate = async (
+  const replaceMessage = async (
     convId: string,
-    parentNodeId: Message['id'], // the parent node of the message to be replaced
+    msg: Message,
     content: string | null,
-    extra: Message['extra'],
     onChunk: CallbackGeneratedChunk
   ) => {
     if (isGenerating(convId)) return;
 
+    if (content == null) {
+      onChunk(msg.parent);
+      return;
+    }
+
+    const now = Date.now();
+    const currMsgId = now;
+    StorageUtils.appendMsg(
+      {
+        id: currMsgId,
+        timestamp: now,
+        type: msg.type,
+        convId,
+        role: msg.role,
+        content,
+        extra: msg.extra,
+        parent: msg.parent,
+        children: [],
+      },
+      msg.parent
+    );
+    onChunk(currMsgId);
+  };
+
+  // if content is undefined, we remove last assistant message
+  const replaceMessageAndGenerate = async (
+    convId: string,
+    msg: Message,
+    content: string | null,
+    onChunk: CallbackGeneratedChunk
+  ) => {
+    if (isGenerating(convId)) return;
+
+    let parentNodeId = msg.parent;
     if (content !== null) {
       const now = Date.now();
       const currMsgId = now;
@@ -366,11 +403,11 @@ export const AppContextProvider = ({
         {
           id: currMsgId,
           timestamp: now,
-          type: 'text',
+          type: msg.type,
           convId,
-          role: 'user',
+          role: msg.role,
           content,
-          extra,
+          extra: msg.extra,
           parent: parentNodeId,
           children: [],
         },
@@ -396,6 +433,7 @@ export const AppContextProvider = ({
         pendingMessages,
         sendMessage,
         stopGenerating,
+        replaceMessage,
         replaceMessageAndGenerate,
         canvasData,
         setCanvasData,
