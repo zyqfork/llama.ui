@@ -39,6 +39,7 @@ export interface Message {
   convId: string;
   type: 'text' | 'root';
   timestamp: number; // timestamp from Date.now()
+  model?: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timings?: TimingReport;

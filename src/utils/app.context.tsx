@@ -270,6 +270,9 @@ export const AppContextProvider = ({
             content: lastContent + addedContent,
           };
         }
+        if (chunk.model) {
+          pendingMsg.model = chunk.model;
+        }
         const timings = chunk.timings;
         if (timings && config.showTokensPerSecond) {
           // only extract what's really needed, to save some space

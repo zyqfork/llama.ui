@@ -105,6 +105,7 @@ export default function ChatMessage({
           'chat-end': isUser,
         })}
       >
+        {/* message extra */}
         {msg.extra && msg.extra.length > 0 && (
           <ChatInputExtraContextItem items={msg.extra} clickToShow />
         )}
@@ -115,6 +116,16 @@ export default function ChatMessage({
             'bg-transparent': !isUser,
           })}
         >
+          {/* message metadata*/}
+          {msg.role === 'assistant' && (
+            <div className="mb-1 text-sm">
+              {msg.model && <span className="font-bold mr-1">{msg.model}</span>}
+              <span className="text-xs opacity-40">
+                {new Date(msg.timestamp).toUTCString().slice(-11, -7)}
+              </span>
+            </div>
+          )}
+
           {/* textarea for editing message */}
           {editingContent !== null && (
             <>
