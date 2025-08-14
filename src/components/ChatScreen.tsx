@@ -93,6 +93,7 @@ export default function ChatScreen() {
     stopGenerating,
     pendingMessages,
     canvasData,
+    replaceMessage,
     replaceMessageAndGenerate,
   } = useAppContext();
 
@@ -158,17 +159,20 @@ export default function ChatScreen() {
   // for vscode context
   textarea.refOnSubmit.current = sendNewMessage;
 
+  const handleEditUserMessage = async (msg: Message, content: string) => {
+    if (!viewingChat) return;
+    setCurrNodeId(msg.id);
+    scrollToBottom(false);
+    await replaceMessageAndGenerate(viewingChat.conv.id, msg, content, onChunk);
+    setCurrNodeId(-1);
+    scrollToBottom(false);
+  };
+
   const handleEditMessage = async (msg: Message, content: string) => {
     if (!viewingChat) return;
     setCurrNodeId(msg.id);
     scrollToBottom(false);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg.parent,
-      content,
-      msg.extra,
-      onChunk
-    );
+    await replaceMessage(viewingChat.conv.id, msg, content, onChunk);
     setCurrNodeId(-1);
     scrollToBottom(false);
   };
@@ -177,13 +181,7 @@ export default function ChatScreen() {
     if (!viewingChat) return;
     setCurrNodeId(msg.parent);
     scrollToBottom(false);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg.parent,
-      null,
-      msg.extra,
-      onChunk
-    );
+    await replaceMessageAndGenerate(viewingChat.conv.id, msg, null, onChunk);
     setCurrNodeId(-1);
     scrollToBottom(false);
   };
@@ -249,7 +247,8 @@ export default function ChatScreen() {
                 siblingLeafNodeIds={msg.siblingLeafNodeIds}
                 siblingCurrIdx={msg.siblingCurrIdx}
                 onRegenerateMessage={handleRegenerateMessage}
-                onEditMessage={handleEditMessage}
+                onEditUserMessage={handleEditUserMessage}
+                onEditAssistantMessage={handleEditMessage}
                 onChangeSibling={setCurrNodeId}
                 isPending={msg.isPending}
               />
