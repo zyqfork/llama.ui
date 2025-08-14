@@ -4,8 +4,15 @@ on:
   push:
     branches: ["main"]
     paths-ignore:
-      - "!.github/ISSUE_TEMPLATE/**"
-      - "!.vscode/**"
+      - '.devops/**'
+      - '.github/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - '.*/**'          # All dotfolders in root
+      - './.*'           # All dotfiles in root
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - '*.md'
 
   pull_request:
 
@@ -24,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: lts/*
           cache: "npm"
 
       - name: Cache node modules

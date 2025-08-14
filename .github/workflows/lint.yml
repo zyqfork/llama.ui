@@ -3,7 +3,15 @@ name: Lint
 on:
   pull_request:
     paths-ignore:
-      - "!.github/**"
+      - '.devops/**'
+      - '.github/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - '.*/**'          # All dotfolders in root
+      - './.*'           # All dotfiles in root
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - '*.md'
 
 jobs:
   build:
@@ -18,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: lts/*
           cache: "npm"
 
       - name: Cache node modules
