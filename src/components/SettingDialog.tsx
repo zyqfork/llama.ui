@@ -85,6 +85,11 @@ const SETTING_SECTIONS: SettingSection[] = [
     fields: [
       {
         type: SettingInputType.SHORT_INPUT,
+        label: 'Base URL',
+        key: 'baseUrl',
+      },
+      {
+        type: SettingInputType.SHORT_INPUT,
         label: 'API Key',
         key: 'apiKey',
       },

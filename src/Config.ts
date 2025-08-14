@@ -4,13 +4,14 @@ import { isNumeric } from './utils/misc';
 export const isDev = import.meta.env.MODE === 'development';
 
 // constants
-export const BASE_URL = new URL('.', document.baseURI).href
+const baseUrl = new URL('.', document.baseURI).href
   .toString()
   .replace(/\/$/, '');
 
 export const CONFIG_DEFAULT = {
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
+  baseUrl: baseUrl,
   apiKey: '',
   systemMessage: '',
   showTokensPerSecond: false,
@@ -43,6 +44,7 @@ export const CONFIG_DEFAULT = {
   pyIntepreterEnabled: false,
 };
 export const CONFIG_INFO: Record<string, string> = {
+  baseUrl: 'Set the Base URL if you are using standalone server.',
   apiKey: 'Set the API Key if you are using --api-key option for the server.',
   systemMessage: 'The starting message that defines how model should behave.',
   pasteLongTextToFileLen:
