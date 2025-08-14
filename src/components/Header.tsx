@@ -35,13 +35,7 @@ export default function Header() {
 
       {/* model information*/}
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <b>
-          {serverProps?.model_alias ||
-            serverProps?.model_path
-              ?.split(/(\\|\/)/)
-              .pop()
-              ?.replace(/[-](?:[IQ]+[0-9]+[_\d\w]+)(?:\.[a-z]+)?$/, '')}
-        </b>
+        <b>{serverProps?.model}</b>
       </div>
 
       {/* action buttons (top right) */}

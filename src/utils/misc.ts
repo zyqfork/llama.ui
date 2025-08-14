@@ -189,7 +189,18 @@ export const getServerProps = async (
       throw new Error('Failed to fetch server props');
     }
     const data = await response.json();
-    return data as LlamaCppServerProps;
+    const serverProps: LlamaCppServerProps = {
+      build_info: data.build_info,
+      model:
+        data?.model_alias ||
+        data?.model_path
+          ?.split(/(\\|\/)/)
+          .pop()
+          ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
+      n_ctx: data.n_ctx,
+      modalities: data?.modalities,
+    };
+    return serverProps;
   } catch (error) {
     console.error('Error fetching server props:', error);
     throw error;
