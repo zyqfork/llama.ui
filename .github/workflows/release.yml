@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - '.devops/**'
+      - '.github/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - '.*/**'          # All dotfolders in root
+      - './.*'           # All dotfiles in root
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - '*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: true
+
+    - name: Check commit author
+      id: author-check
+      run: |
+        AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+        echo "author_email=$AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+
+    - name: Skip if commit is from GitHub Actions
+      if: steps.author-check.outputs.author_email == 'actions@github.com'
+      run: |
+        echo "Commit from GitHub Actions — skipping release"
+        exit 0
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: npm
+
+    - name: Cache node modules
+      id: cache-npm
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Configure Git user
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    - name: Bump and tag version
+      id: bump-version
+      run: |
+        PREV_VERSION=$(node -p "require('./package.json').version")
+        echo "PREV_VERSION=$PREV_VERSION" >> $GITHUB_ENV
+        npm version patch
+        VERSION=$(node -p "require('./package.json').version")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Push commit and tag
+      run: git push origin main --follow-tags
+
+    - name: Build
+      run: npm run build
+
+    - name: Zip build output
+      run: zip -r index.html.zip dist/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: index-html-zip
+        path: index.html.zip
+
+    - name: Build Changelog
+      id: build_changelog
+      uses: mikepenz/release-changelog-builder-action@v5
+      with:
+        ignorePreReleases: "false"
+        fromTag: "v${{ env.PREV_VERSION }}"
+        toTag: "v${{ env.VERSION }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION }}
+        name: v${{ env.VERSION }}
+        body: ${{steps.build_changelog.outputs.changelog}}
+        files: index.html.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
