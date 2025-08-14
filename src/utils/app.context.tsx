@@ -15,7 +15,7 @@ import {
   getSSEStreamAsync,
   getServerProps,
 } from './misc';
-import { BASE_URL, CONFIG_DEFAULT, isDev } from '../Config';
+import { CONFIG_DEFAULT, isDev } from '../Config';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 
@@ -96,7 +96,7 @@ export const AppContextProvider = ({
 
   // get server props
   useEffect(() => {
-    getServerProps(BASE_URL, config.apiKey)
+    getServerProps(config.baseUrl, config.apiKey)
       .then((props) => {
         console.debug('Server props:', props);
         setServerProps(props);
@@ -233,17 +233,20 @@ export const AppContextProvider = ({
       };
 
       // send request
-      const fetchResponse = await fetch(`${BASE_URL}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(config.apiKey
-            ? { Authorization: `Bearer ${config.apiKey}` }
-            : {}),
-        },
-        body: JSON.stringify(params),
-        signal: abortController.signal,
-      });
+      const fetchResponse = await fetch(
+        `${config.baseUrl}/v1/chat/completions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(config.apiKey
+              ? { Authorization: `Bearer ${config.apiKey}` }
+              : {}),
+          },
+          body: JSON.stringify(params),
+          signal: abortController.signal,
+        }
+      );
       if (fetchResponse.status !== 200) {
         const body = await fetchResponse.json();
         throw new Error(body?.error?.message || 'Unknown error');
