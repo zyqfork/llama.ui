@@ -1,10 +1,10 @@
+import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
+import daisyuiThemes from 'daisyui/theme/object';
 import { useEffect, useState } from 'react';
-import StorageUtils from '../utils/storage';
+import { THEMES } from '../config';
 import { useAppContext } from '../utils/app.context';
 import { classNames } from '../utils/misc';
-import daisyuiThemes from 'daisyui/theme/object';
-import { THEMES } from '../Config';
-import { Cog8ToothIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import StorageUtils from '../utils/storage';
 
 export default function Header() {
   const [selectedTheme, setSelectedTheme] = useState(StorageUtils.getTheme());
