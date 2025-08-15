@@ -72,3 +72,11 @@ export function BtnWithTooltips({
     </div>
   );
 }
+
+export const timeFormatter = new Intl.DateTimeFormat(
+  Intl.DateTimeFormat().resolvedOptions().locale,
+  {
+    hour: '2-digit',
+    minute: '2-digit',
+  }
+);

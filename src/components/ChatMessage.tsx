@@ -1,8 +1,3 @@
-import { useMemo, useState } from 'react';
-import { useAppContext } from '../utils/app.context';
-import { Message, PendingMessage } from '../utils/types';
-import { classNames } from '../utils/misc';
-import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
 import {
   ArrowPathIcon,
   ChevronLeftIcon,
@@ -10,8 +5,13 @@ import {
   ExclamationCircleIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
+import { useMemo, useState } from 'react';
+import { useAppContext } from '../utils/app.context';
+import { BtnWithTooltips, timeFormatter } from '../utils/common';
+import { classNames } from '../utils/misc';
+import { Message, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
-import { BtnWithTooltips } from '../utils/common';
+import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
 
 interface SplitMessage {
   content: PendingMessage['content'];
@@ -121,7 +121,7 @@ export default function ChatMessage({
             <div className="mb-1 text-sm">
               {msg.model && <span className="font-bold mr-1">{msg.model}</span>}
               <span className="text-xs opacity-40">
-                {new Date(msg.timestamp).toUTCString().slice(-11, -7)}
+                {timeFormatter.format(msg.timestamp)}
               </span>
             </div>
           )}
