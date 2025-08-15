@@ -305,10 +305,10 @@ function EditMessage({
           <button
             className="btn mt-2"
             onClick={() => {
-              if (!editingContent) return;
               setIsEditing(false);
               onEditUserMessage(msg as Message, editingContent);
             }}
+            disabled={!editingContent}
           >
             Send
           </button>
@@ -318,10 +318,10 @@ function EditMessage({
           <button
             className="btn mt-2"
             onClick={() => {
-              if (!editingContent) return;
               setIsEditing(false);
               onEditAssistantMessage(msg as Message, editingContent);
             }}
+            disabled={!editingContent}
           >
             Save
           </button>
