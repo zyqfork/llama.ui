@@ -208,7 +208,7 @@ export const AppContextProvider = ({
       if (config.excludeThoughtOnReq) {
         messages = filterThoughtFromMsgs(messages);
       }
-      if (isDev) console.log({ messages });
+      if (isDev) console.debug({ messages });
 
       // prepare params
       const params = {
