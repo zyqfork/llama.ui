@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
 import { CallbackGeneratedChunk, useAppContext } from '../utils/app.context';
-import { useVSCodeContext } from '../utils/llama-vscode';
-import { classNames, cleanCurrentUrl } from '../utils/misc';
+import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
   CanvasType,
@@ -15,27 +13,7 @@ import CanvasPyInterpreter from './CanvasPyInterpreter';
 import { ChatInput } from './ChatInput.tsx';
 import ChatMessage from './ChatMessage';
 import { ServerInfo } from './ServerInfo.tsx';
-import { useChatExtraContext } from './useChatExtraContext.tsx';
 import { scrollToBottom, useChatScroll } from './useChatScroll.tsx';
-import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
-
-/**
- * If the current URL contains "?m=...", prefill the message input with the value.
- * If the current URL contains "?q=...", prefill and SEND the message.
- */
-const prefilledMsg = {
-  content() {
-    const url = new URL(window.location.href);
-    return url.searchParams.get('m') ?? url.searchParams.get('q') ?? '';
-  },
-  shouldSend() {
-    const url = new URL(window.location.href);
-    return url.searchParams.has('q');
-  },
-  clear() {
-    cleanCurrentUrl(['m', 'q']);
-  },
-};
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,
@@ -84,10 +62,6 @@ export default function ChatScreen() {
     replaceMessageAndGenerate,
   } = useAppContext();
 
-  const textarea: ChatTextareaApi = useChatTextarea(prefilledMsg.content());
-  const extraContext = useChatExtraContext();
-  useVSCodeContext(textarea, extraContext);
-
   const msgListRef = useRef<HTMLDivElement>(null);
   useChatScroll(msgListRef);
 
@@ -116,35 +90,16 @@ export default function ChatScreen() {
     // useChatScroll will handle the auto scroll
   };
 
-  const sendNewMessage = async () => {
-    const lastInpMsg = textarea.value();
-    if (lastInpMsg.trim().length === 0 || isGenerating(currConvId ?? '')) {
-      toast.error('Please enter a message');
-      return;
-    }
-    textarea.setValue('');
+  const handleSendNewMessage = (
+    content: string,
+    extra: MessageExtra[] | undefined
+  ) => {
     scrollToBottom(false);
     setCurrNodeId(-1);
     // get the last message node
     const lastMsgNodeId = messages.at(-1)?.msg.id ?? null;
-    if (
-      !(await sendMessage(
-        currConvId,
-        lastMsgNodeId,
-        lastInpMsg,
-        extraContext.items,
-        onChunk
-      ))
-    ) {
-      // restore the input message if failed
-      textarea.setValue(lastInpMsg);
-    }
-    // OK
-    extraContext.clearItems();
+    return sendMessage(currConvId, lastMsgNodeId, content, extra, onChunk);
   };
-
-  // for vscode context
-  textarea.refOnSubmit.current = sendNewMessage;
 
   const handleEditUserMessage = async (
     msg: Message,
@@ -190,19 +145,6 @@ export default function ChatScreen() {
   };
 
   const hasCanvas = !!canvasData;
-
-  useEffect(() => {
-    if (prefilledMsg.shouldSend()) {
-      // send the prefilled message if needed
-      sendNewMessage();
-    } else {
-      // otherwise, focus on the input
-      textarea.focus();
-    }
-    prefilledMsg.clear();
-    // no need to keep track of sendNewMessage
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textarea.ref]);
 
   // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
   const pendingMsgDisplay: MessageDisplay[] =
@@ -268,9 +210,7 @@ export default function ChatScreen() {
         >
           {/* chat input */}
           <ChatInput
-            textarea={textarea}
-            extraContext={extraContext}
-            onSend={sendNewMessage}
+            onSend={handleSendNewMessage}
             onStop={() => stopGenerating(currConvId ?? '')}
             isGenerating={isGenerating(currConvId ?? '')}
           />

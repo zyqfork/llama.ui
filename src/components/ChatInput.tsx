@@ -3,24 +3,81 @@ import {
   PaperClipIcon,
   StopIcon,
 } from '@heroicons/react/24/solid';
-import { classNames } from '../utils/misc';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useVSCodeContext } from '../utils/llama-vscode.ts';
+import { classNames, cleanCurrentUrl } from '../utils/misc';
+import { MessageExtra } from '../utils/types.ts';
 import { DropzoneArea } from './DropzoneArea.tsx';
-import { ChatExtraContextApi } from './useChatExtraContext.tsx';
-import { ChatTextareaApi } from './useChatTextarea.ts';
+import { useChatExtraContext } from './useChatExtraContext.tsx';
+import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
+
+/**
+ * If the current URL contains "?m=...", prefill the message input with the value.
+ * If the current URL contains "?q=...", prefill and SEND the message.
+ */
+const prefilledMsg = {
+  content() {
+    const url = new URL(window.location.href);
+    return url.searchParams.get('m') ?? url.searchParams.get('q') ?? '';
+  },
+  shouldSend() {
+    const url = new URL(window.location.href);
+    return url.searchParams.has('q');
+  },
+  clear() {
+    cleanCurrentUrl(['m', 'q']);
+  },
+};
 
 export function ChatInput({
-  textarea,
-  extraContext,
   onSend,
   onStop,
   isGenerating,
 }: {
-  textarea: ChatTextareaApi;
-  extraContext: ChatExtraContextApi;
-  onSend: () => void;
+  onSend: (
+    content: string,
+    extra: MessageExtra[] | undefined
+  ) => Promise<boolean>;
   onStop: () => void;
   isGenerating: boolean;
 }) {
+  const textarea: ChatTextareaApi = useChatTextarea(prefilledMsg.content());
+  const extraContext = useChatExtraContext();
+  useVSCodeContext(textarea, extraContext);
+
+  const sendNewMessage = async () => {
+    const lastInpMsg = textarea.value();
+    if (lastInpMsg.trim().length === 0) {
+      toast.error('Please enter a message');
+      return;
+    }
+
+    textarea.setValue('');
+    if (!(await onSend(lastInpMsg, extraContext.items))) {
+      // restore the input message if failed
+      textarea.setValue(lastInpMsg);
+    }
+    // OK
+    extraContext.clearItems();
+  };
+
+  // for vscode context
+  textarea.refOnSubmit.current = sendNewMessage;
+
+  useEffect(() => {
+    if (prefilledMsg.shouldSend()) {
+      // send the prefilled message if needed
+      sendNewMessage();
+    } else {
+      // otherwise, focus on the input
+      textarea.focus();
+    }
+    prefilledMsg.clear();
+    // no need to keep track of sendNewMessage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textarea.ref]);
+
   return (
     <DropzoneArea extraContext={extraContext} disabled={isGenerating}>
       <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
@@ -35,7 +92,7 @@ export function ChatInput({
             if (e.nativeEvent.isComposing || e.keyCode === 229) return;
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              onSend();
+              sendNewMessage();
             }
           }}
           id="msg-input"
@@ -75,7 +132,7 @@ export function ChatInput({
             {!isGenerating && (
               <button
                 className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                onClick={onSend}
+                onClick={sendNewMessage}
                 aria-label="Send message"
               >
                 <ArrowUpIcon className="h-5 w-5" />
