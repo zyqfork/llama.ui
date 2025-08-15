@@ -115,6 +115,17 @@ export type PendingMessage = Omit<Message, 'content'> & {
   content: string | null;
 };
 
+/**
+ * A message display is a message node with additional information for rendering.
+ * For example, siblings of the message node are stored as their last node (aka leaf node).
+ */
+export interface MessageDisplay {
+  msg: Message | PendingMessage;
+  siblingLeafNodeIds: Message['id'][];
+  siblingCurrIdx: number;
+  isPending?: boolean;
+}
+
 export enum CanvasType {
   PY_INTERPRETER,
 }
