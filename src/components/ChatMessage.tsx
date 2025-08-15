@@ -245,15 +245,15 @@ export default function ChatMessage({
                   >
                     <b>Prompt Processing</b>
                     <ul className="list-inside list-disc">
-                      <li>Tokens: {timings.prompt_n}</li>
-                      <li>Time: {timings.prompt_ms} ms</li>
+                      <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
+                      <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
                       <li>Speed: {timings.prompt_per_second.toFixed(1)} t/s</li>
                     </ul>
                     <br />
                     <b>Generation</b>
                     <ul className="list-inside list-disc">
-                      <li>Tokens: {timings.predicted_n}</li>
-                      <li>Time: {timings.predicted_ms} ms</li>
+                      <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
+                      <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
                       <li>
                         Speed: {timings.predicted_per_second.toFixed(1)} t/s
                       </li>
