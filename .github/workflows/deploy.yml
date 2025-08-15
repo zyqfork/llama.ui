@@ -2,9 +2,9 @@ name: Deploy
 
 on:
   push:
-    branches: ["main"]
-    paths:
-      - 'package.json'
+    tags:
+      - '*'
+
   workflow_dispatch:
 
 jobs:
