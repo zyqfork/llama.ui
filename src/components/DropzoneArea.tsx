@@ -3,6 +3,7 @@ import Dropzone from 'react-dropzone';
 import { ChatExtraContextApi } from '../components/useChatExtraContext';
 import { useAppContext } from '../utils/app.context';
 import { classNames } from '../utils/misc';
+import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 
 export function DropzoneArea({
   children,
@@ -26,6 +27,7 @@ export function DropzoneArea({
       onDragEnter={() => setIsDrag(true)}
       onDragLeave={() => setIsDrag(false)}
       multiple={true}
+      disabled={disabled}
     >
       {({ getRootProps, getInputProps }) => (
         <div
@@ -74,6 +76,13 @@ export function DropzoneArea({
             {...getInputProps()}
             hidden
           />
+
+          {!disabled && (
+            <ChatInputExtraContextItem
+              items={extraContext.items}
+              removeItem={extraContext.removeItem}
+            />
+          )}
 
           {children}
         </div>

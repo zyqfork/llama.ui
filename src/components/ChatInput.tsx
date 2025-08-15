@@ -4,7 +4,6 @@ import {
   StopIcon,
 } from '@heroicons/react/24/solid';
 import { classNames } from '../utils/misc';
-import ChatInputExtraContextItem from './ChatInputExtraContextItem.tsx';
 import { DropzoneArea } from './DropzoneArea.tsx';
 import { ChatExtraContextApi } from './useChatExtraContext.tsx';
 import { ChatTextareaApi } from './useChatTextarea.ts';
@@ -24,13 +23,6 @@ export function ChatInput({
 }) {
   return (
     <DropzoneArea extraContext={extraContext} disabled={isGenerating}>
-      {!isGenerating && (
-        <ChatInputExtraContextItem
-          items={extraContext.items}
-          removeItem={extraContext.removeItem}
-        />
-      )}
-
       <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
         <textarea
           // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed

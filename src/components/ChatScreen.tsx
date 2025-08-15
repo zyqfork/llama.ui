@@ -8,6 +8,7 @@ import {
   CanvasType,
   Message,
   MessageDisplay,
+  MessageExtra,
   PendingMessage,
 } from '../utils/types';
 import CanvasPyInterpreter from './CanvasPyInterpreter';
@@ -145,11 +146,21 @@ export default function ChatScreen() {
   // for vscode context
   textarea.refOnSubmit.current = sendNewMessage;
 
-  const handleEditUserMessage = async (msg: Message, content: string) => {
+  const handleEditUserMessage = async (
+    msg: Message,
+    content: string,
+    extra: MessageExtra[]
+  ) => {
     if (!viewingChat) return;
     setCurrNodeId(msg.id);
     scrollToBottom(false);
-    await replaceMessageAndGenerate(viewingChat.conv.id, msg, content, onChunk);
+    await replaceMessageAndGenerate(
+      viewingChat.conv.id,
+      msg,
+      content,
+      extra,
+      onChunk
+    );
     setCurrNodeId(-1);
     scrollToBottom(false);
   };
@@ -167,7 +178,13 @@ export default function ChatScreen() {
     if (!viewingChat) return;
     setCurrNodeId(msg.parent);
     scrollToBottom(false);
-    await replaceMessageAndGenerate(viewingChat.conv.id, msg, null, onChunk);
+    await replaceMessageAndGenerate(
+      viewingChat.conv.id,
+      msg,
+      null,
+      msg.extra,
+      onChunk
+    );
     setCurrNodeId(-1);
     scrollToBottom(false);
   };
