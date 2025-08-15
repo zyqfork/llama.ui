@@ -106,7 +106,7 @@ export default function ChatMessage({
         })}
       >
         {/* message extra */}
-        {msg.extra && msg.extra.length > 0 && (
+        {msg.extra && msg.extra.length > 0 && !isEditing && (
           <ChatInputExtraContextItem items={msg.extra} clickToShow />
         )}
 
