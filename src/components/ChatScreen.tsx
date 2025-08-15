@@ -1,25 +1,25 @@
-import { ClipboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { CallbackGeneratedChunk, useAppContext } from '../utils/app.context';
-import ChatMessage from './ChatMessage';
-import { CanvasType, Message, PendingMessage } from '../utils/types';
-import { classNames, cleanCurrentUrl } from '../utils/misc';
-import CanvasPyInterpreter from './CanvasPyInterpreter';
-import StorageUtils from '../utils/storage';
-import { useVSCodeContext } from '../utils/llama-vscode';
-import { useChatTextarea, ChatTextareaApi } from './useChatTextarea.ts';
 import {
   ArrowUpIcon,
-  StopIcon,
   PaperClipIcon,
+  StopIcon,
 } from '@heroicons/react/24/solid';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import { CallbackGeneratedChunk, useAppContext } from '../utils/app.context';
+import { DropzoneArea } from './DropzoneArea.tsx';
+import { useVSCodeContext } from '../utils/llama-vscode';
+import { classNames, cleanCurrentUrl } from '../utils/misc';
+import StorageUtils from '../utils/storage';
+import { CanvasType, Message, PendingMessage } from '../utils/types';
+import CanvasPyInterpreter from './CanvasPyInterpreter';
+import ChatInputExtraContextItem from './ChatInputExtraContextItem.tsx';
+import ChatMessage from './ChatMessage';
 import {
   ChatExtraContextApi,
   useChatExtraContext,
 } from './useChatExtraContext.tsx';
-import Dropzone from 'react-dropzone';
-import toast from 'react-hot-toast';
-import ChatInputExtraContextItem from './ChatInputExtraContextItem.tsx';
 import { scrollToBottom, useChatScroll } from './useChatScroll.tsx';
+import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
 
 /**
  * A message display is a message node with additional information for rendering.
@@ -287,7 +287,6 @@ function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
-  const { config } = useAppContext();
   const [isDrag, setIsDrag] = useState(false);
 
   return (
@@ -299,129 +298,80 @@ function ChatInput({
         'opacity-50': isDrag, // simply visual feedback to inform user that the file will be accepted
       })}
     >
-      <Dropzone
-        noClick
-        onDrop={(files: File[]) => {
-          setIsDrag(false);
-          extraContext.onFileAdded(files);
-        }}
-        onDragEnter={() => setIsDrag(true)}
-        onDragLeave={() => setIsDrag(false)}
-        multiple={true}
+      <DropzoneArea
+        extraContext={extraContext}
+        setIsDrag={setIsDrag}
+        disabled={isGenerating}
       >
-        {({ getRootProps, getInputProps }) => (
-          <div
-            className="flex flex-col rounded-xl w-full"
-            // when a file is pasted to the input, we handle it here
-            // if a text is pasted, and if it is long text, we will convert it to a file
-            onPasteCapture={(e: ClipboardEvent<HTMLInputElement>) => {
-              const text = e.clipboardData.getData('text/plain');
-              if (
-                text.length > 0 &&
-                config.pasteLongTextToFileLen > 0 &&
-                text.length > config.pasteLongTextToFileLen
-              ) {
-                // if the text is too long, we will convert it to a file
-                extraContext.addItems([
-                  {
-                    type: 'context',
-                    name: 'Pasted Content',
-                    content: text,
-                  },
-                ]);
-                e.preventDefault();
-                return;
-              }
+        {!isGenerating && (
+          <ChatInputExtraContextItem
+            items={extraContext.items}
+            removeItem={extraContext.removeItem}
+          />
+        )}
 
-              // if a file is pasted, we will handle it here
-              const files = Array.from(e.clipboardData.items)
-                .filter((item) => item.kind === 'file')
-                .map((item) => item.getAsFile())
-                .filter((file) => file !== null);
-
-              if (files.length > 0) {
+        <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
+          <textarea
+            // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
+            // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
+            className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
+            placeholder="Type a message (Shift+Enter to add a new line)"
+            ref={textarea.ref}
+            onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
+            onKeyDown={(e) => {
+              if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+              if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                extraContext.onFileAdded(files);
+                onSend();
               }
             }}
-            {...getRootProps()}
-          >
-            {!isGenerating && (
-              <ChatInputExtraContextItem
-                items={extraContext.items}
-                removeItem={extraContext.removeItem}
-              />
-            )}
+            id="msg-input"
+            dir="auto"
+            // Set a base height of 2 rows for mobile views
+            // On lg+ screens, the hook will calculate and set the initial height anyway
+            rows={2}
+          ></textarea>
 
-            <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
-              <textarea
-                // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
-                // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
-                className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
-                placeholder="Type a message (Shift+Enter to add a new line)"
-                ref={textarea.ref}
-                onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
-                onKeyDown={(e) => {
-                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    onSend();
-                  }
-                }}
-                id="msg-input"
-                dir="auto"
-                // Set a base height of 2 rows for mobile views
-                // On lg+ screens, the hook will calculate and set the initial height anyway
-                rows={2}
-              ></textarea>
+          {/* buttons area */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center">
+              <label
+                htmlFor="file-upload"
+                className={classNames({
+                  'btn w-8 h-8 p-0 rounded-full': true,
+                  'btn-disabled': isGenerating,
+                })}
+                aria-label="Upload file"
+                tabIndex={0}
+                role="button"
+              >
+                <PaperClipIcon className="h-5 w-5" />
+              </label>
+            </div>
 
-              {/* buttons area */}
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center">
-                  <label
-                    htmlFor="file-upload"
-                    className={classNames({
-                      'btn w-8 h-8 p-0 rounded-full': true,
-                      'btn-disabled': isGenerating,
-                    })}
-                    aria-label="Upload file"
-                    tabIndex={0}
-                    role="button"
-                  >
-                    <PaperClipIcon className="h-5 w-5" />
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    disabled={isGenerating}
-                    {...getInputProps()}
-                    hidden
-                  />
-                </div>
+            <div className="flex items-center">
+              {isGenerating && (
+                <button
+                  className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  onClick={onStop}
+                >
+                  <StopIcon className="h-5 w-5" />
+                </button>
+              )}
 
-                <div className="flex items-center">
-                  {isGenerating ? (
-                    <button
-                      className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                      onClick={onStop}
-                    >
-                      <StopIcon className="h-5 w-5" />
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                      onClick={onSend}
-                      aria-label="Send message"
-                    >
-                      <ArrowUpIcon className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-              </div>
+              {!isGenerating && (
+                <button
+                  className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  onClick={onSend}
+                  aria-label="Send message"
+                >
+                  <ArrowUpIcon className="h-5 w-5" />
+                </button>
+              )}
             </div>
           </div>
-        )}
-      </Dropzone>
+        </div>
+      </DropzoneArea>
       <ServerInfo />
     </div>
   );
