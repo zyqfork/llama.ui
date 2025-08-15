@@ -1,21 +1,21 @@
-import { ClipboardEvent } from 'react';
+import { ClipboardEvent, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { ChatExtraContextApi } from '../components/useChatExtraContext';
 import { useAppContext } from '../utils/app.context';
+import { classNames } from '../utils/misc';
 
 export function DropzoneArea({
   children,
   extraContext,
-  setIsDrag,
   disabled,
 }: {
   children: React.ReactNode;
   extraContext: ChatExtraContextApi;
   disabled: boolean;
-  setIsDrag: (flag: boolean) => void;
   onDragLeave?: () => void;
 }) {
   const { config } = useAppContext();
+  const [isDrag, setIsDrag] = useState(false);
   return (
     <Dropzone
       noClick
@@ -29,7 +29,10 @@ export function DropzoneArea({
     >
       {({ getRootProps, getInputProps }) => (
         <div
-          className="flex flex-col rounded-xl w-full"
+          className={classNames({
+            'flex flex-col rounded-xl w-full': true,
+            'opacity-50': isDrag, // simply visual feedback to inform user that the file will be accepted
+          })}
           // when a file is pasted to the input, we handle it here
           // if a text is pasted, and if it is long text, we will convert it to a file
           onPasteCapture={(e: ClipboardEvent<HTMLInputElement>) => {

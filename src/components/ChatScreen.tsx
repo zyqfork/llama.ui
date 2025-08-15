@@ -13,6 +13,7 @@ import {
 import CanvasPyInterpreter from './CanvasPyInterpreter';
 import { ChatInput } from './ChatInput.tsx';
 import ChatMessage from './ChatMessage';
+import { ServerInfo } from './ServerInfo.tsx';
 import { useChatExtraContext } from './useChatExtraContext.tsx';
 import { scrollToBottom, useChatScroll } from './useChatScroll.tsx';
 import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
@@ -241,14 +242,25 @@ export default function ChatScreen() {
           </div>
         )}
 
-        {/* chat input */}
-        <ChatInput
-          textarea={textarea}
-          extraContext={extraContext}
-          onSend={sendNewMessage}
-          onStop={() => stopGenerating(currConvId ?? '')}
-          isGenerating={isGenerating(currConvId ?? '')}
-        />
+        <div
+          role="group"
+          aria-label="Chat input"
+          className={classNames({
+            'flex flex-col items-end pt-8 sticky bottom-0 bg-base-100': true,
+          })}
+        >
+          {/* chat input */}
+          <ChatInput
+            textarea={textarea}
+            extraContext={extraContext}
+            onSend={sendNewMessage}
+            onStop={() => stopGenerating(currConvId ?? '')}
+            isGenerating={isGenerating(currConvId ?? '')}
+          />
+
+          {/* server info */}
+          <ServerInfo />
+        </div>
       </div>
       <div className="w-full sticky top-[7em] h-[calc(100vh-9em)]">
         {canvasData?.type === CanvasType.PY_INTERPRETER && (
