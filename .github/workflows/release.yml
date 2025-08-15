@@ -1,18 +1,18 @@
 name: Release
 
 on:
-  push:
-    branches: ["main"]
-    paths-ignore:
-      - '.devops/**'
-      - '.github/**'
-      - '.vscode/**'
-      - '.idea/**'
-      - '.*/**'          # All dotfolders in root
-      - './.*'           # All dotfiles in root
-      - '**/*.config.js'
-      - '**/*.config.ts'
-      - '*.md'
+  # push:
+  #   branches: ["main"]
+  #   paths-ignore:
+  #     - '.devops/**'
+  #     - '.github/**'
+  #     - '.vscode/**'
+  #     - '.idea/**'
+  #     - '.*/**'          # All dotfolders in root
+  #     - './.*'           # All dotfiles in root
+  #     - '**/*.config.js'
+  #     - '**/*.config.ts'
+  #     - '*.md'
   workflow_dispatch:
 
 permissions:
