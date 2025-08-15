@@ -172,34 +172,25 @@ export default function ChatMessage({
               </div>
             </>
           )}
-          {/* not editing content, render message */}
-          {editingContent === null && (
-            <>
-              {content === null ? (
-                <>
-                  {/* show loading dots for pending message */}
-                  <span className="loading loading-dots loading-md"></span>
-                </>
-              ) : (
-                <>
-                  {/* render message as markdown */}
-                  <div dir="auto" tabIndex={0}>
-                    {thought && (
-                      <ThoughtProcess
-                        isThinking={!!isThinking && !!isPending}
-                        content={thought}
-                        open={config.showThoughtInProgress}
-                      />
-                    )}
 
-                    <MarkdownDisplay
-                      content={content}
-                      isGenerating={isPending}
-                    />
-                  </div>
-                </>
+          {/* show loading dots for pending message */}
+          {editingContent === null && content === null && (
+            <span className="loading loading-dots loading-md"></span>
+          )}
+
+          {/* render message as markdown */}
+          {editingContent === null && content !== null && (
+            <div dir="auto" tabIndex={0}>
+              {thought && (
+                <ThoughtProcess
+                  isThinking={!!isThinking && !!isPending}
+                  content={thought}
+                  open={config.showThoughtInProgress}
+                />
               )}
-            </>
+
+              <MarkdownDisplay content={content} isGenerating={isPending} />
+            </div>
           )}
         </div>
       </div>
