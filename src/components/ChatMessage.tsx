@@ -3,15 +3,18 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ExclamationCircleIcon,
+  PaperClipIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../utils/app.context';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
 import { classNames } from '../utils/misc';
-import { Message, PendingMessage } from '../utils/types';
+import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
+import { DropzoneArea } from './DropzoneArea';
+import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
   content: PendingMessage['content'];
@@ -35,7 +38,7 @@ export default function ChatMessage({
   siblingCurrIdx: number;
   id?: string;
   onRegenerateMessage(msg: Message): void;
-  onEditUserMessage(msg: Message, content: string): void;
+  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
@@ -106,7 +109,7 @@ export default function ChatMessage({
         })}
       >
         {/* message extra */}
-        {msg.extra && msg.extra.length > 0 && (
+        {msg.extra && msg.extra.length > 0 && !isEditing && (
           <ChatInputExtraContextItem items={msg.extra} clickToShow />
         )}
 
@@ -277,15 +280,16 @@ function EditMessage({
 }: {
   msg: Message | PendingMessage;
   setIsEditing(flag: boolean): void;
-  onEditUserMessage(msg: Message, content: string): void;
+  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
 }) {
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
   );
+  const extraContext = useChatExtraContext(msg.extra);
 
   return (
-    <>
+    <DropzoneArea extraContext={extraContext} disabled={msg.role !== 'user'}>
       <textarea
         dir="auto"
         className="textarea textarea-bordered bg-base-100 text-base-content max-w-2xl w-[calc(90vw-8em)] h-24"
@@ -293,9 +297,24 @@ function EditMessage({
         onChange={(e) => setEditingContent(e.target.value)}
       ></textarea>
 
-      <div className="flex flex-row">
+      <div className="flex flex-row mt-2">
+        {msg.role === 'user' && (
+          <>
+            <label
+              htmlFor="file-upload"
+              className="btn w-8 h-8 mt-1 p-0 rounded-full"
+              aria-label="Upload file"
+              tabIndex={0}
+              role="button"
+            >
+              <PaperClipIcon className="h-5 w-5" />
+            </label>
+            <div className="grow" />
+          </>
+        )}
+
         <button
-          className="btn btn-ghost mt-2 mr-2"
+          className="btn btn-ghost mr-2"
           onClick={() => setIsEditing(false)}
         >
           Cancel
@@ -303,10 +322,14 @@ function EditMessage({
 
         {msg.role === 'user' && (
           <button
-            className="btn mt-2"
+            className="btn"
             onClick={() => {
               setIsEditing(false);
-              onEditUserMessage(msg as Message, editingContent);
+              onEditUserMessage(
+                msg as Message,
+                editingContent,
+                extraContext.items || []
+              );
             }}
             disabled={!editingContent}
           >
@@ -316,7 +339,7 @@ function EditMessage({
 
         {msg.role === 'assistant' && (
           <button
-            className="btn mt-2"
+            className="btn"
             onClick={() => {
               setIsEditing(false);
               onEditAssistantMessage(msg as Message, editingContent);
@@ -327,7 +350,7 @@ function EditMessage({
           </button>
         )}
       </div>
-    </>
+    </DropzoneArea>
   );
 }
 

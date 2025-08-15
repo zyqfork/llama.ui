@@ -24,9 +24,11 @@ export interface ChatExtraContextApi {
   onFileAdded: (files: File[]) => void; // used by "upload" button
 }
 
-export function useChatExtraContext(): ChatExtraContextApi {
+export function useChatExtraContext(
+  initialItems: MessageExtra[] = []
+): ChatExtraContextApi {
   const { serverProps, config } = useAppContext();
-  const [items, setItems] = useState<MessageExtra[]>([]);
+  const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
   const addItems = (newItems: MessageExtra[]) => {
     setItems((prev) => [...prev, ...newItems]);

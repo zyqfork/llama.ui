@@ -9,6 +9,7 @@ import {
 
 // ponyfill for missing ReadableStream asyncIterator on Safari
 import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
+import { isDev } from '../config';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isString = (x: any) => !!x.toLowerCase;
@@ -27,7 +28,7 @@ export async function* getSSEStreamAsync(fetchResponse: Response) {
     .pipeThrough(new TextLineStream());
   // @ts-expect-error asyncIterator complains about type, but it should work
   for await (const line of asyncIterator(lines)) {
-    //if (isDev) console.log({ line });
+    //if (isDev) console.debug({ line });
     if (line.startsWith('data:') && !line.endsWith('[DONE]')) {
       const data = JSON.parse(line.slice(5));
       yield data;
@@ -119,7 +120,12 @@ export function normalizeMsgsForAPI(messages: Readonly<Message[]>) {
  * recommended for DeepsSeek-R1, filter out content between <think> and </think> tags
  */
 export function filterThoughtFromMsgs(messages: APIMessage[]) {
-  console.debug({ messages });
+  if (isDev)
+    console.debug(
+      'filter thought messages\n',
+      JSON.stringify(messages, null, 2)
+    );
+
   return messages.map((msg) => {
     if (msg.role !== 'assistant') {
       return msg;
@@ -189,7 +195,8 @@ export const getServerProps = async (
       throw new Error('Failed to fetch server props');
     }
     const data = await response.json();
-    const serverProps: LlamaCppServerProps = {
+    if (isDev) console.debug('server props:\n', JSON.stringify(data, null, 2));
+    return {
       build_info: data.build_info,
       model:
         data?.model_alias ||
@@ -200,7 +207,6 @@ export const getServerProps = async (
       n_ctx: data.n_ctx,
       modalities: data?.modalities,
     };
-    return serverProps;
   } catch (error) {
     console.error('Error fetching server props:', error);
     throw error;

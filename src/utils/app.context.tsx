@@ -15,6 +15,7 @@ import {
   Conversation,
   LlamaCppServerProps,
   Message,
+  MessageExtra,
   PendingMessage,
   ViewingChat,
 } from './types';
@@ -42,6 +43,7 @@ interface AppContextValue {
     convId: string,
     msg: Message, // the parent node of the message to be replaced
     content: string | null,
+    extra: MessageExtra[] | undefined,
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
 
@@ -103,7 +105,6 @@ export const AppContextProvider = ({
   useEffect(() => {
     getServerProps(config.baseUrl, config.apiKey)
       .then((props) => {
-        console.debug('Server props:', props);
         setServerProps(props);
       })
       .catch((err) => {
@@ -207,7 +208,7 @@ export const AppContextProvider = ({
       if (config.excludeThoughtOnReq) {
         messages = filterThoughtFromMsgs(messages);
       }
-      if (isDev) console.log({ messages });
+      if (isDev) console.debug({ messages });
 
       // prepare params
       const params = {
@@ -394,6 +395,7 @@ export const AppContextProvider = ({
     convId: string,
     msg: Message,
     content: string | null,
+    extra: MessageExtra[] | undefined,
     onChunk: CallbackGeneratedChunk
   ) => {
     if (isGenerating(convId)) return;
@@ -410,7 +412,7 @@ export const AppContextProvider = ({
           convId,
           role: msg.role,
           content,
-          extra: msg.extra,
+          extra,
           parent: parentNodeId,
           children: [],
         },

@@ -330,7 +330,7 @@ export default function SettingDialog({
         console.error(`Unknown default type for key ${key}`);
       }
     }
-    if (isDev) console.log('Saving config', newConfig);
+    if (isDev) console.debug('Saving config', newConfig);
     saveConfig(newConfig);
     onClose();
   };
