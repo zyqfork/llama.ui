@@ -99,9 +99,48 @@ jobs:
       id: build_changelog
       uses: mikepenz/release-changelog-builder-action@v5
       with:
+        mode: "COMMIT"
         ignorePreReleases: "false"
         fromTag: "v${{ env.PREV_VERSION }}"
         toTag: "v${{ env.VERSION }}"
+        configurationJson: |
+          {
+            "template": "## Release Notes\n#{{CHANGELOG}}",
+            "categories": [
+              {
+                "title": "### 🚀 Enhancements",
+                "labels": ["feat", "feature"]
+              },
+              {
+                "title": "### 🛠 Fixes",
+                "labels": ["fix", "bug"]
+              },
+              {
+                "title": "### 📚 Documentetion",
+                "labels": ["docs"]
+              },
+              {
+                "title": "### 💬 Other",
+                "labels": []
+              }
+            ],
+            "ignore_labels": [
+              "ignore",
+              "build",
+              "chore",
+              "ci",
+              "refactor",
+              "revert",
+              "style"
+            ],
+            "label_extractor": [
+              {
+                "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\([\\w\\-\\.]+\\))?(!)?: ([\\w ])+([\\s\\S]*)",
+                "on_property": "title",
+                "target": "$1"
+              }
+            ]
+          }
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
