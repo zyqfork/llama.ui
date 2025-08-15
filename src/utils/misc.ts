@@ -119,7 +119,7 @@ export function normalizeMsgsForAPI(messages: Readonly<Message[]>) {
  * recommended for DeepsSeek-R1, filter out content between <think> and </think> tags
  */
 export function filterThoughtFromMsgs(messages: APIMessage[]) {
-  console.debug({ messages });
+  console.debug('filter thought messages\n', JSON.stringify(messages, null, 2));
   return messages.map((msg) => {
     if (msg.role !== 'assistant') {
       return msg;
@@ -189,6 +189,7 @@ export const getServerProps = async (
       throw new Error('Failed to fetch server props');
     }
     const data = await response.json();
+    console.debug('server props:\n', JSON.stringify(data, null, 2));
     const serverProps: LlamaCppServerProps = {
       build_info: data.build_info,
       model:

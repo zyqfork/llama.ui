@@ -103,7 +103,6 @@ export const AppContextProvider = ({
   useEffect(() => {
     getServerProps(config.baseUrl, config.apiKey)
       .then((props) => {
-        console.debug('Server props:', props);
         setServerProps(props);
       })
       .catch((err) => {
