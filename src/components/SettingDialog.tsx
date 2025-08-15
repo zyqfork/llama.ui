@@ -1,9 +1,15 @@
 import {
   BeakerIcon,
+  ChatBubbleLeftEllipsisIcon,
+  ChatBubbleLeftRightIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  CircleStackIcon,
   Cog6ToothIcon,
+  CogIcon,
+  CpuChipIcon,
   FunnelIcon,
   HandRaisedIcon,
+  RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
@@ -16,7 +22,7 @@ import { useModals } from './ModalProvider';
 
 type SettKey = keyof typeof CONFIG_DEFAULT;
 
-const BASIC_KEYS: SettKey[] = [
+const GENERATION_KEYS: SettKey[] = [
   'temperature',
   'top_k',
   'top_p',
@@ -46,6 +52,8 @@ enum SettingInputType {
   LONG_INPUT,
   CHECKBOX,
   CUSTOM,
+  SECTION,
+  SPACE,
 }
 
 interface SettingFieldInput {
@@ -67,13 +75,29 @@ interface SettingFieldCustom {
 }
 
 interface SettingSection {
+  type: SettingInputType.SECTION;
+  label: string | React.ReactElement;
+}
+
+interface SettingSpace {
+  type: SettingInputType.SPACE;
+}
+
+interface SettingTab {
   title: React.ReactElement;
-  fields: (SettingFieldInput | SettingFieldCustom)[];
+  fields: (
+    | SettingFieldInput
+    | SettingFieldCustom
+    | SettingSection
+    | SettingSpace
+  )[];
 }
 
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
 
-const SETTING_SECTIONS: SettingSection[] = [
+const SETTING_TABS: SettingTab[] = [
+  /* General */
   {
     title: (
       <>
@@ -97,14 +121,27 @@ const SETTING_SECTIONS: SettingSection[] = [
         label: 'System Message (will be disabled if left empty)',
         key: 'systemMessage',
       },
-      ...BASIC_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
-      ),
+    ],
+  },
+
+  /* Conversations */
+  {
+    title: (
+      <>
+        <ChatBubbleLeftRightIcon className={ICON_CLASSNAME} />
+        Conversations
+      </>
+    ),
+    fields: [
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <ChatBubbleLeftEllipsisIcon className={TITLE_ICON_CLASSNAME} />
+            Chat
+          </>
+        ),
+      },
       {
         type: SettingInputType.SHORT_INPUT,
         label: 'Paste length to file',
@@ -115,52 +152,39 @@ const SETTING_SECTIONS: SettingSection[] = [
         label: 'Parse PDF as image instead of text',
         key: 'pdfAsImage',
       },
-    ],
-  },
-  {
-    title: (
-      <>
-        <FunnelIcon className={ICON_CLASSNAME} />
-        Samplers
-      </>
-    ),
-    fields: [
+
+      /* Performance */
       {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Samplers queue',
-        key: 'samplers',
+        type: SettingInputType.SPACE,
       },
-      ...SAMPLER_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
-      ),
-    ],
-  },
-  {
-    title: (
-      <>
-        <HandRaisedIcon className={ICON_CLASSNAME} />
-        Penalties
-      </>
-    ),
-    fields: PENALTY_KEYS.map((key) => ({
-      type: SettingInputType.SHORT_INPUT,
-      label: key,
-      key,
-    })),
-  },
-  {
-    title: (
-      <>
-        <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-        Reasoning
-      </>
-    ),
-    fields: [
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <RocketLaunchIcon className={ICON_CLASSNAME} />
+            Performance
+          </>
+        ),
+      },
+      {
+        type: SettingInputType.CHECKBOX,
+        label: 'Show performance metrics',
+        key: 'showTokensPerSecond',
+      },
+
+      /* Reasoning */
+      {
+        type: SettingInputType.SPACE,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
+            Reasoning
+          </>
+        ),
+      },
       {
         type: SettingInputType.CHECKBOX,
         label: 'Expand thought process by default when generating messages',
@@ -174,11 +198,13 @@ const SETTING_SECTIONS: SettingSection[] = [
       },
     ],
   },
+
+  /* Import/Export */
   {
     title: (
       <>
-        <SquaresPlusIcon className={ICON_CLASSNAME} />
-        Advanced
+        <CircleStackIcon className={ICON_CLASSNAME} />
+        Import/Export
       </>
     ),
     fields: [
@@ -201,10 +227,98 @@ const SETTING_SECTIONS: SettingSection[] = [
           );
         },
       },
+    ],
+  },
+
+  /* Advanced */
+  {
+    title: (
+      <>
+        <SquaresPlusIcon className={ICON_CLASSNAME} />
+        Advanced
+      </>
+    ),
+    fields: [
+      /* Generation */
       {
-        type: SettingInputType.CHECKBOX,
-        label: 'Show tokens per second',
-        key: 'showTokensPerSecond',
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <CogIcon className={TITLE_ICON_CLASSNAME} />
+            Generation
+          </>
+        ),
+      },
+      ...GENERATION_KEYS.map(
+        (key) =>
+          ({
+            type: SettingInputType.SHORT_INPUT,
+            label: key,
+            key,
+          }) as SettingFieldInput
+      ),
+
+      /* Samplers */
+      {
+        type: SettingInputType.SPACE,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <FunnelIcon className={ICON_CLASSNAME} />
+            Samplers
+          </>
+        ),
+      },
+      {
+        type: SettingInputType.SHORT_INPUT,
+        label: 'Samplers queue',
+        key: 'samplers',
+      },
+      ...SAMPLER_KEYS.map(
+        (key) =>
+          ({
+            type: SettingInputType.SHORT_INPUT,
+            label: key,
+            key,
+          }) as SettingFieldInput
+      ),
+
+      /* Penalties */
+      {
+        type: SettingInputType.SPACE,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <HandRaisedIcon className={ICON_CLASSNAME} />
+            Penalties
+          </>
+        ),
+      },
+      ...PENALTY_KEYS.map(
+        (key) =>
+          ({
+            type: SettingInputType.SHORT_INPUT,
+            label: key,
+            key,
+          }) as SettingFieldInput
+      ),
+
+      /* Custom */
+      {
+        type: SettingInputType.SPACE,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <CpuChipIcon className={TITLE_ICON_CLASSNAME} />
+            Custom
+          </>
+        ),
       },
       {
         type: SettingInputType.LONG_INPUT,
@@ -221,6 +335,8 @@ const SETTING_SECTIONS: SettingSection[] = [
       },
     ],
   },
+
+  /* Experimental */
   {
     title: (
       <>
@@ -281,7 +397,7 @@ export default function SettingDialog({
   onClose: () => void;
 }) {
   const { config, saveConfig } = useAppContext();
-  const [sectionIdx, setSectionIdx] = useState(0);
+  const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
   const [localConfig, setLocalConfig] = useState<typeof CONFIG_DEFAULT>(
@@ -355,17 +471,17 @@ export default function SettingDialog({
             aria-description="Settings sections"
             tabIndex={0}
           >
-            {SETTING_SECTIONS.map((section, idx) => (
+            {SETTING_TABS.map((tab, idx) => (
               <button
                 key={idx}
                 className={classNames({
                   'btn btn-ghost justify-start font-normal w-44 mb-1': true,
-                  'btn-active': sectionIdx === idx,
+                  'btn-active': tabIdx === idx,
                 })}
-                onClick={() => setSectionIdx(idx)}
+                onClick={() => setTabIdx(idx)}
                 dir="auto"
               >
-                {section.title}
+                {tab.title}
               </button>
             ))}
           </div>
@@ -378,20 +494,20 @@ export default function SettingDialog({
           >
             <details className="dropdown">
               <summary className="btn bt-sm w-full m-1">
-                {SETTING_SECTIONS[sectionIdx].title}
+                {SETTING_TABS[tabIdx].title}
               </summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                {SETTING_SECTIONS.map((section, idx) => (
+                {SETTING_TABS.map((tab, idx) => (
                   <div
                     key={idx}
                     className={classNames({
                       'btn btn-ghost justify-start font-normal': true,
-                      'btn-active': sectionIdx === idx,
+                      'btn-active': tabIdx === idx,
                     })}
-                    onClick={() => setSectionIdx(idx)}
+                    onClick={() => setTabIdx(idx)}
                     dir="auto"
                   >
-                    {section.title}
+                    {tab.title}
                   </div>
                 ))}
               </ul>
@@ -400,8 +516,8 @@ export default function SettingDialog({
 
           {/* Right panel, showing setting fields */}
           <div className="grow overflow-y-auto px-4">
-            {SETTING_SECTIONS[sectionIdx].fields.map((field, idx) => {
-              const key = `${sectionIdx}-${idx}`;
+            {SETTING_TABS[tabIdx].fields.map((field, idx) => {
+              const key = `${tabIdx}-${idx}`;
               if (field.type === SettingInputType.SHORT_INPUT) {
                 return (
                   <SettingsModalShortInput
@@ -443,6 +559,14 @@ export default function SettingDialog({
                         })}
                   </div>
                 );
+              } else if (field.type === SettingInputType.SECTION) {
+                return (
+                  <div key={key} className="pb-2">
+                    <h4>{field.label}</h4>
+                  </div>
+                );
+              } else if (field.type === SettingInputType.SPACE) {
+                return <div className="pb-3" />;
               }
             })}
 
@@ -543,15 +667,24 @@ function SettingsModalCheckbox({
   onChange: (value: boolean) => void;
   label: string;
 }) {
+  const helpMsg = CONFIG_INFO[configKey];
   return (
-    <div className="flex flex-row items-center mb-2">
-      <input
-        type="checkbox"
-        className="toggle"
-        checked={value}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span className="ml-4">{label || configKey}</span>
-    </div>
+    <>
+      {helpMsg && (
+        <div className="block mb-1 opacity-75">
+          <p className="text-xs">{helpMsg}</p>
+        </div>
+      )}
+
+      <div className="flex flex-row items-center mb-2">
+        <input
+          type="checkbox"
+          className="toggle"
+          checked={value}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <span className="ml-4">{label || configKey}</span>
+      </div>
+    </>
   );
 }
