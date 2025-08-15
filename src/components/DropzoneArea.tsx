@@ -12,10 +12,10 @@ export function DropzoneArea({
   children: React.ReactNode;
   extraContext: ChatExtraContextApi;
   disabled: boolean;
-  onDragLeave?: () => void;
 }) {
   const { config } = useAppContext();
   const [isDrag, setIsDrag] = useState(false);
+
   return (
     <Dropzone
       noClick
