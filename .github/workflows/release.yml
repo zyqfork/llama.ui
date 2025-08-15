@@ -1,18 +1,6 @@
 name: Release
 
 on:
-  # push:
-  #   branches: ["main"]
-  #   paths-ignore:
-  #     - '.devops/**'
-  #     - '.github/**'
-  #     - '.vscode/**'
-  #     - '.idea/**'
-  #     - '.*/**'          # All dotfolders in root
-  #     - './.*'           # All dotfiles in root
-  #     - '**/*.config.js'
-  #     - '**/*.config.ts'
-  #     - '*.md'
   workflow_dispatch:
 
 permissions:
@@ -23,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -60,7 +47,7 @@ jobs:
         run: |
           PREV_VERSION=$(node -p "require('./package.json').version")
           echo "PREV_VERSION=$PREV_VERSION" >> $GITHUB_ENV
-          npm version patch
+          npm version patch --message "release:%s"
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -118,11 +105,12 @@ jobs:
                 "ci",
                 "refactor",
                 "revert",
-                "style"
+                "style",
+                "release"
               ],
               "label_extractor": [
                 {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\([\\w\\-\\.]+\\))?(!)?: ([\\w ])+([\\s\\S]*)",
+                  "pattern": "^(release|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\([\\w\\-\\.]+\\))?(!)?: ([\\w ])+([\\s\\S]*)",
                   "on_property": "title",
                   "target": "$1"
                 }
