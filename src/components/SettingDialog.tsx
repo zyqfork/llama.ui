@@ -1,9 +1,3 @@
-import { useState } from 'react';
-import { useAppContext } from '../utils/app.context';
-import { CONFIG_DEFAULT, CONFIG_INFO } from '../Config';
-import { isDev } from '../Config';
-import StorageUtils from '../utils/storage';
-import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import {
   BeakerIcon,
   ChatBubbleOvalLeftEllipsisIcon,
@@ -12,7 +6,12 @@ import {
   HandRaisedIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { CONFIG_DEFAULT, CONFIG_INFO, isDev } from '../config';
+import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
+import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
+import StorageUtils from '../utils/storage';
 import { useModals } from './ModalProvider';
 
 type SettKey = keyof typeof CONFIG_DEFAULT;

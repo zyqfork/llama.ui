@@ -1,4 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { matchPath, useLocation, useNavigate } from 'react-router';
+import { CONFIG_DEFAULT, isDev } from '../config';
+import {
+  filterThoughtFromMsgs,
+  getSSEStreamAsync,
+  getServerProps,
+  normalizeMsgsForAPI,
+} from './misc';
+import StorageUtils from './storage';
 import {
   APIMessage,
   CanvasData,
@@ -8,16 +18,6 @@ import {
   PendingMessage,
   ViewingChat,
 } from './types';
-import StorageUtils from './storage';
-import {
-  filterThoughtFromMsgs,
-  normalizeMsgsForAPI,
-  getSSEStreamAsync,
-  getServerProps,
-} from './misc';
-import { CONFIG_DEFAULT, isDev } from '../Config';
-import { matchPath, useLocation, useNavigate } from 'react-router';
-import toast from 'react-hot-toast';
 
 interface AppContextValue {
   // conversations and messages
