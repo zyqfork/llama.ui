@@ -41,7 +41,7 @@ export default function ChatMessage({
   isPending?: boolean;
 }) {
   const { viewingChat, config } = useAppContext();
-  const [editingContent, setEditingContent] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
       msg.timings
@@ -127,59 +127,22 @@ export default function ChatMessage({
           )}
 
           {/* textarea for editing message */}
-          {editingContent !== null && (
-            <>
-              <textarea
-                dir="auto"
-                className="textarea textarea-bordered bg-base-100 text-base-content max-w-2xl w-[calc(90vw-8em)] h-24"
-                value={editingContent}
-                onChange={(e) => setEditingContent(e.target.value)}
-              ></textarea>
-
-              <div className="flex flex-row">
-                <button
-                  className="btn btn-ghost mt-2 mr-2"
-                  onClick={() => setEditingContent(null)}
-                >
-                  Cancel
-                </button>
-
-                {msg.role === 'user' && (
-                  <button
-                    className="btn mt-2"
-                    onClick={() => {
-                      if (msg.content == null) return;
-                      setEditingContent(null);
-                      onEditUserMessage(msg as Message, editingContent);
-                    }}
-                  >
-                    Send
-                  </button>
-                )}
-
-                {msg.role === 'assistant' && (
-                  <button
-                    className="btn mt-2"
-                    onClick={() => {
-                      if (msg.content == null) return;
-                      setEditingContent(null);
-                      onEditAssistantMessage(msg as Message, editingContent);
-                    }}
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
-            </>
+          {isEditing && (
+            <EditMessage
+              msg={msg}
+              setIsEditing={setIsEditing}
+              onEditUserMessage={onEditUserMessage}
+              onEditAssistantMessage={onEditAssistantMessage}
+            />
           )}
 
           {/* show loading dots for pending message */}
-          {editingContent === null && content === null && (
+          {!isEditing && content === null && (
             <span className="loading loading-dots loading-md"></span>
           )}
 
           {/* render message as markdown */}
-          {editingContent === null && content !== null && (
+          {!isEditing && content !== null && (
             <div dir="auto" tabIndex={0}>
               {thought && (
                 <ThoughtProcess
@@ -257,7 +220,7 @@ export default function ChatMessage({
             (msg.role === 'assistant' && !isPending)) && (
             <BtnWithTooltips
               className="btn-mini w-8 h-8"
-              onClick={() => setEditingContent(msg.content)}
+              onClick={() => setIsEditing(msg.content !== null)}
               disabled={msg.content === null}
               tooltipsContent="Edit message"
             >
@@ -303,6 +266,68 @@ export default function ChatMessage({
         </div>
       )}
     </div>
+  );
+}
+
+function EditMessage({
+  msg,
+  setIsEditing,
+  onEditUserMessage,
+  onEditAssistantMessage,
+}: {
+  msg: Message | PendingMessage;
+  setIsEditing(flag: boolean): void;
+  onEditUserMessage(msg: Message, content: string): void;
+  onEditAssistantMessage(msg: Message, content: string): void;
+}) {
+  const [editingContent, setEditingContent] = useState<string>(
+    msg.content || ''
+  );
+
+  return (
+    <>
+      <textarea
+        dir="auto"
+        className="textarea textarea-bordered bg-base-100 text-base-content max-w-2xl w-[calc(90vw-8em)] h-24"
+        value={editingContent}
+        onChange={(e) => setEditingContent(e.target.value)}
+      ></textarea>
+
+      <div className="flex flex-row">
+        <button
+          className="btn btn-ghost mt-2 mr-2"
+          onClick={() => setIsEditing(false)}
+        >
+          Cancel
+        </button>
+
+        {msg.role === 'user' && (
+          <button
+            className="btn mt-2"
+            onClick={() => {
+              if (!editingContent) return;
+              setIsEditing(false);
+              onEditUserMessage(msg as Message, editingContent);
+            }}
+          >
+            Send
+          </button>
+        )}
+
+        {msg.role === 'assistant' && (
+          <button
+            className="btn mt-2"
+            onClick={() => {
+              if (!editingContent) return;
+              setIsEditing(false);
+              onEditAssistantMessage(msg as Message, editingContent);
+            }}
+          >
+            Save
+          </button>
+        )}
+      </div>
+    </>
   );
 }
 
