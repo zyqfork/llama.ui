@@ -33,6 +33,10 @@
         "label": "Exclude thinking messages on submit",
         "note": "Exclude thinking messages when sending requests to API (recommended)"
       },
+      "overrideGenerationOptions": {
+        "label": "Override Generation Options",
+        "note": ""
+      },
       "temperature": {
         "label": "",
         "note": "Controls the randomness of the generated text by affecting the probability distribution of the output tokens. Higher = more random, lower = more focused."
@@ -52,6 +56,10 @@
       "max_tokens": {
         "label": "",
         "note": "The maximum number of token per output."
+      },
+      "overrideSamplersOptions": {
+        "label": "Override Samplers Options",
+        "note": ""
       },
       "samplers": {
         "label": "Samplers queue",
@@ -76,6 +84,10 @@
       "xtc_threshold": {
         "label": "",
         "note": "XTC sampler cuts out top tokens; this parameter controls the token probability that is required to cut that token."
+      },
+      "overridePenaltyOptions": {
+        "label": "Override Penalty Options",
+        "note": ""
       },
       "repeat_last_n": {
         "label": "",

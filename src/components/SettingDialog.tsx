@@ -12,7 +12,7 @@ import {
   RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import * as messages from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
@@ -47,6 +47,7 @@ interface SettingFieldInput {
   label: string | React.ReactElement;
   note?: string | React.ReactElement;
   key: ConfigurationKey;
+  disabled?: boolean;
 }
 
 interface SettingFieldCustom {
@@ -87,7 +88,8 @@ const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
 
 const toInput = (
   type: SettingFieldInputType,
-  key: ConfigurationKey
+  key: ConfigurationKey,
+  disabled?: boolean
 ): SettingFieldInput => {
   return {
     type,
@@ -95,13 +97,14 @@ const toInput = (
       Omit<SettingFieldInput, 'type'>,
       'key'
     >),
+    disabled,
     key,
   };
 };
 
 // --- Setting Tabs Configuration ---
 
-const SETTING_TABS: SettingTab[] = [
+const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
   /* General */
   {
     title: (
@@ -227,8 +230,13 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
+      toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
       ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overrideGenerationOptions']
+        )
       ),
 
       /* Samplers */
@@ -244,6 +252,7 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
+      toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
       ...[
         'samplers',
         'dynatemp_range',
@@ -252,7 +261,11 @@ const SETTING_TABS: SettingTab[] = [
         'xtc_probability',
         'xtc_threshold',
       ].map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overrideSamplersOptions']
+        )
       ),
 
       /* Penalties */
@@ -268,6 +281,7 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
+      toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
       ...[
         'repeat_last_n',
         'repeat_penalty',
@@ -278,7 +292,11 @@ const SETTING_TABS: SettingTab[] = [
         'dry_allowed_length',
         'dry_penalty_last_n',
       ].map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overridePenaltyOptions']
+        )
       ),
 
       /* Custom */
@@ -377,6 +395,11 @@ export default function SettingDialog({
   const [localConfig, setLocalConfig] = useState<Configuration>(
     JSON.parse(JSON.stringify(config))
   );
+  const settingTabs = useMemo<SettingTab[]>(
+    () => getSettingTabsConfiguration(localConfig),
+    [localConfig]
+  );
+
   const { showConfirm, showAlert } = useModals();
 
   const resetConfig = async () => {
@@ -447,7 +470,7 @@ export default function SettingDialog({
             aria-description="Settings sections"
             tabIndex={0}
           >
-            {SETTING_TABS.map((tab, idx) => (
+            {settingTabs.map((tab, idx) => (
               <button
                 key={idx}
                 className={classNames({
@@ -470,10 +493,10 @@ export default function SettingDialog({
           >
             <details className="dropdown">
               <summary className="btn bt-sm w-full m-1">
-                {SETTING_TABS[tabIdx].title}
+                {settingTabs[tabIdx].title}
               </summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                {SETTING_TABS.map((tab, idx) => (
+                {settingTabs.map((tab, idx) => (
                   <li key={idx}>
                     <button
                       className={classNames({
@@ -493,7 +516,7 @@ export default function SettingDialog({
 
           {/* Right panel, showing setting fields */}
           <div className="grow overflow-y-auto px-4">
-            {SETTING_TABS[tabIdx].fields.map((field, idx) => {
+            {settingTabs[tabIdx].fields.map((field, idx) => {
               const key = `${tabIdx}-${idx}`;
               switch (field.type) {
                 case SettingInputType.SHORT_INPUT:
@@ -595,6 +618,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
         placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        disabled={field.disabled}
       />
       {field.note && (
         <div className="text-xs opacity-75 mt-1">{field.note}</div>
@@ -626,6 +650,7 @@ const SettingsModalShortInput: React.FC<
           placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          disabled={field.disabled}
         />
       </label>
     </>
@@ -652,8 +677,9 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
           className="toggle"
           checked={value}
           onChange={(e) => onChange(e.target.checked)}
+          disabled={field.disabled}
         />
-        <span className="ml-4">{field.label || configKey}</span>
+        <span className="ml-2">{field.label || configKey}</span>
       </div>
     </>
   );

@@ -14,22 +14,35 @@ export const CONFIG_DEFAULT: Configuration = {
   baseUrl: baseUrl,
   apiKey: '',
   systemMessage: '',
+
+  /* conversations */
+  pasteLongTextToFileLen: 10000,
+  pdfAsImage: false,
   showTokensPerSecond: false,
   showThoughtInProgress: false,
   excludeThoughtOnReq: true,
-  pasteLongTextToFileLen: 10000,
-  pdfAsImage: false,
-  // make sure these default values are in sync with `common.h`
-  samplers: 'edkypmxt',
+
+  /* advanced */
+  /* generation */
+  overrideGenerationOptions: false,
   temperature: 0.8,
-  dynatemp_range: 0.0,
-  dynatemp_exponent: 1.0,
   top_k: 40,
   top_p: 0.95,
   min_p: 0.05,
+  max_tokens: -1,
+
+  /* samplers */
+  overrideSamplersOptions: false,
+  // make sure these default values are in sync with `common.h`
+  samplers: 'edkypmxt',
+  dynatemp_range: 0.0,
+  dynatemp_exponent: 1.0,
+  typical_p: 1.0,
   xtc_probability: 0.0,
   xtc_threshold: 0.1,
-  typical_p: 1.0,
+
+  /* penalty */
+  overridePenaltyOptions: false,
   repeat_last_n: 64,
   repeat_penalty: 1.0,
   presence_penalty: 0.0,
@@ -38,10 +51,10 @@ export const CONFIG_DEFAULT: Configuration = {
   dry_base: 1.75,
   dry_allowed_length: 2,
   dry_penalty_last_n: -1,
-  max_tokens: -1,
+
   custom: '', // custom json-stringified object
 
-  // experimental features
+  /* experimental */
   pyIntepreterEnabled: false,
 };
 
