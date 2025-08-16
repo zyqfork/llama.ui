@@ -1,39 +1,69 @@
-// coversations is stored in localStorage
-// format: { [convId]: { id: string, lastModified: number, messages: [...] } }
+// Conversations are stored in IndexedDB via Dexie.
+// Format (conceptual): { [convId]: { id: string, lastModified: number, messages: [...] } }
 
 import Dexie, { Table } from 'dexie';
 import { CONFIG_DEFAULT } from '../config';
 import { Configuration, Conversation, Message, TimingReport } from './types';
+import toast from 'react-hot-toast';
 
+// --- Event Handling ---
+
+/**
+ * Event target for internal communication about conversation changes.
+ */
 const event = new EventTarget();
 
+/**
+ * Type for callback functions triggered on conversation change.
+ */
 type CallbackConversationChanged = (convId: string) => void;
-let onConversationChangedHandlers: [
+
+/**
+ * Stores registered event listeners to allow for removal.
+ */
+const onConversationChangedHandlers: [
   CallbackConversationChanged,
   EventListener,
 ][] = [];
+
+/**
+ * Dispatches a custom event indicating a conversation has changed.
+ * @param convId The ID of the conversation that changed.
+ */
 const dispatchConversationChange = (convId: string) => {
   event.dispatchEvent(
-    new CustomEvent('conversationChange', { detail: { convId } })
+    new CustomEvent<string>('conversationChange', { detail: convId })
   );
 };
 
+// --- Dexie Database Setup ---
+
+/**
+ * Dexie database instance for the application.
+ */
 const db = new Dexie('LlamacppWebui') as Dexie & {
-  conversations: Table<Conversation>;
-  messages: Table<Message>;
+  conversations: Table<Conversation, string>;
+  messages: Table<Message, number>;
 };
 
+// Define database schema
 // https://dexie.org/docs/Version/Version.stores()
 db.version(1).stores({
-  // Unlike SQL, you don’t need to specify all properties but only the one you wish to index.
+  // Index conversations by 'id' (unique) and 'lastModified'
   conversations: '&id, lastModified',
+  // Index messages by 'id' (unique), 'convId', composite key '[convId+id]', and 'timestamp'
   messages: '&id, convId, [convId+id], timestamp',
 });
 
-// convId is a string prefixed with 'conv-'
+// --- Main Storage Utility Functions ---
+
+/**
+ * Utility functions for interacting with application data (conversations, messages, config).
+ */
 const StorageUtils = {
   /**
-   * manage conversations
+   * Retrieves all conversations, sorted by last modified date (descending).
+   * @returns A promise resolving to an array of Conversation objects.
    */
   async getAllConversations(): Promise<Conversation[]> {
     await migrationLStoIDB().catch(console.error); // noop if already migrated
@@ -41,22 +71,32 @@ const StorageUtils = {
       (a, b) => b.lastModified - a.lastModified
     );
   },
+
   /**
-   * can return null if convId does not exist
+   * Retrieves a single conversation by its ID.
+   * @param convId The ID of the conversation to retrieve.
+   * @returns A promise resolving to the Conversation object or null if not found.
    */
   async getOneConversation(convId: string): Promise<Conversation | null> {
-    return (await db.conversations.where('id').equals(convId).first()) ?? null;
+    return (await db.conversations.get(convId)) ?? null;
   },
+
   /**
-   * get all message nodes in a conversation
+   * Retrieves all messages belonging to a specific conversation.
+   * @param convId The ID of the conversation.
+   * @returns A promise resolving to an array of Message objects.
    */
   async getMessages(convId: string): Promise<Message[]> {
-    return await db.messages.where({ convId }).toArray();
+    return await db.messages.where('convId').equals(convId).toArray();
   },
+
   /**
-   * use in conjunction with getMessages to filter messages by leafNodeId
-   * includeRoot: whether to include the root node in the result
-   * if node with leafNodeId does not exist, return the path with the latest timestamp
+   * Filters messages to represent the path from a given leaf node to the root.
+   * @param msgs The array of messages to filter (typically from getMessages).
+   * @param leafNodeId The ID of the leaf message node.
+   * @param includeRoot Whether to include the root node in the result.
+   * @returns A new array of messages representing the path from leaf to root (sorted by timestamp).
+   *          If leafNodeId is not found, returns the path ending at the message with the latest timestamp.
    */
   filterByLeafNodeId(
     msgs: Readonly<Message[]>,
@@ -68,9 +108,10 @@ const StorageUtils = {
     for (const msg of msgs) {
       nodeMap.set(msg.id, msg);
     }
+
     let startNode: Message | undefined = nodeMap.get(leafNodeId);
     if (!startNode) {
-      // if not found, we return the path with the latest timestamp
+      // If leaf node not found, find the message with the latest timestamp
       let latestTime = -1;
       for (const msg of msgs) {
         if (msg.timestamp > latestTime) {
@@ -79,45 +120,66 @@ const StorageUtils = {
         }
       }
     }
-    // traverse the path from leafNodeId to root
-    // startNode can never be undefined here
+
+    // Traverse the path from the start node (found leaf or latest) up to the root
     let currNode: Message | undefined = startNode;
     while (currNode) {
-      if (currNode.type !== 'root' || (currNode.type === 'root' && includeRoot))
+      // Add node to result if it's not the root, or if it is the root and we want to include it
+      if (
+        currNode.type !== 'root' ||
+        (currNode.type === 'root' && includeRoot)
+      ) {
         res.push(currNode);
+      }
+      // Move to the parent node
       currNode = nodeMap.get(currNode.parent ?? -1);
     }
+
+    // Sort the result by timestamp to ensure chronological order
     res.sort((a, b) => a.timestamp - b.timestamp);
     return res;
   },
+
   /**
-   * create a new conversation with a default root node
+   * Creates a new conversation with an initial root message.
+   * @param name The name/title for the new conversation.
+   * @returns A promise resolving to the newly created Conversation object.
    */
   async createConversation(name: string): Promise<Conversation> {
     const now = Date.now();
     const msgId = now;
+
     const conv: Conversation = {
       id: `conv-${now}`,
       lastModified: now,
       currNode: msgId,
       name,
     };
-    await db.conversations.add(conv);
-    // create a root node
-    await db.messages.add({
-      id: msgId,
-      convId: conv.id,
-      type: 'root',
-      timestamp: now,
-      role: 'system',
-      content: '',
-      parent: -1,
-      children: [],
+
+    await db.transaction('rw', db.conversations, db.messages, async () => {
+      await db.conversations.add(conv);
+      // Create the initial root node
+      await db.messages.add({
+        id: msgId,
+        convId: conv.id,
+        type: 'root',
+        timestamp: now,
+        role: 'system',
+        content: '',
+        parent: -1,
+        children: [],
+      });
     });
+
+    dispatchConversationChange(conv.id);
     return conv;
   },
+
   /**
-   * update the name of a conversation
+   * Updates the name and lastModified timestamp of an existing conversation.
+   * @param convId The ID of the conversation to update.
+   * @param name The new name for the conversation.
+   * @returns A promise that resolves when the update is complete.
    */
   async updateConversationName(convId: string, name: string): Promise<void> {
     await db.conversations.update(convId, {
@@ -126,21 +188,28 @@ const StorageUtils = {
     });
     dispatchConversationChange(convId);
   },
+
   /**
-   * if convId does not exist, throw an error
+   * Appends a new message to a conversation as a child of a specified parent node.
+   * @param msg The message content to append (must have content).
+   * @param parentNodeId The ID of the parent message node.
+   * @returns A promise that resolves when the message is appended.
+   * @throws Error if the conversation or parent message does not exist.
    */
   async appendMsg(
     msg: Exclude<Message, 'parent' | 'children'>,
     parentNodeId: Message['id']
   ): Promise<void> {
+    // Early return if message content is null
     if (msg.content === null) return;
+
     const { convId } = msg;
+
     await db.transaction('rw', db.conversations, db.messages, async () => {
+      // Fetch conversation and parent message within the transaction
       const conv = await StorageUtils.getOneConversation(convId);
-      const parentMsg = await db.messages
-        .where({ convId, id: parentNodeId })
-        .first();
-      // update the currNode of conversation
+      const parentMsg = await db.messages.get({ convId, id: parentNodeId });
+
       if (!conv) {
         throw new Error(`Conversation ${convId} does not exist`);
       }
@@ -149,63 +218,119 @@ const StorageUtils = {
           `Parent message ID ${parentNodeId} does not exist in conversation ${convId}`
         );
       }
+
+      // Update conversation's lastModified and currNode
       await db.conversations.update(convId, {
         lastModified: Date.now(),
         currNode: msg.id,
       });
-      // update parent
+
+      // Update parent's children array
       await db.messages.update(parentNodeId, {
         children: [...parentMsg.children, msg.id],
       });
-      // create message
+
+      // Add the new message
       await db.messages.add({
         ...msg,
         parent: parentNodeId,
         children: [],
       });
     });
+
+    // Dispatch event after successful transaction
     dispatchConversationChange(convId);
   },
+
   /**
-   * remove conversation by id
+   * Removes a conversation and all its associated messages.
+   * @param convId The ID of the conversation to remove.
+   * @returns A promise that resolves when the conversation is removed.
    */
   async remove(convId: string): Promise<void> {
     await db.transaction('rw', db.conversations, db.messages, async () => {
       await db.conversations.delete(convId);
-      await db.messages.where({ convId }).delete();
+      await db.messages.where('convId').equals(convId).delete();
     });
     dispatchConversationChange(convId);
   },
 
-  // event listeners
+  // --- Event Listeners ---
+
+  /**
+   * Registers a callback to be invoked when a conversation changes.
+   * @param callback The function to call when a conversation changes.
+   */
   onConversationChanged(callback: CallbackConversationChanged) {
-    const fn = (e: Event) => callback((e as CustomEvent).detail.convId);
-    onConversationChangedHandlers.push([callback, fn]);
-    event.addEventListener('conversationChange', fn);
-  },
-  offConversationChanged(callback: CallbackConversationChanged) {
-    const fn = onConversationChangedHandlers.find(([cb, _]) => cb === callback);
-    if (fn) {
-      event.removeEventListener('conversationChange', fn[1]);
-    }
-    onConversationChangedHandlers = [];
+    const wrappedListener: EventListener = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      callback(customEvent.detail); // Pass the convId from the event detail
+    };
+    onConversationChangedHandlers.push([callback, wrappedListener]);
+    event.addEventListener('conversationChange', wrappedListener);
   },
 
-  // manage config
+  /**
+   * Unregisters a previously registered conversation change callback.
+   * @param callback The function to unregister.
+   */
+  offConversationChanged(callback: CallbackConversationChanged) {
+    const index = onConversationChangedHandlers.findIndex(
+      ([cb, _]) => cb === callback
+    );
+    if (index !== -1) {
+      const [_, wrappedListener] = onConversationChangedHandlers[index];
+      event.removeEventListener('conversationChange', wrappedListener);
+      onConversationChangedHandlers.splice(index, 1); // Remove the specific listener entry
+    }
+  },
+
+  // --- Configuration Management (localStorage) ---
+
+  /**
+   * Retrieves the current application configuration.
+   * Merges saved values with defaults to handle missing keys.
+   * @returns The current Configuration object.
+   */
   getConfig(): Configuration {
-    const savedVal = JSON.parse(localStorage.getItem('config') || '{}');
-    // to prevent breaking changes in the future, we always provide default value for missing keys
+    const savedConfigString = localStorage.getItem('config');
+    let savedVal: Partial<Configuration> = {};
+    if (savedConfigString) {
+      try {
+        savedVal = JSON.parse(savedConfigString);
+      } catch (e) {
+        console.error('Failed to parse saved config from localStorage:', e);
+        toast.error('Failed to parse saved config.`');
+      }
+    }
+    // Provide default values for any missing keys
     return {
       ...CONFIG_DEFAULT,
       ...savedVal,
     };
   },
+
+  /**
+   * Saves the application configuration to localStorage.
+   * @param config The Configuration object to save.
+   */
   setConfig(config: Configuration) {
     localStorage.setItem('config', JSON.stringify(config));
   },
+
+  /**
+   * Retrieves the currently selected UI theme.
+   * @returns The theme string ('auto', 'light', 'dark', etc.) or 'auto' if not set.
+   */
   getTheme(): string {
     return localStorage.getItem('theme') || 'auto';
   },
+
+  /**
+   * Saves the selected UI theme to localStorage.
+   * If 'auto' is selected, the theme item is removed.
+   * @param theme The theme string to save.
+   */
   setTheme(theme: string) {
     if (theme === 'auto') {
       localStorage.removeItem('theme');
@@ -217,7 +342,7 @@ const StorageUtils = {
 
 export default StorageUtils;
 
-// Migration from localStorage to IndexedDB
+// --- Migration Logic (from localStorage to IndexedDB) ---
 
 // these are old types, LS prefix stands for LocalStorage
 interface LSConversation {
@@ -231,35 +356,75 @@ interface LSMessage {
   content: string;
   timings?: TimingReport;
 }
+
+/**
+ * Migrates conversation data from localStorage to IndexedDB.
+ * Runs only once, indicated by the 'migratedToIDB' flag in localStorage.
+ * @returns A promise that resolves when migration is complete or skipped.
+ */
 async function migrationLStoIDB() {
-  if (localStorage.getItem('migratedToIDB')) return;
+  const MIGRATION_FLAG_KEY = 'migratedToIDB';
+  if (localStorage.getItem(MIGRATION_FLAG_KEY)) {
+    return; // Already migrated
+  }
+
+  console.log('Starting migration from localStorage to IndexedDB...');
   const res: LSConversation[] = [];
+
+  // Iterate through localStorage keys to find conversation data
   for (const key in localStorage) {
     if (key.startsWith('conv-')) {
-      res.push(JSON.parse(localStorage.getItem(key) ?? '{}'));
+      try {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const parsedItem: unknown = JSON.parse(item);
+          res.push(parsedItem as LSConversation);
+        }
+      } catch (e) {
+        console.warn(`Failed to parse localStorage item with key ${key}:`, e);
+      }
     }
   }
-  if (res.length === 0) return;
+
+  if (res.length === 0) {
+    console.log('No legacy conversations found for migration.');
+    return;
+  }
+
+  // Perform migration within a single transaction
   await db.transaction('rw', db.conversations, db.messages, async () => {
     let migratedCount = 0;
     for (const conv of res) {
       const { id: convId, lastModified, messages } = conv;
-      const firstMsg = messages[0];
-      const lastMsg = messages.at(-1);
-      if (messages.length < 2 || !firstMsg || !lastMsg) {
+
+      // Validate legacy conversation structure
+      if (messages.length < 2) {
         console.log(
-          `Skipping conversation ${convId} with ${messages.length} messages`
+          `Skipping conversation ${convId} with fewer than 2 messages.`
         );
         continue;
       }
-      const name = firstMsg.content ?? '(no messages)';
+      const firstMsg = messages[0];
+      const lastMsg = messages[messages.length - 1];
+      if (!firstMsg || !lastMsg) {
+        console.log(
+          `Skipping conversation ${convId} with ${messages.length} messages.`
+        );
+        continue;
+      }
+
+      const name = firstMsg.content || '(no messages)';
+
+      // 1. Add the conversation record
       await db.conversations.add({
         id: convId,
         lastModified,
         currNode: lastMsg.id,
         name,
       });
-      const rootId = messages[0].id - 2;
+
+      // 2. Create and add the root node
+      const rootId = firstMsg.id - 2;
       await db.messages.add({
         id: rootId,
         convId: convId,
@@ -270,6 +435,8 @@ async function migrationLStoIDB() {
         parent: -1,
         children: [firstMsg.id],
       });
+
+      // 3. Add the legacy messages, linking them appropriately
       for (let i = 0; i < messages.length; i++) {
         const msg = messages[i];
         await db.messages.add({
@@ -281,14 +448,17 @@ async function migrationLStoIDB() {
           children: i === messages.length - 1 ? [] : [messages[i + 1].id],
         });
       }
+
       migratedCount++;
       console.log(
-        `Migrated conversation ${convId} with ${messages.length} messages`
+        `Migrated conversation ${convId} with ${messages.length} messages.`
       );
     }
     console.log(
-      `Migrated ${migratedCount} conversations from localStorage to IndexedDB`
+      `Migration complete. Migrated ${migratedCount} conversations from localStorage to IndexedDB.`
     );
-    localStorage.setItem('migratedToIDB', '1');
+
+    // Mark migration as complete
+    localStorage.setItem(MIGRATION_FLAG_KEY, '1');
   });
 }
