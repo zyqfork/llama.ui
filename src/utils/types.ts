@@ -173,6 +173,14 @@ export interface MessageDisplay {
   isPending?: boolean;
 }
 
+/**
+ * Data format on export messages
+ */
+export type ExportJsonStructure = Array<{
+  table: string;
+  rows: unknown[];
+}>;
+
 export enum CanvasType {
   PY_INTERPRETER,
 }

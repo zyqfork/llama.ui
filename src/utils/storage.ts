@@ -3,8 +3,14 @@
 
 import Dexie, { Table } from 'dexie';
 import toast from 'react-hot-toast';
-import { CONFIG_DEFAULT } from '../config';
-import { Configuration, Conversation, Message, TimingReport } from './types';
+import { CONFIG_DEFAULT, isDev } from '../config';
+import {
+  Configuration,
+  Conversation,
+  ExportJsonStructure,
+  Message,
+  TimingReport,
+} from './types';
 
 // --- Event Handling ---
 
@@ -253,6 +259,84 @@ const StorageUtils = {
       await db.messages.where('convId').equals(convId).delete();
     });
     dispatchConversationChange(convId);
+  },
+
+  // --- Export / Import Functions ---
+
+  /**
+   * Exports all from the database.
+   * @returns A promise resolving to a database records.
+   */
+  async exportDB(): Promise<ExportJsonStructure> {
+    try {
+      const exportData = await db.transaction('r', db.tables, async () => {
+        const data: ExportJsonStructure = [];
+        for (const table of db.tables) {
+          const rows = await table.toArray();
+          if (isDev)
+            console.debug(
+              `Export - Fetched ${rows.length} rows from table '${table.name}'.`
+            );
+          data.push({ table: table.name, rows: rows });
+        }
+        return data;
+      });
+      console.info('Database export completed successfully.');
+      if (isDev)
+        exportData.forEach((tableData) => {
+          console.debug(
+            `Exported table '${tableData.table}' with ${tableData.rows.length} rows.`
+          );
+        });
+      return exportData;
+    } catch (error) {
+      console.error('Error during database export:', error);
+      toast.error('An error occurred during database export.');
+      throw error; // Re-throw to allow caller to handle
+    }
+  },
+
+  /**
+   * Import data into database.
+   * @returns A promise that resolves when import is complete.
+   */
+  async importDB(data: ExportJsonStructure) {
+    try {
+      await db.transaction('rw', db.tables, async () => {
+        for (const record of data) {
+          console.debug(`Import - Processing table '${record.table}'...`);
+          if (db.tables.some((t) => t.name === record.table)) {
+            // Override existing rows if key exists.
+            await db.table(record.table).bulkPut(record.rows);
+            console.debug(
+              `Import - Imported ${record.rows.length} rows into table '${record.table}'.`
+            );
+          } else {
+            console.warn(`Import - Skipping unknown table '${record.table}'.`);
+          }
+        }
+
+        // Dispatch change events for conversations that were imported/updated.
+        const convRecords = data.filter(
+          (r) => r.table === db.conversations.name
+        );
+        for (const record of convRecords) {
+          for (const row of record.rows) {
+            const convRow = row as Partial<Conversation>;
+            if (convRow.id !== undefined) {
+              dispatchConversationChange(convRow.id);
+            } else {
+              console.warn("Imported conversation row missing 'id':", row);
+            }
+          }
+        }
+      });
+      console.info('Database import completed successfully.');
+    } catch (error) {
+      console.error('Error during database import:', error);
+      toast.error('An error occurred during data import.');
+      throw error; // Re-throw to allow caller to handle
+    }
   },
 
   // --- Event Listeners ---

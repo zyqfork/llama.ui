@@ -104,7 +104,10 @@ const toInput = (
 
 // --- Setting Tabs Configuration ---
 
-const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
+const getSettingTabsConfiguration = (
+  config: Configuration,
+  onClose: () => void
+): SettingTab[] => [
   /* General */
   {
     title: (
@@ -188,22 +191,97 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
         type: SettingInputType.CUSTOM,
         key: 'custom', // dummy key, won't be used
         component: () => {
+          const onExport = async () => {
+            const data = await StorageUtils.exportDB();
+            const conversationJson = JSON.stringify(data, null, 2);
+            const blob = new Blob([conversationJson], {
+              type: 'application/json',
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `database.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          };
+
+          return (
+            <button className="btn" onClick={onExport}>
+              Export
+            </button>
+          );
+        },
+      },
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'custom', // dummy key, won't be used
+        component: () => {
+          const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            try {
+              const files = e.target.files;
+              if (!files || files.length != 1) return false;
+              const data = await files[0].text();
+              await StorageUtils.importDB(JSON.parse(data));
+              onClose();
+            } catch (error) {
+              console.error('Failed to import file:', error);
+            }
+          };
+
+          return (
+            <>
+              <input
+                id="file-import"
+                type="file"
+                accept=".json"
+                onInput={onImport}
+                hidden
+              />
+              <label
+                htmlFor="file-import"
+                className="btn"
+                aria-label="Import file"
+                tabIndex={0}
+                role="button"
+              >
+                Import
+              </label>
+            </>
+          );
+        },
+      },
+      {
+        type: SettingInputType.DELIMETER,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <FunnelIcon className={ICON_CLASSNAME} />
+            Technical Demo
+          </>
+        ),
+      },
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'custom', // dummy key, won't be used
+        component: () => {
           const debugImportDemoConv = async () => {
             try {
               const res = await fetch('/demo-conversation.json');
               if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
               const demoConv = await res.json();
-              StorageUtils.remove(demoConv.id);
-              for (const msg of demoConv.messages) {
-                StorageUtils.appendMsg(demoConv.id, msg);
-              }
+              StorageUtils.importDB(demoConv);
+              onClose();
             } catch (error) {
               console.error('Failed to import demo conversation:', error);
             }
           };
           return (
             <button className="btn" onClick={debugImportDemoConv}>
-              (debug) Import demo conversation
+              Import demo conversation
             </button>
           );
         },
@@ -396,7 +474,7 @@ export default function SettingDialog({
     JSON.parse(JSON.stringify(config))
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig),
+    () => getSettingTabsConfiguration(localConfig, onClose),
     [localConfig]
   );
 
