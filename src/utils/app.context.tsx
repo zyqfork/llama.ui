@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { CONFIG_DEFAULT, isDev } from '../config';
+import { isDev } from '../config';
 import {
   filterThoughtFromMsgs,
   getSSEStreamAsync,
@@ -12,6 +12,7 @@ import StorageUtils from './storage';
 import {
   APIMessage,
   CanvasData,
+  Configuration,
   Conversation,
   LlamaCppServerProps,
   Message,
@@ -52,8 +53,8 @@ interface AppContextValue {
   setCanvasData: (data: CanvasData | null) => void;
 
   // config
-  config: typeof CONFIG_DEFAULT;
-  saveConfig: (config: typeof CONFIG_DEFAULT) => void;
+  config: Configuration;
+  saveConfig: (config: Configuration) => void;
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
 
@@ -425,7 +426,7 @@ export const AppContextProvider = ({
     await generateMessage(convId, parentNodeId, onChunk);
   };
 
-  const saveConfig = (config: typeof CONFIG_DEFAULT) => {
+  const saveConfig = (config: Configuration) => {
     StorageUtils.setConfig(config);
     setConfig(config);
   };

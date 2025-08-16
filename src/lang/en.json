@@ -19,7 +19,7 @@
       },
       "pdfAsImage": {
         "label": "Use PDF as image instead of text",
-        "note": "Attach PDF as image instead of text. Supported only with multimodal models with vision support/"
+        "note": "Attach PDF as image instead of text. Supported only with multimodal models with vision support."
       },
       "showTokensPerSecond": {
         "label": "Show performance metrics",
