@@ -2,9 +2,9 @@
 // Format (conceptual): { [convId]: { id: string, lastModified: number, messages: [...] } }
 
 import Dexie, { Table } from 'dexie';
+import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
 import { Configuration, Conversation, Message, TimingReport } from './types';
-import toast from 'react-hot-toast';
 
 // --- Event Handling ---
 
@@ -300,7 +300,7 @@ const StorageUtils = {
         savedVal = JSON.parse(savedConfigString);
       } catch (e) {
         console.error('Failed to parse saved config from localStorage:', e);
-        toast.error('Failed to parse saved config.`');
+        toast.error('Failed to parse saved config.');
       }
     }
     // Provide default values for any missing keys
@@ -392,73 +392,79 @@ async function migrationLStoIDB() {
   }
 
   // Perform migration within a single transaction
-  await db.transaction('rw', db.conversations, db.messages, async () => {
-    let migratedCount = 0;
-    for (const conv of res) {
-      const { id: convId, lastModified, messages } = conv;
+  await db
+    .transaction('rw', db.conversations, db.messages, async () => {
+      let migratedCount = 0;
+      for (const conv of res) {
+        const { id: convId, lastModified, messages } = conv;
 
-      // Validate legacy conversation structure
-      if (messages.length < 2) {
-        console.log(
-          `Skipping conversation ${convId} with fewer than 2 messages.`
-        );
-        continue;
-      }
-      const firstMsg = messages[0];
-      const lastMsg = messages[messages.length - 1];
-      if (!firstMsg || !lastMsg) {
-        console.log(
-          `Skipping conversation ${convId} with ${messages.length} messages.`
-        );
-        continue;
-      }
+        // Validate legacy conversation structure
+        if (messages.length < 2) {
+          console.log(
+            `Skipping conversation ${convId} with fewer than 2 messages.`
+          );
+          continue;
+        }
+        const firstMsg = messages[0];
+        const lastMsg = messages[messages.length - 1];
+        if (!firstMsg || !lastMsg) {
+          console.log(
+            `Skipping conversation ${convId} with ${messages.length} messages.`
+          );
+          continue;
+        }
 
-      const name = firstMsg.content || '(no messages)';
+        const name = firstMsg.content || '(no messages)';
 
-      // 1. Add the conversation record
-      await db.conversations.add({
-        id: convId,
-        lastModified,
-        currNode: lastMsg.id,
-        name,
-      });
-
-      // 2. Create and add the root node
-      const rootId = firstMsg.id - 2;
-      await db.messages.add({
-        id: rootId,
-        convId: convId,
-        type: 'root',
-        timestamp: rootId,
-        role: 'system',
-        content: '',
-        parent: -1,
-        children: [firstMsg.id],
-      });
-
-      // 3. Add the legacy messages, linking them appropriately
-      for (let i = 0; i < messages.length; i++) {
-        const msg = messages[i];
-        await db.messages.add({
-          ...msg,
-          type: 'text',
-          convId: convId,
-          timestamp: msg.id,
-          parent: i === 0 ? rootId : messages[i - 1].id,
-          children: i === messages.length - 1 ? [] : [messages[i + 1].id],
+        // 1. Add the conversation record
+        await db.conversations.add({
+          id: convId,
+          lastModified,
+          currNode: lastMsg.id,
+          name,
         });
+
+        // 2. Create and add the root node
+        const rootId = firstMsg.id - 2;
+        await db.messages.add({
+          id: rootId,
+          convId: convId,
+          type: 'root',
+          timestamp: rootId,
+          role: 'system',
+          content: '',
+          parent: -1,
+          children: [firstMsg.id],
+        });
+
+        // 3. Add the legacy messages, linking them appropriately
+        for (let i = 0; i < messages.length; i++) {
+          const msg = messages[i];
+          await db.messages.add({
+            ...msg,
+            type: 'text',
+            convId: convId,
+            timestamp: msg.id,
+            parent: i === 0 ? rootId : messages[i - 1].id,
+            children: i === messages.length - 1 ? [] : [messages[i + 1].id],
+          });
+        }
+
+        migratedCount++;
+        console.log(
+          `Migrated conversation ${convId} with ${messages.length} messages.`
+        );
       }
-
-      migratedCount++;
       console.log(
-        `Migrated conversation ${convId} with ${messages.length} messages.`
+        `Migration complete. Migrated ${migratedCount} conversations from localStorage to IndexedDB.`
       );
-    }
-    console.log(
-      `Migration complete. Migrated ${migratedCount} conversations from localStorage to IndexedDB.`
-    );
-
-    // Mark migration as complete
-    localStorage.setItem(MIGRATION_FLAG_KEY, '1');
-  });
+    })
+    .then(() => {
+      // Mark migration as complete only after the transaction finishes successfully
+      localStorage.setItem(MIGRATION_FLAG_KEY, '1');
+    })
+    .catch((error) => {
+      console.error('Error during migration transaction:', error);
+      toast.error('An error occurred during data migration.');
+    });
 }
