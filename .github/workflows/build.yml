@@ -3,14 +3,8 @@ name: Build
 on:
   push:
     branches: ["main"]
-    paths-ignore:
-      - '**/.*'   # all dot‑files & dot‑folders
-      - '**/*.md'
 
   pull_request:
-    paths-ignore:
-      - '**/.*'   # all dot‑files & dot‑folders
-      - '**/*.md'
 
   workflow_dispatch:
 
