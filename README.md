@@ -1,108 +1,126 @@
-# 🦙 llama.ui - Minimal Interface for Local LLMs
+# 🦙 llama.ui - Minimal Interface for Local AI Companion ✨
 
-`llama.ui` is an open-source desktop application that provides a beautiful, user-friendly interface for interacting with large language models (LLMs) powered by `llama.cpp`. Designed for simplicity and performance, this project enables seamless deployment and interaction with quantized models on your local machine without compromising privacy.
+**Tired of complex AI setups?** 😩 `llama.ui` is an open-source desktop application that provides a beautiful ✨, user-friendly interface for interacting with large language models (LLMs) powered by `llama.cpp`. Designed for simplicity and privacy 🔒, this project lets you chat with powerful quantized models on your local machine - no cloud required! 🚫☁️
 
-## TL;DR
+## ⚡ TL;DR
 
-This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) WebUI with changed styles, extra functionality, etc.
+This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) WebUI with:
 
-## How to use
+- Fresh new styles 🎨
+- Extra functionality ⚙️
+- Smoother experience ✨
 
-### Standalone
+## 🚀 Getting Started in 60 Seconds!
 
-1. Open the [hosted UI instance](https://olegshulyakov.github.io/llama.ui/).
-2. Go to Settings -> General (click the ⚙️ (gear) icon in the UI).
-3. Set "Base URL" parameter to your LLM provider or your local llama.cpp server address (e.g. `http://localhost:8080`).
+### 💻 Standalone Mode (Zero Installation)
 
-<details><summary><b>Example usage w/ local llama.cpp instance</b></summary>
+1. ✨ Open our [hosted UI instance](https://olegshulyakov.github.io/llama.ui/)
+2. ⚙️ Click the gear icon → General settings
+3. 🌐 Set "Base URL" to your local llama.cpp server (e.g. `http://localhost:8080`)
+4. 🎉 Start chatting with your AI!
+
+<details><summary><b>🔧 Need HTTPS magic for your local instance? Try this mitmproxy hack!</b></summary>
 <p>
 
-Since browsers prevent using HTTP requests on HTTPS sites, but `llama.cpp` serving on HTTP, there is a life hack how to handle it:
-You will need to use a proxy to redirect requests HTTPS <--> HTTP. As an example, we will use [mitmproxy](https://www.mitmproxy.org/).
+**Uh-oh!** Browsers block HTTP requests from HTTPS sites 😤. Since `llama.cpp` uses HTTP, we need a bridge 🌉. Enter [mitmproxy](https://www.mitmproxy.org/) - our traffic wizard! 🧙‍♂️
 
-You can setup it and run locally `mitmdump -p 8443 --mode reverse:http://localhost:8080/`.
+**Local setup:**
 
-Or via Docker `docker run -it -p 8443:8443 mitmproxy/mitmproxy mitmdump -p 8443 --mode reverse:http://localhost:8080/`
+```bash
+mitmdump -p 8443 --mode reverse:http://localhost:8080/
+```
 
-Here is Docker Compose example:
+**Docker quickstart:**
+
+```bash
+docker run -it -p 8443:8443 mitmproxy/mitmproxy mitmdump -p 8443 --mode reverse:http://localhost:8080/
+```
+
+**Pro-tip with Docker Compose:**
 
 ```yml
 services:
   mitmproxy:
     container_name: mitmproxy
     image: mitmproxy/mitmproxy:latest
-    restart: on-failure:2
-    mem_limit: 256m
-    security_opt:
-      - no-new-privileges:true
     ports:
-      - '8443:8443'
-    volumes:
-      - ./:/home/mitmproxy/.mitmproxy
-    tty: true
+      - '8443:8443' # 🔁 Port magic happening here!
     command: mitmdump -p 8443 --mode reverse:http://localhost:8080/
+    # ... (other config)
 ```
 
-> **Important**: When using mitmproxy, you'll need to install its CA certificate in your browser to avoid HTTPS warnings.
-> You will need to add **mitmproxy** self-signed certificated to trusted.
-> Visit http://localhost:8443/ and click "Trust this certificate".
+> ⚠️ **Certificate Tango Time!**
+>
+> 1. Visit http://localhost:8443
+> 2. Click "Trust this certificate" 🤝
+> 3. Restart 🦙 llama.ui page 🔄
+> 4. Profit! 💸
 
-Now you are ready to go! 🥳
+**Voilà!** You've hacked the HTTPS barrier! 🎩✨
 
 </p>
 </details>
 
-### Llama.cpp WebUI
+### 🖥️ Full Local Installation (Power User Edition)
 
-1. Download latest version archive from the [release page](https://github.com/olegshulyakov/llama.ui/releases).
-2. Extract the archive.
-3. Setup llama.cpp web ui:
+1. 📦 Grab the latest release from our [releases page](https://github.com/olegshulyakov/llama.ui/releases)
+2. 🗜️ Unpack the archive (feel that excitement! 🤩)
+3. ⚡ Fire up your llama.cpp server:
 
-**Linux/MacOS users:**
-```sh
-$ llama-server \
-    --host 0.0.0.0 \
-	--port 8080 \
-    --path "/path/to/unpacked/llama.ui" \
-    -m models/llama-2-7b.Q4_0.gguf
-```
-
-**Windows Users**:
-```bat
-$ llama-server ^
-    --host 0.0.0.0 ^
-	--port 8080 ^
-    --path "C:\path\to\unpacked\llama.ui" ^
-    -m models/llama-2-7b.Q4_0.gguf
-```
-
-4. Access at http://localhost:8080
-
-## 🤝 Contributing
-
-- PRs are welcome!
-- Any help with managing issues, PRs and projects is very appreciated!
-- Make sure commit messages follow [Conventional Commits](https://www.conventionalcommits.org) format.
-
-### Development Setup
-
-#### Prerequisites
-
-- macOS, Windows, or Linux
-- Node.js >= 22
-- Local [llama.cpp server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) running
+**Linux/MacOS:**
 
 ```bash
-# Install dependencies
-npm ci
-
-# Perform first build
-npm run build
-
-# Start development server (accessible at http://localhost:5173)
-npm start
+./server --host 0.0.0.0 \
+         --port 8080 \
+         --path "/path/to/llama.ui" \
+         -m models/llama-2-7b.Q4_0.gguf \
+         --ctx-size 4096
 ```
 
-## 📜 License
+**Windows:**
 
-llama.ui is released under the **MIT**. See [LICENSE](LICENSE) for details.
+```bat
+llama-server ^
+             --host 0.0.0.0 ^
+             --port 8080 ^
+             --path "C:\path\to\llama.ui" ^
+             -m models\mistral-7b.Q4_K_M.gguf ^
+             --ctx-size 4096
+```
+
+4. 🌐 Visit http://localhost:8080 and meet your new AI buddy! 🤖❤️
+
+## 🌟 Join Our Awesome Community!
+
+**We're building something special together!** 🚀
+
+- 🎯 **PRs are welcome!** (Seriously, we high-five every contribution! ✋)
+- 🐛 **Bug squashing?** Yes please! 🧯
+- 📚 **Documentation heroes** needed! 🦸
+- ✨ **Make magic** with your commits! (Follow [Conventional Commits](https://www.conventionalcommits.org))
+
+### 🛠️ Developer Wonderland
+
+**Prerequisites:**
+
+- 💻 macOS/Windows/Linux
+- ⬢ Node.js >= 22
+- 🦙 Local [llama.cpp server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) humming along
+
+**Build the future:**
+
+```bash
+npm ci       # 📦 Grab dependencies
+npm run build  # 🔨 Craft the magic
+npm start    # 🎬 Launch dev server (http://localhost:5173) for live-coding bliss! 🔥
+```
+
+## 📜 License - Freedom First!
+
+llama.ui is proudly **MIT licensed** - go build amazing things! 🚀 See [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+Made with ❤️ and ☕ by humans who believe in private AI
+</p>
