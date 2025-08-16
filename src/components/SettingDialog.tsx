@@ -149,7 +149,7 @@ const SETTING_TABS: SettingTab[] = [
       },
       {
         type: SettingInputType.CHECKBOX,
-        label: 'Parse PDF as image instead of text',
+        label: 'Use PDF as image instead of text',
         key: 'pdfAsImage',
       },
 
@@ -187,13 +187,12 @@ const SETTING_TABS: SettingTab[] = [
       },
       {
         type: SettingInputType.CHECKBOX,
-        label: 'Expand thought process by default when generating messages',
+        label: 'Expand thinking section',
         key: 'showThoughtInProgress',
       },
       {
         type: SettingInputType.CHECKBOX,
-        label:
-          'Exclude thought process when sending requests to API (Recommended for DeepSeek-R1)',
+        label: 'Exclude thinking messages on submit',
         key: 'excludeThoughtOnReq',
       },
     ],

@@ -40,6 +40,7 @@ export const CONFIG_DEFAULT = {
   dry_penalty_last_n: -1,
   max_tokens: -1,
   custom: '', // custom json-stringified object
+
   // experimental features
   pyIntepreterEnabled: false,
 };
@@ -47,8 +48,14 @@ export const CONFIG_INFO: Record<string, string> = {
   baseUrl: 'Set the Base URL if you are using standalone server.',
   apiKey: 'Set the API Key if you are using --api-key option for the server.',
   systemMessage: 'The starting message that defines how model should behave.',
+  showTokensPerSecond: 'Enable to see processing speed, timings, etc.',
+  showThoughtInProgress: 'Expand thinking message when generating messages',
+  excludeThoughtOnReq:
+    'Exclude thinking messages when sending requests to API (recommended)',
   pasteLongTextToFileLen:
-    'On pasting long text, it will be converted to a file. You can control the file length by setting the value of this parameter. Value 0 means disable.',
+    'On pasting long text, it will be converted to a file. You can control the file length by setting the value of this parameter. Set to 0 to disable.',
+  pdfAsImage:
+    'Attach PDF as image instead of text. Supported only with multimodal models with vision support/',
   samplers:
     'The order at which samplers are applied, in simplified way. Default is "dkypmxt": dry->top_k->typ_p->top_p->min_p->xtc->temperature',
   temperature:
