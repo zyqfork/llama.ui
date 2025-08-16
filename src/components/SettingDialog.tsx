@@ -1,4 +1,6 @@
 import {
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
   BeakerIcon,
   ChatBubbleLeftEllipsisIcon,
   ChatBubbleLeftRightIcon,
@@ -7,6 +9,7 @@ import {
   Cog6ToothIcon,
   CogIcon,
   CpuChipIcon,
+  EyeIcon,
   FunnelIcon,
   HandRaisedIcon,
   RocketLaunchIcon,
@@ -188,69 +191,18 @@ const getSettingTabsConfiguration = (
     ),
     fields: [
       {
-        type: SettingInputType.CUSTOM,
-        key: 'custom', // dummy key, won't be used
-        component: () => {
-          const onExport = async () => {
-            const data = await StorageUtils.exportDB();
-            const conversationJson = JSON.stringify(data, null, 2);
-            const blob = new Blob([conversationJson], {
-              type: 'application/json',
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `database.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          };
-
-          return (
-            <button className="btn" onClick={onExport}>
-              Export
-            </button>
-          );
-        },
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
+            Chats
+          </>
+        ),
       },
       {
         type: SettingInputType.CUSTOM,
         key: 'custom', // dummy key, won't be used
-        component: () => {
-          const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-            try {
-              const files = e.target.files;
-              if (!files || files.length != 1) return false;
-              const data = await files[0].text();
-              await StorageUtils.importDB(JSON.parse(data));
-              onClose();
-            } catch (error) {
-              console.error('Failed to import file:', error);
-            }
-          };
-
-          return (
-            <>
-              <input
-                id="file-import"
-                type="file"
-                accept=".json"
-                onInput={onImport}
-                hidden
-              />
-              <label
-                htmlFor="file-import"
-                className="btn"
-                aria-label="Import file"
-                tabIndex={0}
-                role="button"
-              >
-                Import
-              </label>
-            </>
-          );
-        },
+        component: () => <ImportExportComponent onClose={onClose} />,
       },
       {
         type: SettingInputType.DELIMETER,
@@ -259,7 +211,7 @@ const getSettingTabsConfiguration = (
         type: SettingInputType.SECTION,
         label: (
           <>
-            <FunnelIcon className={ICON_CLASSNAME} />
+            <EyeIcon className={ICON_CLASSNAME} />
             Technical Demo
           </>
         ),
@@ -760,5 +712,63 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         <span className="ml-2">{field.label || configKey}</span>
       </div>
     </>
+  );
+};
+const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
+  onClose,
+}) => {
+  const onExport = async () => {
+    const data = await StorageUtils.exportDB();
+    const conversationJson = JSON.stringify(data, null, 2);
+    const blob = new Blob([conversationJson], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `database.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const files = e.target.files;
+      if (!files || files.length != 1) return false;
+      const data = await files[0].text();
+      await StorageUtils.importDB(JSON.parse(data));
+      onClose();
+    } catch (error) {
+      console.error('Failed to import file:', error);
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-[min-content_min-content] gap-2">
+      <button className="btn" onClick={onExport}>
+        <ArrowDownTrayIcon className={ICON_CLASSNAME} />
+        Export
+      </button>
+
+      <input
+        id="file-import"
+        type="file"
+        accept=".json"
+        onInput={onImport}
+        hidden
+      />
+      <label
+        htmlFor="file-import"
+        className="btn"
+        aria-label="Import file"
+        tabIndex={0}
+        role="button"
+      >
+        <ArrowUpTrayIcon className={ICON_CLASSNAME} />
+        Import
+      </label>
+    </div>
   );
 };
