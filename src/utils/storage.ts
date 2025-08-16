@@ -3,7 +3,7 @@
 
 import Dexie, { Table } from 'dexie';
 import { CONFIG_DEFAULT } from '../config';
-import { Conversation, Message, TimingReport } from './types';
+import { Configuration, Conversation, Message, TimingReport } from './types';
 
 const event = new EventTarget();
 
@@ -192,7 +192,7 @@ const StorageUtils = {
   },
 
   // manage config
-  getConfig(): typeof CONFIG_DEFAULT {
+  getConfig(): Configuration {
     const savedVal = JSON.parse(localStorage.getItem('config') || '{}');
     // to prevent breaking changes in the future, we always provide default value for missing keys
     return {
@@ -200,7 +200,7 @@ const StorageUtils = {
       ...savedVal,
     };
   },
-  setConfig(config: typeof CONFIG_DEFAULT) {
+  setConfig(config: Configuration) {
     localStorage.setItem('config', JSON.stringify(config));
   },
   getTheme(): string {

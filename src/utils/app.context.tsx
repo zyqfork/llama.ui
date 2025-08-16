@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { CONFIG_DEFAULT, isDev } from '../config';
+import { isDev } from '../config';
 import {
   filterThoughtFromMsgs,
   getSSEStreamAsync,
@@ -12,6 +12,7 @@ import StorageUtils from './storage';
 import {
   APIMessage,
   CanvasData,
+  Configuration,
   Conversation,
   LlamaCppServerProps,
   Message,
@@ -52,8 +53,8 @@ interface AppContextValue {
   setCanvasData: (data: CanvasData | null) => void;
 
   // config
-  config: typeof CONFIG_DEFAULT;
-  saveConfig: (config: typeof CONFIG_DEFAULT) => void;
+  config: Configuration;
+  saveConfig: (config: Configuration) => void;
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
 
@@ -64,8 +65,22 @@ interface AppContextValue {
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const AppContext = createContext<AppContextValue>({} as any);
+const AppContext = createContext<AppContextValue>({
+  viewingChat: null,
+  pendingMessages: {},
+  isGenerating: () => false,
+  sendMessage: async () => false,
+  stopGenerating: () => {},
+  replaceMessage: async () => {},
+  replaceMessageAndGenerate: async () => {},
+  canvasData: null,
+  setCanvasData: () => {},
+  config: {} as Configuration,
+  saveConfig: () => {},
+  showSettings: false,
+  setShowSettings: () => {},
+  serverProps: null,
+});
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   const conv = await StorageUtils.getOneConversation(convId);
@@ -211,32 +226,47 @@ export const AppContextProvider = ({
       if (isDev) console.debug({ messages });
 
       // prepare params
-      const params = {
+      let params = {
         messages,
         stream: true,
         cache_prompt: true,
-        samplers: config.samplers,
-        temperature: config.temperature,
-        dynatemp_range: config.dynatemp_range,
-        dynatemp_exponent: config.dynatemp_exponent,
-        top_k: config.top_k,
-        top_p: config.top_p,
-        min_p: config.min_p,
-        typical_p: config.typical_p,
-        xtc_probability: config.xtc_probability,
-        xtc_threshold: config.xtc_threshold,
-        repeat_last_n: config.repeat_last_n,
-        repeat_penalty: config.repeat_penalty,
-        presence_penalty: config.presence_penalty,
-        frequency_penalty: config.frequency_penalty,
-        dry_multiplier: config.dry_multiplier,
-        dry_base: config.dry_base,
-        dry_allowed_length: config.dry_allowed_length,
-        dry_penalty_last_n: config.dry_penalty_last_n,
-        max_tokens: config.max_tokens,
         timings_per_token: !!config.showTokensPerSecond,
-        ...(config.custom.length ? JSON.parse(config.custom) : {}),
       };
+
+      // advanced options
+      if (config.overrideGenerationOptions)
+        params = Object.assign(params, {
+          temperature: config.temperature,
+          top_k: config.top_k,
+          top_p: config.top_p,
+          min_p: config.min_p,
+          max_tokens: config.max_tokens,
+        });
+
+      if (config.overrideSamplersOptions)
+        params = Object.assign(params, {
+          samplers: config.samplers,
+          dynatemp_range: config.dynatemp_range,
+          dynatemp_exponent: config.dynatemp_exponent,
+          typical_p: config.typical_p,
+          xtc_probability: config.xtc_probability,
+          xtc_threshold: config.xtc_threshold,
+        });
+
+      if (config.overridePenaltyOptions)
+        params = Object.assign(params, {
+          repeat_last_n: config.repeat_last_n,
+          repeat_penalty: config.repeat_penalty,
+          presence_penalty: config.presence_penalty,
+          frequency_penalty: config.frequency_penalty,
+          dry_multiplier: config.dry_multiplier,
+          dry_base: config.dry_base,
+          dry_allowed_length: config.dry_allowed_length,
+          dry_penalty_last_n: config.dry_penalty_last_n,
+        });
+
+      if (config.custom.trim().length)
+        params = Object.assign(params, JSON.parse(config.custom));
 
       // send request
       const fetchResponse = await fetch(
@@ -264,8 +294,8 @@ export const AppContextProvider = ({
           throw new Error(chunk.error?.message || 'Unknown error');
         }
         const addedContent = chunk.choices[0].delta.content;
-        const lastContent = pendingMsg.content || '';
         if (addedContent) {
+          const lastContent = pendingMsg.content || '';
           pendingMsg = {
             ...pendingMsg,
             content: lastContent + addedContent,
@@ -275,7 +305,7 @@ export const AppContextProvider = ({
           pendingMsg.model = chunk.model;
         }
         const timings = chunk.timings;
-        if (timings && config.showTokensPerSecond) {
+        if (timings) {
           // only extract what's really needed, to save some space
           pendingMsg.timings = {
             prompt_n: timings.prompt_n,
@@ -292,10 +322,12 @@ export const AppContextProvider = ({
       if ((err as Error).name === 'AbortError') {
         // user stopped the generation via stopGeneration() function
         // we can safely ignore this error
+        if (isDev) console.debug('Generation aborted by user.');
       } else {
-        console.error(err);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        toast.error((err as any)?.message ?? 'Unknown error');
+        console.error('Error during message generation:', err);
+        toast.error(
+          (err as Error)?.message ?? 'Unknown error during generation'
+        );
         throw err; // rethrow
       }
     }
@@ -347,7 +379,9 @@ export const AppContextProvider = ({
     try {
       await generateMessage(convId, currMsgId, onChunk);
       return true;
-    } catch (_) {
+    } catch (error) {
+      console.error('Message sending failed, consider rollback:', error);
+      toast.error('Failed to get response from AI.');
       // TODO: rollback
     }
     return false;
@@ -390,7 +424,7 @@ export const AppContextProvider = ({
     onChunk(currMsgId);
   };
 
-  // if content is undefined, we remove last assistant message
+  // if content is null, we remove last assistant message
   const replaceMessageAndGenerate = async (
     convId: string,
     msg: Message,
@@ -425,7 +459,7 @@ export const AppContextProvider = ({
     await generateMessage(convId, parentNodeId, onChunk);
   };
 
-  const saveConfig = (config: typeof CONFIG_DEFAULT) => {
+  const saveConfig = (config: Configuration) => {
     StorageUtils.setConfig(config);
     setConfig(config);
   };
@@ -454,4 +488,10 @@ export const AppContextProvider = ({
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppContextProvider');
+  }
+  return context;
+};

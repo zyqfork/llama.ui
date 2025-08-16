@@ -1,79 +1,111 @@
 import {
   BeakerIcon,
+  ChatBubbleLeftEllipsisIcon,
+  ChatBubbleLeftRightIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  CircleStackIcon,
   Cog6ToothIcon,
+  CogIcon,
+  CpuChipIcon,
   FunnelIcon,
   HandRaisedIcon,
+  RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import { useState } from 'react';
-import { CONFIG_DEFAULT, CONFIG_INFO, isDev } from '../config';
+import React, { useMemo, useState } from 'react';
+import { CONFIG_DEFAULT, isDev } from '../config';
+import * as messages from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import StorageUtils from '../utils/storage';
+import { Configuration } from '../utils/types';
 import { useModals } from './ModalProvider';
 
-type SettKey = keyof typeof CONFIG_DEFAULT;
+// --- Type Definitions ---
 
-const BASIC_KEYS: SettKey[] = [
-  'temperature',
-  'top_k',
-  'top_p',
-  'min_p',
-  'max_tokens',
-];
-const SAMPLER_KEYS: SettKey[] = [
-  'dynatemp_range',
-  'dynatemp_exponent',
-  'typical_p',
-  'xtc_probability',
-  'xtc_threshold',
-];
-const PENALTY_KEYS: SettKey[] = [
-  'repeat_last_n',
-  'repeat_penalty',
-  'presence_penalty',
-  'frequency_penalty',
-  'dry_multiplier',
-  'dry_base',
-  'dry_allowed_length',
-  'dry_penalty_last_n',
-];
+type ConfigurationKey = keyof Configuration;
 
 enum SettingInputType {
   SHORT_INPUT,
   LONG_INPUT,
   CHECKBOX,
   CUSTOM,
+  SECTION,
+  DELIMETER,
 }
 
+type SettingFieldInputType = Exclude<
+  SettingInputType,
+  | SettingInputType.CUSTOM
+  | SettingInputType.SECTION
+  | SettingInputType.DELIMETER
+>;
+
 interface SettingFieldInput {
-  type: Exclude<SettingInputType, SettingInputType.CUSTOM>;
+  type: SettingFieldInputType;
   label: string | React.ReactElement;
-  help?: string | React.ReactElement;
-  key: SettKey;
+  note?: string | React.ReactElement;
+  key: ConfigurationKey;
+  disabled?: boolean;
 }
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: SettKey;
+  key: ConfigurationKey | 'custom';
   component:
     | string
     | React.FC<{
         value: string | boolean | number;
-        onChange: (value: string) => void;
+        onChange: (value: string | boolean) => void;
       }>;
 }
 
 interface SettingSection {
-  title: React.ReactElement;
-  fields: (SettingFieldInput | SettingFieldCustom)[];
+  type: SettingInputType.SECTION;
+  label: string | React.ReactElement;
 }
 
-const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+interface SettingDelimeter {
+  type: SettingInputType.DELIMETER;
+}
 
-const SETTING_SECTIONS: SettingSection[] = [
+type SettingField =
+  | SettingFieldInput
+  | SettingFieldCustom
+  | SettingSection
+  | SettingDelimeter;
+
+interface SettingTab {
+  title: React.ReactElement;
+  fields: SettingField[];
+}
+
+// --- Helper Functions ---
+
+const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+
+const toInput = (
+  type: SettingFieldInputType,
+  key: ConfigurationKey,
+  disabled?: boolean
+): SettingFieldInput => {
+  return {
+    type,
+    ...(messages.settings.parameters[key] as Omit<
+      Omit<SettingFieldInput, 'type'>,
+      'key'
+    >),
+    disabled,
+    key,
+  };
+};
+
+// --- Setting Tabs Configuration ---
+
+const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
+  /* General */
   {
     title: (
       <>
@@ -82,103 +114,73 @@ const SETTING_SECTIONS: SettingSection[] = [
       </>
     ),
     fields: [
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Base URL',
-        key: 'baseUrl',
-      },
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'API Key',
-        key: 'apiKey',
-      },
-      {
-        type: SettingInputType.LONG_INPUT,
-        label: 'System Message (will be disabled if left empty)',
-        key: 'systemMessage',
-      },
-      ...BASIC_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
+      ...['baseUrl', 'apiKey'].map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
       ),
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Paste length to file',
-        key: 'pasteLongTextToFileLen',
-      },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: 'Parse PDF as image instead of text',
-        key: 'pdfAsImage',
-      },
+      toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
+
+  /* Conversations */
   {
     title: (
       <>
-        <FunnelIcon className={ICON_CLASSNAME} />
-        Samplers
+        <ChatBubbleLeftRightIcon className={ICON_CLASSNAME} />
+        Conversations
       </>
     ),
     fields: [
       {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Samplers queue',
-        key: 'samplers',
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <ChatBubbleLeftEllipsisIcon className={TITLE_ICON_CLASSNAME} />
+            Chat
+          </>
+        ),
       },
-      ...SAMPLER_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
-      ),
-    ],
-  },
-  {
-    title: (
-      <>
-        <HandRaisedIcon className={ICON_CLASSNAME} />
-        Penalties
-      </>
-    ),
-    fields: PENALTY_KEYS.map((key) => ({
-      type: SettingInputType.SHORT_INPUT,
-      label: key,
-      key,
-    })),
-  },
-  {
-    title: (
-      <>
-        <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-        Reasoning
-      </>
-    ),
-    fields: [
+      toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
+      toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
+
+      /* Performance */
       {
-        type: SettingInputType.CHECKBOX,
-        label: 'Expand thought process by default when generating messages',
-        key: 'showThoughtInProgress',
+        type: SettingInputType.DELIMETER,
       },
       {
-        type: SettingInputType.CHECKBOX,
-        label:
-          'Exclude thought process when sending requests to API (Recommended for DeepSeek-R1)',
-        key: 'excludeThoughtOnReq',
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <RocketLaunchIcon className={ICON_CLASSNAME} />
+            Performance
+          </>
+        ),
       },
+      toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
+
+      /* Reasoning */
+      {
+        type: SettingInputType.DELIMETER,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
+            Reasoning
+          </>
+        ),
+      },
+      toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
+      toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
     ],
   },
+
+  /* Import/Export */
   {
     title: (
       <>
-        <SquaresPlusIcon className={ICON_CLASSNAME} />
-        Advanced
+        <CircleStackIcon className={ICON_CLASSNAME} />
+        Import/Export
       </>
     ),
     fields: [
@@ -187,11 +189,16 @@ const SETTING_SECTIONS: SettingSection[] = [
         key: 'custom', // dummy key, won't be used
         component: () => {
           const debugImportDemoConv = async () => {
-            const res = await fetch('/demo-conversation.json');
-            const demoConv = await res.json();
-            StorageUtils.remove(demoConv.id);
-            for (const msg of demoConv.messages) {
-              StorageUtils.appendMsg(demoConv.id, msg);
+            try {
+              const res = await fetch('/demo-conversation.json');
+              if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+              const demoConv = await res.json();
+              StorageUtils.remove(demoConv.id);
+              for (const msg of demoConv.messages) {
+                StorageUtils.appendMsg(demoConv.id, msg);
+              }
+            } catch (error) {
+              console.error('Failed to import demo conversation:', error);
             }
           };
           return (
@@ -201,10 +208,109 @@ const SETTING_SECTIONS: SettingSection[] = [
           );
         },
       },
+    ],
+  },
+
+  /* Advanced */
+  {
+    title: (
+      <>
+        <SquaresPlusIcon className={ICON_CLASSNAME} />
+        Advanced
+      </>
+    ),
+    fields: [
+      /* Generation */
       {
-        type: SettingInputType.CHECKBOX,
-        label: 'Show tokens per second',
-        key: 'showTokensPerSecond',
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <CogIcon className={TITLE_ICON_CLASSNAME} />
+            Generation
+          </>
+        ),
+      },
+      toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
+      ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overrideGenerationOptions']
+        )
+      ),
+
+      /* Samplers */
+      {
+        type: SettingInputType.DELIMETER,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <FunnelIcon className={ICON_CLASSNAME} />
+            Samplers
+          </>
+        ),
+      },
+      toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
+      ...[
+        'samplers',
+        'dynatemp_range',
+        'dynatemp_exponent',
+        'typical_p',
+        'xtc_probability',
+        'xtc_threshold',
+      ].map((key) =>
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overrideSamplersOptions']
+        )
+      ),
+
+      /* Penalties */
+      {
+        type: SettingInputType.DELIMETER,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <HandRaisedIcon className={ICON_CLASSNAME} />
+            Penalties
+          </>
+        ),
+      },
+      toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
+      ...[
+        'repeat_last_n',
+        'repeat_penalty',
+        'presence_penalty',
+        'frequency_penalty',
+        'dry_multiplier',
+        'dry_base',
+        'dry_allowed_length',
+        'dry_penalty_last_n',
+      ].map((key) =>
+        toInput(
+          SettingInputType.SHORT_INPUT,
+          key as ConfigurationKey,
+          !config['overridePenaltyOptions']
+        )
+      ),
+
+      /* Custom */
+      {
+        type: SettingInputType.DELIMETER,
+      },
+      {
+        type: SettingInputType.SECTION,
+        label: (
+          <>
+            <CpuChipIcon className={TITLE_ICON_CLASSNAME} />
+            Custom
+          </>
+        ),
       },
       {
         type: SettingInputType.LONG_INPUT,
@@ -221,6 +327,8 @@ const SETTING_SECTIONS: SettingSection[] = [
       },
     ],
   },
+
+  /* Experimental */
   {
     title: (
       <>
@@ -281,47 +389,51 @@ export default function SettingDialog({
   onClose: () => void;
 }) {
   const { config, saveConfig } = useAppContext();
-  const [sectionIdx, setSectionIdx] = useState(0);
+  const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
-  const [localConfig, setLocalConfig] = useState<typeof CONFIG_DEFAULT>(
+  const [localConfig, setLocalConfig] = useState<Configuration>(
     JSON.parse(JSON.stringify(config))
   );
+  const settingTabs = useMemo<SettingTab[]>(
+    () => getSettingTabsConfiguration(localConfig),
+    [localConfig]
+  );
+
   const { showConfirm, showAlert } = useModals();
 
   const resetConfig = async () => {
     if (await showConfirm('Are you sure you want to reset all settings?')) {
-      setLocalConfig(CONFIG_DEFAULT);
+      setLocalConfig({ ...CONFIG_DEFAULT } as Configuration);
     }
   };
 
   const handleSave = async () => {
     // copy the local config to prevent direct mutation
-    const newConfig: typeof CONFIG_DEFAULT = JSON.parse(
-      JSON.stringify(localConfig)
-    );
+    const newConfig: Configuration = JSON.parse(JSON.stringify(localConfig));
     // validate the config
     for (const key in newConfig) {
-      const value = newConfig[key as SettKey];
-      const mustBeBoolean = isBoolean(CONFIG_DEFAULT[key as SettKey]);
-      const mustBeString = isString(CONFIG_DEFAULT[key as SettKey]);
-      const mustBeNumeric = isNumeric(CONFIG_DEFAULT[key as SettKey]);
-      if (mustBeString) {
+      if (!(key in CONFIG_DEFAULT)) continue;
+
+      const typedKey = key as ConfigurationKey;
+      const value = newConfig[typedKey];
+      const defaultValue = CONFIG_DEFAULT[typedKey];
+      if (isString(defaultValue)) {
         if (!isString(value)) {
-          await showAlert(`Value for ${key} must be string`);
+          await showAlert(`Value for ${key} must be a string`);
           return;
         }
-      } else if (mustBeNumeric) {
-        const trimmedValue = value.toString().trim();
+      } else if (isNumeric(defaultValue)) {
+        const trimmedValue = String(value).trim();
         const numVal = Number(trimmedValue);
-        if (isNaN(numVal) || !isNumeric(numVal) || trimmedValue.length === 0) {
+        if (isNaN(numVal) || !isNumeric(numVal) || trimmedValue === '') {
           await showAlert(`Value for ${key} must be numeric`);
           return;
         }
         // force conversion to number
         // @ts-expect-error this is safe
-        newConfig[key] = numVal;
-      } else if (mustBeBoolean) {
+        newConfig[typedKey] = numVal as Configuration[ConfigurationKey];
+      } else if (isBoolean(defaultValue)) {
         if (!isBoolean(value)) {
           await showAlert(`Value for ${key} must be boolean`);
           return;
@@ -335,9 +447,12 @@ export default function SettingDialog({
     onClose();
   };
 
-  const onChange = (key: SettKey) => (value: string | boolean) => {
+  const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
-    setLocalConfig({ ...localConfig, [key]: value });
+    setLocalConfig((prevConfig) => ({
+      ...prevConfig,
+      [key]: value,
+    }));
   };
 
   return (
@@ -355,17 +470,17 @@ export default function SettingDialog({
             aria-description="Settings sections"
             tabIndex={0}
           >
-            {SETTING_SECTIONS.map((section, idx) => (
+            {settingTabs.map((tab, idx) => (
               <button
                 key={idx}
                 className={classNames({
                   'btn btn-ghost justify-start font-normal w-44 mb-1': true,
-                  'btn-active': sectionIdx === idx,
+                  'btn-active': tabIdx === idx,
                 })}
-                onClick={() => setSectionIdx(idx)}
+                onClick={() => setTabIdx(idx)}
                 dir="auto"
               >
-                {section.title}
+                {tab.title}
               </button>
             ))}
           </div>
@@ -378,21 +493,22 @@ export default function SettingDialog({
           >
             <details className="dropdown">
               <summary className="btn bt-sm w-full m-1">
-                {SETTING_SECTIONS[sectionIdx].title}
+                {settingTabs[tabIdx].title}
               </summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                {SETTING_SECTIONS.map((section, idx) => (
-                  <div
-                    key={idx}
-                    className={classNames({
-                      'btn btn-ghost justify-start font-normal': true,
-                      'btn-active': sectionIdx === idx,
-                    })}
-                    onClick={() => setSectionIdx(idx)}
-                    dir="auto"
-                  >
-                    {section.title}
-                  </div>
+                {settingTabs.map((tab, idx) => (
+                  <li key={idx}>
+                    <button
+                      className={classNames({
+                        'btn btn-ghost justify-start font-normal': true,
+                        'btn-active': tabIdx === idx,
+                      })}
+                      onClick={() => setTabIdx(idx)}
+                      dir="auto"
+                    >
+                      {tab.title}
+                    </button>
+                  </li>
                 ))}
               </ul>
             </details>
@@ -400,49 +516,61 @@ export default function SettingDialog({
 
           {/* Right panel, showing setting fields */}
           <div className="grow overflow-y-auto px-4">
-            {SETTING_SECTIONS[sectionIdx].fields.map((field, idx) => {
-              const key = `${sectionIdx}-${idx}`;
-              if (field.type === SettingInputType.SHORT_INPUT) {
-                return (
-                  <SettingsModalShortInput
-                    key={key}
-                    configKey={field.key}
-                    value={localConfig[field.key]}
-                    onChange={onChange(field.key)}
-                    label={field.label as string}
-                  />
-                );
-              } else if (field.type === SettingInputType.LONG_INPUT) {
-                return (
-                  <SettingsModalLongInput
-                    key={key}
-                    configKey={field.key}
-                    value={localConfig[field.key].toString()}
-                    onChange={onChange(field.key)}
-                    label={field.label as string}
-                  />
-                );
-              } else if (field.type === SettingInputType.CHECKBOX) {
-                return (
-                  <SettingsModalCheckbox
-                    key={key}
-                    configKey={field.key}
-                    value={!!localConfig[field.key]}
-                    onChange={onChange(field.key)}
-                    label={field.label as string}
-                  />
-                );
-              } else if (field.type === SettingInputType.CUSTOM) {
-                return (
-                  <div key={key} className="mb-2">
-                    {typeof field.component === 'string'
-                      ? field.component
-                      : field.component({
-                          value: localConfig[field.key],
-                          onChange: onChange(field.key),
-                        })}
-                  </div>
-                );
+            {settingTabs[tabIdx].fields.map((field, idx) => {
+              const key = `${tabIdx}-${idx}`;
+              switch (field.type) {
+                case SettingInputType.SHORT_INPUT:
+                  return (
+                    <SettingsModalShortInput
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={localConfig[field.key] as string | number}
+                      onChange={onChange(field.key)}
+                    />
+                  );
+                case SettingInputType.LONG_INPUT:
+                  return (
+                    <SettingsModalLongInput
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={String(localConfig[field.key])}
+                      onChange={(value) => onChange(field.key)(value)}
+                    />
+                  );
+                case SettingInputType.CHECKBOX:
+                  return (
+                    <SettingsModalCheckbox
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={!!localConfig[field.key]}
+                      onChange={(value) => onChange(field.key)(value)}
+                    />
+                  );
+                case SettingInputType.CUSTOM:
+                  return (
+                    <div key={key} className="mb-2">
+                      {typeof field.component === 'string'
+                        ? field.component
+                        : React.createElement(field.component, {
+                            value: localConfig[field.key],
+                            onChange: (value: string | boolean) =>
+                              onChange(field.key)(value),
+                          })}
+                    </div>
+                  );
+                case SettingInputType.SECTION:
+                  return (
+                    <div key={key} className="pb-2">
+                      <h4>{field.label}</h4>
+                    </div>
+                  );
+                case SettingInputType.DELIMETER:
+                  return <div key={key} className="pb-3" />;
+                default:
+                  return null;
               }
             })}
 
@@ -468,56 +596,52 @@ export default function SettingDialog({
   );
 }
 
-function SettingsModalLongInput({
+// --- Helper Input Components ---
+
+interface BaseInputProps {
+  configKey: ConfigurationKey | 'custom';
+  field: SettingFieldInput;
+  onChange: (value: string | boolean) => void;
+}
+
+const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
   configKey,
+  field,
   value,
   onChange,
-  label,
-}: {
-  configKey: SettKey;
-  value: string;
-  onChange: (value: string) => void;
-  label?: string;
-}) {
+}) => {
   return (
     <label className="form-control">
-      <div className="label inline text-sm">{label || configKey}</div>
+      <div className="label inline text-sm">{field.label || configKey}</div>
       <textarea
         className="textarea textarea-bordered h-24 mb-2"
         placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        disabled={field.disabled}
       />
+      {field.note && (
+        <div className="text-xs opacity-75 mt-1">{field.note}</div>
+      )}
     </label>
   );
-}
+};
 
-function SettingsModalShortInput({
-  configKey,
-  value,
-  onChange,
-  label,
-}: {
-  configKey: SettKey;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-  onChange: (value: string) => void;
-  label?: string;
-}) {
-  const helpMsg = CONFIG_INFO[configKey];
-
+const SettingsModalShortInput: React.FC<
+  BaseInputProps & { value: string | number }
+> = ({ configKey, field, value, onChange }) => {
   return (
     <>
       {/* on mobile, we simply show the help message here */}
-      {helpMsg && (
+      {field.note && (
         <div className="block mb-1 opacity-75">
-          <p className="text-xs">{helpMsg}</p>
+          <p className="text-xs">{field.note}</p>
         </div>
       )}
       <label className="input input-bordered join-item grow flex items-center gap-2 mb-2">
         <div className="dropdown dropdown-hover">
           <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {label || configKey}
+            {field.label || configKey}
           </div>
         </div>
         <input
@@ -526,32 +650,37 @@ function SettingsModalShortInput({
           placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          disabled={field.disabled}
         />
       </label>
     </>
   );
-}
+};
 
-function SettingsModalCheckbox({
+const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   configKey,
+  field,
   value,
   onChange,
-  label,
-}: {
-  configKey: SettKey;
-  value: boolean;
-  onChange: (value: boolean) => void;
-  label: string;
-}) {
+}) => {
   return (
-    <div className="flex flex-row items-center mb-2">
-      <input
-        type="checkbox"
-        className="toggle"
-        checked={value}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span className="ml-4">{label || configKey}</span>
-    </div>
+    <>
+      {field.note && (
+        <div className="block mb-1 opacity-75">
+          <p className="text-xs">{field.note}</p>
+        </div>
+      )}
+
+      <div className="flex flex-row items-center mb-2">
+        <input
+          type="checkbox"
+          className="toggle"
+          checked={value}
+          onChange={(e) => onChange(e.target.checked)}
+          disabled={field.disabled}
+        />
+        <span className="ml-2">{field.label || configKey}</span>
+      </div>
+    </>
   );
-}
+};
