@@ -5,6 +5,40 @@ export interface TimingReport {
   predicted_ms: number;
 }
 
+export interface Configuration {
+  baseUrl: string;
+  apiKey: string;
+  systemMessage: string;
+  showTokensPerSecond: boolean;
+  showThoughtInProgress: boolean;
+  excludeThoughtOnReq: boolean;
+  pasteLongTextToFileLen: number;
+  pdfAsImage: boolean;
+  samplers: string;
+  temperature: number;
+  dynatemp_range: number;
+  dynatemp_exponent: number;
+  top_k: number;
+  top_p: number;
+  min_p: number;
+  xtc_probability: number;
+  xtc_threshold: number;
+  typical_p: number;
+  repeat_last_n: number;
+  repeat_penalty: number;
+  presence_penalty: number;
+  frequency_penalty: number;
+  dry_multiplier: number;
+  dry_base: number;
+  dry_allowed_length: number;
+  dry_penalty_last_n: number;
+  max_tokens: number;
+  custom: string;
+  pyIntepreterEnabled: boolean;
+}
+
+export type ConfigurationDetails = Record<keyof Configuration, string>;
+
 /**
  * What is conversation "branching"? It is a feature that allows the user to edit an old message in the history, while still keeping the conversation flow.
  * Inspired by ChatGPT / Claude / Hugging Chat where you edit a message, a new branch of the conversation is created, and the old message is still visible.

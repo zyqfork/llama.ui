@@ -1,5 +1,6 @@
 import daisyuiThemes from 'daisyui/theme/object';
 import { isNumeric } from './utils/misc';
+import { Configuration, ConfigurationDetails } from './utils/types';
 
 export const isDev = import.meta.env.MODE === 'development';
 
@@ -8,7 +9,7 @@ const baseUrl = new URL('.', document.baseURI).href
   .toString()
   .replace(/\/$/, '');
 
-export const CONFIG_DEFAULT = {
+export const CONFIG_DEFAULT: Configuration = {
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   baseUrl: baseUrl,
@@ -44,7 +45,7 @@ export const CONFIG_DEFAULT = {
   // experimental features
   pyIntepreterEnabled: false,
 };
-export const CONFIG_INFO: Record<string, string> = {
+export const CONFIG_INFO: ConfigurationDetails = {
   baseUrl: 'Set the Base URL if you are using standalone server.',
   apiKey: 'Set the API Key if you are using --api-key option for the server.',
   systemMessage: 'The starting message that defines how model should behave.',
@@ -92,6 +93,7 @@ export const CONFIG_INFO: Record<string, string> = {
     'DRY sampling reduces repetition in generated text even across long contexts. This parameter sets DRY penalty for the last n tokens.',
   max_tokens: 'The maximum number of token per output.',
   custom: '', // custom json-stringified object
+  pyIntepreterEnabled: '',
 };
 // config keys having numeric value (i.e. temperature, top_k, top_p, etc)
 export const CONFIG_NUMERIC_KEYS = Object.entries(CONFIG_DEFAULT)
