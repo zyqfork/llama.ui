@@ -1,0 +1,8 @@
+services:
+  llama-ui:
+    image: ghcr.io/olegshulyakov/llama.ui:latest
+    container_name: llama-ui
+    mem_limit: 64m
+    restart: unless-stopped
+    ports:
+      - '80:80'
