@@ -144,7 +144,7 @@ const SETTING_TABS: SettingTab[] = [
       },
       {
         type: SettingInputType.SHORT_INPUT,
-        label: 'Paste length to file',
+        label: 'On Paste: convert to file if length >',
         key: 'pasteLongTextToFileLen',
       },
       {
