@@ -12,7 +12,7 @@ import {
   RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import * as messages from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
@@ -22,34 +22,9 @@ import StorageUtils from '../utils/storage';
 import { Configuration } from '../utils/types';
 import { useModals } from './ModalProvider';
 
-type SettKey = keyof typeof CONFIG_DEFAULT;
+// --- Type Definitions ---
 
-const GENERAL_KEYS: SettKey[] = ['baseUrl', 'apiKey'];
-const GENERATION_KEYS: SettKey[] = [
-  'temperature',
-  'top_k',
-  'top_p',
-  'min_p',
-  'max_tokens',
-];
-const SAMPLER_KEYS: SettKey[] = [
-  'samplers',
-  'dynatemp_range',
-  'dynatemp_exponent',
-  'typical_p',
-  'xtc_probability',
-  'xtc_threshold',
-];
-const PENALTY_KEYS: SettKey[] = [
-  'repeat_last_n',
-  'repeat_penalty',
-  'presence_penalty',
-  'frequency_penalty',
-  'dry_multiplier',
-  'dry_base',
-  'dry_allowed_length',
-  'dry_penalty_last_n',
-];
+type ConfigurationKey = keyof Configuration;
 
 enum SettingInputType {
   SHORT_INPUT,
@@ -59,27 +34,29 @@ enum SettingInputType {
   SECTION,
   DELIMETER,
 }
+
 type SettingFieldInputType = Exclude<
   SettingInputType,
   | SettingInputType.CUSTOM
   | SettingInputType.SECTION
   | SettingInputType.DELIMETER
 >;
+
 interface SettingFieldInput {
   type: SettingFieldInputType;
   label: string | React.ReactElement;
   note?: string | React.ReactElement;
-  key: SettKey;
+  key: ConfigurationKey;
 }
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: SettKey;
+  key: ConfigurationKey | 'custom';
   component:
     | string
     | React.FC<{
         value: string | boolean | number;
-        onChange: (value: string) => void;
+        onChange: (value: string | boolean) => void;
       }>;
 }
 
@@ -103,19 +80,26 @@ interface SettingTab {
   fields: SettingField[];
 }
 
+// --- Helper Functions ---
+
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
 const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
 
 const toInput = (
   type: SettingFieldInputType,
-  key: keyof Configuration
+  key: ConfigurationKey
 ): SettingFieldInput => {
   return {
     type,
-    ...messages.settings.parameters[key],
+    ...(messages.settings.parameters[key] as Omit<
+      Omit<SettingFieldInput, 'type'>,
+      'key'
+    >),
     key,
   };
 };
+
+// --- Setting Tabs Configuration ---
 
 const SETTING_TABS: SettingTab[] = [
   /* General */
@@ -127,7 +111,9 @@ const SETTING_TABS: SettingTab[] = [
       </>
     ),
     fields: [
-      ...GENERAL_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
+      ...['baseUrl', 'apiKey'].map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+      ),
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
@@ -200,11 +186,16 @@ const SETTING_TABS: SettingTab[] = [
         key: 'custom', // dummy key, won't be used
         component: () => {
           const debugImportDemoConv = async () => {
-            const res = await fetch('/demo-conversation.json');
-            const demoConv = await res.json();
-            StorageUtils.remove(demoConv.id);
-            for (const msg of demoConv.messages) {
-              StorageUtils.appendMsg(demoConv.id, msg);
+            try {
+              const res = await fetch('/demo-conversation.json');
+              if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+              const demoConv = await res.json();
+              StorageUtils.remove(demoConv.id);
+              for (const msg of demoConv.messages) {
+                StorageUtils.appendMsg(demoConv.id, msg);
+              }
+            } catch (error) {
+              console.error('Failed to import demo conversation:', error);
             }
           };
           return (
@@ -236,8 +227,8 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      ...GENERATION_KEYS.map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key)
+      ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
       ),
 
       /* Samplers */
@@ -253,7 +244,16 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      ...SAMPLER_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
+      ...[
+        'samplers',
+        'dynatemp_range',
+        'dynatemp_exponent',
+        'typical_p',
+        'xtc_probability',
+        'xtc_threshold',
+      ].map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+      ),
 
       /* Penalties */
       {
@@ -268,7 +268,18 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      ...PENALTY_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
+      ...[
+        'repeat_last_n',
+        'repeat_penalty',
+        'presence_penalty',
+        'frequency_penalty',
+        'dry_multiplier',
+        'dry_base',
+        'dry_allowed_length',
+        'dry_penalty_last_n',
+      ].map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+      ),
 
       /* Custom */
       {
@@ -363,44 +374,43 @@ export default function SettingDialog({
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
-  const [localConfig, setLocalConfig] = useState<typeof CONFIG_DEFAULT>(
+  const [localConfig, setLocalConfig] = useState<Configuration>(
     JSON.parse(JSON.stringify(config))
   );
   const { showConfirm, showAlert } = useModals();
 
   const resetConfig = async () => {
     if (await showConfirm('Are you sure you want to reset all settings?')) {
-      setLocalConfig(CONFIG_DEFAULT);
+      setLocalConfig({ ...CONFIG_DEFAULT } as Configuration);
     }
   };
 
   const handleSave = async () => {
     // copy the local config to prevent direct mutation
-    const newConfig: typeof CONFIG_DEFAULT = JSON.parse(
-      JSON.stringify(localConfig)
-    );
+    const newConfig: Configuration = JSON.parse(JSON.stringify(localConfig));
     // validate the config
     for (const key in newConfig) {
-      const value = newConfig[key as SettKey];
-      const mustBeBoolean = isBoolean(CONFIG_DEFAULT[key as SettKey]);
-      const mustBeString = isString(CONFIG_DEFAULT[key as SettKey]);
-      const mustBeNumeric = isNumeric(CONFIG_DEFAULT[key as SettKey]);
-      if (mustBeString) {
+      if (!(key in CONFIG_DEFAULT)) continue;
+
+      const typedKey = key as ConfigurationKey;
+      const value = newConfig[typedKey];
+      const defaultValue = CONFIG_DEFAULT[typedKey];
+      if (isString(defaultValue)) {
         if (!isString(value)) {
-          await showAlert(`Value for ${key} must be string`);
+          await showAlert(`Value for ${key} must be a string`);
           return;
         }
-      } else if (mustBeNumeric) {
-        const trimmedValue = value.toString().trim();
+      } else if (isNumeric(defaultValue)) {
+        const trimmedValue = String(value).trim();
         const numVal = Number(trimmedValue);
-        if (isNaN(numVal) || !isNumeric(numVal) || trimmedValue.length === 0) {
+        if (isNaN(numVal) || !isNumeric(numVal) || trimmedValue === '') {
           await showAlert(`Value for ${key} must be numeric`);
           return;
         }
         // force conversion to number
         // @ts-expect-error this is safe
-        newConfig[key] = numVal;
-      } else if (mustBeBoolean) {
+        newConfig[typedKey] = numVal as Configuration[ConfigurationKey];
+      } else if (isBoolean(defaultValue)) {
         if (!isBoolean(value)) {
           await showAlert(`Value for ${key} must be boolean`);
           return;
@@ -414,9 +424,12 @@ export default function SettingDialog({
     onClose();
   };
 
-  const onChange = (key: SettKey) => (value: string | boolean) => {
+  const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
-    setLocalConfig({ ...localConfig, [key]: value });
+    setLocalConfig((prevConfig) => ({
+      ...prevConfig,
+      [key]: value,
+    }));
   };
 
   return (
@@ -461,17 +474,18 @@ export default function SettingDialog({
               </summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 {SETTING_TABS.map((tab, idx) => (
-                  <div
-                    key={idx}
-                    className={classNames({
-                      'btn btn-ghost justify-start font-normal': true,
-                      'btn-active': tabIdx === idx,
-                    })}
-                    onClick={() => setTabIdx(idx)}
-                    dir="auto"
-                  >
-                    {tab.title}
-                  </div>
+                  <li key={idx}>
+                    <button
+                      className={classNames({
+                        'btn btn-ghost justify-start font-normal': true,
+                        'btn-active': tabIdx === idx,
+                      })}
+                      onClick={() => setTabIdx(idx)}
+                      dir="auto"
+                    >
+                      {tab.title}
+                    </button>
+                  </li>
                 ))}
               </ul>
             </details>
@@ -481,55 +495,59 @@ export default function SettingDialog({
           <div className="grow overflow-y-auto px-4">
             {SETTING_TABS[tabIdx].fields.map((field, idx) => {
               const key = `${tabIdx}-${idx}`;
-              if (field.type === SettingInputType.SHORT_INPUT) {
-                return (
-                  <SettingsModalShortInput
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={localConfig[field.key]}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              } else if (field.type === SettingInputType.LONG_INPUT) {
-                return (
-                  <SettingsModalLongInput
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={localConfig[field.key].toString()}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              } else if (field.type === SettingInputType.CHECKBOX) {
-                return (
-                  <SettingsModalCheckbox
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={!!localConfig[field.key]}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              } else if (field.type === SettingInputType.CUSTOM) {
-                return (
-                  <div key={key} className="mb-2">
-                    {typeof field.component === 'string'
-                      ? field.component
-                      : field.component({
-                          value: localConfig[field.key],
-                          onChange: onChange(field.key),
-                        })}
-                  </div>
-                );
-              } else if (field.type === SettingInputType.SECTION) {
-                return (
-                  <div key={key} className="pb-2">
-                    <h4>{field.label}</h4>
-                  </div>
-                );
-              } else if (field.type === SettingInputType.DELIMETER) {
-                return <div className="pb-3" />;
+              switch (field.type) {
+                case SettingInputType.SHORT_INPUT:
+                  return (
+                    <SettingsModalShortInput
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={localConfig[field.key] as string | number}
+                      onChange={onChange(field.key)}
+                    />
+                  );
+                case SettingInputType.LONG_INPUT:
+                  return (
+                    <SettingsModalLongInput
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={String(localConfig[field.key])}
+                      onChange={(value) => onChange(field.key)(value)}
+                    />
+                  );
+                case SettingInputType.CHECKBOX:
+                  return (
+                    <SettingsModalCheckbox
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={!!localConfig[field.key]}
+                      onChange={(value) => onChange(field.key)(value)}
+                    />
+                  );
+                case SettingInputType.CUSTOM:
+                  return (
+                    <div key={key} className="mb-2">
+                      {typeof field.component === 'string'
+                        ? field.component
+                        : React.createElement(field.component, {
+                            value: localConfig[field.key],
+                            onChange: (value: string | boolean) =>
+                              onChange(field.key)(value),
+                          })}
+                    </div>
+                  );
+                case SettingInputType.SECTION:
+                  return (
+                    <div key={key} className="pb-2">
+                      <h4>{field.label}</h4>
+                    </div>
+                  );
+                case SettingInputType.DELIMETER:
+                  return <div key={key} className="pb-3" />;
+                default:
+                  return null;
               }
             })}
 
@@ -555,17 +573,20 @@ export default function SettingDialog({
   );
 }
 
-function SettingsModalLongInput({
+// --- Helper Input Components ---
+
+interface BaseInputProps {
+  configKey: ConfigurationKey | 'custom';
+  field: SettingFieldInput;
+  onChange: (value: string | boolean) => void;
+}
+
+const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
   configKey,
   field,
   value,
   onChange,
-}: {
-  configKey: SettKey;
-  field: SettingFieldInput;
-  value: string;
-  onChange: (value: string) => void;
-}) {
+}) => {
   return (
     <label className="form-control">
       <div className="label inline text-sm">{field.label || configKey}</div>
@@ -575,22 +596,16 @@ function SettingsModalLongInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
+      {field.note && (
+        <div className="text-xs opacity-75 mt-1">{field.note}</div>
+      )}
     </label>
   );
-}
+};
 
-function SettingsModalShortInput({
-  configKey,
-  field,
-  value,
-  onChange,
-}: {
-  configKey: SettKey;
-  field: SettingFieldInput;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-  onChange: (value: string) => void;
-}) {
+const SettingsModalShortInput: React.FC<
+  BaseInputProps & { value: string | number }
+> = ({ configKey, field, value, onChange }) => {
   return (
     <>
       {/* on mobile, we simply show the help message here */}
@@ -615,19 +630,14 @@ function SettingsModalShortInput({
       </label>
     </>
   );
-}
+};
 
-function SettingsModalCheckbox({
+const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   configKey,
   field,
   value,
   onChange,
-}: {
-  configKey: SettKey;
-  field: SettingFieldInput;
-  value: boolean;
-  onChange: (value: boolean) => void;
-}) {
+}) => {
   return (
     <>
       {field.note && (
@@ -647,4 +657,4 @@ function SettingsModalCheckbox({
       </div>
     </>
   );
-}
+};
