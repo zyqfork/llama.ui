@@ -3,15 +3,8 @@ name: Lint
 on:
   pull_request:
     paths-ignore:
-      - '.devops/**'
-      - '.github/**'
-      - '.vscode/**'
-      - '.idea/**'
-      - '.*/**'          # All dotfolders in root
-      - './.*'           # All dotfiles in root
-      - '**/*.config.js'
-      - '**/*.config.ts'
-      - '*.md'
+      - '**/.*'   # all dot‑files & dot‑folders
+      - '**/*.md'
 
 jobs:
   build:
