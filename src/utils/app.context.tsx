@@ -65,8 +65,22 @@ interface AppContextValue {
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const AppContext = createContext<AppContextValue>({} as any);
+const AppContext = createContext<AppContextValue>({
+  viewingChat: null,
+  pendingMessages: {},
+  isGenerating: () => false,
+  sendMessage: async () => false,
+  stopGenerating: () => {},
+  replaceMessage: async () => {},
+  replaceMessageAndGenerate: async () => {},
+  canvasData: null,
+  setCanvasData: () => {},
+  config: {} as Configuration,
+  saveConfig: () => {},
+  showSettings: false,
+  setShowSettings: () => {},
+  serverProps: null,
+});
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   const conv = await StorageUtils.getOneConversation(convId);
@@ -265,8 +279,8 @@ export const AppContextProvider = ({
           throw new Error(chunk.error?.message || 'Unknown error');
         }
         const addedContent = chunk.choices[0].delta.content;
-        const lastContent = pendingMsg.content || '';
         if (addedContent) {
+          const lastContent = pendingMsg.content || '';
           pendingMsg = {
             ...pendingMsg,
             content: lastContent + addedContent,
@@ -293,10 +307,12 @@ export const AppContextProvider = ({
       if ((err as Error).name === 'AbortError') {
         // user stopped the generation via stopGeneration() function
         // we can safely ignore this error
+        if (isDev) console.debug('Generation aborted by user.');
       } else {
-        console.error(err);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        toast.error((err as any)?.message ?? 'Unknown error');
+        console.error('Error during message generation:', err);
+        toast.error(
+          (err as Error)?.message ?? 'Unknown error during generation'
+        );
         throw err; // rethrow
       }
     }
@@ -348,7 +364,9 @@ export const AppContextProvider = ({
     try {
       await generateMessage(convId, currMsgId, onChunk);
       return true;
-    } catch (_) {
+    } catch (error) {
+      console.error('Message sending failed, consider rollback:', error);
+      toast.error('Failed to get response from AI.');
       // TODO: rollback
     }
     return false;
@@ -391,7 +409,7 @@ export const AppContextProvider = ({
     onChunk(currMsgId);
   };
 
-  // if content is undefined, we remove last assistant message
+  // if content is null, we remove last assistant message
   const replaceMessageAndGenerate = async (
     convId: string,
     msg: Message,
@@ -455,4 +473,10 @@ export const AppContextProvider = ({
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppContextProvider');
+  }
+  return context;
+};
