@@ -1,0 +1,122 @@
+{
+  "settings": {
+    "parameters": {
+      "baseUrl": {
+        "label": "Base URL",
+        "note": "Set the Base URL if you are using standalone server."
+      },
+      "apiKey": {
+        "label": "API Key",
+        "note": "Set the API Key if you are using --api-key option for the server."
+      },
+      "systemMessage": {
+        "label": "System Message (will be disabled if left empty)",
+        "note": "The starting message that defines how model should behave."
+      },
+      "pasteLongTextToFileLen": {
+        "label": "On Paste: convert to file if length >",
+        "note": "On pasting long text, it will be converted to a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
+      },
+      "pdfAsImage": {
+        "label": "Use PDF as image instead of text",
+        "note": "Attach PDF as image instead of text. Supported only with multimodal models with vision support/"
+      },
+      "showTokensPerSecond": {
+        "label": "Show performance metrics",
+        "note": "Enable to see processing speed, timings, etc."
+      },
+      "showThoughtInProgress": {
+        "label": "Expand thinking section",
+        "note": "Expand thinking message when generating messages"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Exclude thinking messages on submit",
+        "note": "Exclude thinking messages when sending requests to API (recommended)"
+      },
+      "temperature": {
+        "label": "",
+        "note": "Controls the randomness of the generated text by affecting the probability distribution of the output tokens. Higher = more random, lower = more focused."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Keeps only k top tokens."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Limits tokens to those that together have a cumulative probability of at least p"
+      },
+      "min_p": {
+        "label": "",
+        "note": "Limits tokens based on the minimum probability for a token to be considered, relative to the probability of the most likely token."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "The maximum number of token per output."
+      },
+      "samplers": {
+        "label": "Samplers queue",
+        "note": "The order at which samplers are applied, in simplified way. Default is \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Addon for the temperature sampler. The added value to the range of dynamic temperature, which adjusts probabilities by entropy of tokens."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Addon for the temperature sampler. Smoothes out the probability redistribution based on the most probable token."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Sorts and limits tokens based on the difference between log-probability and entropy."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "XTC sampler cuts out top tokens; this parameter controls the chance of cutting tokens at all. 0 disables XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "XTC sampler cuts out top tokens; this parameter controls the token probability that is required to cut that token."
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Last n tokens to consider for penalizing repetition"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Controls the repetition of token sequences in the generated text"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Limits tokens based on whether they appear in the output or not."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Limits tokens based on how often they appear in the output."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the DRY sampling multiplier."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the DRY sampling base value."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the allowed length for DRY sampling."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets DRY penalty for the last n tokens."
+      },
+      "custom": {
+        "label": "",
+        "note": ""
+      },
+      "pyIntepreterEnabled": {
+        "label": "",
+        "note": ""
+      }
+    }
+  }
+}

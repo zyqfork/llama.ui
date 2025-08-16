@@ -13,15 +13,18 @@ import {
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
-import { CONFIG_DEFAULT, CONFIG_INFO, isDev } from '../config';
+import { CONFIG_DEFAULT, isDev } from '../config';
+import * as messages from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import StorageUtils from '../utils/storage';
+import { Configuration } from '../utils/types';
 import { useModals } from './ModalProvider';
 
 type SettKey = keyof typeof CONFIG_DEFAULT;
 
+const GENERAL_KEYS: SettKey[] = ['baseUrl', 'apiKey'];
 const GENERATION_KEYS: SettKey[] = [
   'temperature',
   'top_k',
@@ -30,6 +33,7 @@ const GENERATION_KEYS: SettKey[] = [
   'max_tokens',
 ];
 const SAMPLER_KEYS: SettKey[] = [
+  'samplers',
   'dynatemp_range',
   'dynatemp_exponent',
   'typical_p',
@@ -53,13 +57,18 @@ enum SettingInputType {
   CHECKBOX,
   CUSTOM,
   SECTION,
-  SPACE,
+  DELIMETER,
 }
-
+type SettingFieldInputType = Exclude<
+  SettingInputType,
+  | SettingInputType.CUSTOM
+  | SettingInputType.SECTION
+  | SettingInputType.DELIMETER
+>;
 interface SettingFieldInput {
-  type: Exclude<SettingInputType, SettingInputType.CUSTOM>;
+  type: SettingFieldInputType;
   label: string | React.ReactElement;
-  help?: string | React.ReactElement;
+  note?: string | React.ReactElement;
   key: SettKey;
 }
 
@@ -79,22 +88,34 @@ interface SettingSection {
   label: string | React.ReactElement;
 }
 
-interface SettingSpace {
-  type: SettingInputType.SPACE;
+interface SettingDelimeter {
+  type: SettingInputType.DELIMETER;
 }
+
+type SettingField =
+  | SettingFieldInput
+  | SettingFieldCustom
+  | SettingSection
+  | SettingDelimeter;
 
 interface SettingTab {
   title: React.ReactElement;
-  fields: (
-    | SettingFieldInput
-    | SettingFieldCustom
-    | SettingSection
-    | SettingSpace
-  )[];
+  fields: SettingField[];
 }
 
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
 const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+
+const toInput = (
+  type: SettingFieldInputType,
+  key: keyof Configuration
+): SettingFieldInput => {
+  return {
+    type,
+    ...messages.settings.parameters[key],
+    key,
+  };
+};
 
 const SETTING_TABS: SettingTab[] = [
   /* General */
@@ -106,21 +127,8 @@ const SETTING_TABS: SettingTab[] = [
       </>
     ),
     fields: [
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Base URL',
-        key: 'baseUrl',
-      },
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'API Key',
-        key: 'apiKey',
-      },
-      {
-        type: SettingInputType.LONG_INPUT,
-        label: 'System Message (will be disabled if left empty)',
-        key: 'systemMessage',
-      },
+      ...GENERAL_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
+      toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
 
@@ -142,20 +150,12 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'On Paste: convert to file if length >',
-        key: 'pasteLongTextToFileLen',
-      },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: 'Use PDF as image instead of text',
-        key: 'pdfAsImage',
-      },
+      toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
+      toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
 
       /* Performance */
       {
-        type: SettingInputType.SPACE,
+        type: SettingInputType.DELIMETER,
       },
       {
         type: SettingInputType.SECTION,
@@ -166,15 +166,11 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: 'Show performance metrics',
-        key: 'showTokensPerSecond',
-      },
+      toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
       {
-        type: SettingInputType.SPACE,
+        type: SettingInputType.DELIMETER,
       },
       {
         type: SettingInputType.SECTION,
@@ -185,16 +181,8 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: 'Expand thinking section',
-        key: 'showThoughtInProgress',
-      },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: 'Exclude thinking messages on submit',
-        key: 'excludeThoughtOnReq',
-      },
+      toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
+      toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
     ],
   },
 
@@ -248,18 +236,13 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      ...GENERATION_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
+      ...GENERATION_KEYS.map((key) =>
+        toInput(SettingInputType.SHORT_INPUT, key)
       ),
 
       /* Samplers */
       {
-        type: SettingInputType.SPACE,
+        type: SettingInputType.DELIMETER,
       },
       {
         type: SettingInputType.SECTION,
@@ -270,23 +253,11 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      {
-        type: SettingInputType.SHORT_INPUT,
-        label: 'Samplers queue',
-        key: 'samplers',
-      },
-      ...SAMPLER_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
-      ),
+      ...SAMPLER_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
 
       /* Penalties */
       {
-        type: SettingInputType.SPACE,
+        type: SettingInputType.DELIMETER,
       },
       {
         type: SettingInputType.SECTION,
@@ -297,18 +268,11 @@ const SETTING_TABS: SettingTab[] = [
           </>
         ),
       },
-      ...PENALTY_KEYS.map(
-        (key) =>
-          ({
-            type: SettingInputType.SHORT_INPUT,
-            label: key,
-            key,
-          }) as SettingFieldInput
-      ),
+      ...PENALTY_KEYS.map((key) => toInput(SettingInputType.SHORT_INPUT, key)),
 
       /* Custom */
       {
-        type: SettingInputType.SPACE,
+        type: SettingInputType.DELIMETER,
       },
       {
         type: SettingInputType.SECTION,
@@ -522,9 +486,9 @@ export default function SettingDialog({
                   <SettingsModalShortInput
                     key={key}
                     configKey={field.key}
+                    field={field}
                     value={localConfig[field.key]}
                     onChange={onChange(field.key)}
-                    label={field.label as string}
                   />
                 );
               } else if (field.type === SettingInputType.LONG_INPUT) {
@@ -532,9 +496,9 @@ export default function SettingDialog({
                   <SettingsModalLongInput
                     key={key}
                     configKey={field.key}
+                    field={field}
                     value={localConfig[field.key].toString()}
                     onChange={onChange(field.key)}
-                    label={field.label as string}
                   />
                 );
               } else if (field.type === SettingInputType.CHECKBOX) {
@@ -542,9 +506,9 @@ export default function SettingDialog({
                   <SettingsModalCheckbox
                     key={key}
                     configKey={field.key}
+                    field={field}
                     value={!!localConfig[field.key]}
                     onChange={onChange(field.key)}
-                    label={field.label as string}
                   />
                 );
               } else if (field.type === SettingInputType.CUSTOM) {
@@ -564,7 +528,7 @@ export default function SettingDialog({
                     <h4>{field.label}</h4>
                   </div>
                 );
-              } else if (field.type === SettingInputType.SPACE) {
+              } else if (field.type === SettingInputType.DELIMETER) {
                 return <div className="pb-3" />;
               }
             })}
@@ -593,18 +557,18 @@ export default function SettingDialog({
 
 function SettingsModalLongInput({
   configKey,
+  field,
   value,
   onChange,
-  label,
 }: {
   configKey: SettKey;
+  field: SettingFieldInput;
   value: string;
   onChange: (value: string) => void;
-  label?: string;
 }) {
   return (
     <label className="form-control">
-      <div className="label inline text-sm">{label || configKey}</div>
+      <div className="label inline text-sm">{field.label || configKey}</div>
       <textarea
         className="textarea textarea-bordered h-24 mb-2"
         placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
@@ -617,30 +581,28 @@ function SettingsModalLongInput({
 
 function SettingsModalShortInput({
   configKey,
+  field,
   value,
   onChange,
-  label,
 }: {
   configKey: SettKey;
+  field: SettingFieldInput;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   onChange: (value: string) => void;
-  label?: string;
 }) {
-  const helpMsg = CONFIG_INFO[configKey];
-
   return (
     <>
       {/* on mobile, we simply show the help message here */}
-      {helpMsg && (
+      {field.note && (
         <div className="block mb-1 opacity-75">
-          <p className="text-xs">{helpMsg}</p>
+          <p className="text-xs">{field.note}</p>
         </div>
       )}
       <label className="input input-bordered join-item grow flex items-center gap-2 mb-2">
         <div className="dropdown dropdown-hover">
           <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {label || configKey}
+            {field.label || configKey}
           </div>
         </div>
         <input
@@ -657,21 +619,20 @@ function SettingsModalShortInput({
 
 function SettingsModalCheckbox({
   configKey,
+  field,
   value,
   onChange,
-  label,
 }: {
   configKey: SettKey;
+  field: SettingFieldInput;
   value: boolean;
   onChange: (value: boolean) => void;
-  label: string;
 }) {
-  const helpMsg = CONFIG_INFO[configKey];
   return (
     <>
-      {helpMsg && (
+      {field.note && (
         <div className="block mb-1 opacity-75">
-          <p className="text-xs">{helpMsg}</p>
+          <p className="text-xs">{field.note}</p>
         </div>
       )}
 
@@ -682,7 +643,7 @@ function SettingsModalCheckbox({
           checked={value}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <span className="ml-4">{label || configKey}</span>
+        <span className="ml-4">{field.label || configKey}</span>
       </div>
     </>
   );

@@ -37,8 +37,6 @@ export interface Configuration {
   pyIntepreterEnabled: boolean;
 }
 
-export type ConfigurationDetails = Record<keyof Configuration, string>;
-
 /**
  * What is conversation "branching"? It is a feature that allows the user to edit an old message in the history, while still keeping the conversation flow.
  * Inspired by ChatGPT / Claude / Hugging Chat where you edit a message, a new branch of the conversation is created, and the old message is still visible.
