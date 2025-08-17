@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { isDev } from '../config';
-import Api, { LlamaCppServerProps } from './api';
+import { CONFIG_DEFAULT, isDev } from '../config';
+import Api, { APIModel, LlamaCppServerProps } from './api';
 import StorageUtils from './storage';
 import {
   CanvasData,
@@ -107,6 +107,7 @@ export const AppContextProvider = ({
   >({});
   const [config, setConfig] = useState(StorageUtils.getConfig());
   const [api, setApi] = useState<Api>(Api.new(config));
+  const [models, setModels] = useState<APIModel[]>([]);
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -114,15 +115,22 @@ export const AppContextProvider = ({
   useEffect(() => {
     const newApi = Api.new(config);
     setApi(newApi);
-    newApi
-      .getServerProps()
-      .then((props) => {
-        setServerProps(props);
-      })
-      .catch(() => {
+
+    const syncServer = async (api: Api) => {
+      try {
+        setModels(await api.v1Models());
+        setServerProps(await api.getServerProps());
+      } catch (err) {
         toast.error('LLM inference server is unavailable.');
-      });
+      }
+    };
+    syncServer(newApi);
   }, [config]);
+
+  useEffect(() => {
+    if (models.length > 0) CONFIG_DEFAULT.model = models[0].id;
+    else CONFIG_DEFAULT.model = '';
+  }, [models]);
 
   // handle change when the convId from URL is changed
   useEffect(() => {

@@ -8,6 +8,7 @@ export interface TimingReport {
 export interface Configuration {
   baseUrl: string;
   apiKey: string;
+  model: string;
   systemMessage: string;
 
   /* conversations */

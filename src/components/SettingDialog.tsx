@@ -111,7 +111,7 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
       </>
     ),
     fields: [
-      ...['baseUrl', 'apiKey'].map((key) =>
+      ...['baseUrl', 'apiKey', 'model'].map((key) =>
         toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
       ),
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),

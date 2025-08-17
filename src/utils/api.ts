@@ -28,6 +28,13 @@ export type APIMessage = {
   content: string | APIMessageContentPart[];
 };
 
+export type APIModel = {
+  id: string;
+  name?: string;
+  description?: string;
+  created?: number;
+};
+
 // a non-complete list of props, only contains the ones we need
 export interface LlamaCppServerProps {
   build_info: string;
@@ -177,12 +184,10 @@ class ApiProvider {
         console.debug('server props:\n', JSON.stringify(data, null, 2));
       return {
         build_info: data.build_info,
-        model:
-          data?.model_alias ||
-          data?.model_path
-            ?.split(/(\\|\/)/)
-            .pop()
-            ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
+        model: data?.model_path
+          ?.split(/(\\|\/)/)
+          .pop()
+          ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
         n_ctx: data.n_ctx,
         modalities: data?.modalities,
       };
@@ -214,6 +219,7 @@ class ApiProvider {
 
     // prepare params
     let params = {
+      model: this.config.model,
       messages: apiMessages,
       stream: true,
       cache_prompt: true,
@@ -272,6 +278,19 @@ class ApiProvider {
     }
 
     return getSSEStreamAsync(fetchResponse);
+  }
+
+  async v1Models(): Promise<APIModel[]> {
+    const fetchResponse = await fetch(`${this.config.baseUrl}/v1/models`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (fetchResponse.status !== 200) {
+      const body = await fetchResponse.json();
+      throw new Error(body?.error?.message || 'Unknown error');
+    }
+    return (await fetchResponse.json()).data || [];
   }
 
   private getHeaders(): HeadersInit {

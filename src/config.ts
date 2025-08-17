@@ -13,6 +13,7 @@ export const CONFIG_DEFAULT: Configuration = {
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   baseUrl: baseUrl,
   apiKey: '',
+  model: '',
   systemMessage: '',
 
   /* conversations */
