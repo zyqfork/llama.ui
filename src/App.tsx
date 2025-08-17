@@ -1,11 +1,12 @@
+import { Toaster } from 'react-hot-toast';
 import { HashRouter, Outlet, Route, Routes } from 'react-router';
+import ChatScreen from './components/ChatScreen';
 import Header from './components/Header';
+import { ModalProvider } from './components/ModalProvider';
+import { Footer } from './components/Footer';
+import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { AppContextProvider, useAppContext } from './utils/app.context';
-import ChatScreen from './components/ChatScreen';
-import SettingDialog from './components/SettingDialog';
-import { Toaster } from 'react-hot-toast';
-import { ModalProvider } from './components/ModalProvider';
 
 function App() {
   return (
@@ -31,19 +32,20 @@ function AppLayout() {
   return (
     <>
       <Sidebar />
-      <main
-        className="drawer-content grow flex flex-col h-screen mx-auto px-4 overflow-auto bg-base-100"
-        id="main-scroll"
-      >
+      <div className="drawer-content flex flex-col w-full h-screen px-2 bg-base-200">
         <Header />
-        <Outlet />
-      </main>
-      {
-        <SettingDialog
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      }
+        <main
+          className="grow flex flex-col p-2 overflow-auto bg-base-100 rounded-xl"
+          id="main-scroll"
+        >
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+      <SettingDialog
+        show={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
       <Toaster />
     </>
   );

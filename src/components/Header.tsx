@@ -24,7 +24,7 @@ export default function Header() {
   }, [selectedTheme]);
 
   return (
-    <div className="flex flex-row items-center py-2 sticky top-0 z-10 bg-base-100 border-b border-base-content/10">
+    <header className="flex flex-row items-center py-2 sticky top-0 z-10">
       {/* open sidebar button */}
       <label
         htmlFor="toggle-drawer"
@@ -39,7 +39,7 @@ export default function Header() {
       </div>
 
       {/* action buttons (top right) */}
-      <div className="flex items-center">
+      <div className="flex items-center mr-2">
         <div
           className="tooltip tooltip-bottom"
           data-tip="Settings"
@@ -112,6 +112,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
