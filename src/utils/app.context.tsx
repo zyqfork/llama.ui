@@ -122,12 +122,10 @@ export const AppContextProvider = ({
       .then((props) => {
         setServerProps(props);
       })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Failed to fetch server props');
+      .catch(() => {
+        toast.error('LLM inference server is unavailable.');
       });
-    // eslint-disable-next-line
-  }, []);
+  }, [config.baseUrl, config.apiKey]);
 
   // handle change when the convId from URL is changed
   useEffect(() => {
