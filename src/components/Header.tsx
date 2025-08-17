@@ -8,7 +8,7 @@ import StorageUtils from '../utils/storage';
 
 export default function Header() {
   const [selectedTheme, setSelectedTheme] = useState(StorageUtils.getTheme());
-  const { serverProps, setShowSettings } = useAppContext();
+  const { config, setShowSettings } = useAppContext();
 
   const setTheme = (theme: string) => {
     StorageUtils.setTheme(theme);
@@ -35,7 +35,7 @@ export default function Header() {
 
       {/* model information*/}
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <b>{serverProps?.model}</b>
+        <b>{config.model}</b>
       </div>
 
       {/* action buttons (top right) */}

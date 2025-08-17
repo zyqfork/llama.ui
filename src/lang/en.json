@@ -13,6 +13,10 @@
         "label": "API Key",
         "note": "Set the API Key if you are using --api-key option for the server."
       },
+      "model": {
+        "label": "Model",
+        "note": "Set the inference model."
+      },
       "systemMessage": {
         "label": "System Message (will be disabled if left empty)",
         "note": "The starting message that defines how model should behave."

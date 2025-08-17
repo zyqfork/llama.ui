@@ -8,6 +8,7 @@ export interface TimingReport {
 export interface Configuration {
   baseUrl: string;
   apiKey: string;
+  model: string;
   systemMessage: string;
 
   /* conversations */
@@ -127,25 +128,6 @@ export interface MessageExtraContext {
   content: string;
 }
 
-export type APIMessageContentPart =
-  | {
-      type: 'text';
-      text: string;
-    }
-  | {
-      type: 'image_url';
-      image_url: { url: string };
-    }
-  | {
-      type: 'input_audio';
-      input_audio: { data: string; format: 'wav' | 'mp3' };
-    };
-
-export type APIMessage = {
-  role: Message['role'];
-  content: string | APIMessageContentPart[];
-};
-
 export interface Conversation {
   id: string; // format: `conv-{timestamp}`
   lastModified: number; // timestamp from Date.now()
@@ -191,15 +173,3 @@ export interface CanvasPyInterpreter {
 }
 
 export type CanvasData = CanvasPyInterpreter;
-
-// a non-complete list of props, only contains the ones we need
-export interface LlamaCppServerProps {
-  build_info: string;
-  model: string;
-  n_ctx: number;
-  modalities?: {
-    vision: boolean;
-    audio: boolean;
-  };
-  // TODO: support params
-}
