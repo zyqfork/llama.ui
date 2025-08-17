@@ -1,15 +1,8 @@
 // @ts-expect-error this package does not have typing
 import TextLineStream from 'textlinestream';
-import {
-  APIMessage,
-  APIMessageContentPart,
-  LlamaCppServerProps,
-  Message,
-} from './types';
 
 // ponyfill for missing ReadableStream asyncIterator on Safari
 import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
-import { isDev } from '../config';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isString = (x: any) => !!x.toLowerCase;
@@ -57,91 +50,6 @@ export const copyStr = (textToCopy: string) => {
   }
 };
 
-/**
- * filter out redundant fields upon sending to API
- * also format extra into text
- */
-export function normalizeMsgsForAPI(messages: Readonly<Message[]>) {
-  return messages.map((msg) => {
-    if (msg.role !== 'user' || !msg.extra) {
-      return {
-        role: msg.role,
-        content: msg.content,
-      } as APIMessage;
-    }
-
-    // extra content first, then user text message in the end
-    // this allow re-using the same cache prefix for long context
-    const contentArr: APIMessageContentPart[] = [];
-
-    for (const extra of msg.extra ?? []) {
-      if (extra.type === 'context') {
-        contentArr.push({
-          type: 'text',
-          text: extra.content,
-        });
-      } else if (extra.type === 'textFile') {
-        contentArr.push({
-          type: 'text',
-          text: `File: ${extra.name}\nContent:\n\n${extra.content}`,
-        });
-      } else if (extra.type === 'imageFile') {
-        contentArr.push({
-          type: 'image_url',
-          image_url: { url: extra.base64Url },
-        });
-      } else if (extra.type === 'audioFile') {
-        contentArr.push({
-          type: 'input_audio',
-          input_audio: {
-            data: extra.base64Data,
-            format: /wav/.test(extra.mimeType) ? 'wav' : 'mp3',
-          },
-        });
-      } else {
-        throw new Error('Unknown extra type');
-      }
-    }
-
-    // add user message to the end
-    contentArr.push({
-      type: 'text',
-      text: msg.content,
-    });
-
-    return {
-      role: msg.role,
-      content: contentArr,
-    };
-  }) as APIMessage[];
-}
-
-/**
- * recommended for DeepsSeek-R1, filter out content between <think> and </think> tags
- */
-export function filterThoughtFromMsgs(messages: APIMessage[]) {
-  if (isDev)
-    console.debug(
-      'filter thought messages\n',
-      JSON.stringify(messages, null, 2)
-    );
-
-  return messages.map((msg) => {
-    if (msg.role !== 'assistant') {
-      return msg;
-    }
-    // assistant message is always a string
-    const contentStr = msg.content as string;
-    return {
-      role: msg.role,
-      content:
-        msg.role === 'assistant'
-          ? contentStr.split('</think>').at(-1)!.trim()
-          : contentStr,
-    } as APIMessage;
-  });
-}
-
 export function classNames(classes: Record<string, boolean>): string {
   return Object.entries(classes)
     .filter(([_, value]) => value)
@@ -178,37 +86,4 @@ export const cleanCurrentUrl = (removeQueryParams: string[]) => {
     url.searchParams.delete(param);
   });
   window.history.replaceState({}, '', url.toString());
-};
-
-export const getServerProps = async (
-  baseUrl: string,
-  apiKey?: string
-): Promise<LlamaCppServerProps> => {
-  try {
-    const response = await fetch(`${baseUrl}/props`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch server props');
-    }
-    const data = await response.json();
-    if (isDev) console.debug('server props:\n', JSON.stringify(data, null, 2));
-    return {
-      build_info: data.build_info,
-      model:
-        data?.model_alias ||
-        data?.model_path
-          ?.split(/(\\|\/)/)
-          .pop()
-          ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
-      n_ctx: data.n_ctx,
-      modalities: data?.modalities,
-    };
-  } catch (error) {
-    console.error('Error fetching server props:', error);
-    throw error;
-  }
 };

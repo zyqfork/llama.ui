@@ -2,19 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { isDev } from '../config';
-import {
-  filterThoughtFromMsgs,
-  getSSEStreamAsync,
-  getServerProps,
-  normalizeMsgsForAPI,
-} from './misc';
+import Api, { LlamaCppServerProps } from './api';
 import StorageUtils from './storage';
 import {
-  APIMessage,
   CanvasData,
   Configuration,
   Conversation,
-  LlamaCppServerProps,
   Message,
   MessageExtra,
   PendingMessage,
@@ -113,19 +106,23 @@ export const AppContextProvider = ({
     Record<Conversation['id'], AbortController>
   >({});
   const [config, setConfig] = useState(StorageUtils.getConfig());
+  const [api, setApi] = useState<Api>(Api.new(config));
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  // get server props
+  // setup api provider
   useEffect(() => {
-    getServerProps(config.baseUrl, config.apiKey)
+    const newApi = Api.new(config);
+    setApi(newApi);
+    newApi
+      .getServerProps()
       .then((props) => {
         setServerProps(props);
       })
       .catch(() => {
         toast.error('LLM inference server is unavailable.');
       });
-  }, [config.baseUrl, config.apiKey]);
+  }, [config]);
 
   // handle change when the convId from URL is changed
   useEffect(() => {
@@ -179,7 +176,6 @@ export const AppContextProvider = ({
   ) => {
     if (isGenerating(convId)) return;
 
-    const config = StorageUtils.getConfig();
     const currConversation = await StorageUtils.getOneConversation(convId);
     if (!currConversation) {
       throw new Error('Current conversation is not found');
@@ -211,81 +207,10 @@ export const AppContextProvider = ({
     setPending(convId, pendingMsg);
 
     try {
-      // prepare messages for API
-      let messages: APIMessage[] = [
-        ...(config.systemMessage.length === 0
-          ? []
-          : [{ role: 'system', content: config.systemMessage } as APIMessage]),
-        ...normalizeMsgsForAPI(currMessages),
-      ];
-      if (config.excludeThoughtOnReq) {
-        messages = filterThoughtFromMsgs(messages);
-      }
-      if (isDev) console.debug({ messages });
-
-      // prepare params
-      let params = {
-        messages,
-        stream: true,
-        cache_prompt: true,
-        timings_per_token: !!config.showTokensPerSecond,
-      };
-
-      // advanced options
-      if (config.overrideGenerationOptions)
-        params = Object.assign(params, {
-          temperature: config.temperature,
-          top_k: config.top_k,
-          top_p: config.top_p,
-          min_p: config.min_p,
-          max_tokens: config.max_tokens,
-        });
-
-      if (config.overrideSamplersOptions)
-        params = Object.assign(params, {
-          samplers: config.samplers,
-          dynatemp_range: config.dynatemp_range,
-          dynatemp_exponent: config.dynatemp_exponent,
-          typical_p: config.typical_p,
-          xtc_probability: config.xtc_probability,
-          xtc_threshold: config.xtc_threshold,
-        });
-
-      if (config.overridePenaltyOptions)
-        params = Object.assign(params, {
-          repeat_last_n: config.repeat_last_n,
-          repeat_penalty: config.repeat_penalty,
-          presence_penalty: config.presence_penalty,
-          frequency_penalty: config.frequency_penalty,
-          dry_multiplier: config.dry_multiplier,
-          dry_base: config.dry_base,
-          dry_allowed_length: config.dry_allowed_length,
-          dry_penalty_last_n: config.dry_penalty_last_n,
-        });
-
-      if (config.custom.trim().length)
-        params = Object.assign(params, JSON.parse(config.custom));
-
-      // send request
-      const fetchResponse = await fetch(
-        `${config.baseUrl}/v1/chat/completions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(config.apiKey
-              ? { Authorization: `Bearer ${config.apiKey}` }
-              : {}),
-          },
-          body: JSON.stringify(params),
-          signal: abortController.signal,
-        }
+      const chunks = await api.v1ChatCompletions(
+        currMessages,
+        abortController.signal
       );
-      if (fetchResponse.status !== 200) {
-        const body = await fetchResponse.json();
-        throw new Error(body?.error?.message || 'Unknown error');
-      }
-      const chunks = getSSEStreamAsync(fetchResponse);
       for await (const chunk of chunks) {
         // const stop = chunk.stop;
         if (chunk.error) {
