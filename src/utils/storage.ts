@@ -267,12 +267,23 @@ const StorageUtils = {
    * Exports all from the database.
    * @returns A promise resolving to a database records.
    */
-  async exportDB(): Promise<ExportJsonStructure> {
+  async exportDB(convId?: string): Promise<ExportJsonStructure> {
     try {
       const exportData = await db.transaction('r', db.tables, async () => {
         const data: ExportJsonStructure = [];
         for (const table of db.tables) {
-          const rows = await table.toArray();
+          const rows = [];
+          if (!convId) {
+            rows.push(await table.toArray());
+          } else {
+            if (table.name === 'conversations') {
+              rows.push(await table.where('id').equals(convId).first());
+            } else {
+              rows.push(
+                ...(await table.where('convId').equals(convId).toArray())
+              );
+            }
+          }
           if (isDev)
             console.debug(
               `Export - Fetched ${rows.length} rows from table '${table.name}'.`
