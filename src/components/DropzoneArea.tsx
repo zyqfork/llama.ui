@@ -7,10 +7,12 @@ import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 
 export function DropzoneArea({
   children,
+  inputId,
   extraContext,
   disabled,
 }: {
   children: React.ReactNode;
+  inputId: string;
   extraContext: ChatExtraContextApi;
   disabled: boolean;
 }) {
@@ -70,7 +72,7 @@ export function DropzoneArea({
           {...getRootProps()}
         >
           <input
-            id="file-upload"
+            id={inputId}
             type="file"
             disabled={disabled}
             {...getInputProps()}

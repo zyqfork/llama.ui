@@ -79,7 +79,11 @@ export function ChatInput({
   }, [textarea.ref]);
 
   return (
-    <DropzoneArea extraContext={extraContext} disabled={isGenerating}>
+    <DropzoneArea
+      inputId="new-message-file-upload"
+      extraContext={extraContext}
+      disabled={isGenerating}
+    >
       <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
         <textarea
           // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
@@ -106,7 +110,7 @@ export function ChatInput({
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center">
             <label
-              htmlFor="file-upload"
+              htmlFor="new-message-file-upload"
               className={classNames({
                 'btn w-8 h-8 p-0 rounded-full': true,
                 'btn-disabled': isGenerating,
