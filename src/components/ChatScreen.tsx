@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import * as lang from '../lang/en.json';
 import { CallbackGeneratedChunk, useAppContext } from '../utils/app.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -177,8 +178,8 @@ export default function ChatScreen() {
         {/* placeholder to shift the message to the bottom */}
         {!viewingChat && (
           <div className="grow flex flex-col items-center justify-center ">
-            <b className="text-4xl">Nice to see you.</b>
-            <small>how can I help you today?</small>
+            <b className="text-4xl">{lang.chatScreen.welcome}</b>
+            <small>{lang.chatScreen.welcomeNote}</small>
           </div>
         )}
 

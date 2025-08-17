@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import React, { useMemo, useState } from 'react';
 import { CONFIG_DEFAULT, isDev } from '../config';
-import * as messages from '../lang/en.json';
+import * as lang from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
@@ -86,8 +86,8 @@ const toInput = (
 ): SettingFieldInput => {
   return {
     type,
-    label: messages.settings.parameters[key].label,
-    note: messages.settings.parameters[key].note,
+    label: lang.settings.parameters[key].label,
+    note: lang.settings.parameters[key].note,
     disabled,
     key,
   };

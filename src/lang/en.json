@@ -1,4 +1,8 @@
 {
+  "chatScreen": {
+    "welcome": "Hi,",
+    "welcomeNote": "how can I help you?"
+  },
   "settings": {
     "parameters": {
       "baseUrl": {
