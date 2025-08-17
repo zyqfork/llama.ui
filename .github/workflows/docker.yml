@@ -22,6 +22,12 @@ jobs:
       id-token: write
 
     steps:
+      - name: Skip for non-tagged refs
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "Dispatched from ${{github.ref}} — skipping deploy"
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@v4
 

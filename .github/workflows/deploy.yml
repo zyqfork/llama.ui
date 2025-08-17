@@ -18,6 +18,12 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
 
     steps:
+      - name: Skip for non-tagged refs
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "Dispatched from ${{github.ref}} — skipping deploy"
+          exit 1
+
       - uses: actions/checkout@v4
 
       - name: Setup Node
@@ -34,7 +40,6 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
