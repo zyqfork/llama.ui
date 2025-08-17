@@ -119,9 +119,14 @@ export const AppContextProvider = ({
     const syncServer = async (api: Api) => {
       try {
         setModels(await api.v1Models());
-        setServerProps(await api.getServerProps());
       } catch (err) {
         toast.error('LLM inference server is unavailable.');
+        return;
+      }
+      try {
+        setServerProps(await api.getServerProps());
+      } catch (err) {
+        /* TODO make better ignoring for not llama.cpp server */
       }
     };
     syncServer(newApi);
