@@ -21,10 +21,7 @@
         "role": "system",
         "content": "",
         "parent": -1,
-        "children": [
-          1734086764521,
-          1734087548328
-        ]
+        "children": [1734086764521, 1734087548328]
       },
       {
         "id": 1734086764521,
@@ -34,9 +31,7 @@
         "role": "user",
         "content": "A LaTeX block demo conversation",
         "parent": 1734086746930,
-        "children": [
-          1734087548327
-        ]
+        "children": [1734087548327]
       },
       {
         "id": 1734087548327,
@@ -63,9 +58,7 @@
         "role": "user",
         "content": "A code block demo conversation",
         "parent": 1734086746930,
-        "children": [
-          1734087548329
-        ]
+        "children": [1734087548329]
       },
       {
         "id": 1734087548329,

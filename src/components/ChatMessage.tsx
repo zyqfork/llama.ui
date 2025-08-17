@@ -289,7 +289,11 @@ function EditMessage({
   const extraContext = useChatExtraContext(msg.extra);
 
   return (
-    <DropzoneArea extraContext={extraContext} disabled={msg.role !== 'user'}>
+    <DropzoneArea
+      inputId={`file-upload-${msg.id}`}
+      extraContext={extraContext}
+      disabled={msg.role !== 'user'}
+    >
       <textarea
         dir="auto"
         className="textarea textarea-bordered bg-base-100 text-base-content max-w-2xl w-[calc(90vw-8em)] h-24"
@@ -301,7 +305,7 @@ function EditMessage({
         {msg.role === 'user' && (
           <>
             <label
-              htmlFor="file-upload"
+              htmlFor={`file-upload-${msg.id}`}
               className="btn w-8 h-8 mt-1 p-0 rounded-full"
               aria-label="Upload file"
               tabIndex={0}

@@ -35,14 +35,11 @@ enum SettingInputType {
   CHECKBOX,
   CUSTOM,
   SECTION,
-  DELIMETER,
 }
 
 type SettingFieldInputType = Exclude<
   SettingInputType,
-  | SettingInputType.CUSTOM
-  | SettingInputType.SECTION
-  | SettingInputType.DELIMETER
+  SettingInputType.CUSTOM | SettingInputType.SECTION
 >;
 
 interface SettingFieldInput {
@@ -55,13 +52,14 @@ interface SettingFieldInput {
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: ConfigurationKey | 'custom';
+  key: ConfigurationKey | 'custom' | 'import-export';
   component:
     | string
     | React.FC<{
         value: string | boolean | number;
         onChange: (value: string | boolean) => void;
-      }>;
+      }>
+    | 'delimeter';
 }
 
 interface SettingSection {
@@ -69,15 +67,7 @@ interface SettingSection {
   label: string | React.ReactElement;
 }
 
-interface SettingDelimeter {
-  type: SettingInputType.DELIMETER;
-}
-
-type SettingField =
-  | SettingFieldInput
-  | SettingFieldCustom
-  | SettingSection
-  | SettingDelimeter;
+type SettingField = SettingFieldInput | SettingFieldCustom | SettingSection;
 
 interface SettingTab {
   title: React.ReactElement;
@@ -96,21 +86,22 @@ const toInput = (
 ): SettingFieldInput => {
   return {
     type,
-    ...(messages.settings.parameters[key] as Omit<
-      Omit<SettingFieldInput, 'type'>,
-      'key'
-    >),
+    label: messages.settings.parameters[key].label,
+    note: messages.settings.parameters[key].note,
     disabled,
     key,
   };
 };
 
+const DELIMETER: SettingFieldCustom = {
+  type: SettingInputType.CUSTOM,
+  key: 'custom',
+  component: 'delimeter',
+};
+
 // --- Setting Tabs Configuration ---
 
-const getSettingTabsConfiguration = (
-  config: Configuration,
-  onClose: () => void
-): SettingTab[] => [
+const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
   /* General */
   {
     title: (
@@ -149,9 +140,7 @@ const getSettingTabsConfiguration = (
       toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
 
       /* Performance */
-      {
-        type: SettingInputType.DELIMETER,
-      },
+      DELIMETER,
       {
         type: SettingInputType.SECTION,
         label: (
@@ -164,9 +153,7 @@ const getSettingTabsConfiguration = (
       toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
-      {
-        type: SettingInputType.DELIMETER,
-      },
+      DELIMETER,
       {
         type: SettingInputType.SECTION,
         label: (
@@ -191,52 +178,9 @@ const getSettingTabsConfiguration = (
     ),
     fields: [
       {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-            Chats
-          </>
-        ),
-      },
-      {
         type: SettingInputType.CUSTOM,
-        key: 'custom', // dummy key, won't be used
-        component: () => <ImportExportComponent onClose={onClose} />,
-      },
-      {
-        type: SettingInputType.DELIMETER,
-      },
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <EyeIcon className={ICON_CLASSNAME} />
-            Technical Demo
-          </>
-        ),
-      },
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'custom', // dummy key, won't be used
-        component: () => {
-          const debugImportDemoConv = async () => {
-            try {
-              const res = await fetch('/demo-conversation.json');
-              if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-              const demoConv = await res.json();
-              StorageUtils.importDB(demoConv);
-              onClose();
-            } catch (error) {
-              console.error('Failed to import demo conversation:', error);
-            }
-          };
-          return (
-            <button className="btn" onClick={debugImportDemoConv}>
-              Import demo conversation
-            </button>
-          );
-        },
+        key: 'import-export',
+        component: () => null, // dummy component, won't be used
       },
     ],
   },
@@ -270,9 +214,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Samplers */
-      {
-        type: SettingInputType.DELIMETER,
-      },
+      DELIMETER,
       {
         type: SettingInputType.SECTION,
         label: (
@@ -299,9 +241,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Penalties */
-      {
-        type: SettingInputType.DELIMETER,
-      },
+      DELIMETER,
       {
         type: SettingInputType.SECTION,
         label: (
@@ -330,9 +270,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Custom */
-      {
-        type: SettingInputType.DELIMETER,
-      },
+      DELIMETER,
       {
         type: SettingInputType.SECTION,
         label: (
@@ -426,7 +364,7 @@ export default function SettingDialog({
     JSON.parse(JSON.stringify(config))
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig, onClose),
+    () => getSettingTabsConfiguration(localConfig),
     [localConfig]
   );
 
@@ -580,25 +518,47 @@ export default function SettingDialog({
                     />
                   );
                 case SettingInputType.CUSTOM:
-                  return (
-                    <div key={key} className="mb-2">
-                      {typeof field.component === 'string'
-                        ? field.component
-                        : React.createElement(field.component, {
-                            value: localConfig[field.key],
-                            onChange: (value: string | boolean) =>
-                              onChange(field.key)(value),
-                          })}
-                    </div>
-                  );
+                  switch (field.key) {
+                    case 'import-export':
+                      return (
+                        <ImportExportComponent key={key} onClose={onClose} />
+                      );
+                    default:
+                      if (field.component === 'delimeter') {
+                        return <DelimeterComponent key={key} />;
+                      }
+
+                      switch (typeof field.component) {
+                        case 'string':
+                        case 'number':
+                        case 'bigint':
+                        case 'boolean':
+                        case 'symbol':
+                          return (
+                            <div key={key} className="mb-2">
+                              {field.component}
+                            </div>
+                          );
+                        default:
+                          return (
+                            <div key={key} className="mb-2">
+                              {React.createElement(field.component, {
+                                value: localConfig[field.key],
+                                onChange: (value: string | boolean) =>
+                                  onChange(field.key as ConfigurationKey)(
+                                    value
+                                  ),
+                              })}
+                            </div>
+                          );
+                      }
+                  }
                 case SettingInputType.SECTION:
                   return (
-                    <div key={key} className="pb-2">
-                      <h4>{field.label}</h4>
-                    </div>
+                    <SettingsSectionLabel key={key}>
+                      {field.label}
+                    </SettingsSectionLabel>
                   );
-                case SettingInputType.DELIMETER:
-                  return <div key={key} className="pb-3" />;
                 default:
                   return null;
               }
@@ -714,6 +674,19 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
     </>
   );
 };
+
+const SettingsSectionLabel: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => (
+  <div className="pb-2">
+    <h4>{children}</h4>
+  </div>
+);
+
+const DelimeterComponent: React.FC = () => (
+  <div className="pb-3" aria-label="delimeter" />
+);
+
 const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
@@ -745,30 +718,60 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
     }
   };
 
-  return (
-    <div className="grid grid-cols-[min-content_min-content] gap-2">
-      <button className="btn" onClick={onExport}>
-        <ArrowDownTrayIcon className={ICON_CLASSNAME} />
-        Export
-      </button>
+  const debugImportDemoConv = async () => {
+    try {
+      const res = await fetch('/demo-conversation.json');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const demoConv = await res.json();
+      StorageUtils.importDB(demoConv);
+      onClose();
+    } catch (error) {
+      console.error('Failed to import demo conversation:', error);
+    }
+  };
 
-      <input
-        id="file-import"
-        type="file"
-        accept=".json"
-        onInput={onImport}
-        hidden
-      />
-      <label
-        htmlFor="file-import"
-        className="btn"
-        aria-label="Import file"
-        tabIndex={0}
-        role="button"
-      >
-        <ArrowUpTrayIcon className={ICON_CLASSNAME} />
-        Import
-      </label>
-    </div>
+  return (
+    <>
+      <SettingsSectionLabel>
+        <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
+        Chats
+      </SettingsSectionLabel>
+
+      <div className="grid grid-cols-[min-content_min-content] gap-2">
+        <button className="btn" onClick={onExport}>
+          <ArrowDownTrayIcon className={ICON_CLASSNAME} />
+          Export
+        </button>
+
+        <input
+          id="file-import"
+          type="file"
+          accept=".json"
+          onInput={onImport}
+          hidden
+        />
+        <label
+          htmlFor="file-import"
+          className="btn"
+          aria-label="Import file"
+          tabIndex={0}
+          role="button"
+        >
+          <ArrowUpTrayIcon className={ICON_CLASSNAME} />
+          Import
+        </label>
+      </div>
+
+      <DelimeterComponent />
+
+      <SettingsSectionLabel>
+        <EyeIcon className={ICON_CLASSNAME} />
+        Technical Demo
+      </SettingsSectionLabel>
+
+      <button className="btn" onClick={debugImportDemoConv}>
+        Import demo conversation
+      </button>
+    </>
   );
 };
