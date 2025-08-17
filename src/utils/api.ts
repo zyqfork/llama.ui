@@ -239,12 +239,7 @@ class ApiProvider {
       `${this.config.baseUrl}/v1/chat/completions`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.config.apiKey
-            ? { Authorization: `Bearer ${this.config.apiKey}` }
-            : {}),
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify(params),
         signal: abortSignal,
       }
@@ -256,6 +251,18 @@ class ApiProvider {
     }
 
     return getSSEStreamAsync(fetchResponse);
+  }
+
+  private getHeaders(): HeadersInit {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (this.config.apiKey) {
+      Object.assign(headers, {
+        Authorization: `Bearer ${this.config.apiKey}`,
+      });
+    }
+    return headers;
   }
 }
 
