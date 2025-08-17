@@ -153,9 +153,8 @@ export default function Sidebar() {
                       );
                       return;
                     }
-                    const msgs = await StorageUtils.getMessages(conv.id);
-                    const dict = { conv: conv, messages: msgs };
-                    const conversationJson = JSON.stringify(dict, null, 2);
+                    const data = await StorageUtils.exportDB(conv.id);
+                    const conversationJson = JSON.stringify(data, null, 2);
                     const blob = new Blob([conversationJson], {
                       type: 'application/json',
                     });
