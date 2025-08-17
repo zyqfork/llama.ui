@@ -1,9 +1,3 @@
-// @ts-expect-error this package does not have typing
-import TextLineStream from 'textlinestream';
-
-// ponyfill for missing ReadableStream asyncIterator on Safari
-import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isString = (x: any) => !!x.toLowerCase;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,25 +6,6 @@ export const isBoolean = (x: any) => x === true || x === false;
 export const isNumeric = (n: any) => !isString(n) && !isNaN(n) && !isBoolean(n);
 export const escapeAttr = (str: string) =>
   str.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-// wrapper for SSE
-export async function* getSSEStreamAsync(fetchResponse: Response) {
-  if (!fetchResponse.body) throw new Error('Response body is empty');
-  const lines: ReadableStream<string> = fetchResponse.body
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream());
-  // @ts-expect-error asyncIterator complains about type, but it should work
-  for await (const line of asyncIterator(lines)) {
-    //if (isDev) console.debug({ line });
-    if (line.startsWith('data:') && !line.endsWith('[DONE]')) {
-      const data = JSON.parse(line.slice(5));
-      yield data;
-    } else if (line.startsWith('error:')) {
-      const data = JSON.parse(line.slice(6));
-      throw new Error(data.message || 'Unknown error');
-    }
-  }
-}
 
 // copy text to clipboard
 export const copyStr = (textToCopy: string) => {

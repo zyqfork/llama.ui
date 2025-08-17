@@ -1,5 +1,10 @@
+// @ts-expect-error this package does not have typing
+import TextLineStream from 'textlinestream';
+
+// ponyfill for missing ReadableStream asyncIterator on Safari
+import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
+
 import { isDev } from '../config';
-import { getSSEStreamAsync } from './misc';
 import { Configuration, Message } from './types';
 
 // --- Type Definitions ---
@@ -41,13 +46,13 @@ export interface LlamaCppServerProps {
  * filter out redundant fields upon sending to API
  * also format extra into text
  */
-function normalizeMsgsForAPI(messages: Readonly<Message[]>) {
+function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
   return messages.map((msg) => {
     if (msg.role !== 'user' || !msg.extra) {
       return {
         role: msg.role,
         content: msg.content,
-      } as APIMessage;
+      };
     }
 
     // extra content first, then user text message in the end
@@ -93,13 +98,13 @@ function normalizeMsgsForAPI(messages: Readonly<Message[]>) {
       role: msg.role,
       content: contentArr,
     };
-  }) as APIMessage[];
+  });
 }
 
 /**
  * recommended for DeepsSeek-R1, filter out content between <think> and </think> tags
  */
-function filterThoughtFromMsgs(messages: APIMessage[]) {
+function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
   if (isDev)
     console.debug(
       'filter thought messages\n',
@@ -118,8 +123,27 @@ function filterThoughtFromMsgs(messages: APIMessage[]) {
         msg.role === 'assistant'
           ? contentStr.split('</think>').at(-1)!.trim()
           : contentStr,
-    } as APIMessage;
+    };
   });
+}
+
+// wrapper for SSE
+async function* getSSEStreamAsync(fetchResponse: Response) {
+  if (!fetchResponse.body) throw new Error('Response body is empty');
+  const lines: ReadableStream<string> = fetchResponse.body
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new TextLineStream());
+  // @ts-expect-error asyncIterator complains about type, but it should work
+  for await (const line of asyncIterator(lines)) {
+    //if (isDev) console.debug({ line });
+    if (line.startsWith('data:') && !line.endsWith('[DONE]')) {
+      const data = JSON.parse(line.slice(5));
+      yield data;
+    } else if (line.startsWith('error:')) {
+      const data = JSON.parse(line.slice(6));
+      throw new Error(data.message || 'Unknown error');
+    }
+  }
 }
 
 // --- Main Inference API Functions ---
@@ -173,17 +197,14 @@ class ApiProvider {
     abortSignal: AbortSignal
   ) {
     // prepare messages for API
-    let apiMessages: APIMessage[] = [
-      ...(this.config.systemMessage.length === 0
-        ? []
-        : [
-            {
-              role: 'system',
-              content: this.config.systemMessage,
-            } as APIMessage,
-          ]),
-      ...normalizeMsgsForAPI(messages),
-    ];
+    let apiMessages: APIMessage[] = [];
+    if (this.config.systemMessage.length === 0) {
+      apiMessages.push({
+        role: 'system',
+        content: this.config.systemMessage,
+      });
+    }
+    apiMessages.push(...normalizeMsgsForAPI(messages));
 
     if (this.config.excludeThoughtOnReq) {
       apiMessages = filterThoughtFromMsgs(apiMessages);
