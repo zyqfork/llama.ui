@@ -9,39 +9,72 @@ import { Configuration, Message } from './types';
 
 // --- Type Definitions ---
 
+/**
+ * Represents a single content part in an API message, supporting multiple content types
+ * including text, images, and audio inputs for multimodal interactions. [[9]]
+ */
 export type APIMessageContentPart =
   | {
+      /** The content type identifier */
       type: 'text';
+      /** The text content */
       text: string;
     }
   | {
+      /** The content type identifier */
       type: 'image_url';
+      /** Image URL details */
       image_url: { url: string };
     }
   | {
+      /** The content type identifier */
       type: 'input_audio';
+      /** Audio input details */
       input_audio: { data: string; format: 'wav' | 'mp3' };
     };
 
+/**
+ * Represents a message structure compatible with the API endpoint.
+ * Can contain either a simple string or an array of content parts for multimodal support. [[4]]
+ */
 export type APIMessage = {
+  /** The role of the message sender (system, user, assistant) */
   role: Message['role'];
+  /** The message content, which can be a string or structured content parts */
   content: string | APIMessageContentPart[];
 };
 
+/**
+ * Represents model information returned by the API's models endpoint.
+ * Contains basic model metadata that clients might need for display or selection. [[1]]
+ */
 export type APIModel = {
+  /** Unique model identifier */
   id: string;
+  /** User-friendly model name (optional) */
   name?: string;
+  /** Model description (optional) */
   description?: string;
+  /** Timestamp of model creation (optional) */
   created?: number;
 };
 
-// a non-complete list of props, only contains the ones we need
+/**
+ * Interface representing server properties from a Llama.cpp server instance.
+ * Contains essential information about the server configuration and capabilities. [[9]]
+ */
 export interface LlamaCppServerProps {
+  /** Build information of the server */
   build_info: string;
+  /** Currently loaded model name/path */
   model: string;
+  /** Maximum context length supported by the model */
   n_ctx: number;
+  /** Modality support information for the model */
   modalities?: {
+    /** Whether vision capabilities are supported */
     vision: boolean;
+    /** Whether audio capabilities are supported */
     audio: boolean;
   };
   // TODO: support params
@@ -50,8 +83,15 @@ export interface LlamaCppServerProps {
 // --- Helper Functions ---
 
 /**
- * filter out redundant fields upon sending to API
- * also format extra into text
+ * Converts application message format to API-compatible message structure.
+ * Processes extra content (context, files) and formats them according to API requirements.
+ *
+ * @param messages - Array of messages in application format to normalize
+ * @returns Array of messages formatted for API consumption
+ *
+ * @remarks
+ * This function processes extra content first, followed by the user message,
+ * which allows for better cache prefix utilization with long context windows. [[3]]
  */
 function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
   return messages.map((msg) => {
@@ -109,7 +149,14 @@ function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
 }
 
 /**
- * recommended for DeepsSeek-R1, filter out content between <think> and </think> tags
+ * Filters out thinking process content from assistant messages.
+ * Specifically removes content between <think> and </think> tags for DeepsSeek-R1 model compatibility.
+ *
+ * @param messages - API-formatted messages to process
+ * @returns Messages with thinking process content removed from assistant responses
+ *
+ * @remarks
+ * In development mode, this function logs the original messages for debugging purposes. [[7]]
  */
 function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
   if (isDev)
@@ -134,7 +181,19 @@ function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
   });
 }
 
-// wrapper for SSE
+/**
+ * Creates an async generator for processing Server-Sent Events (SSE) streams.
+ * Handles parsing of event data and error conditions from the stream.
+ *
+ * @param fetchResponse - Response object from a fetch request expecting SSE
+ * @returns Async generator yielding parsed event data
+ *
+ * @throws When encountering error messages in the stream
+ *
+ * @remarks
+ * This implementation uses TextLineStream and asyncIterator ponyfill to handle
+ * streaming responses in environments like Safari that lack native support. [[2]]
+ */
 async function* getSSEStreamAsync(fetchResponse: Response) {
   if (!fetchResponse.body) throw new Error('Response body is empty');
   const lines: ReadableStream<string> = fetchResponse.body
@@ -155,17 +214,42 @@ async function* getSSEStreamAsync(fetchResponse: Response) {
 
 // --- Main Inference API Functions ---
 
+/**
+ * API provider class for interacting with Llama.cpp server endpoints.
+ * Handles chat completions, model listing, and server property retrieval. [[1]]
+ */
 class ApiProvider {
+  /** Configuration settings for API interactions */
   config: Configuration;
 
+  /**
+   * Private constructor to enforce factory pattern usage
+   *
+   * @param config - API configuration settings
+   */
   private constructor(config: Configuration) {
     this.config = config;
   }
 
+  /**
+   * Factory method to create new ApiProvider instances
+   *
+   * @param config - Configuration settings for the API provider
+   * @returns New ApiProvider instance
+   */
   static new(config: Configuration) {
     return new ApiProvider(config);
   }
 
+  /**
+   * Retrieves server properties and capabilities from the Llama.cpp server.
+   *
+   * @returns Promise resolving to server properties object
+   * @throws When the server request fails or returns non-OK status
+   *
+   * @remarks
+   * In development mode, logs the server properties for debugging purposes. [[7]]
+   */
   async getServerProps(): Promise<LlamaCppServerProps> {
     try {
       const response = await fetch(`${this.config.baseUrl}/props`, {
@@ -197,6 +281,20 @@ class ApiProvider {
     }
   }
 
+  /**
+   * Sends chat messages to the API and processes the streaming response.
+   * Handles message normalization, thought filtering, and parameter configuration.
+   *
+   * @param messages - Array of messages to send in the conversation
+   * @param abortSignal - Signal to cancel the request
+   * @returns Async generator yielding chat completion tokens/events
+   *
+   * @throws When the API returns a non-200 status or contains error data
+   *
+   * @remarks
+   * This method supports advanced configuration options through the provider's
+   * configuration object, including generation parameters and custom options. [[6]]
+   */
   async v1ChatCompletions(
     messages: readonly Message[],
     abortSignal: AbortSignal
@@ -280,6 +378,12 @@ class ApiProvider {
     return getSSEStreamAsync(fetchResponse);
   }
 
+  /**
+   * Retrieves the list of available models from the API.
+   *
+   * @returns Promise resolving to array of available models
+   * @throws When the API returns a non-200 status or contains error data
+   */
   async v1Models(): Promise<APIModel[]> {
     const fetchResponse = await fetch(`${this.config.baseUrl}/v1/models`, {
       method: 'GET',
@@ -293,6 +397,12 @@ class ApiProvider {
     return (await fetchResponse.json()).data || [];
   }
 
+  /**
+   * Generates appropriate headers for API requests, including authentication.
+   *
+   * @returns Headers configuration for fetch requests
+   * @private
+   */
   private getHeaders(): HeadersInit {
     const headers = {
       'Content-Type': 'application/json',
