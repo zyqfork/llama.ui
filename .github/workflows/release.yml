@@ -13,12 +13,6 @@ on:
           - minor
           - patch
 
-      branch:
-        description: 'Target branch for release'
-        required: false
-        default: 'main'
-        type: string
-
 permissions:
   contents: write
 
@@ -27,6 +21,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Fail if branch is not main
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+        run: |
+          echo "This workflow should not be triggered with workflow_dispatch on a branch other than main"
+          exit 1
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -81,9 +81,7 @@ jobs:
         run: npm run build
 
       - name: Push commit and tag
-        run: |
-          BRANCH="${{ github.event.inputs.branch || 'main' }}"
-          git push origin "$BRANCH" --follow-tags
+        run: git push origin main --follow-tags
 
       - name: Zip build output
         run: |
