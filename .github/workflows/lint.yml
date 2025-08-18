@@ -23,7 +23,4 @@ jobs:
         run: npm ci
 
       - name: Lint
-        uses: eslint/github-action@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          lint-command: npm run lint
+        run: npm run lint
