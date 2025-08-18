@@ -66,6 +66,7 @@ export default function Sidebar() {
         <div className="flex flex-col bg-base-300 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
           <div className="flex flex-row items-center justify-between leading-10 py-2">
             {/* close sidebar button */}
+            <label className="w-8 h-8 p-0 max-lg:hidden"></label>
             <label
               htmlFor="toggle-drawer"
               className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
