@@ -107,7 +107,7 @@ jobs:
           toTag: 'v${{ env.VERSION }}'
           configurationJson: |
             {
-              "template": "## Release Notes\n#{{CHANGELOG}}",
+              "template": "## Release Notes\n\n#{{CHANGELOG}}",
               "categories": [
                 {
                   "title": "### 🚀 Enhancements",

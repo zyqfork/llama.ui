@@ -85,14 +85,14 @@ rm -rf node_modules dist && npm ci && npm run build
 
 ### 📄 Important Files
 
-| File                     | Purpose                                      |
-|--------------------------|----------------------------------------------|
-| `vite.config.ts`         | Vite build configuration                     |
-| `tailwind.config.js`     | Tailwind CSS setup                           |
-| `tsconfig.json`          | TypeScript compiler options                  |
-| `eslint.config.js`       | ESLint rules                                 |
-| `index.html`             | Entry HTML file                              |
-| `package.json`           | Scripts and dependencies                     |
+| File                 | Purpose                     |
+| -------------------- | --------------------------- |
+| `vite.config.ts`     | Vite build configuration    |
+| `tailwind.config.js` | Tailwind CSS setup          |
+| `tsconfig.json`      | TypeScript compiler options |
+| `eslint.config.js`   | ESLint rules                |
+| `index.html`         | Entry HTML file             |
+| `package.json`       | Scripts and dependencies    |
 
 ### ✅ Validation Steps
 

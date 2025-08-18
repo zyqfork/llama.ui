@@ -1,7 +1,7 @@
 name: ✨ Feature Request
 description: Suggest a new idea or enhancement
-title: "[Feature]: "
-labels: ["feature"]
+title: '[Feature]: '
+labels: ['feature']
 body:
   - type: checkboxes
     id: prerequisites

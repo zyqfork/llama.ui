@@ -1,7 +1,7 @@
 name: 📚 Documentation
 description: Fix typos, clarify docs, or add missing information
-title: "[Docs]: "
-labels: ["docs"]
+title: '[Docs]: '
+labels: ['docs']
 body:
   - type: textarea
     id: location
