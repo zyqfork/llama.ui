@@ -52,6 +52,43 @@ export default defineConfig(({ mode }) => {
           orientation: 'any',
           lang: 'en',
         },
+        workbox: {
+          runtimeCaching: [
+            {
+              urlPattern: '\\.(?:html|css|js|mjs)$',
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'static-resources',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+              },
+            },
+            {
+              urlPattern: '\\.(?:jpg|jpeg|png|svg|ico)$',
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+              },
+            },
+            {
+              urlPattern: '\\.(?:woff2?|ttf|otf)$',
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'font-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+                },
+              },
+            },
+          ],
+        },
       }),
     ],
     build: {
