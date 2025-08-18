@@ -45,7 +45,7 @@ type SettingFieldInputType = Exclude<
 interface SettingFieldInput {
   type: SettingFieldInputType;
   label: string | React.ReactElement;
-  note?: string | React.ReactElement;
+  note?: string | TrustedHTML;
   key: ConfigurationKey;
   disabled?: boolean;
 }
@@ -601,17 +601,20 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
   onChange,
 }) => {
   return (
-    <label className="form-control">
+    <label className="form-control mb-3">
       <div className="label inline text-sm">{field.label || configKey}</div>
       <textarea
-        className="textarea textarea-bordered h-24 mb-2"
+        className="textarea textarea-bordered h-24"
         placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={field.disabled}
       />
       {field.note && (
-        <div className="text-xs opacity-75 mt-1">{field.note}</div>
+        <div
+          className="text-xs opacity-75 mt-1"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
     </label>
   );
@@ -621,14 +624,11 @@ const SettingsModalShortInput: React.FC<
   BaseInputProps & { value: string | number }
 > = ({ configKey, field, value, onChange }) => {
   return (
-    <>
-      {/* on mobile, we simply show the help message here */}
-      {field.note && (
-        <div className="block mb-1 opacity-75">
-          <p className="text-xs">{field.note}</p>
-        </div>
-      )}
-      <label className="input input-bordered join-item grow flex items-center gap-2 mb-2">
+    <label className="form-control flex flex-col justify-center mb-3">
+      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+        {field.label || configKey}
+      </div>
+      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
         <div className="dropdown dropdown-hover">
           <div tabIndex={0} role="button" className="font-bold hidden md:block">
             {field.label || configKey}
@@ -643,7 +643,15 @@ const SettingsModalShortInput: React.FC<
           disabled={field.disabled}
         />
       </label>
-    </>
+      {field.note && (
+        <div className="block opacity-75">
+          <div
+            className="text-xs"
+            dangerouslySetInnerHTML={{ __html: field.note }}
+          />
+        </div>
+      )}
+    </label>
   );
 };
 
@@ -654,14 +662,8 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   onChange,
 }) => {
   return (
-    <>
-      {field.note && (
-        <div className="block mb-1 opacity-75">
-          <p className="text-xs">{field.note}</p>
-        </div>
-      )}
-
-      <div className="flex flex-row items-center mb-2">
+    <label className="form-control flex flex-col justify-center mb-3">
+      <div className="flex flex-row items-center mb-1">
         <input
           type="checkbox"
           className="toggle"
@@ -671,7 +673,15 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         />
         <span className="ml-2">{field.label || configKey}</span>
       </div>
-    </>
+      {field.note && (
+        <div className="block opacity-75">
+          <p
+            className="text-xs"
+            dangerouslySetInnerHTML={{ __html: field.note }}
+          />
+        </div>
+      )}
+    </label>
   );
 };
 
@@ -720,7 +730,6 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
   const debugImportDemoConv = async () => {
     try {
-      // TODO
       const res = await fetch(`${baseUrl}/demo-conversation.json`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const demoConv = await res.json();
