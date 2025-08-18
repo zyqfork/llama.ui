@@ -75,7 +75,7 @@ export default function Sidebar() {
           Skip to main content
         </a>
 
-        <div className="flex flex-col bg-base-200 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
+        <div className="flex flex-col bg-base-300 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
           <div className="flex flex-row items-center justify-between leading-10 py-2">
             {/* close sidebar button */}
             <label className="w-8 h-8 p-0 max-xl:hidden"></label>
@@ -110,7 +110,7 @@ export default function Sidebar() {
               {group.title ? (
                 // we use btn class here to make sure that the padding/margin are aligned with the other items
                 <b
-                  className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-50"
+                  className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
                   role="note"
                   aria-description={group.title}
                   tabIndex={0}
@@ -186,7 +186,7 @@ export default function Sidebar() {
               ))}
             </div>
           ))}
-          <div className="text-center text-xs opacity-40 mt-auto mx-4 pt-8">
+          <div className="text-center text-xs opacity-75 mt-auto mx-4 pt-8">
             Conversations are saved to browser's IndexedDB
           </div>
         </div>
