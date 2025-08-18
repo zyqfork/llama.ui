@@ -85,9 +85,7 @@
         "role": "system",
         "content": "",
         "parent": -1,
-        "children": [
-          1755434548311
-        ]
+        "children": [1755434548311]
       },
       {
         "id": 1755434548311,
@@ -97,9 +95,7 @@
         "role": "user",
         "content": "Write some code",
         "parent": 1755434548305,
-        "children": [
-          1755434548339
-        ]
+        "children": [1755434548339]
       },
       {
         "id": 1755434548339,
@@ -109,9 +105,7 @@
         "role": "assistant",
         "content": "Sure thing! Could you let me know what you’d like the code to do?  \n- What programming language are you interested in?  \n- Is it a small utility (e.g., “Hello, World!”), a particular algorithm, a web‑app snippet, or something else?  \nWith a bit more detail I can tailor the code to your needs.",
         "parent": 1755434548311,
-        "children": [
-          1755434588899
-        ],
+        "children": [1755434588899],
         "model": "ChatGPT",
         "timings": {
           "prompt_n": 6,
@@ -128,9 +122,7 @@
         "role": "user",
         "content": "Write examples on different languages. \"Hello World\" would be enough.",
         "parent": 1755434548339,
-        "children": [
-          1755434588923
-        ]
+        "children": [1755434588923]
       },
       {
         "id": 1755434588923,

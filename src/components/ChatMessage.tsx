@@ -165,7 +165,7 @@ export default function ChatMessage({
       {msg.content !== null && (
         <div
           className={classNames({
-            'flex items-center gap-2 mx-4 mb-2': true,
+            'flex items-center gap-2 mx-4': true,
             'flex-row-reverse': msg.role === 'user',
           })}
         >

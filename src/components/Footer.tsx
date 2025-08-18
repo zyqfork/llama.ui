@@ -1,6 +1,6 @@
 import { useAppContext } from '../utils/app.context';
 
-export function ServerInfo() {
+export function Footer() {
   const { serverProps } = useAppContext();
   const modalities = [];
   if (serverProps?.modalities?.audio) {
@@ -11,8 +11,8 @@ export function ServerInfo() {
   }
 
   return (
-    <div
-      className="sticky bottom-0 w-full pt-1 pb-1 text-base-content/70 text-xs text-center"
+    <footer
+      className="w-full py-1 text-base-content/70 text-xs text-center"
       tabIndex={0}
       aria-description="Server information"
     >
@@ -30,6 +30,6 @@ export function ServerInfo() {
           ''
         )}
       </span>
-    </div>
+    </footer>
   );
 }

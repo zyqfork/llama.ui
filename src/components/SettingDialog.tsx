@@ -16,7 +16,7 @@ import {
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
 import React, { useMemo, useState } from 'react';
-import { CONFIG_DEFAULT, isDev } from '../config';
+import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
 import * as lang from '../lang/en.json';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
@@ -720,7 +720,8 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
   const debugImportDemoConv = async () => {
     try {
-      const res = await fetch('/demo-conversation.json');
+      // TODO
+      const res = await fetch(`${baseUrl}/demo-conversation.json`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const demoConv = await res.json();
       StorageUtils.importDB(demoConv);
@@ -737,7 +738,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
         Chats
       </SettingsSectionLabel>
 
-      <div className="grid grid-cols-[min-content_min-content] gap-2">
+      <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
           <ArrowDownTrayIcon className={ICON_CLASSNAME} />
           Export

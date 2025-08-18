@@ -10,6 +10,8 @@ This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) 
 - Extra functionality ⚙️
 - Smoother experience ✨
 
+![welcome-screen](public/screenshots/desktop.png)
+
 ## 🚀 Getting Started in 60 Seconds!
 
 ### 💻 Standalone Mode (Zero Installation)
