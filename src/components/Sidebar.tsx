@@ -53,7 +53,6 @@ export default function Sidebar() {
         type="checkbox"
         className="drawer-toggle"
         aria-label="Toggle sidebar"
-        defaultChecked
       />
 
       <div
@@ -67,13 +66,6 @@ export default function Sidebar() {
           aria-label="Close sidebar"
           className="drawer-overlay"
         ></label>
-
-        <a
-          href="#main-scroll"
-          className="absolute -left-80 top-0 w-1 h-1 overflow-hidden"
-        >
-          Skip to main content
-        </a>
 
         <div className="flex flex-col bg-base-300 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
           <div className="flex flex-row items-center justify-between leading-10 py-2">
