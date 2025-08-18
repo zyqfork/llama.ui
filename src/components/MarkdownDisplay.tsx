@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import Markdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeHightlight from 'rehype-highlight';
+import rehypeHighlight from 'rehype-highlight';
+import { all as languages } from 'lowlight';
+import 'highlight.js/styles/github.css';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
@@ -28,7 +30,7 @@ export default function MarkdownDisplay({
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-      rehypePlugins={[rehypeHightlight, rehypeKatex, rehypeCustomCopyButton]}
+  rehypePlugins={[[rehypeHighlight, { languages }], rehypeKatex, rehypeCustomCopyButton]}
       components={{
         button: (props) => (
           <CodeBlockButtons
