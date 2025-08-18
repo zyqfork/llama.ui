@@ -274,7 +274,7 @@ const StorageUtils = {
         for (const table of db.tables) {
           const rows = [];
           if (!convId) {
-            rows.push(await table.toArray());
+            rows.push(...(await table.toArray()));
           } else {
             if (table.name === 'conversations') {
               rows.push(await table.where('id').equals(convId).first());
@@ -293,6 +293,7 @@ const StorageUtils = {
         return data;
       });
       console.info('Database export completed successfully.');
+      toast.success('Database export completed.');
       if (isDev)
         exportData.forEach((tableData) => {
           console.debug(
@@ -302,7 +303,7 @@ const StorageUtils = {
       return exportData;
     } catch (error) {
       console.error('Error during database export:', error);
-      toast.error('An error occurred during database export.');
+      toast.success('Database export failed.');
       throw error; // Re-throw to allow caller to handle
     }
   },
@@ -343,9 +344,10 @@ const StorageUtils = {
         }
       });
       console.info('Database import completed successfully.');
+      toast.success('Database import completed.');
     } catch (error) {
       console.error('Error during database import:', error);
-      toast.error('An error occurred during data import.');
+      toast.success('Database import failed.');
       throw error; // Re-throw to allow caller to handle
     }
   },
