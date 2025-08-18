@@ -19,7 +19,7 @@
       },
       "systemMessage": {
         "label": "System Message (will be disabled if left empty)",
-        "note": "The starting message that defines how model should behave."
+        "note": "The starting message that defines how model should behave. You can get examples from <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
       },
       "pasteLongTextToFileLen": {
         "label": "On Paste: convert to file if length >",
