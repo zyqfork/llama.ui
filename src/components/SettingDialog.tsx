@@ -737,7 +737,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
         Chats
       </SettingsSectionLabel>
 
-      <div className="grid grid-cols-[repeat(2,min-content)] gap-2">
+      <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
           <ArrowDownTrayIcon className={ICON_CLASSNAME} />
           Export
