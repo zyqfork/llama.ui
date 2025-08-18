@@ -1,7 +1,7 @@
 name: 🎨 UI/UX Feedback
 description: Suggest visual, usability, or interaction improvements
-title: "[UI]: "
-labels: ["ui/ux"]
+title: '[UI]: '
+labels: ['ui/ux']
 body:
   - type: textarea
     id: summary
