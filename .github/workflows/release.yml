@@ -61,6 +61,7 @@ jobs:
           npm version $VERSION_TYPE --message "release:%s"
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Push commit and tag
         run: git push origin main --follow-tags
@@ -71,14 +72,16 @@ jobs:
       - name: Zip build output
         run: |
           cd dist
-          zip -r ../index.html.zip .
+          ZIP_NAME="index.html-${{ env.VERSION }}.zip"
+          zip -r "../$ZIP_NAME" .
           cd ..
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: index-html-zip
-          path: index.html.zip
+          name: index-html-${{ env.VERSION }}-zip
+          path: ${{ env.ZIP_NAME }}
 
       - name: Build Changelog
         id: build_changelog
@@ -136,6 +139,6 @@ jobs:
           tag_name: v${{ env.VERSION }}
           name: v${{ env.VERSION }}
           body: ${{steps.build_changelog.outputs.changelog}}
-          files: index.html.zip
+          files: ${{ env.ZIP_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
