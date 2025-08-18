@@ -13,6 +13,12 @@ on:
           - minor
           - patch
 
+      branch:
+        description: 'Target branch for release'
+        required: false
+        default: 'main'
+        type: string
+
 permissions:
   contents: write
 
@@ -63,11 +69,21 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "NEW_VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Push commit and tag
-        run: git push origin main --follow-tags
+      - name: Test
+        run: |
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            npm test
+          else
+            echo "No test script defined, skipping tests."
+          fi
 
       - name: Build
         run: npm run build
+
+      - name: Push commit and tag
+        run: |
+          BRANCH="${{ github.event.inputs.branch || 'main' }}"
+          git push origin "$BRANCH" --follow-tags
 
       - name: Zip build output
         run: |
@@ -87,10 +103,10 @@ jobs:
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v5
         with:
-          mode: "COMMIT"
-          ignorePreReleases: "false"
-          fromTag: "v${{ env.PREV_VERSION }}"
-          toTag: "v${{ env.VERSION }}"
+          mode: 'COMMIT'
+          ignorePreReleases: 'false'
+          fromTag: 'v${{ env.PREV_VERSION }}'
+          toTag: 'v${{ env.VERSION }}'
           configurationJson: |
             {
               "template": "## Release Notes\n#{{CHANGELOG}}",
@@ -102,6 +118,10 @@ jobs:
                 {
                   "title": "### 🛠 Fixes",
                   "labels": ["fix", "bug"]
+                },
+                {
+                  "title": "### ⚡️ Performance",
+                  "labels": ["perf"]
                 },
                 {
                   "title": "### 📚 Documentation",
@@ -120,6 +140,7 @@ jobs:
                 "refactor",
                 "revert",
                 "style",
+                "test",
                 "release"
               ],
               "label_extractor": [
@@ -128,6 +149,10 @@ jobs:
                   "on_property": "title",
                   "target": "$1"
                 }
+              ],
+              "commitIgnorePatterns": [
+                "^release:\\d+\\.\\d+\\.\\d+$",
+                "^\\d+\\.\\d+\\.\\d+$"
               ]
             }
         env:
