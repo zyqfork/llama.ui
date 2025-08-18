@@ -30,7 +30,11 @@ export default function MarkdownDisplay({
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-  rehypePlugins={[[rehypeHighlight, { languages }], rehypeKatex, rehypeCustomCopyButton]}
+      rehypePlugins={[
+        [rehypeHighlight, { languages }],
+        rehypeKatex,
+        rehypeCustomCopyButton,
+      ]}
       components={{
         button: (props) => (
           <CodeBlockButtons

@@ -58,15 +58,15 @@ export default function Sidebar() {
       />
 
       <div
-        className="drawer-side h-screen z-50"
+        className="drawer-side fixed inset-0 w-full z-50"
         role="complementary"
         aria-label="Sidebar"
         tabIndex={0}
       >
-        <div className="flex flex-col bg-base-300 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
+        <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0">
           <div className="flex flex-row items-center justify-between leading-10 py-2">
             {/* close sidebar button */}
-            <label className="w-8 h-8 p-0 max-lg:hidden"></label>
+            <label className="w-8 h-8 p-0 max-xl:hidden"></label>
             <label
               htmlFor="toggle-drawer"
               className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
@@ -91,94 +91,98 @@ export default function Sidebar() {
             </button>
           </div>
 
-          {/* list of conversations */}
-          {groupedConv.map((group, i) => (
-            <div key={i} role="group">
-              {/* group name (by date) */}
-              {group.title ? (
-                // we use btn class here to make sure that the padding/margin are aligned with the other items
-                <b
-                  className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
-                  role="note"
-                  aria-description={group.title}
-                  tabIndex={0}
-                >
-                  {group.title}
-                </b>
-              ) : (
-                <div className="h-2" />
-              )}
+          {/* scrollable conversation list */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+            {groupedConv.map((group, i) => (
+              <div key={i} role="group">
+                {/* group name (by date) */}
+                {group.title ? (
+                  // we use btn class here to make sure that the padding/margin are aligned with the other items
+                  <b
+                    className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
+                    role="note"
+                    aria-description={group.title}
+                    tabIndex={0}
+                  >
+                    {group.title}
+                  </b>
+                ) : (
+                  <div className="h-2" />
+                )}
 
-              {group.conversations.map((conv) => (
-                <ConversationItem
-                  key={conv.id}
-                  conv={conv}
-                  isCurrConv={currConv?.id === conv.id}
-                  onSelect={() => {
-                    const toggle = toggleDrawerRef.current;
-                    if (toggle != null) {
-                      toggle.click();
-                    }
-                    navigate(`/chat/${conv.id}`);
-                  }}
-                  onDelete={async () => {
-                    if (isGenerating(conv.id)) {
-                      toast.error(
-                        'Cannot delete conversation while generating'
+                {group.conversations.map((conv) => (
+                  <ConversationItem
+                    key={conv.id}
+                    conv={conv}
+                    isCurrConv={currConv?.id === conv.id}
+                    onSelect={() => {
+                      const toggle = toggleDrawerRef.current;
+                      if (toggle != null) {
+                        toggle.click();
+                      }
+                      navigate(`/chat/${conv.id}`);
+                    }}
+                    onDelete={async () => {
+                      if (isGenerating(conv.id)) {
+                        toast.error(
+                          'Cannot delete conversation while generating'
+                        );
+                        return;
+                      }
+                      if (
+                        await showConfirm(
+                          'Are you sure to delete this conversation?'
+                        )
+                      ) {
+                        toast.success('Conversation deleted');
+                        StorageUtils.remove(conv.id);
+                        navigate('/');
+                      }
+                    }}
+                    onDownload={async () => {
+                      if (isGenerating(conv.id)) {
+                        toast.error(
+                          'Cannot download conversation while generating'
+                        );
+                        return;
+                      }
+                      const data = await StorageUtils.exportDB(conv.id);
+                      const conversationJson = JSON.stringify(data, null, 2);
+                      const blob = new Blob([conversationJson], {
+                        type: 'application/json',
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `conversation_${conv.id}.json`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }}
+                    onRename={async () => {
+                      if (isGenerating(conv.id)) {
+                        toast.error(
+                          'Cannot rename conversation while generating'
+                        );
+                        return;
+                      }
+                      const newName = await showPrompt(
+                        'Enter new name for the conversation',
+                        conv.name
                       );
-                      return;
-                    }
-                    if (
-                      await showConfirm(
-                        'Are you sure to delete this conversation?'
-                      )
-                    ) {
-                      toast.success('Conversation deleted');
-                      StorageUtils.remove(conv.id);
-                      navigate('/');
-                    }
-                  }}
-                  onDownload={async () => {
-                    if (isGenerating(conv.id)) {
-                      toast.error(
-                        'Cannot download conversation while generating'
-                      );
-                      return;
-                    }
-                    const data = await StorageUtils.exportDB(conv.id);
-                    const conversationJson = JSON.stringify(data, null, 2);
-                    const blob = new Blob([conversationJson], {
-                      type: 'application/json',
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `conversation_${conv.id}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                  }}
-                  onRename={async () => {
-                    if (isGenerating(conv.id)) {
-                      toast.error(
-                        'Cannot rename conversation while generating'
-                      );
-                      return;
-                    }
-                    const newName = await showPrompt(
-                      'Enter new name for the conversation',
-                      conv.name
-                    );
-                    if (newName && newName.trim().length > 0) {
-                      StorageUtils.updateConversationName(conv.id, newName);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          ))}
-          <div className="text-center text-xs opacity-75 mt-auto mx-4 pt-8">
+                      if (newName && newName.trim().length > 0) {
+                        StorageUtils.updateConversationName(conv.id, newName);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Footer always at the bottom */}
+          <div className="text-center text-xs opacity-75 mx-4 pt-4">
             Conversations are saved to browser's IndexedDB
           </div>
         </div>
@@ -218,6 +222,8 @@ function ConversationItem({
         className="w-full overflow-hidden truncate text-start"
         onClick={onSelect}
         dir="auto"
+        type="button"
+        aria-label={`Select conversation: ${conv.name}`}
       >
         {conv.name}
       </button>
@@ -230,32 +236,39 @@ function ConversationItem({
           className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
           onClick={() => {}}
           tooltipsContent="More"
+          aria-label="Show more options"
         >
           <EllipsisVerticalIcon className="w-5 h-5" />
         </BtnWithTooltips>
         {/* dropdown menu */}
         <ul
           aria-label="More options"
-          tabIndex={0}
+          role="menu"
+          tabIndex={-1}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
         >
-          <li onClick={onRename} tabIndex={0}>
-            <a>
+          <li role="menuitem" tabIndex={0} onClick={onRename}>
+            <button type="button" aria-label="Rename conversation">
               <PencilIcon className="w-4 h-4" />
               Rename
-            </a>
+            </button>
           </li>
-          <li onClick={onDownload} tabIndex={0}>
-            <a>
+          <li role="menuitem" tabIndex={0} onClick={onDownload}>
+            <button type="button" aria-label="Download conversation">
               <ArrowDownTrayIcon className="w-4 h-4" />
               Download
-            </a>
+            </button>
           </li>
-          <li className="text-error" onClick={onDelete} tabIndex={0}>
-            <a>
+          <li
+            role="menuitem"
+            tabIndex={0}
+            className="text-error"
+            onClick={onDelete}
+          >
+            <button type="button" aria-label="Delete conversation">
               <TrashIcon className="w-4 h-4" />
               Delete
-            </a>
+            </button>
           </li>
         </ul>
       </div>
