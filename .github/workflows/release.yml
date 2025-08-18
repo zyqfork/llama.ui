@@ -2,6 +2,16 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type (major, minor, patch)'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
 
 permissions:
   contents: write
@@ -47,7 +57,8 @@ jobs:
         run: |
           PREV_VERSION=$(node -p "require('./package.json').version")
           echo "PREV_VERSION=$PREV_VERSION" >> $GITHUB_ENV
-          npm version patch --message "release:%s"
+          VERSION_TYPE="${{ github.event.inputs.version_type || 'patch' }}"
+          npm version $VERSION_TYPE --message "release:%s"
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -90,7 +101,7 @@ jobs:
                   "labels": ["fix", "bug"]
                 },
                 {
-                  "title": "### 📚 Documentetion",
+                  "title": "### 📚 Documentation",
                   "labels": ["docs"]
                 },
                 {
