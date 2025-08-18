@@ -1,35 +1,13 @@
-import { useAppContext } from '../utils/app.context';
+import { FC } from 'react';
 
-export function Footer() {
-  const { serverProps } = useAppContext();
-  const modalities = [];
-  if (serverProps?.modalities?.audio) {
-    modalities.push('audio');
-  }
-  if (serverProps?.modalities?.vision) {
-    modalities.push('vision');
-  }
-
+export const Footer: FC = () => {
   return (
     <footer
       className="w-full py-1 text-base-content/70 text-xs text-center"
       tabIndex={0}
-      aria-description="Server information"
+      aria-description="Statement"
     >
-      <span>
-        <b>Llama.cpp</b> {serverProps?.build_info}
-      </span>
-
-      <span className="sm:ml-2">
-        {modalities.length > 0 ? (
-          <>
-            <br className="sm:hidden" />
-            <b>Supported modalities:</b> {modalities.join(', ')}
-          </>
-        ) : (
-          ''
-        )}
-      </span>
+      <span>The content created by AI may be inaccurate.</span>
     </footer>
   );
-}
+};
