@@ -57,7 +57,7 @@ export default function Sidebar() {
       />
 
       <div
-        className="drawer-side h-screen lg:h-screen z-50"
+        className="drawer-side h-screen z-50"
         role="complementary"
         aria-label="Sidebar"
         tabIndex={0}
@@ -75,13 +75,13 @@ export default function Sidebar() {
           Skip to main content
         </a>
 
-        <div className="flex flex-col bg-base-200 min-h-full max-w-full lg:w-80 pb-4 px-4 lg:px-2">
+        <div className="flex flex-col bg-base-200 min-h-full max-w-full xl:w-72 pb-4 px-4 xl:px-2">
           <div className="flex flex-row items-center justify-between leading-10 py-2">
             {/* close sidebar button */}
-            <label className="w-8 h-8 p-0 max-lg:hidden"></label>
+            <label className="w-8 h-8 p-0 max-xl:hidden"></label>
             <label
               htmlFor="toggle-drawer"
-              className="btn btn-ghost w-8 h-8 p-0 rounded-full lg:hidden"
+              className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
               aria-label="Close sidebar"
               role="button"
               tabIndex={0}

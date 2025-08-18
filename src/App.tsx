@@ -12,7 +12,7 @@ function App() {
   return (
     <ModalProvider>
       <HashRouter>
-        <div className="flex flex-row drawer lg:drawer-open">
+        <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
             <Routes>
               <Route element={<AppLayout />}>

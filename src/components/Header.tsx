@@ -28,7 +28,7 @@ export default function Header() {
       {/* open sidebar button */}
       <label
         htmlFor="toggle-drawer"
-        className="btn btn-ghost w-8 h-8 p-0 lg:hidden"
+        className="btn btn-ghost w-8 h-8 p-0 xl:hidden"
       >
         <Bars3Icon className="h-5 w-5" />
       </label>

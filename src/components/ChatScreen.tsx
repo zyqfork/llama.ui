@@ -162,15 +162,15 @@ export default function ChatScreen() {
   return (
     <div
       className={classNames({
-        'grid lg:gap-8 grow transition-[300ms]': true,
-        'grid-cols-[1fr_0fr] lg:grid-cols-[1fr_1fr]': hasCanvas, // adapted for mobile
+        'grid xl:gap-8 grow transition-[300ms]': true,
+        'grid-cols-[1fr_0fr] xl:grid-cols-[1fr_1fr]': hasCanvas, // adapted for mobile
         'grid-cols-[1fr_0fr]': !hasCanvas,
       })}
     >
       <div
         className={classNames({
-          'flex flex-col w-full lg:max-w-[900px] mx-auto': true,
-          'hidden lg:flex': hasCanvas, // adapted for mobile
+          'flex flex-col w-full xl:max-w-[900px] mx-auto': true,
+          'hidden xl:flex': hasCanvas, // adapted for mobile
           flex: !hasCanvas,
         })}
       >
