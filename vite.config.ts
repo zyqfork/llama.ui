@@ -34,6 +34,20 @@ export default defineConfig(({ mode }) => {
             { src: 'assets/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
             { src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
           ],
+          screenshots: [
+            {
+              src: 'screenshots/desktop.png',
+              sizes: '1280x962',
+              type: 'image/png',
+              form_factor: 'wide',
+            },
+            {
+              src: 'screenshots/mobile.png',
+              sizes: '576x1280',
+              type: 'image/png',
+              form_factor: 'narrow',
+            },
+          ],
           start_url: env['BASE_URL'],
           orientation: 'any',
           lang: 'en',
