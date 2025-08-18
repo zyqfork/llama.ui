@@ -4,7 +4,7 @@ import { Configuration } from './utils/types';
 export const isDev = import.meta.env.MODE === 'development';
 
 // constants
-const baseUrl = new URL('.', document.baseURI).href
+export const baseUrl = new URL('.', document.baseURI).href
   .toString()
   .replace(/\/$/, '');
 
