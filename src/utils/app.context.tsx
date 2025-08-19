@@ -120,6 +120,7 @@ export const AppContextProvider = ({
       try {
         setModels(await api.v1Models());
       } catch (err) {
+        console.error('fetch models failed: ', err);
         toast.error('LLM inference server is unavailable.');
         return;
       }
