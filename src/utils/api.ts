@@ -6,6 +6,7 @@ import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
 
 import { isDev } from '../config';
 import { Configuration, Message } from './types';
+import { splitMessageContent } from './misc';
 
 // --- Type Definitions ---
 
@@ -170,13 +171,10 @@ function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
       return msg;
     }
     // assistant message is always a string
-    const contentStr = msg.content as string;
+    const splittedMessage = splitMessageContent(msg.content as string);
     return {
       role: msg.role,
-      content:
-        msg.role === 'assistant'
-          ? contentStr.split('</think>').at(-1)!.trim()
-          : contentStr,
+      content: splittedMessage.content || '',
     };
   });
 }

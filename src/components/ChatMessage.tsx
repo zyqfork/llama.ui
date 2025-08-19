@@ -9,7 +9,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../utils/app.context';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
-import { classNames } from '../utils/misc';
+import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
@@ -64,30 +64,10 @@ export default function ChatMessage({
   // for reasoning model, we split the message into content and thought
   // TODO: implement this as remark/rehype plugin in the future
   const { content, thought, isThinking }: SplitMessage = useMemo(() => {
-    if (msg.content === null || msg.role !== 'assistant') {
+    if (msg.role !== 'assistant') {
       return { content: msg.content };
     }
-    const REGEX_THINK_OPEN = /<think>|<\|channel\|>analysis<\|message\|>/;
-    const REGEX_THINK_CLOSE =
-      /<\/think>|<\|start\|>assistant<\|channel\|>final<\|message\|>/;
-    let actualContent = '';
-    let thought = '';
-    let isThinking = false;
-    let thinkSplit = msg.content.split(REGEX_THINK_OPEN, 2);
-    actualContent += thinkSplit[0];
-    while (thinkSplit[1] !== undefined) {
-      // <think> tag found
-      thinkSplit = thinkSplit[1].split(REGEX_THINK_CLOSE, 2);
-      thought += thinkSplit[0];
-      isThinking = true;
-      if (thinkSplit[1] !== undefined) {
-        // </think> closing tag found
-        isThinking = false;
-        thinkSplit = thinkSplit[1].split(REGEX_THINK_OPEN, 2);
-        actualContent += thinkSplit[0];
-      }
-    }
-    return { content: actualContent, thought, isThinking };
+    return splitMessageContent(msg.content);
   }, [msg]);
 
   if (!viewingChat) return null;
