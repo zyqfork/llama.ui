@@ -90,6 +90,7 @@ export interface Message {
   model?: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  reasoning_content?: string;
   timings?: TimingReport;
   extra?: MessageExtra[];
   // node based system for branching
@@ -140,8 +141,12 @@ export interface ViewingChat {
   messages: Readonly<Message[]>;
 }
 
-export type PendingMessage = Omit<Message, 'content'> & {
+export type PendingMessage = Omit<
+  Omit<Message, 'content'>,
+  'reasoning_content'
+> & {
   content: string | null;
+  reasoning_content: string | null;
 };
 
 /**

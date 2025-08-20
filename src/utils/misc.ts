@@ -71,21 +71,18 @@ export const splitMessageContent = (content: string | null) => {
     /<\/think>|<\|start\|>assistant<\|channel\|>final<\|message\|>/;
 
   let actualContent = '';
-  let thought = '';
-  let isThinking = false;
+  let reasoning_content = '';
   let thinkSplit = content.split(REGEX_THINK_OPEN, 2);
   actualContent += thinkSplit[0];
   while (thinkSplit[1] !== undefined) {
     // <think> tag found
     thinkSplit = thinkSplit[1].split(REGEX_THINK_CLOSE, 2);
-    thought += thinkSplit[0];
-    isThinking = true;
+    reasoning_content += thinkSplit[0];
     if (thinkSplit[1] !== undefined) {
       // </think> closing tag found
-      isThinking = false;
       thinkSplit = thinkSplit[1].split(REGEX_THINK_OPEN, 2);
       actualContent += thinkSplit[0];
     }
   }
-  return { content: actualContent, thought, isThinking };
+  return { content: actualContent, reasoning_content };
 };

@@ -215,6 +215,7 @@ export const AppContextProvider = ({
       timestamp: pendingId,
       role: 'assistant',
       content: null,
+      reasoning_content: null,
       parent: leafNodeId,
       children: [],
     };
@@ -236,6 +237,14 @@ export const AppContextProvider = ({
           pendingMsg = {
             ...pendingMsg,
             content: lastContent + addedContent,
+          };
+        }
+        const reasoningContent = chunk.choices[0].delta.reasoning_content;
+        if (reasoningContent) {
+          const lastContent = pendingMsg.reasoning_content || '';
+          pendingMsg = {
+            ...pendingMsg,
+            reasoning_content: lastContent + reasoningContent,
           };
         }
         if (chunk.model) {
