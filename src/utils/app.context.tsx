@@ -120,6 +120,7 @@ export const AppContextProvider = ({
       try {
         setModels(await api.v1Models());
       } catch (err) {
+        console.error('fetch models failed: ', err);
         toast.error('LLM inference server is unavailable.');
         return;
       }
@@ -214,6 +215,7 @@ export const AppContextProvider = ({
       timestamp: pendingId,
       role: 'assistant',
       content: null,
+      reasoning_content: null,
       parent: leafNodeId,
       children: [],
     };
@@ -235,6 +237,16 @@ export const AppContextProvider = ({
           pendingMsg = {
             ...pendingMsg,
             content: lastContent + addedContent,
+          };
+        }
+        const reasoningContent =
+          chunk.choices[0].delta.reasoning_content ||
+          chunk.choices[0].delta.reasoning;
+        if (reasoningContent) {
+          const lastContent = pendingMsg.reasoning_content || '';
+          pendingMsg = {
+            ...pendingMsg,
+            reasoning_content: lastContent + reasoningContent,
           };
         }
         if (chunk.model) {

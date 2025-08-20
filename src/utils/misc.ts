@@ -62,3 +62,27 @@ export const cleanCurrentUrl = (removeQueryParams: string[]) => {
   });
   window.history.replaceState({}, '', url.toString());
 };
+
+export const splitMessageContent = (content: string | null) => {
+  if (content == null || content.trim().length === 0) return { content };
+
+  const REGEX_THINK_OPEN = /<think>|<\|channel\|>analysis<\|message\|>/;
+  const REGEX_THINK_CLOSE =
+    /<\/think>|<\|start\|>assistant<\|channel\|>final<\|message\|>/;
+
+  let actualContent = '';
+  let thought = '';
+  let thinkSplit = content.split(REGEX_THINK_OPEN, 2);
+  actualContent += thinkSplit[0];
+  while (thinkSplit[1] !== undefined) {
+    // <think> tag found
+    thinkSplit = thinkSplit[1].split(REGEX_THINK_CLOSE, 2);
+    thought += thinkSplit[0];
+    if (thinkSplit[1] !== undefined) {
+      // </think> closing tag found
+      thinkSplit = thinkSplit[1].split(REGEX_THINK_OPEN, 2);
+      actualContent += thinkSplit[0];
+    }
+  }
+  return { content: actualContent, reasoning_content: thought };
+};

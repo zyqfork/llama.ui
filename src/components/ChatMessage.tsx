@@ -2,6 +2,7 @@ import {
   ArrowPathIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  CubeTransparentIcon,
   ExclamationCircleIcon,
   PaperClipIcon,
   PencilSquareIcon,
@@ -9,7 +10,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../utils/app.context';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
-import { classNames } from '../utils/misc';
+import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
@@ -18,8 +19,7 @@ import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
   content: PendingMessage['content'];
-  thought?: string;
-  isThinking?: boolean;
+  reasoning_content?: string;
 }
 
 export default function ChatMessage({
@@ -63,31 +63,17 @@ export default function ChatMessage({
 
   // for reasoning model, we split the message into content and thought
   // TODO: implement this as remark/rehype plugin in the future
-  const { content, thought, isThinking }: SplitMessage = useMemo(() => {
-    if (msg.content === null || msg.role !== 'assistant') {
+  const { content, reasoning_content }: SplitMessage = useMemo(() => {
+    if (msg.role !== 'assistant') {
       return { content: msg.content };
     }
-    const REGEX_THINK_OPEN = /<think>|<\|channel\|>analysis<\|message\|>/;
-    const REGEX_THINK_CLOSE =
-      /<\/think>|<\|start\|>assistant<\|channel\|>final<\|message\|>/;
-    let actualContent = '';
-    let thought = '';
-    let isThinking = false;
-    let thinkSplit = msg.content.split(REGEX_THINK_OPEN, 2);
-    actualContent += thinkSplit[0];
-    while (thinkSplit[1] !== undefined) {
-      // <think> tag found
-      thinkSplit = thinkSplit[1].split(REGEX_THINK_CLOSE, 2);
-      thought += thinkSplit[0];
-      isThinking = true;
-      if (thinkSplit[1] !== undefined) {
-        // </think> closing tag found
-        isThinking = false;
-        thinkSplit = thinkSplit[1].split(REGEX_THINK_OPEN, 2);
-        actualContent += thinkSplit[0];
-      }
+    if (msg.reasoning_content) {
+      return {
+        content: msg.content,
+        reasoning_content: msg.reasoning_content,
+      };
     }
-    return { content: actualContent, thought, isThinking };
+    return splitMessageContent(msg.content);
   }, [msg]);
 
   if (!viewingChat) return null;
@@ -140,22 +126,23 @@ export default function ChatMessage({
           )}
 
           {/* show loading dots for pending message */}
-          {!isEditing && content === null && (
+          {!isEditing && !content && !reasoning_content && (
             <span className="loading loading-dots loading-md"></span>
           )}
 
           {/* render message as markdown */}
-          {!isEditing && content !== null && (
+          {!isEditing && (!!content || !!reasoning_content) && (
             <div dir="auto" tabIndex={0}>
-              {thought && (
+              {!!reasoning_content && (
                 <ThoughtProcess
-                  isThinking={!!isThinking && !!isPending}
-                  content={thought}
-                  open={config.showThoughtInProgress}
+                  isThinking={!!isPending && !content}
+                  content={reasoning_content}
                 />
               )}
 
-              <MarkdownDisplay content={content} isGenerating={isPending} />
+              {!!content && (
+                <MarkdownDisplay content={content} isGenerating={!!isPending} />
+              )}
             </div>
           )}
         </div>
@@ -211,7 +198,7 @@ export default function ChatMessage({
                   onRegenerateMessage(msg as Message);
                 }
               }}
-              disabled={msg.content === null}
+              disabled={!msg.content}
               tooltipsContent="Regenerate response"
             >
               <ArrowPathIcon className="h-4 w-4" />
@@ -224,7 +211,7 @@ export default function ChatMessage({
             <BtnWithTooltips
               className="btn-mini w-8 h-8"
               onClick={() => setIsEditing(msg.content !== null)}
-              disabled={msg.content === null}
+              disabled={!msg.content}
               tooltipsContent="Edit message"
             >
               <PencilSquareIcon className="h-4 w-4" />
@@ -361,12 +348,11 @@ function EditMessage({
 function ThoughtProcess({
   isThinking,
   content,
-  open,
 }: {
   isThinking: boolean;
   content: string;
-  open: boolean;
 }) {
+  const { config } = useAppContext();
   return (
     <div
       role="button"
@@ -376,19 +362,20 @@ function ThoughtProcess({
         'collapse bg-none': true,
       })}
     >
-      <input type="checkbox" defaultChecked={open} />
-      <div className="collapse-title px-0">
-        <div className="btn rounded-xl">
-          {isThinking ? (
-            <span>
-              <span
-                className="loading loading-spinner loading-md mr-2"
-                style={{ verticalAlign: 'middle' }}
-              ></span>
+      <input type="checkbox" defaultChecked={config.showThoughtInProgress} />
+      <div className="collapse-title px-0 py-2">
+        <div className="btn border-0 rounded-xl">
+          {isThinking && (
+            <>
+              <CubeTransparentIcon className="w-6 h-6 mr-1 p-0 animate-spin" />
               Thinking
-            </span>
-          ) : (
-            <>Thought Process</>
+            </>
+          )}
+          {!isThinking && (
+            <>
+              <CubeTransparentIcon className="w-6 h-6 mr-1 p-0" />
+              Thoughts
+            </>
           )}
         </div>
       </div>

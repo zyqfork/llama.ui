@@ -6,6 +6,7 @@ import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
 
 import { isDev } from '../config';
 import { Configuration, Message } from './types';
+import { splitMessageContent } from './misc';
 
 // --- Type Definitions ---
 
@@ -170,13 +171,10 @@ function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
       return msg;
     }
     // assistant message is always a string
-    const contentStr = msg.content as string;
+    const splittedMessage = splitMessageContent(msg.content as string);
     return {
       role: msg.role,
-      content:
-        msg.role === 'assistant'
-          ? contentStr.split('</think>').at(-1)!.trim()
-          : contentStr,
+      content: splittedMessage.content || '',
     };
   });
 }
@@ -317,7 +315,7 @@ class ApiProvider {
 
     // prepare params
     let params = {
-      model: this.config.model,
+      model: !this.config.model ? null : this.config.model,
       messages: apiMessages,
       stream: true,
       cache_prompt: true,
@@ -369,12 +367,7 @@ class ApiProvider {
         signal: abortSignal,
       }
     );
-
-    if (fetchResponse.status !== 200) {
-      const body = await fetchResponse.json();
-      throw new Error(body?.error?.message || 'Unknown error');
-    }
-
+    await this.isErrorResponse(fetchResponse);
     return getSSEStreamAsync(fetchResponse);
   }
 
@@ -389,11 +382,7 @@ class ApiProvider {
       method: 'GET',
       headers: this.getHeaders(),
     });
-
-    if (fetchResponse.status !== 200) {
-      const body = await fetchResponse.json();
-      throw new Error(body?.error?.message || 'Unknown error');
-    }
+    await this.isErrorResponse(fetchResponse);
     return (await fetchResponse.json()).data || [];
   }
 
@@ -413,6 +402,23 @@ class ApiProvider {
       });
     }
     return headers;
+  }
+
+  /**
+   * Checks response for errors response.
+   *
+   * @throws Error if status is not Success
+   * @private
+   */
+  private async isErrorResponse(response: Response) {
+    if (response.status === 200) return;
+
+    const body = await response.json();
+    console.error('API error: ', body);
+    if (response.status === 500) {
+      throw new Error('Internal server error');
+    }
+    throw new Error(body?.error?.message || 'Unknown error');
   }
 }
 
