@@ -70,7 +70,7 @@ html {
 }
 
 .markdown pre {
- @apply bg-base-300  border-0;
+  @apply bg-base-300  border-0;
 }
 
 /* Highlight.js */
