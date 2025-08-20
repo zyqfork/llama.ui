@@ -299,7 +299,7 @@ class ApiProvider {
   ) {
     // prepare messages for API
     let apiMessages: APIMessage[] = [];
-    if (this.config.systemMessage.length === 0) {
+    if (this.config.systemMessage?.trim()) {
       apiMessages.push({
         role: 'system',
         content: this.config.systemMessage,
