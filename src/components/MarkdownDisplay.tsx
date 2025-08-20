@@ -3,7 +3,7 @@ import Markdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { all as languages } from 'lowlight';
-import 'highlight.js/styles/github.css';
+import 'highlight.js/styles/stackoverflow-light.css';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
@@ -85,20 +85,20 @@ const CodeBlockButtons: React.ElementType<
   return (
     <div
       className={classNames({
-        'text-right sticky top-[7em] mb-2 mr-2 h-0': true,
+        'text-right sticky h-0 mr-1': true,
         'display-none': !node?.position,
       })}
     >
-      <CopyButton
-        className="badge btn-mini btn-soft shadow-sm"
-        content={copiedContent}
-      />
       {canRunCode && (
         <RunPyCodeButton
-          className="badge btn-mini shadow-sm ml-2"
+          className="btn btn-ghost w-8 h-8 p-0"
           content={copiedContent}
         />
       )}
+      <CopyButton
+        className="btn btn-ghost w-8 h-8 p-0"
+        content={copiedContent}
+      />
     </div>
   );
 };
