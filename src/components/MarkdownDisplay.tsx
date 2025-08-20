@@ -3,7 +3,7 @@ import Markdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { all as languages } from 'lowlight';
-import 'highlight.js/styles/github.css';
+import 'highlight.js/styles/stackoverflow-light.css';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
