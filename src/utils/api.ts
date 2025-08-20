@@ -315,7 +315,7 @@ class ApiProvider {
 
     // prepare params
     let params = {
-      model: this.config.model,
+      model: !this.config.model ? null : this.config.model,
       messages: apiMessages,
       stream: true,
       cache_prompt: true,

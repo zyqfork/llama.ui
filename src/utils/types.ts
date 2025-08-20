@@ -141,10 +141,7 @@ export interface ViewingChat {
   messages: Readonly<Message[]>;
 }
 
-export type PendingMessage = Omit<
-  Omit<Message, 'content'>,
-  'reasoning_content'
-> & {
+export type PendingMessage = Omit<Message, 'content' | 'reasoning_content'> & {
   content: string | null;
   reasoning_content: string | null;
 };
