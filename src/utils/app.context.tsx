@@ -239,7 +239,9 @@ export const AppContextProvider = ({
             content: lastContent + addedContent,
           };
         }
-        const reasoningContent = chunk.choices[0].delta.reasoning_content;
+        const reasoningContent =
+          chunk.choices[0].delta.reasoning_content ||
+          chunk.choices[0].delta.reasoning;
         if (reasoningContent) {
           const lastContent = pendingMsg.reasoning_content || '';
           pendingMsg = {
