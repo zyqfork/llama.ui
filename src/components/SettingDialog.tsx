@@ -467,6 +467,9 @@ export default function SettingDialog({
     onClose();
   };
 
+  // hold models fetch on change
+  const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+
   const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
     setLocalConfig((prevConfig) => {
@@ -486,7 +489,12 @@ export default function SettingDialog({
       }
 
       if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
-        fetchModels(newConfig);
+        if (debounceRef.current) {
+          clearTimeout(debounceRef.current);
+        }
+        debounceRef.current = setTimeout(() => {
+          fetchModels(newConfig);
+        }, 1000);
       }
 
       return newConfig;
@@ -574,7 +582,7 @@ export default function SettingDialog({
                       configKey={field.key}
                       field={field}
                       value={String(localConfig[field.key])}
-                      onChange={(value) => onChange(field.key)(value)}
+                      onChange={onChange(field.key)}
                     />
                   );
                 case SettingInputType.CHECKBOX:
@@ -584,7 +592,7 @@ export default function SettingDialog({
                       configKey={field.key}
                       field={field}
                       value={!!localConfig[field.key]}
-                      onChange={(value) => onChange(field.key)(value)}
+                      onChange={onChange(field.key)}
                     />
                   );
                 case SettingInputType.DROPDOWN:
