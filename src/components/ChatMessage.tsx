@@ -79,6 +79,7 @@ export default function ChatMessage({
   if (!viewingChat) return null;
 
   const isUser = msg.role === 'user';
+  const isAssistant = msg.role === 'assistant';
 
   return (
     <div
@@ -90,7 +91,7 @@ export default function ChatMessage({
       <div
         className={classNames({
           chat: true,
-          'chat-start': !isUser,
+          'chat-start': isAssistant,
           'chat-end': isUser,
         })}
       >
@@ -102,11 +103,11 @@ export default function ChatMessage({
         <div
           className={classNames({
             'chat-bubble markdown': true,
-            'bg-transparent': !isUser,
+            'bg-transparent': isAssistant,
           })}
         >
           {/* message metadata*/}
-          {msg.role === 'assistant' && (
+          {isAssistant && (
             <div className="mb-1 text-sm">
               {msg.model && <span className="font-bold mr-1">{msg.model}</span>}
               <span className="text-xs opacity-40">
@@ -153,7 +154,7 @@ export default function ChatMessage({
         <div
           className={classNames({
             'flex items-center gap-2 mx-4': true,
-            'flex-row-reverse': msg.role === 'user',
+            'flex-row-reverse': isUser,
           })}
         >
           {/* switch message versions */}
@@ -190,7 +191,7 @@ export default function ChatMessage({
           )}
 
           {/* re-generate assistant message */}
-          {msg.role === 'assistant' && !isPending && (
+          {isAssistant && !isPending && (
             <BtnWithTooltips
               className="btn-mini w-8 h-8"
               onClick={() => {
@@ -206,8 +207,7 @@ export default function ChatMessage({
           )}
 
           {/* edit message */}
-          {(msg.role === 'user' ||
-            (msg.role === 'assistant' && !isPending)) && (
+          {(isUser || (isAssistant && !isPending)) && (
             <BtnWithTooltips
               className="btn-mini w-8 h-8"
               onClick={() => setIsEditing(msg.content !== null)}
@@ -219,39 +219,37 @@ export default function ChatMessage({
           )}
 
           {/* render timings if enabled */}
-          {msg.role === 'assistant' &&
-            timings &&
-            config.showTokensPerSecond && (
-              <BtnWithTooltips
-                className="btn-mini w-8 h-8"
-                tooltipsContent="Performance"
-              >
-                <div className="dropdown dropdown-hover dropdown-top">
-                  <ExclamationCircleIcon className="h-4 w-4" />
+          {isAssistant && timings && config.showTokensPerSecond && (
+            <BtnWithTooltips
+              className="btn-mini w-8 h-8"
+              tooltipsContent="Performance"
+            >
+              <div className="dropdown dropdown-hover dropdown-top">
+                <ExclamationCircleIcon className="h-4 w-4" />
 
-                  <div
-                    tabIndex={0}
-                    className="dropdown-content rounded-box bg-base-100 z-10 w-48 px-4 py-2 shadow mt-4 text-sm text-left"
-                  >
-                    <b>Prompt Processing</b>
-                    <ul className="list-inside list-disc">
-                      <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
-                      <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
-                      <li>Speed: {timings.prompt_per_second.toFixed(1)} t/s</li>
-                    </ul>
-                    <br />
-                    <b>Generation</b>
-                    <ul className="list-inside list-disc">
-                      <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
-                      <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
-                      <li>
-                        Speed: {timings.predicted_per_second.toFixed(1)} t/s
-                      </li>
-                    </ul>
-                  </div>
+                <div
+                  tabIndex={0}
+                  className="dropdown-content rounded-box bg-base-100 z-10 w-48 px-4 py-2 shadow mt-4 text-sm text-left"
+                >
+                  <b>Prompt Processing</b>
+                  <ul className="list-inside list-disc">
+                    <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
+                    <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
+                    <li>Speed: {timings.prompt_per_second.toFixed(1)} t/s</li>
+                  </ul>
+                  <br />
+                  <b>Generation</b>
+                  <ul className="list-inside list-disc">
+                    <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
+                    <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
+                    <li>
+                      Speed: {timings.predicted_per_second.toFixed(1)} t/s
+                    </li>
+                  </ul>
                 </div>
-              </BtnWithTooltips>
-            )}
+              </div>
+            </BtnWithTooltips>
+          )}
           <CopyButton className="btn-mini w-8 h-8" content={msg.content} />
         </div>
       )}

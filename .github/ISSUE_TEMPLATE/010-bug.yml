@@ -22,6 +22,7 @@ body:
         - Edge
         - Safari
         - Opera
+        - All
         - Other? (Please let us know in description)
     validations:
       required: true

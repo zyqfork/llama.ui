@@ -199,7 +199,7 @@ export const AppContextProvider = ({
       await StorageUtils.getMessages(convId),
       leafNodeId,
       false
-    );
+    ).filter((m) => m.role !== 'system');
     const abortController = new AbortController();
     setAbort(convId, abortController);
 
@@ -306,22 +306,28 @@ export const AppContextProvider = ({
       navigate(`/chat/${convId}`);
     }
 
-    const now = Date.now();
-    const currMsgId = now;
-    StorageUtils.appendMsg(
-      {
-        id: currMsgId,
-        timestamp: now,
-        type: 'text',
-        convId,
-        role: 'user',
-        content,
-        extra,
-        parent: leafNodeId,
-        children: [],
-      },
-      leafNodeId
-    );
+    let currMsgId;
+    try {
+      // save user message
+      currMsgId = Date.now();
+      await StorageUtils.appendMsg(
+        {
+          id: currMsgId,
+          convId,
+          type: 'text',
+          role: 'user',
+          content,
+          extra,
+          parent: leafNodeId,
+          children: [],
+          timestamp: currMsgId,
+        },
+        leafNodeId
+      );
+    } catch (err) {
+      toast.error('Cannot save message.');
+      return false;
+    }
     onChunk(currMsgId);
 
     try {
@@ -355,17 +361,17 @@ export const AppContextProvider = ({
 
     const now = Date.now();
     const currMsgId = now;
-    StorageUtils.appendMsg(
+    await StorageUtils.appendMsg(
       {
         id: currMsgId,
-        timestamp: now,
-        type: msg.type,
         convId,
+        type: msg.type,
         role: msg.role,
         content,
         extra: msg.extra,
         parent: msg.parent,
         children: [],
+        timestamp: now,
       },
       msg.parent
     );
@@ -386,17 +392,17 @@ export const AppContextProvider = ({
     if (content !== null) {
       const now = Date.now();
       const currMsgId = now;
-      StorageUtils.appendMsg(
+      await StorageUtils.appendMsg(
         {
           id: currMsgId,
-          timestamp: now,
-          type: msg.type,
           convId,
+          type: msg.type,
           role: msg.role,
           content,
           extra,
           parent: parentNodeId,
           children: [],
+          timestamp: now,
         },
         parentNodeId
       );
