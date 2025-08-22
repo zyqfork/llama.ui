@@ -12,7 +12,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { BtnWithTooltips } from '../utils/common';
-import { useAppContext } from '../utils/app.context';
+import { useMessageContext } from '../utils/message.context';
 import toast from 'react-hot-toast';
 import { useModals } from './ModalProvider';
 
@@ -21,7 +21,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { isGenerating } = useAppContext();
+  const { isGenerating } = useMessageContext();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currConv, setCurrConv] = useState<Conversation | null>(null);

@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../utils/app.context';
+import { useMessageContext } from '../utils/message.context';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
 import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
@@ -43,7 +44,8 @@ export default function ChatMessage({
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
-  const { viewingChat, config } = useAppContext();
+  const { config } = useAppContext();
+  const { viewingChat } = useMessageContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>

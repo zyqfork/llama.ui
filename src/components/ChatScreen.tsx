@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as lang from '../lang/en.json';
-import { CallbackGeneratedChunk, useAppContext } from '../utils/app.context';
+import { useAppContext } from '../utils/app.context';
+import {
+  useMessageContext,
+  CallbackGeneratedChunk,
+} from '../utils/message.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
@@ -51,16 +55,16 @@ function getListMessageDisplay(
 }
 
 export default function ChatScreen() {
+  const { canvasData } = useAppContext();
   const {
     viewingChat,
     sendMessage,
     isGenerating,
     stopGenerating,
     pendingMessages,
-    canvasData,
     replaceMessage,
     replaceMessageAndGenerate,
-  } = useAppContext();
+  } = useMessageContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
   useChatScroll(msgListRef);

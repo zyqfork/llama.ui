@@ -7,6 +7,8 @@ import { Footer } from './components/Footer';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { AppContextProvider, useAppContext } from './utils/app.context';
+import { ApiContextProvider } from './utils/api.context';
+import { MessageContextProvider } from './utils/message.context';
 
 function App() {
   return (
@@ -14,12 +16,16 @@ function App() {
       <HashRouter>
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/chat/:convId" element={<ChatScreen />} />
-                <Route path="*" element={<ChatScreen />} />
-              </Route>
-            </Routes>
+            <ApiContextProvider>
+              <MessageContextProvider>
+                <Routes>
+                  <Route element={<AppLayout />}>
+                    <Route path="/chat/:convId" element={<ChatScreen />} />
+                    <Route path="*" element={<ChatScreen />} />
+                  </Route>
+                </Routes>
+              </MessageContextProvider>
+            </ApiContextProvider>
           </AppContextProvider>
         </div>
       </HashRouter>
