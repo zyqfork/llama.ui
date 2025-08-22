@@ -22,8 +22,9 @@ import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import StorageUtils from '../utils/storage';
-import { Configuration } from '../utils/types';
+import { Configuration, ProviderOption } from '../utils/types';
 import { useModals } from './ModalProvider';
+import providersData from '../utils/providers.json';
 
 // --- Type Definitions ---
 
@@ -33,6 +34,7 @@ enum SettingInputType {
   SHORT_INPUT,
   LONG_INPUT,
   CHECKBOX,
+  DROPDOWN,
   CUSTOM,
   SECTION,
 }
@@ -62,12 +64,24 @@ interface SettingFieldCustom {
     | 'delimeter';
 }
 
+interface SettingFieldDropdown {
+  type: SettingInputType.DROPDOWN;
+  label: string | React.ReactElement;
+  note?: string | TrustedHTML;
+  key: ConfigurationKey;
+  options: { key: string; value: string }[];
+}
+
 interface SettingSection {
   type: SettingInputType.SECTION;
   label: string | React.ReactElement;
 }
 
-type SettingField = SettingFieldInput | SettingFieldCustom | SettingSection;
+type SettingField =
+  | SettingFieldInput
+  | SettingFieldCustom
+  | SettingSection
+  | SettingFieldDropdown;
 
 interface SettingTab {
   title: React.ReactElement;
@@ -92,6 +106,18 @@ const toInput = (
     key,
   };
 };
+const toDropdown = (
+  key: ConfigurationKey,
+  options: { key: string; value: string }[]
+): SettingFieldDropdown => {
+  return {
+    type: SettingInputType.DROPDOWN,
+    key,
+    label: lang.settings.parameters[key].label,
+    note: lang.settings.parameters[key].note,
+    options,
+  };
+};
 
 const DELIMETER: SettingFieldCustom = {
   type: SettingInputType.CUSTOM,
@@ -111,6 +137,15 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
       </>
     ),
     fields: [
+      toDropdown(
+        'provider',
+        Object.entries(providersData).map(
+          ([key, val]: [string, ProviderOption]) => ({
+            key,
+            value: val.name,
+          })
+        )
+      ),
       ...['baseUrl', 'apiKey', 'model'].map((key) =>
         toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
       ),
@@ -517,6 +552,17 @@ export default function SettingDialog({
                       onChange={(value) => onChange(field.key)(value)}
                     />
                   );
+                case SettingInputType.DROPDOWN:
+                  return (
+                    <SettingsModalDropdown
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={String(localConfig[field.key])}
+                      onChange={onChange(field.key)}
+                      options={(field as SettingFieldDropdown).options}
+                    />
+                  );
                 case SettingInputType.CUSTOM:
                   switch (field.key) {
                     case 'import-export':
@@ -676,6 +722,50 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
       {field.note && (
         <div className="block opacity-75">
           <p
+            className="text-xs"
+            dangerouslySetInnerHTML={{ __html: field.note }}
+          />
+        </div>
+      )}
+    </label>
+  );
+};
+
+const SettingsModalDropdown: React.FC<{
+  configKey: ConfigurationKey;
+  field: SettingFieldInput;
+  onChange: (value: string) => void;
+  options: { key: string; value: string }[];
+  value: string;
+}> = ({ configKey, field, options, value, onChange }) => {
+  return (
+    <label className="form-control flex flex-col justify-center mb-3">
+      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+        {field.label || configKey}
+      </div>
+
+      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+        <div className="dropdown dropdown-hover">
+          <div tabIndex={0} role="button" className="font-bold hidden md:block">
+            {field.label || configKey}
+          </div>
+        </div>
+
+        <select
+          className="grow"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {options.map((p) => (
+            <option key={p.key} value={p.key}>
+              {p.value}
+            </option>
+          ))}
+        </select>
+      </label>
+      {field.note && (
+        <div className="block opacity-75">
+          <div
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
           />
