@@ -199,7 +199,7 @@ export const AppContextProvider = ({
       await StorageUtils.getMessages(convId),
       leafNodeId,
       false
-    );
+    ).filter((m) => m.role !== 'system');
     const abortController = new AbortController();
     setAbort(convId, abortController);
 
