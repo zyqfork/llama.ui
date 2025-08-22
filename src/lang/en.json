@@ -5,6 +5,10 @@
   },
   "settings": {
     "parameters": {
+      "provider": {
+        "label": "Provider",
+        "note": "Provider may charge for usage."
+      },
       "baseUrl": {
         "label": "Base URL",
         "note": "Set the Base URL if you are using standalone server."

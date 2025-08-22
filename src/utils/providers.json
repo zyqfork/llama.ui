@@ -1,0 +1,86 @@
+{
+    "llama-cpp": {
+        "baseUrl": "http://localhost:8080",
+        "name": "Llama.cpp",
+        "icon": "",
+        "allowCustomBaseUrl": true
+    },
+    "lm-studio": {
+        "baseUrl": "http://localhost:1234",
+        "name": "LM Studio",
+        "icon": "",
+        "allowCustomBaseUrl": true
+    },
+    "ollama": {
+        "baseUrl": "http://localhost:11434",
+        "name": "Ollama",
+        "icon": "",
+        "allowCustomBaseUrl": true
+    },
+    "vllm": {
+        "baseUrl": "http://localhost:8000",
+        "name": "vLLM",
+        "icon": "",
+        "allowCustomBaseUrl": true
+    },
+    "open-router": {
+        "baseUrl": "https://openrouter.ai/api",
+        "name": "OpenRouter",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "anthropic": {
+        "baseUrl": "https://api.anthropic.com",
+        "name": "Anthropic",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "mistral": {
+        "baseUrl": "https://api.mistral.ai/v1",
+        "name": "Mistral",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "google": {
+        "baseUrl": "https://generativelanguage.googleapis.com",
+        "name": "Google",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "deepseek": {
+        "baseUrl": "https://api.deepseek.com",
+        "name": "DeepSeek",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "qwen": {
+        "baseUrl": "https://qwen.openai.azure.com",
+        "name": "Qwen",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "groq": {
+        "baseUrl": "https://api.groq.com/openai/v1",
+        "name": "Groq",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "hugging-face": {
+        "baseUrl": "https://api-inference.huggingface.co",
+        "name": "Hugging Face",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "openai": {
+        "baseUrl": "https://api.openai.com/v1",
+        "name": "OpenAI",
+        "icon": "",
+        "allowCustomBaseUrl": false
+    },
+    "custom": {
+        "baseUrl": "",
+        "name": "Custom",
+        "icon": "",
+        "allowCustomBaseUrl": true
+    }
+}
