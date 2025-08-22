@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
 import Api, { APIModel, LlamaCppServerProps } from './api';
 import { useAppContext } from './app.context';
+import providersData from './providers.json';
 import { Configuration } from './types';
 
 interface ApiContextValue {
@@ -32,6 +33,18 @@ export const ApiContextProvider = ({
     null
   );
 
+  const isProviderReady = (config: Configuration) => {
+    if (!config.provider) return false;
+
+    const providerInfo =
+      providersData[config.provider as keyof typeof providersData];
+    if (!providerInfo) return true;
+
+    return (
+      !!config.baseUrl && providerInfo.isKeyRequired && config.apiKey !== ''
+    );
+  };
+
   useEffect(() => {
     const newApi = Api.new(config);
     setApi(newApi);
@@ -48,6 +61,7 @@ export const ApiContextProvider = ({
   }, [models]);
 
   const fetchModels = async (config: Configuration) => {
+    if (!isProviderReady(config)) return false;
     const newApi = Api.new(config);
     try {
       const newModels = await newApi.v1Models();
@@ -62,6 +76,7 @@ export const ApiContextProvider = ({
 
   const fetchServerProperties = async (config: Configuration) => {
     if (config.provider !== 'llama-cpp') return;
+    if (!isProviderReady(config)) return false;
 
     const newApi = Api.new(config);
     try {
