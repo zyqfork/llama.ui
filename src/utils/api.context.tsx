@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
-import Api, { APIModel, LlamaCppServerProps } from './api';
+import Api, { APIModel } from './api';
 import { useAppContext } from './app.context';
 import providersData from './providers.json';
 import { Configuration } from './types';
@@ -9,7 +9,6 @@ import { Configuration } from './types';
 interface ApiContextValue {
   api: Api;
   models: APIModel[];
-  serverProps: LlamaCppServerProps | null;
 
   fetchModels: (config: Configuration) => Promise<boolean>;
 }
@@ -17,7 +16,6 @@ interface ApiContextValue {
 const ApiContext = createContext<ApiContextValue>({
   api: Api.new(CONFIG_DEFAULT),
   models: [],
-  serverProps: null,
   fetchModels: () => new Promise(() => false),
 });
 
@@ -29,9 +27,6 @@ export const ApiContextProvider = ({
   const { config } = useAppContext();
   const [api, setApi] = useState<Api>(Api.new(config));
   const [models, setModels] = useState<APIModel[]>([]);
-  const [serverProps, setServerProps] = useState<LlamaCppServerProps | null>(
-    null
-  );
 
   const isProviderReady = (config: Configuration) => {
     if (!config.provider) return false;
@@ -48,11 +43,7 @@ export const ApiContextProvider = ({
   useEffect(() => {
     const newApi = Api.new(config);
     setApi(newApi);
-    const syncServer = async (config: Configuration) => {
-      await fetchModels(config);
-      await fetchServerProperties(config);
-    };
-    syncServer(config);
+    fetchModels(config);
   }, [config]);
 
   useEffect(() => {
@@ -74,20 +65,8 @@ export const ApiContextProvider = ({
     return true;
   };
 
-  const fetchServerProperties = async (config: Configuration) => {
-    if (config.provider !== 'llama-cpp') return;
-    if (!isProviderReady(config)) return false;
-
-    const newApi = Api.new(config);
-    try {
-      setServerProps(await newApi.getServerProps());
-    } catch (err) {
-      /* TODO make better ignoring for not llama.cpp server */
-    }
-  };
-
   return (
-    <ApiContext.Provider value={{ api, models, serverProps, fetchModels }}>
+    <ApiContext.Provider value={{ api, models, fetchModels }}>
       {children}
     </ApiContext.Provider>
   );
