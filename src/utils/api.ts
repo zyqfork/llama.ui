@@ -311,7 +311,7 @@ class ApiProvider {
       apiMessages = filterThoughtFromMsgs(apiMessages);
     }
 
-    if (isDev) console.debug({ messages: apiMessages });
+    if (isDev) console.debug('v1ChatCompletions', { messages: apiMessages });
 
     // prepare params
     let params = {
