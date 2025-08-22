@@ -36,7 +36,7 @@ export const ApiContextProvider = ({
     if (!providerInfo) return true;
 
     return (
-      !!config.baseUrl && providerInfo.isKeyRequired && config.apiKey !== ''
+      !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
     );
   };
 
