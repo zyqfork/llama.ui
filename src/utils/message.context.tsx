@@ -5,12 +5,12 @@ import { isDev } from '../config';
 import { useApiContext } from './api.context';
 import StorageUtils from './storage';
 import {
+  CanvasData,
   Conversation,
   Message,
   MessageExtra,
   PendingMessage,
   ViewingChat,
-  CanvasData,
 } from './types';
 
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
@@ -48,9 +48,17 @@ interface MessageContextValue {
   ) => Promise<void>;
 }
 
-const MessageContext = createContext<MessageContextValue | undefined>(
-  undefined
-);
+const MessageContext = createContext<MessageContextValue>({
+  viewingChat: null,
+  pendingMessages: {},
+  isGenerating: () => false,
+  sendMessage: async () => false,
+  stopGenerating: () => {},
+  replaceMessage: async () => {},
+  replaceMessageAndGenerate: async () => {},
+  canvasData: null,
+  setCanvasData: () => {},
+});
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   const conv = await StorageUtils.getOneConversation(convId);
