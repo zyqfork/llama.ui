@@ -18,13 +18,15 @@ import {
 import React, { useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
 import * as lang from '../lang/en.json';
+import { APIModel } from '../utils/api';
+import { useApiContext } from '../utils/api.context';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
+import providersData from '../utils/providers.json';
 import StorageUtils from '../utils/storage';
 import { Configuration, ProviderOption } from '../utils/types';
 import { useModals } from './ModalProvider';
-import providersData from '../utils/providers.json';
 
 // --- Type Definitions ---
 
@@ -127,7 +129,10 @@ const DELIMETER: SettingFieldCustom = {
 
 // --- Setting Tabs Configuration ---
 
-const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
+const getSettingTabsConfiguration = (
+  config: Configuration,
+  models: APIModel[]
+): SettingTab[] => [
   /* General */
   {
     title: (
@@ -146,8 +151,14 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
           })
         )
       ),
-      ...['baseUrl', 'apiKey', 'model'].map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+      toInput(SettingInputType.SHORT_INPUT, 'baseUrl'),
+      toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
+      toDropdown(
+        'model',
+        models.map((m) => ({
+          key: m.id,
+          value: m.name,
+        }))
       ),
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
@@ -392,6 +403,7 @@ export default function SettingDialog({
   onClose: () => void;
 }) {
   const { config, saveConfig } = useAppContext();
+  const { models, fetchModels } = useApiContext();
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
@@ -399,8 +411,8 @@ export default function SettingDialog({
     JSON.parse(JSON.stringify(config))
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig),
-    [localConfig]
+    () => getSettingTabsConfiguration(localConfig, models),
+    [localConfig, models]
   );
 
   const { showConfirm, showAlert } = useModals();
@@ -452,10 +464,18 @@ export default function SettingDialog({
 
   const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
-    setLocalConfig((prevConfig) => ({
-      ...prevConfig,
-      [key]: value,
-    }));
+    setLocalConfig((prevConfig) => {
+      const newConfig = {
+        ...prevConfig,
+        [key]: value,
+      };
+
+      if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
+        fetchModels(newConfig);
+      }
+
+      return newConfig;
+    });
   };
 
   return (

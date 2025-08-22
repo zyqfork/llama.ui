@@ -3,17 +3,21 @@ import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
 import Api, { APIModel, LlamaCppServerProps } from './api';
 import { useAppContext } from './app.context';
+import { Configuration } from './types';
 
 interface ApiContextValue {
   api: Api;
   models: APIModel[];
   serverProps: LlamaCppServerProps | null;
+
+  fetchModels: (config: Configuration) => Promise<boolean>;
 }
 
 const ApiContext = createContext<ApiContextValue>({
   api: Api.new(CONFIG_DEFAULT),
   models: [],
   serverProps: null,
+  fetchModels: () => new Promise(() => false),
 });
 
 export const ApiContextProvider = ({
@@ -31,44 +35,44 @@ export const ApiContextProvider = ({
   useEffect(() => {
     const newApi = Api.new(config);
     setApi(newApi);
-  }, [config]);
-
-  useEffect(() => {
-    const syncServer = async () => {
-      await fetchModels();
-      await fetchServerProperties();
+    const syncServer = async (config: Configuration) => {
+      await fetchModels(config);
+      await fetchServerProperties(config);
     };
-    syncServer();
-  }, [api]);
+    syncServer(config);
+  }, [config]);
 
   useEffect(() => {
     if (models.length > 0) CONFIG_DEFAULT.model = models[0].id;
     else CONFIG_DEFAULT.model = '';
   }, [models]);
 
-  const fetchModels = async () => {
+  const fetchModels = async (config: Configuration) => {
+    const newApi = Api.new(config);
     try {
-      const newModels = await api.v1Models();
+      const newModels = await newApi.v1Models();
       setModels(newModels);
     } catch (err) {
       console.error('fetch models failed: ', err);
       toast.error('LLM inference server is unavailable.');
-      return;
+      return false;
     }
+    return true;
   };
 
-  const fetchServerProperties = async () => {
+  const fetchServerProperties = async (config: Configuration) => {
     if (config.provider !== 'llama-cpp') return;
 
+    const newApi = Api.new(config);
     try {
-      setServerProps(await api.getServerProps());
+      setServerProps(await newApi.getServerProps());
     } catch (err) {
       /* TODO make better ignoring for not llama.cpp server */
     }
   };
 
   return (
-    <ApiContext.Provider value={{ api, models, serverProps }}>
+    <ApiContext.Provider value={{ api, models, serverProps, fetchModels }}>
       {children}
     </ApiContext.Provider>
   );
