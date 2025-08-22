@@ -154,7 +154,8 @@ const getSettingTabsConfiguration = (
       toInput(
         SettingInputType.SHORT_INPUT,
         'baseUrl',
-        !providersData[config.provider as keyof typeof providersData]?.allowCustomBaseUrl
+        !providersData[config.provider as keyof typeof providersData]
+          ?.allowCustomBaseUrl
       ),
       toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
       toDropdown(
@@ -469,10 +470,20 @@ export default function SettingDialog({
   const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
     setLocalConfig((prevConfig) => {
-      const newConfig = {
+      let newConfig = {
         ...prevConfig,
         [key]: value,
       };
+
+      if (key === 'provider') {
+        const providerInfo = providersData[value as keyof typeof providersData];
+        if (providerInfo?.baseUrl) {
+          newConfig = {
+            ...newConfig,
+            baseUrl: providerInfo.baseUrl,
+          };
+        }
+      }
 
       if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
         fetchModels(newConfig);
