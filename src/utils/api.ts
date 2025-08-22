@@ -53,7 +53,7 @@ export type APIModel = {
   /** Unique model identifier */
   id: string;
   /** User-friendly model name (optional) */
-  name?: string;
+  name: string;
   /** Model description (optional) */
   description?: string;
   /** Timestamp of model creation (optional) */
@@ -383,7 +383,25 @@ class ApiProvider {
       headers: this.getHeaders(),
     });
     await this.isErrorResponse(fetchResponse);
-    return (await fetchResponse.json()).data || [];
+    const json = await fetchResponse.json();
+    const res: APIModel[] = [];
+    if (json.data && Array.isArray(json.data)) {
+      json.data.map((m: APIModel) => {
+        res.push({
+          id: m.id,
+          name: m.name || m.id,
+          created: m.created,
+          description: m.description,
+        });
+      });
+      res.sort((a, b) => {
+        if (a.created || b.created) {
+          return (b.created || 0) - (a.created || 0);
+        }
+        return a.name.localeCompare(b.name);
+      });
+    }
+    return res;
   }
 
   /**
