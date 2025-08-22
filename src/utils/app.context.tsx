@@ -306,22 +306,28 @@ export const AppContextProvider = ({
       navigate(`/chat/${convId}`);
     }
 
-    const now = Date.now();
-    const currMsgId = now;
-    StorageUtils.appendMsg(
-      {
-        id: currMsgId,
-        timestamp: now,
-        type: 'text',
-        convId,
-        role: 'user',
-        content,
-        extra,
-        parent: leafNodeId,
-        children: [],
-      },
-      leafNodeId
-    );
+    let currMsgId;
+    try {
+      // save user message
+      currMsgId = Date.now();
+      await StorageUtils.appendMsg(
+        {
+          id: currMsgId,
+          convId,
+          type: 'text',
+          role: 'user',
+          content,
+          extra,
+          parent: leafNodeId,
+          children: [],
+          timestamp: currMsgId,
+        },
+        leafNodeId
+      );
+    } catch (err) {
+      toast.error('Cannot save message.');
+      return false;
+    }
     onChunk(currMsgId);
 
     try {
