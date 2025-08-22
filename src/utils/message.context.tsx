@@ -10,12 +10,17 @@ import {
   MessageExtra,
   PendingMessage,
   ViewingChat,
+  CanvasData,
 } from './types';
 
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
 interface MessageContextValue {
+  // canvas
+  canvasData: CanvasData | null;
+  setCanvasData: (data: CanvasData | null) => void;
+
   // conversations and messages
   viewingChat: ViewingChat | null;
   pendingMessages: Record<Conversation['id'], PendingMessage>;
@@ -75,11 +80,12 @@ export const MessageContextProvider = ({
     Record<Conversation['id'], AbortController>
   >({});
   const { api } = useApiContext();
+  const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
 
   // handle change when the convId from URL is changed
   useEffect(() => {
     // also reset the canvas data
-    // setCanvasData(null);
+    setCanvasData(null);
     const handleConversationChange = async (changedConvId: string) => {
       if (changedConvId !== convId) return;
       setViewingChat(await getViewingChat(changedConvId));
@@ -361,6 +367,8 @@ export const MessageContextProvider = ({
         stopGenerating,
         replaceMessage,
         replaceMessageAndGenerate,
+        canvasData,
+        setCanvasData,
       }}
     >
       {children}

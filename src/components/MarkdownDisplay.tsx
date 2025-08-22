@@ -15,6 +15,7 @@ import { useAppContext } from '../utils/app.context';
 import { CanvasType } from '../utils/types';
 import { BtnWithTooltips } from '../utils/common';
 import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { useMessageContext } from '../utils/message.context';
 
 export default function MarkdownDisplay({
   content,
@@ -133,7 +134,7 @@ export const RunPyCodeButton = ({
   content: string;
   className?: string;
 }) => {
-  const { setCanvasData } = useAppContext();
+  const { setCanvasData } = useMessageContext();
   return (
     <>
       <BtnWithTooltips

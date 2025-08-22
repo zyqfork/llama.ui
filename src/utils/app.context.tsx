@@ -1,13 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import StorageUtils from './storage';
-import { CanvasData, Configuration } from './types';
+import { Configuration } from './types';
 
 interface AppContextValue {
-  // canvas
-  canvasData: CanvasData | null;
-  setCanvasData: (data: CanvasData | null) => void;
-
-  // config
   config: Configuration;
   saveConfig: (config: Configuration) => void;
   showSettings: boolean;
@@ -15,8 +10,6 @@ interface AppContextValue {
 }
 
 const AppContext = createContext<AppContextValue>({
-  canvasData: null,
-  setCanvasData: () => {},
   config: {} as Configuration,
   saveConfig: () => {},
   showSettings: false,
@@ -29,7 +22,6 @@ export const AppContextProvider = ({
   children: React.ReactElement;
 }) => {
   const [config, setConfig] = useState(StorageUtils.getConfig());
-  const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
   const saveConfig = (config: Configuration) => {
@@ -40,8 +32,6 @@ export const AppContextProvider = ({
   return (
     <AppContext.Provider
       value={{
-        canvasData,
-        setCanvasData,
         config,
         saveConfig,
         showSettings,

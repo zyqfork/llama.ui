@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as lang from '../lang/en.json';
-import { useAppContext } from '../utils/app.context';
 import {
   useMessageContext,
   CallbackGeneratedChunk,
@@ -55,8 +54,8 @@ function getListMessageDisplay(
 }
 
 export default function ChatScreen() {
-  const { canvasData } = useAppContext();
   const {
+    canvasData,
     viewingChat,
     sendMessage,
     isGenerating,
