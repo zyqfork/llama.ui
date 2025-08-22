@@ -31,28 +31,41 @@ export const ApiContextProvider = ({
   useEffect(() => {
     const newApi = Api.new(config);
     setApi(newApi);
-
-    const syncServer = async (api: Api) => {
-      try {
-        setModels(await api.v1Models());
-      } catch (err) {
-        console.error('fetch models failed: ', err);
-        toast.error('LLM inference server is unavailable.');
-        return;
-      }
-      try {
-        setServerProps(await api.getServerProps());
-      } catch (err) {
-        /* TODO make better ignoring for not llama.cpp server */
-      }
-    };
-    syncServer(newApi);
   }, [config]);
+
+  useEffect(() => {
+    const syncServer = async () => {
+      await fetchModels();
+      await fetchServerProperties();
+    };
+    syncServer();
+  }, [api]);
 
   useEffect(() => {
     if (models.length > 0) CONFIG_DEFAULT.model = models[0].id;
     else CONFIG_DEFAULT.model = '';
   }, [models]);
+
+  const fetchModels = async () => {
+    try {
+      const newModels = await api.v1Models();
+      setModels(newModels);
+    } catch (err) {
+      console.error('fetch models failed: ', err);
+      toast.error('LLM inference server is unavailable.');
+      return;
+    }
+  };
+
+  const fetchServerProperties = async () => {
+    if (config.provider !== 'llama-cpp') return;
+
+    try {
+      setServerProps(await api.getServerProps());
+    } catch (err) {
+      /* TODO make better ignoring for not llama.cpp server */
+    }
+  };
 
   return (
     <ApiContext.Provider value={{ api, models, serverProps }}>
