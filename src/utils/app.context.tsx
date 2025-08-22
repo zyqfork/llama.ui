@@ -355,17 +355,17 @@ export const AppContextProvider = ({
 
     const now = Date.now();
     const currMsgId = now;
-    StorageUtils.appendMsg(
+    await StorageUtils.appendMsg(
       {
         id: currMsgId,
-        timestamp: now,
-        type: msg.type,
         convId,
+        type: msg.type,
         role: msg.role,
         content,
         extra: msg.extra,
         parent: msg.parent,
         children: [],
+        timestamp: now,
       },
       msg.parent
     );
@@ -386,17 +386,17 @@ export const AppContextProvider = ({
     if (content !== null) {
       const now = Date.now();
       const currMsgId = now;
-      StorageUtils.appendMsg(
+      await StorageUtils.appendMsg(
         {
           id: currMsgId,
-          timestamp: now,
-          type: msg.type,
           convId,
+          type: msg.type,
           role: msg.role,
           content,
           extra,
           parent: parentNodeId,
           children: [],
+          timestamp: now,
         },
         parentNodeId
       );
