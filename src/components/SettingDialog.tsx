@@ -151,7 +151,11 @@ const getSettingTabsConfiguration = (
           })
         )
       ),
-      toInput(SettingInputType.SHORT_INPUT, 'baseUrl'),
+      toInput(
+        SettingInputType.SHORT_INPUT,
+        'baseUrl',
+        !providersData[config.provider as keyof typeof providersData]?.allowCustomBaseUrl
+      ),
       toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
       toDropdown(
         'model',
