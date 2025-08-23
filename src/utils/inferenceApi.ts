@@ -443,12 +443,31 @@ class InferenceApiProvider {
   private async isErrorResponse(response: Response) {
     if (response.status === 200) return;
 
-    const body = await response.json();
-    console.error('API error: ', body);
-    if (response.status === 500) {
-      throw new Error('Internal server error');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let body: any = {};
+    try {
+      body = await response.json();
+    } catch (e) {
+      // fallback if response is not JSON
+      body = {};
     }
-    throw new Error(body?.error?.message || 'Unknown error');
+    console.error('API error: ', body);
+    switch (response.status) {
+      case 400:
+        throw new Error('Bad request');
+      case 401:
+        throw new Error('Unauthorized');
+      case 403:
+        throw new Error('Forbidden');
+      case 404:
+        throw new Error('Not found');
+      case 500:
+        throw new Error('Internal server error');
+      default:
+        throw new Error(
+          body?.error?.message || `Unknown error: ${response.status}`
+        );
+    }
   }
 }
 
