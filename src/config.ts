@@ -1,5 +1,5 @@
 import daisyuiThemes from 'daisyui/theme/object';
-import { Configuration } from './utils/types';
+import { Configuration, InferenceProviders } from './utils/types';
 
 export const isDev = import.meta.env.MODE === 'development';
 
@@ -61,8 +61,147 @@ export const CONFIG_DEFAULT: Readonly<Configuration> = Object.freeze({
 });
 
 // list of themes supported by daisyui
-export const THEMES = ['light', 'dark']
-  // make sure light & dark are always at the beginning
-  .concat(
-    Object.keys(daisyuiThemes).filter((t) => t !== 'light' && t !== 'dark')
-  );
+export const THEMES = Object.freeze(
+  ['light', 'dark']
+    // make sure light & dark are always at the beginning
+    .concat(
+      Object.keys(daisyuiThemes).filter((t) => t !== 'light' && t !== 'dark')
+    )
+);
+
+// list of inference providers
+export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
+  'llama-cpp': {
+    baseUrl: 'http://localhost:8080',
+    name: 'Llama.cpp',
+    icon: 'assets/providers/llamacpp.svg',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
+  },
+  'lm-studio': {
+    baseUrl: 'http://localhost:1234',
+    name: 'LM Studio',
+    icon: 'assets/providers/lmstudio.webp',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
+  },
+  ollama: {
+    baseUrl: 'http://localhost:11434',
+    name: 'Ollama',
+    icon: 'assets/providers/ollama.svg',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
+  },
+  vllm: {
+    baseUrl: 'http://localhost:8000',
+    name: 'vLLM',
+    icon: 'assets/providers/vllm.svg',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
+  },
+  custom: {
+    baseUrl: '',
+    name: 'Custom',
+    icon: '',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
+  },
+  openai: {
+    baseUrl: 'https://api.openai.com',
+    name: 'OpenAI',
+    icon: 'assets/providers/openai.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  anthropic: {
+    baseUrl: 'https://api.anthropic.com',
+    name: 'Anthropic',
+    icon: 'assets/providers/anthropic.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  mistral: {
+    baseUrl: 'https://api.mistral.ai',
+    name: 'Mistral',
+    icon: 'assets/providers/mistral.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  google: {
+    baseUrl: 'https://generativelanguage.googleapis.com',
+    name: 'Google',
+    icon: 'assets/providers/google.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  deepseek: {
+    baseUrl: 'https://api.deepseek.com',
+    name: 'DeepSeek',
+    icon: 'assets/providers/deepseek.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  qwen: {
+    baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode',
+    name: 'Qwen',
+    icon: 'assets/providers/qwen.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  groq: {
+    baseUrl: 'https://api.groq.com/openai',
+    name: 'Groq',
+    icon: 'assets/providers/groq.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  'open-router': {
+    baseUrl: 'https://openrouter.ai/api',
+    name: 'OpenRouter',
+    icon: 'assets/providers/openrouter.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  'hugging-face': {
+    baseUrl: 'https://router.huggingface.co',
+    name: 'Hugging Face',
+    icon: 'assets/providers/huggingface.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  cohere: {
+    baseUrl: 'https://api.cohere.ai',
+    name: 'Cohere',
+    icon: 'assets/providers/cohere.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  perplexity: {
+    baseUrl: 'https://api.perplexity.ai',
+    name: 'Perplexity',
+    icon: 'assets/providers/perplexity.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  together: {
+    baseUrl: 'https://api.together.xyz',
+    name: 'Together AI',
+    icon: 'assets/providers/together.svg',
+    allowCustomBaseUrl: false,
+    isKeyRequired: true,
+  },
+  azure: {
+    baseUrl: 'https://<your-resource-name>.openai.azure.com',
+    name: 'Azure',
+    icon: 'assets/providers/microsoft.svg',
+    allowCustomBaseUrl: true,
+    isKeyRequired: true,
+  },
+  aws: {
+    baseUrl: 'https://<your-resource-name>.amazonaws.com/openai',
+    name: 'AWS',
+    icon: 'assets/providers/aws.svg',
+    allowCustomBaseUrl: true,
+    isKeyRequired: true,
+  },
+});

@@ -60,6 +60,18 @@ export interface Configuration {
   /* experimental */
   pyIntepreterEnabled: boolean;
 }
+export type ConfigurationKey = keyof Configuration;
+
+export interface InferenceProviders {
+  [key: string]: {
+    baseUrl: string;
+    name: string;
+    icon: string;
+    allowCustomBaseUrl: boolean;
+    isKeyRequired: boolean;
+  };
+}
+export type InferenceProvidersKey = keyof InferenceProviders;
 
 /**
  * What is conversation "branching"? It is a feature that allows the user to edit an old message in the history, while still keeping the conversation flow.

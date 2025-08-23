@@ -17,23 +17,24 @@ import {
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
 import React, { useEffect, useMemo, useState } from 'react';
-import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
+import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
 import { OpenInNewTab } from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
-import providersData from '../utils/providers.json';
 import StorageUtils from '../utils/storage';
-import { Configuration, ProviderOption } from '../utils/types';
+import {
+  Configuration,
+  ConfigurationKey,
+  InferenceProvidersKey,
+  ProviderOption,
+} from '../utils/types';
 import { useModals } from './ModalProvider';
 import { useDebouncedCallback } from './useDebouncedCallback';
 
 // --- Type Definitions ---
-
-type ConfigurationKey = keyof Configuration;
-
 enum SettingInputType {
   SHORT_INPUT,
   LONG_INPUT,
@@ -147,7 +148,7 @@ const getSettingTabsConfiguration = (
     fields: [
       toDropdown(
         'provider',
-        Object.entries(providersData).map(
+        Object.entries(INFERENCE_PROVIDERS).map(
           ([key, val]: [string, ProviderOption]) => ({
             key,
             value: val.name,
@@ -158,8 +159,7 @@ const getSettingTabsConfiguration = (
       toInput(
         SettingInputType.SHORT_INPUT,
         'baseUrl',
-        !providersData[config.provider as keyof typeof providersData]
-          ?.allowCustomBaseUrl
+        !INFERENCE_PROVIDERS[config.provider]?.allowCustomBaseUrl
       ),
       toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
       toDropdown(
@@ -491,7 +491,8 @@ export default function SettingDialog({
       };
 
       if (key === 'provider') {
-        const providerInfo = providersData[value as keyof typeof providersData];
+        const typedKey = value as InferenceProvidersKey;
+        const providerInfo = INFERENCE_PROVIDERS[typedKey];
         if (providerInfo?.baseUrl) {
           newConfig = {
             ...newConfig,
