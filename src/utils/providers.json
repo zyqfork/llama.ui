@@ -2,91 +2,91 @@
   "llama-cpp": {
     "baseUrl": "http://localhost:8080",
     "name": "Llama.cpp",
-    "icon": "",
+    "icon": "assets/providers/llamacpp.svg",
     "allowCustomBaseUrl": true,
     "isKeyRequired": false
   },
   "lm-studio": {
     "baseUrl": "http://localhost:1234",
     "name": "LM Studio",
-    "icon": "",
+    "icon": "assets/providers/lmstudio.webp",
     "allowCustomBaseUrl": true,
     "isKeyRequired": false
   },
   "ollama": {
     "baseUrl": "http://localhost:11434",
     "name": "Ollama",
-    "icon": "",
+    "icon": "assets/providers/ollama.svg",
     "allowCustomBaseUrl": true,
     "isKeyRequired": false
   },
   "vllm": {
     "baseUrl": "http://localhost:8000",
     "name": "vLLM",
-    "icon": "",
+    "icon": "assets/providers/vllm.svg",
     "allowCustomBaseUrl": true,
     "isKeyRequired": false
   },
   "openai": {
     "baseUrl": "https://api.openai.com",
     "name": "OpenAI",
-    "icon": "",
+    "icon": "assets/providers/openai.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "anthropic": {
     "baseUrl": "https://api.anthropic.com",
     "name": "Anthropic",
-    "icon": "",
+    "icon": "assets/providers/anthropic.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "mistral": {
     "baseUrl": "https://api.mistral.ai",
     "name": "Mistral",
-    "icon": "",
+    "icon": "assets/providers/mistral.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "google": {
     "baseUrl": "https://generativelanguage.googleapis.com",
     "name": "Google",
-    "icon": "",
+    "icon": "assets/providers/google.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "deepseek": {
     "baseUrl": "https://api.deepseek.com",
     "name": "DeepSeek",
-    "icon": "",
+    "icon": "assets/providers/deepseek.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "qwen": {
     "baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode",
     "name": "Qwen",
-    "icon": "",
+    "icon": "assets/providers/qwen.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "groq": {
     "baseUrl": "https://api.groq.com/openai",
     "name": "Groq",
-    "icon": "",
+    "icon": "assets/providers/groq.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "open-router": {
     "baseUrl": "https://openrouter.ai/api",
     "name": "OpenRouter",
-    "icon": "",
+    "icon": "assets/providers/openrouter.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
   "hugging-face": {
     "baseUrl": "https://router.huggingface.co",
     "name": "Hugging Face",
-    "icon": "",
+    "icon": "assets/providers/huggingface.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
