@@ -74,6 +74,7 @@ export const InferenceContextProvider = ({
     config: Configuration,
     options: FetchOptions = { silent: false }
   ) => {
+    setModels([]);
     if (!isProviderReady(config)) return false;
     const newApi = InferenceApi.new(config);
     try {
@@ -82,7 +83,7 @@ export const InferenceContextProvider = ({
     } catch (err) {
       if (!options.silent) {
         console.error('fetch models failed: ', err);
-        toast.error('LLM inference server is unavailable.');
+        toast.error('Inference server is unavailable, check Settings.');
       }
       return false;
     }
