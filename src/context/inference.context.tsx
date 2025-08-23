@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { CONFIG_DEFAULT } from '../config';
-import { useAppContext } from './app.context';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import InferenceApi, {
   InferenceApiModel,
   LlamaCppServerProps,
 } from '../utils/inferenceApi';
-import providersData from '../utils/providers.json';
 import { Configuration } from '../utils/types';
+import { useAppContext } from './app.context';
 
 type FetchOptions = {
   silent: boolean;
@@ -46,8 +45,7 @@ export const InferenceContextProvider = ({
   const isProviderReady = (config: Configuration) => {
     if (!config.provider) return false;
 
-    const providerInfo =
-      providersData[config.provider as keyof typeof providersData];
+    const providerInfo = INFERENCE_PROVIDERS[config.provider];
     if (!providerInfo) return true;
 
     return (
