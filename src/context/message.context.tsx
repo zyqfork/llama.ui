@@ -13,9 +13,6 @@ import {
   ViewingChat,
 } from '../utils/types';
 
-// this callback is used for scrolling to the bottom of the chat and switching to the last node
-export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
-
 interface MessageContextValue {
   // canvas
   canvasData: CanvasData | null;
@@ -47,6 +44,9 @@ interface MessageContextValue {
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
 }
+
+// this callback is used for scrolling to the bottom of the chat and switching to the last node
+export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
 const MessageContext = createContext<MessageContextValue>({
   viewingChat: null,

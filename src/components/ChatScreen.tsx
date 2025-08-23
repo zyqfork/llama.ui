@@ -55,12 +55,12 @@ function getListMessageDisplay(
 
 export default function ChatScreen() {
   const {
-    canvasData,
     viewingChat,
     sendMessage,
     isGenerating,
     stopGenerating,
     pendingMessages,
+    canvasData,
     replaceMessage,
     replaceMessageAndGenerate,
   } = useMessageContext();

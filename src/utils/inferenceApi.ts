@@ -254,15 +254,18 @@ class InferenceApiProvider {
    */
   async getServerProps(): Promise<LlamaCppServerProps> {
     try {
-  const response = await fetch(new URL('/props', this.config.baseUrl).toString(), {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.config.apiKey
-            ? { Authorization: `Bearer ${this.config.apiKey}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(1000),
-      });
+      const response = await fetch(
+        new URL('/props', this.config.baseUrl).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.config.apiKey
+              ? { Authorization: `Bearer ${this.config.apiKey}` }
+              : {}),
+          },
+          signal: AbortSignal.timeout(1000),
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch server props');
       }
@@ -383,11 +386,14 @@ class InferenceApiProvider {
    * @throws When the API returns a non-200 status or contains error data
    */
   async v1Models(): Promise<InferenceApiModel[]> {
-  const fetchResponse = await fetch(new URL('/v1/models', this.config.baseUrl).toString(), {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal: AbortSignal.timeout(1000),
-    });
+    const fetchResponse = await fetch(
+      new URL('/v1/models', this.config.baseUrl).toString(),
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+        signal: AbortSignal.timeout(1000),
+      }
+    );
     await this.isErrorResponse(fetchResponse);
     const json = await fetchResponse.json();
     const res: InferenceApiModel[] = [];

@@ -149,6 +149,7 @@ const getSettingTabsConfiguration = (
           ([key, val]: [string, ProviderOption]) => ({
             key,
             value: val.name,
+            icon: val.icon,
           })
         )
       ),
@@ -735,10 +736,8 @@ const SettingsModalShortInput: React.FC<
         {field.label || configKey}
       </div>
       <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div className="dropdown dropdown-hover">
-          <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {field.label || configKey}
-          </div>
+        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+          {field.label || configKey}
         </div>
         <input
           type="text"
@@ -795,7 +794,7 @@ const SettingsModalDropdown: React.FC<{
   configKey: ConfigurationKey;
   field: SettingFieldInput;
   onChange: (value: string) => void;
-  options: { key: string; value: string }[];
+  options: { key: string; value: string; icon?: string }[];
   value: string;
 }> = ({ configKey, field, options, value, onChange }) => {
   return (
@@ -803,12 +802,9 @@ const SettingsModalDropdown: React.FC<{
       <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
         {field.label || configKey}
       </div>
-
       <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div className="dropdown dropdown-hover">
-          <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {field.label || configKey}
-          </div>
+        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+          {field.label || configKey}
         </div>
 
         <select

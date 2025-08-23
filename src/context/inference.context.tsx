@@ -63,6 +63,7 @@ export const InferenceContextProvider = ({
       await fetchServerProperties(config);
     };
     syncServer(config);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
   useEffect(() => {
