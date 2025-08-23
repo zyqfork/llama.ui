@@ -15,7 +15,7 @@ type FetchOptions = {
 interface InferenceContextValue {
   api: InferenceApi;
   models: InferenceApiModel[];
-  serverProps: LlamaCppServerProps | null;
+  serverProps: LlamaCppServerProps;
 
   fetchModels: (
     config: Configuration,
@@ -23,10 +23,21 @@ interface InferenceContextValue {
   ) => Promise<boolean>;
 }
 
+const noModels: InferenceApiModel[] = [];
+const noServerProps: LlamaCppServerProps = {
+  build_info: '',
+  model: '',
+  n_ctx: 0,
+  modalities: {
+    vision: false,
+    audio: false,
+  },
+};
+
 const InferenceContext = createContext<InferenceContextValue>({
   api: InferenceApi.new(CONFIG_DEFAULT),
-  models: [],
-  serverProps: null,
+  models: noModels,
+  serverProps: noServerProps,
   fetchModels: () => new Promise(() => false),
 });
 
@@ -37,10 +48,9 @@ export const InferenceContextProvider = ({
 }) => {
   const { config } = useAppContext();
   const [api, setApi] = useState<InferenceApi>(InferenceApi.new(config));
-  const [models, setModels] = useState<InferenceApiModel[]>([]);
-  const [serverProps, setServerProps] = useState<LlamaCppServerProps | null>(
-    null
-  );
+  const [models, setModels] = useState<InferenceApiModel[]>(noModels);
+  const [serverProps, setServerProps] =
+    useState<LlamaCppServerProps>(noServerProps);
 
   const isProviderReady = (config: Configuration) => {
     if (!config.provider) return false;
@@ -68,13 +78,17 @@ export const InferenceContextProvider = ({
     config: Configuration,
     options: FetchOptions = { silent: false }
   ) => {
-    setModels([]);
-    if (!isProviderReady(config)) return false;
+    if (!isProviderReady(config)) {
+      setModels(noModels);
+      return false;
+    }
+
     const newApi = InferenceApi.new(config);
     try {
       const newModels = await newApi.v1Models();
       setModels(newModels);
     } catch (err) {
+      setModels(noModels);
       if (!options.silent) {
         console.error('fetch models failed: ', err);
         toast.error('Inference server is unavailable, check Settings.');
@@ -88,13 +102,16 @@ export const InferenceContextProvider = ({
     config: Configuration,
     options: FetchOptions = { silent: false }
   ) => {
-    if (config.provider !== 'llama-cpp') return;
-    if (!isProviderReady(config)) return false;
+    if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
+      setServerProps(noServerProps);
+      return false;
+    }
 
     const newApi = InferenceApi.new(config);
     try {
       setServerProps(await newApi.getServerProps());
     } catch (err) {
+      setServerProps(noServerProps);
       if (!options.silent) {
         console.error('fetch llama.cpp props failed: ', err);
       }
