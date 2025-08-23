@@ -1,5 +1,6 @@
 import {
   ArrowDownTrayIcon,
+  ArrowPathIcon,
   ArrowUpTrayIcon,
   BeakerIcon,
   ChatBubbleLeftEllipsisIcon,
@@ -15,15 +16,19 @@ import {
   RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
+import { useAppContext } from '../context/app.context';
+import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
-import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
+import { InferenceApiModel } from '../utils/inferenceApi';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
+import providersData from '../utils/providers.json';
 import StorageUtils from '../utils/storage';
-import { Configuration } from '../utils/types';
+import { Configuration, ProviderOption } from '../utils/types';
 import { useModals } from './ModalProvider';
+import { useDebouncedCallback } from './useDebouncedCallback';
 
 // --- Type Definitions ---
 
@@ -33,6 +38,7 @@ enum SettingInputType {
   SHORT_INPUT,
   LONG_INPUT,
   CHECKBOX,
+  DROPDOWN,
   CUSTOM,
   SECTION,
 }
@@ -52,7 +58,7 @@ interface SettingFieldInput {
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: ConfigurationKey | 'custom' | 'import-export';
+  key: ConfigurationKey | 'custom' | 'import-export' | 'fetch-models';
   component:
     | string
     | React.FC<{
@@ -62,12 +68,24 @@ interface SettingFieldCustom {
     | 'delimeter';
 }
 
+interface SettingFieldDropdown {
+  type: SettingInputType.DROPDOWN;
+  label: string | React.ReactElement;
+  note?: string | TrustedHTML;
+  key: ConfigurationKey;
+  options: { key: string; value: string }[];
+}
+
 interface SettingSection {
   type: SettingInputType.SECTION;
   label: string | React.ReactElement;
 }
 
-type SettingField = SettingFieldInput | SettingFieldCustom | SettingSection;
+type SettingField =
+  | SettingFieldInput
+  | SettingFieldCustom
+  | SettingSection
+  | SettingFieldDropdown;
 
 interface SettingTab {
   title: React.ReactElement;
@@ -92,6 +110,18 @@ const toInput = (
     key,
   };
 };
+const toDropdown = (
+  key: ConfigurationKey,
+  options: { key: string; value: string }[]
+): SettingFieldDropdown => {
+  return {
+    type: SettingInputType.DROPDOWN,
+    key,
+    label: lang.settings.parameters[key].label,
+    note: lang.settings.parameters[key].note,
+    options,
+  };
+};
 
 const DELIMETER: SettingFieldCustom = {
   type: SettingInputType.CUSTOM,
@@ -100,8 +130,12 @@ const DELIMETER: SettingFieldCustom = {
 };
 
 // --- Setting Tabs Configuration ---
+const UnusedCustomField: React.FC = () => null;
 
-const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
+const getSettingTabsConfiguration = (
+  config: Configuration,
+  models: InferenceApiModel[]
+): SettingTab[] => [
   /* General */
   {
     title: (
@@ -111,9 +145,36 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
       </>
     ),
     fields: [
-      ...['baseUrl', 'apiKey', 'model'].map((key) =>
-        toInput(SettingInputType.SHORT_INPUT, key as ConfigurationKey)
+      toDropdown(
+        'provider',
+        Object.entries(providersData).map(
+          ([key, val]: [string, ProviderOption]) => ({
+            key,
+            value: val.name,
+            icon: val.icon,
+          })
+        )
       ),
+      toInput(
+        SettingInputType.SHORT_INPUT,
+        'baseUrl',
+        !providersData[config.provider as keyof typeof providersData]
+          ?.allowCustomBaseUrl
+      ),
+      toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
+      toDropdown(
+        'model',
+        models.map((m) => ({
+          key: m.id,
+          value: m.name,
+        }))
+      ),
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'fetch-models',
+        component: UnusedCustomField,
+      },
+      DELIMETER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
@@ -180,7 +241,7 @@ const getSettingTabsConfiguration = (config: Configuration): SettingTab[] => [
       {
         type: SettingInputType.CUSTOM,
         key: 'import-export',
-        component: () => null, // dummy component, won't be used
+        component: UnusedCustomField,
       },
     ],
   },
@@ -357,6 +418,7 @@ export default function SettingDialog({
   onClose: () => void;
 }) {
   const { config, saveConfig } = useAppContext();
+  const { models, fetchModels } = useInferenceContext();
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
@@ -364,8 +426,8 @@ export default function SettingDialog({
     JSON.parse(JSON.stringify(config))
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig),
-    [localConfig]
+    () => getSettingTabsConfiguration(localConfig, models),
+    [localConfig, models]
   );
 
   const { showConfirm, showAlert } = useModals();
@@ -415,12 +477,35 @@ export default function SettingDialog({
     onClose();
   };
 
+  const debouncedFetchModels = useDebouncedCallback(
+    (newConfig: Configuration) => fetchModels(newConfig, { silent: true }),
+    1000
+  );
+
   const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
-    setLocalConfig((prevConfig) => ({
-      ...prevConfig,
-      [key]: value,
-    }));
+    setLocalConfig((prevConfig) => {
+      let newConfig = {
+        ...prevConfig,
+        [key]: value,
+      };
+
+      if (key === 'provider') {
+        const providerInfo = providersData[value as keyof typeof providersData];
+        if (providerInfo?.baseUrl) {
+          newConfig = {
+            ...newConfig,
+            baseUrl: providerInfo.baseUrl,
+          };
+        }
+      }
+
+      if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
+        debouncedFetchModels(newConfig);
+      }
+
+      return newConfig;
+    });
   };
 
   return (
@@ -504,7 +589,7 @@ export default function SettingDialog({
                       configKey={field.key}
                       field={field}
                       value={String(localConfig[field.key])}
-                      onChange={(value) => onChange(field.key)(value)}
+                      onChange={onChange(field.key)}
                     />
                   );
                 case SettingInputType.CHECKBOX:
@@ -514,7 +599,18 @@ export default function SettingDialog({
                       configKey={field.key}
                       field={field}
                       value={!!localConfig[field.key]}
-                      onChange={(value) => onChange(field.key)(value)}
+                      onChange={onChange(field.key)}
+                    />
+                  );
+                case SettingInputType.DROPDOWN:
+                  return (
+                    <SettingsModalDropdown
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      value={String(localConfig[field.key])}
+                      onChange={onChange(field.key)}
+                      options={(field as SettingFieldDropdown).options}
                     />
                   );
                 case SettingInputType.CUSTOM:
@@ -522,6 +618,16 @@ export default function SettingDialog({
                     case 'import-export':
                       return (
                         <ImportExportComponent key={key} onClose={onClose} />
+                      );
+                    case 'fetch-models':
+                      return (
+                        <button
+                          className="btn"
+                          onClick={() => fetchModels(localConfig)}
+                        >
+                          <ArrowPathIcon className={ICON_CLASSNAME} />
+                          Fetch models
+                        </button>
                       );
                     default:
                       if (field.component === 'delimeter') {
@@ -612,7 +718,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
       />
       {field.note && (
         <div
-          className="text-xs opacity-75 mt-1"
+          className="text-xs opacity-75 max-w-80 mt-1"
           dangerouslySetInnerHTML={{ __html: field.note }}
         />
       )}
@@ -629,10 +735,8 @@ const SettingsModalShortInput: React.FC<
         {field.label || configKey}
       </div>
       <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div className="dropdown dropdown-hover">
-          <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {field.label || configKey}
-          </div>
+        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+          {field.label || configKey}
         </div>
         <input
           type="text"
@@ -644,7 +748,7 @@ const SettingsModalShortInput: React.FC<
         />
       </label>
       {field.note && (
-        <div className="block opacity-75">
+        <div className="block opacity-75 max-w-80">
           <div
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
@@ -674,8 +778,63 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         <span className="ml-2">{field.label || configKey}</span>
       </div>
       {field.note && (
-        <div className="block opacity-75">
+        <div className="block opacity-75 max-w-80">
           <p
+            className="text-xs"
+            dangerouslySetInnerHTML={{ __html: field.note }}
+          />
+        </div>
+      )}
+    </label>
+  );
+};
+
+const SettingsModalDropdown: React.FC<{
+  configKey: ConfigurationKey;
+  field: SettingFieldInput;
+  onChange: (value: string) => void;
+  options: { key: string; value: string; icon?: string }[];
+  value: string;
+}> = ({ configKey, field, options, value, onChange }) => {
+  const disabled = useMemo(() => options.length < 2, [options]);
+
+  useEffect(() => {
+    if (options.length === 0 && value !== '') onChange('');
+    if (options.length === 1 && value !== options[0].value)
+      onChange(options[0].value);
+  }, [options, value, onChange]);
+
+  return (
+    <label className="form-control flex flex-col justify-center mb-3">
+      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+        {field.label || configKey}
+      </div>
+      <label
+        className={classNames({
+          'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
+          'bg-base-200': disabled,
+        })}
+      >
+        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+          {field.label || configKey}
+        </div>
+
+        <select
+          className="grow"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+        >
+          {options.map((p) => (
+            <option key={p.key} value={p.key}>
+              {p.value}
+            </option>
+          ))}
+        </select>
+      </label>
+      {field.note && (
+        <div className="block opacity-75 max-w-80">
+          <div
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
           />

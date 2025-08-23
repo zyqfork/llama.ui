@@ -14,7 +14,7 @@ import { splitMessageContent } from './misc';
  * Represents a single content part in an API message, supporting multiple content types
  * including text, images, and audio inputs for multimodal interactions. [[9]]
  */
-export type APIMessageContentPart =
+export type InferenceApiMessageContentPart =
   | {
       /** The content type identifier */
       type: 'text';
@@ -38,22 +38,22 @@ export type APIMessageContentPart =
  * Represents a message structure compatible with the API endpoint.
  * Can contain either a simple string or an array of content parts for multimodal support. [[4]]
  */
-export type APIMessage = {
+export type InferenceApiMessage = {
   /** The role of the message sender (system, user, assistant) */
   role: Message['role'];
   /** The message content, which can be a string or structured content parts */
-  content: string | APIMessageContentPart[];
+  content: string | InferenceApiMessageContentPart[];
 };
 
 /**
  * Represents model information returned by the API's models endpoint.
  * Contains basic model metadata that clients might need for display or selection. [[1]]
  */
-export type APIModel = {
+export type InferenceApiModel = {
   /** Unique model identifier */
   id: string;
   /** User-friendly model name (optional) */
-  name?: string;
+  name: string;
   /** Model description (optional) */
   description?: string;
   /** Timestamp of model creation (optional) */
@@ -94,7 +94,9 @@ export interface LlamaCppServerProps {
  * This function processes extra content first, followed by the user message,
  * which allows for better cache prefix utilization with long context windows. [[3]]
  */
-function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
+function normalizeMsgsForAPI(
+  messages: Readonly<Message[]>
+): InferenceApiMessage[] {
   return messages.map((msg) => {
     if (msg.role !== 'user' || !msg.extra) {
       return {
@@ -105,7 +107,7 @@ function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
 
     // extra content first, then user text message in the end
     // this allow re-using the same cache prefix for long context
-    const contentArr: APIMessageContentPart[] = [];
+    const contentArr: InferenceApiMessageContentPart[] = [];
 
     for (const extra of msg.extra ?? []) {
       if (extra.type === 'context') {
@@ -159,7 +161,9 @@ function normalizeMsgsForAPI(messages: Readonly<Message[]>): APIMessage[] {
  * @remarks
  * In development mode, this function logs the original messages for debugging purposes. [[7]]
  */
-function filterThoughtFromMsgs(messages: APIMessage[]): APIMessage[] {
+function filterThoughtFromMsgs(
+  messages: InferenceApiMessage[]
+): InferenceApiMessage[] {
   if (isDev)
     console.debug(
       'filter thought messages\n',
@@ -216,7 +220,7 @@ async function* getSSEStreamAsync(fetchResponse: Response) {
  * API provider class for interacting with Llama.cpp server endpoints.
  * Handles chat completions, model listing, and server property retrieval. [[1]]
  */
-class ApiProvider {
+class InferenceApiProvider {
   /** Configuration settings for API interactions */
   config: Configuration;
 
@@ -236,7 +240,7 @@ class ApiProvider {
    * @returns New ApiProvider instance
    */
   static new(config: Configuration) {
-    return new ApiProvider(config);
+    return new InferenceApiProvider(config);
   }
 
   /**
@@ -250,14 +254,18 @@ class ApiProvider {
    */
   async getServerProps(): Promise<LlamaCppServerProps> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/props`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.config.apiKey
-            ? { Authorization: `Bearer ${this.config.apiKey}` }
-            : {}),
-        },
-      });
+      const response = await fetch(
+        new URL('/props', this.config.baseUrl).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.config.apiKey
+              ? { Authorization: `Bearer ${this.config.apiKey}` }
+              : {}),
+          },
+          signal: AbortSignal.timeout(1000),
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch server props');
       }
@@ -298,7 +306,7 @@ class ApiProvider {
     abortSignal: AbortSignal
   ) {
     // prepare messages for API
-    let apiMessages: APIMessage[] = [];
+    let apiMessages: InferenceApiMessage[] = [];
     if (this.config.systemMessage?.trim()) {
       apiMessages.push({
         role: 'system',
@@ -359,7 +367,7 @@ class ApiProvider {
 
     // send request
     const fetchResponse = await fetch(
-      `${this.config.baseUrl}/v1/chat/completions`,
+      new URL('/v1/chat/completions', this.config.baseUrl).toString(),
       {
         method: 'POST',
         headers: this.getHeaders(),
@@ -377,13 +385,35 @@ class ApiProvider {
    * @returns Promise resolving to array of available models
    * @throws When the API returns a non-200 status or contains error data
    */
-  async v1Models(): Promise<APIModel[]> {
-    const fetchResponse = await fetch(`${this.config.baseUrl}/v1/models`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+  async v1Models(): Promise<InferenceApiModel[]> {
+    const fetchResponse = await fetch(
+      new URL('/v1/models', this.config.baseUrl).toString(),
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+        signal: AbortSignal.timeout(1000),
+      }
+    );
     await this.isErrorResponse(fetchResponse);
-    return (await fetchResponse.json()).data || [];
+    const json = await fetchResponse.json();
+    const res: InferenceApiModel[] = [];
+    if (json.data && Array.isArray(json.data)) {
+      json.data.map((m: InferenceApiModel) => {
+        res.push({
+          id: m.id,
+          name: m.name || m.id,
+          created: m.created,
+          description: m.description,
+        });
+      });
+      res.sort((a, b) => {
+        if (a.created || b.created) {
+          return (b.created || 0) - (a.created || 0);
+        }
+        return a.name.localeCompare(b.name);
+      });
+    }
+    return res;
   }
 
   /**
@@ -413,13 +443,32 @@ class ApiProvider {
   private async isErrorResponse(response: Response) {
     if (response.status === 200) return;
 
-    const body = await response.json();
-    console.error('API error: ', body);
-    if (response.status === 500) {
-      throw new Error('Internal server error');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let body: any = {};
+    try {
+      body = await response.json();
+    } catch (e) {
+      // fallback if response is not JSON
+      body = {};
     }
-    throw new Error(body?.error?.message || 'Unknown error');
+    console.error('API error: ', body);
+    switch (response.status) {
+      case 400:
+        throw new Error('Bad request');
+      case 401:
+        throw new Error('Unauthorized');
+      case 403:
+        throw new Error('Forbidden');
+      case 404:
+        throw new Error('Not found');
+      case 500:
+        throw new Error('Internal server error');
+      default:
+        throw new Error(
+          body?.error?.message || `Unknown error: ${response.status}`
+        );
+    }
   }
 }
 
-export default ApiProvider;
+export default InferenceApiProvider;

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useAppContext } from '../utils/app.context';
-import { OpenInNewTab, XCloseButton } from '../utils/common';
-import { CanvasType } from '../utils/types';
 import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { useMessageContext } from '../context/message.context';
+import { OpenInNewTab, XCloseButton } from '../utils/common';
 import StorageUtils from '../utils/storage';
+import { CanvasType } from '../utils/types';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 
@@ -109,7 +109,7 @@ const runCodeInWorker = (
 };
 
 export default function CanvasPyInterpreter() {
-  const { canvasData, setCanvasData } = useAppContext();
+  const { canvasData, setCanvasData } = useMessageContext();
 
   const [code, setCode] = useState(canvasData?.content ?? ''); // copy to avoid direct mutation
   const [running, setRunning] = useState(false);

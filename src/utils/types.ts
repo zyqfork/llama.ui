@@ -5,7 +5,15 @@ export interface TimingReport {
   predicted_ms: number;
 }
 
+export type ProviderOption = {
+  name: string;
+  baseUrl: string;
+  icon?: string;
+  allowCustomBaseUrl: boolean;
+};
+
 export interface Configuration {
+  provider: string;
   baseUrl: string;
   apiKey: string;
   model: string;

@@ -8,13 +8,14 @@ import {
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
-import { useAppContext } from '../utils/app.context';
+import { useAppContext } from '../context/app.context';
+import { useMessageContext } from '../context/message.context';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
 import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
-import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
 import { DropzoneArea } from './DropzoneArea';
+import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
 import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
@@ -43,7 +44,8 @@ export default function ChatMessage({
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
-  const { viewingChat, config } = useAppContext();
+  const { config } = useAppContext();
+  const { viewingChat } = useMessageContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>

@@ -1,20 +1,23 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { CONFIG_DEFAULT, isDev } from '../config';
-import Api, { APIModel, LlamaCppServerProps } from './api';
-import StorageUtils from './storage';
+import { isDev } from '../config';
+import { useInferenceContext } from '../context/inference.context';
+import StorageUtils from '../utils/storage';
 import {
   CanvasData,
-  Configuration,
   Conversation,
   Message,
   MessageExtra,
   PendingMessage,
   ViewingChat,
-} from './types';
+} from '../utils/types';
 
-interface AppContextValue {
+interface MessageContextValue {
+  // canvas
+  canvasData: CanvasData | null;
+  setCanvasData: (data: CanvasData | null) => void;
+
   // conversations and messages
   viewingChat: ViewingChat | null;
   pendingMessages: Record<Conversation['id'], PendingMessage>;
@@ -40,25 +43,12 @@ interface AppContextValue {
     extra: MessageExtra[] | undefined,
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
-
-  // canvas
-  canvasData: CanvasData | null;
-  setCanvasData: (data: CanvasData | null) => void;
-
-  // config
-  config: Configuration;
-  saveConfig: (config: Configuration) => void;
-  showSettings: boolean;
-  setShowSettings: (show: boolean) => void;
-
-  // props
-  serverProps: LlamaCppServerProps | null;
 }
 
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-const AppContext = createContext<AppContextValue>({
+const MessageContext = createContext<MessageContextValue>({
   viewingChat: null,
   pendingMessages: {},
   isGenerating: () => false,
@@ -68,11 +58,6 @@ const AppContext = createContext<AppContextValue>({
   replaceMessageAndGenerate: async () => {},
   canvasData: null,
   setCanvasData: () => {},
-  config: {} as Configuration,
-  saveConfig: () => {},
-  showSettings: false,
-  setShowSettings: () => {},
-  serverProps: null,
 });
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
@@ -85,19 +70,16 @@ const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   };
 };
 
-export const AppContextProvider = ({
+export const MessageContextProvider = ({
   children,
 }: {
-  children: React.ReactElement;
+  children: React.ReactNode;
 }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const params = matchPath('/chat/:convId', pathname);
   const convId = params?.params?.convId;
 
-  const [serverProps, setServerProps] = useState<LlamaCppServerProps | null>(
-    null
-  );
   const [viewingChat, setViewingChat] = useState<ViewingChat | null>(null);
   const [pendingMessages, setPendingMessages] = useState<
     Record<Conversation['id'], PendingMessage>
@@ -105,38 +87,8 @@ export const AppContextProvider = ({
   const [aborts, setAborts] = useState<
     Record<Conversation['id'], AbortController>
   >({});
-  const [config, setConfig] = useState(StorageUtils.getConfig());
-  const [api, setApi] = useState<Api>(Api.new(config));
-  const [models, setModels] = useState<APIModel[]>([]);
+  const { api } = useInferenceContext();
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-
-  // setup api provider
-  useEffect(() => {
-    const newApi = Api.new(config);
-    setApi(newApi);
-
-    const syncServer = async (api: Api) => {
-      try {
-        setModels(await api.v1Models());
-      } catch (err) {
-        console.error('fetch models failed: ', err);
-        toast.error('LLM inference server is unavailable.');
-        return;
-      }
-      try {
-        setServerProps(await api.getServerProps());
-      } catch (err) {
-        /* TODO make better ignoring for not llama.cpp server */
-      }
-    };
-    syncServer(newApi);
-  }, [config]);
-
-  useEffect(() => {
-    if (models.length > 0) CONFIG_DEFAULT.model = models[0].id;
-    else CONFIG_DEFAULT.model = '';
-  }, [models]);
 
   // handle change when the convId from URL is changed
   useEffect(() => {
@@ -413,39 +365,31 @@ export const AppContextProvider = ({
     await generateMessage(convId, parentNodeId, onChunk);
   };
 
-  const saveConfig = (config: Configuration) => {
-    StorageUtils.setConfig(config);
-    setConfig(config);
-  };
-
   return (
-    <AppContext.Provider
+    <MessageContext.Provider
       value={{
-        isGenerating,
         viewingChat,
         pendingMessages,
+        isGenerating,
         sendMessage,
         stopGenerating,
         replaceMessage,
         replaceMessageAndGenerate,
         canvasData,
         setCanvasData,
-        config,
-        saveConfig,
-        showSettings,
-        setShowSettings,
-        serverProps,
       }}
     >
       {children}
-    </AppContext.Provider>
+    </MessageContext.Provider>
   );
 };
 
-export const useAppContext = () => {
-  const context = useContext(AppContext);
+export const useMessageContext = () => {
+  const context = useContext(MessageContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppContextProvider');
+    throw new Error(
+      'useMessageContext must be used within a MessageContextProvider'
+    );
   }
   return context;
 };

@@ -6,7 +6,9 @@ import { ModalProvider } from './components/ModalProvider';
 import { Footer } from './components/Footer';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
-import { AppContextProvider, useAppContext } from './utils/app.context';
+import { AppContextProvider, useAppContext } from './context/app.context';
+import { InferenceContextProvider } from './context/inference.context';
+import { MessageContextProvider } from './context/message.context';
 
 function App() {
   return (
@@ -14,12 +16,16 @@ function App() {
       <HashRouter>
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/chat/:convId" element={<ChatScreen />} />
-                <Route path="*" element={<ChatScreen />} />
-              </Route>
-            </Routes>
+            <InferenceContextProvider>
+              <MessageContextProvider>
+                <Routes>
+                  <Route element={<AppLayout />}>
+                    <Route path="/chat/:convId" element={<ChatScreen />} />
+                    <Route path="*" element={<ChatScreen />} />
+                  </Route>
+                </Routes>
+              </MessageContextProvider>
+            </InferenceContextProvider>
           </AppContextProvider>
         </div>
       </HashRouter>
