@@ -623,6 +623,7 @@ export default function SettingDialog({
                     case 'fetch-models':
                       return (
                         <button
+                          key={key}
                           className="btn"
                           onClick={() => fetchModels(localConfig)}
                         >
