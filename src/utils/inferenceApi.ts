@@ -261,6 +261,7 @@ class InferenceApiProvider {
             ? { Authorization: `Bearer ${this.config.apiKey}` }
             : {}),
         },
+        signal: AbortSignal.timeout(1000),
       });
       if (!response.ok) {
         throw new Error('Failed to fetch server props');
@@ -385,6 +386,7 @@ class InferenceApiProvider {
     const fetchResponse = await fetch(`${this.config.baseUrl}/v1/models`, {
       method: 'GET',
       headers: this.getHeaders(),
+      signal: AbortSignal.timeout(1000),
     });
     await this.isErrorResponse(fetchResponse);
     const json = await fetchResponse.json();
