@@ -56,7 +56,7 @@ interface SettingFieldInput {
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: ConfigurationKey | 'custom' | 'import-export';
+  key: ConfigurationKey | 'custom' | 'import-export' | 'fetch-models';
   component:
     | string
     | React.FC<{
@@ -165,6 +165,12 @@ const getSettingTabsConfiguration = (
           value: m.name,
         }))
       ),
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'fetch-models',
+        component: () => null, // dummy component, won't be used
+      },
+      DELIMETER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
@@ -611,6 +617,15 @@ export default function SettingDialog({
                     case 'import-export':
                       return (
                         <ImportExportComponent key={key} onClose={onClose} />
+                      );
+                    case 'fetch-models':
+                      return (
+                        <button
+                          className="btn"
+                          onClick={() => fetchModels(localConfig)}
+                        >
+                          Fetch models
+                        </button>
                       );
                     default:
                       if (field.component === 'delimeter') {
