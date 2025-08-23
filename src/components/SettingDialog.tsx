@@ -718,7 +718,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
       />
       {field.note && (
         <div
-          className="text-xs opacity-75 mt-1"
+          className="text-xs opacity-75 max-w-80 mt-1"
           dangerouslySetInnerHTML={{ __html: field.note }}
         />
       )}
@@ -750,7 +750,7 @@ const SettingsModalShortInput: React.FC<
         />
       </label>
       {field.note && (
-        <div className="block opacity-75">
+        <div className="block opacity-75 max-w-80">
           <div
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
@@ -780,7 +780,7 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         <span className="ml-2">{field.label || configKey}</span>
       </div>
       {field.note && (
-        <div className="block opacity-75">
+        <div className="block opacity-75 max-w-80">
           <p
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
@@ -824,7 +824,7 @@ const SettingsModalDropdown: React.FC<{
         </select>
       </label>
       {field.note && (
-        <div className="block opacity-75">
+        <div className="block opacity-75 max-w-80">
           <div
             className="text-xs"
             dangerouslySetInnerHTML={{ __html: field.note }}
