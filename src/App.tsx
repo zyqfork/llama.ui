@@ -7,7 +7,7 @@ import { Footer } from './components/Footer';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { AppContextProvider, useAppContext } from './utils/app.context';
-import { ApiContextProvider } from './utils/api.context';
+import { InferenceContextProvider } from './utils/inference.context';
 import { MessageContextProvider } from './utils/message.context';
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
       <HashRouter>
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
-            <ApiContextProvider>
+            <InferenceContextProvider>
               <MessageContextProvider>
                 <Routes>
                   <Route element={<AppLayout />}>
@@ -25,7 +25,7 @@ function App() {
                   </Route>
                 </Routes>
               </MessageContextProvider>
-            </ApiContextProvider>
+            </InferenceContextProvider>
           </AppContextProvider>
         </div>
       </HashRouter>

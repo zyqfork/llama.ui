@@ -18,8 +18,8 @@ import {
 import React, { useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
 import * as lang from '../lang/en.json';
-import { APIModel } from '../utils/api';
-import { useApiContext } from '../utils/api.context';
+import { InferenceApiModel } from '../utils/inferenceApi';
+import { useInferenceContext } from '../utils/inference.context';
 import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
@@ -131,7 +131,7 @@ const DELIMETER: SettingFieldCustom = {
 
 const getSettingTabsConfiguration = (
   config: Configuration,
-  models: APIModel[]
+  models: InferenceApiModel[]
 ): SettingTab[] => [
   /* General */
   {
@@ -408,7 +408,7 @@ export default function SettingDialog({
   onClose: () => void;
 }) {
   const { config, saveConfig } = useAppContext();
-  const { models, fetchModels } = useApiContext();
+  const { models, fetchModels } = useInferenceContext();
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation

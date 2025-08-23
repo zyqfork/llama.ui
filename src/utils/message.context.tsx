@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { isDev } from '../config';
-import { useApiContext } from './api.context';
+import { useInferenceContext } from './inference.context';
 import StorageUtils from './storage';
 import {
   CanvasData,
@@ -87,7 +87,7 @@ export const MessageContextProvider = ({
   const [aborts, setAborts] = useState<
     Record<Conversation['id'], AbortController>
   >({});
-  const { api } = useApiContext();
+  const { api } = useInferenceContext();
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
 
   // handle change when the convId from URL is changed

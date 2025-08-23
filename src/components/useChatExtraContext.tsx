@@ -3,7 +3,7 @@ import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useApiContext } from '../utils/api.context';
+import { useInferenceContext } from '../utils/inference.context';
 import { useAppContext } from '../utils/app.context';
 import { MessageExtra } from '../utils/types';
 
@@ -29,7 +29,7 @@ export function useChatExtraContext(
   initialItems: MessageExtra[] = []
 ): ChatExtraContextApi {
   const { config } = useAppContext();
-  const { serverProps } = useApiContext();
+  const { serverProps } = useInferenceContext();
   const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
   const addItems = (newItems: MessageExtra[]) => {

@@ -1,32 +1,32 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
-import Api, { APIModel } from './api';
+import InferenceApi, { InferenceApiModel } from './inferenceApi';
 import { useAppContext } from './app.context';
 import providersData from './providers.json';
 import { Configuration } from './types';
 
-interface ApiContextValue {
-  api: Api;
-  models: APIModel[];
+interface InferenceContextValue {
+  api: InferenceApi;
+  models: InferenceApiModel[];
 
   fetchModels: (config: Configuration) => Promise<boolean>;
 }
 
-const ApiContext = createContext<ApiContextValue>({
-  api: Api.new(CONFIG_DEFAULT),
+const InferenceContext = createContext<InferenceContextValue>({
+  api: InferenceApi.new(CONFIG_DEFAULT),
   models: [],
   fetchModels: () => new Promise(() => false),
 });
 
-export const ApiContextProvider = ({
+export const InferenceContextProvider = ({
   children,
 }: {
   children: React.ReactElement;
 }) => {
   const { config } = useAppContext();
-  const [api, setApi] = useState<Api>(Api.new(config));
-  const [models, setModels] = useState<APIModel[]>([]);
+  const [api, setApi] = useState<InferenceApi>(InferenceApi.new(config));
+  const [models, setModels] = useState<InferenceApiModel[]>([]);
 
   const isProviderReady = (config: Configuration) => {
     if (!config.provider) return false;
@@ -41,7 +41,7 @@ export const ApiContextProvider = ({
   };
 
   useEffect(() => {
-    const newApi = Api.new(config);
+    const newApi = InferenceApi.new(config);
     setApi(newApi);
     fetchModels(config);
   }, [config]);
@@ -53,7 +53,7 @@ export const ApiContextProvider = ({
 
   const fetchModels = async (config: Configuration) => {
     if (!isProviderReady(config)) return false;
-    const newApi = Api.new(config);
+    const newApi = InferenceApi.new(config);
     try {
       const newModels = await newApi.v1Models();
       setModels(newModels);
@@ -66,16 +66,18 @@ export const ApiContextProvider = ({
   };
 
   return (
-    <ApiContext.Provider value={{ api, models, fetchModels }}>
+    <InferenceContext.Provider value={{ api, models, fetchModels }}>
       {children}
-    </ApiContext.Provider>
+    </InferenceContext.Provider>
   );
 };
 
-export const useApiContext = () => {
-  const context = useContext(ApiContext);
+export const useInferenceContext = () => {
+  const context = useContext(InferenceContext);
   if (!context) {
-    throw new Error('useApiContext must be used within an ApiContextProvider');
+    throw new Error(
+      'useInferenceContext must be used within an InferenceContextProvider'
+    );
   }
   return context;
 };
