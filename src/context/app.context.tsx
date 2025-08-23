@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-import StorageUtils from './storage';
-import { Configuration } from './types';
+import StorageUtils from '../utils/storage';
+import { Configuration } from '../utils/types';
 
 interface AppContextValue {
   config: Configuration;

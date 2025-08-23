@@ -18,11 +18,11 @@ import {
 } from '@heroicons/react/24/outline';
 import React, { useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
+import { useAppContext } from '../context/app.context';
+import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
-import { InferenceApiModel } from '../utils/inferenceApi';
-import { useInferenceContext } from '../utils/inference.context';
-import { useAppContext } from '../utils/app.context';
 import { OpenInNewTab } from '../utils/common';
+import { InferenceApiModel } from '../utils/inferenceApi';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import providersData from '../utils/providers.json';
 import StorageUtils from '../utils/storage';

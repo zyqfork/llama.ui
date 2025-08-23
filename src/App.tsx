@@ -6,9 +6,9 @@ import { ModalProvider } from './components/ModalProvider';
 import { Footer } from './components/Footer';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
-import { AppContextProvider, useAppContext } from './utils/app.context';
-import { InferenceContextProvider } from './utils/inference.context';
-import { MessageContextProvider } from './utils/message.context';
+import { AppContextProvider, useAppContext } from './context/app.context';
+import { InferenceContextProvider } from './context/inference.context';
+import { MessageContextProvider } from './context/message.context';
 
 function App() {
   return (

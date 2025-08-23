@@ -5,9 +5,9 @@ import { useAppContext } from './app.context';
 import InferenceApi, {
   InferenceApiModel,
   LlamaCppServerProps,
-} from './inferenceApi';
-import providersData from './providers.json';
-import { Configuration } from './types';
+} from '../utils/inferenceApi';
+import providersData from '../utils/providers.json';
+import { Configuration } from '../utils/types';
 
 type FetchOptions = {
   silent: boolean;

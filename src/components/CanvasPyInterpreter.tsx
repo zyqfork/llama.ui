@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { OpenInNewTab, XCloseButton } from '../utils/common';
-import { CanvasType } from '../utils/types';
 import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { useMessageContext } from '../context/message.context';
+import { OpenInNewTab, XCloseButton } from '../utils/common';
 import StorageUtils from '../utils/storage';
-import { useMessageContext } from '../utils/message.context';
+import { CanvasType } from '../utils/types';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 

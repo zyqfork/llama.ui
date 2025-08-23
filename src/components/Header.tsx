@@ -2,7 +2,7 @@ import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
 import daisyuiThemes from 'daisyui/theme/object';
 import { useEffect, useState } from 'react';
 import { THEMES } from '../config';
-import { useAppContext } from '../utils/app.context';
+import { useAppContext } from '../context/app.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 

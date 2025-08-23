@@ -1,8 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { classNames } from '../utils/misc';
-import { Conversation } from '../utils/types';
-import StorageUtils from '../utils/storage';
-import { useNavigate, useParams } from 'react-router';
 import {
   ArrowDownTrayIcon,
   EllipsisVerticalIcon,
@@ -11,9 +6,14 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { BtnWithTooltips } from '../utils/common';
-import { useMessageContext } from '../utils/message.context';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate, useParams } from 'react-router';
+import { useMessageContext } from '../context/message.context';
+import { BtnWithTooltips } from '../utils/common';
+import { classNames } from '../utils/misc';
+import StorageUtils from '../utils/storage';
+import { Conversation } from '../utils/types';
 import { useModals } from './ModalProvider';
 
 export default function Sidebar() {

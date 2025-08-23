@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import * as lang from '../lang/en.json';
 import {
-  useMessageContext,
   CallbackGeneratedChunk,
-} from '../utils/message.context';
+  useMessageContext,
+} from '../context/message.context';
+import * as lang from '../lang/en.json';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {

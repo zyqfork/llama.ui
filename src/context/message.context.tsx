@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { isDev } from '../config';
-import { useInferenceContext } from './inference.context';
-import StorageUtils from './storage';
+import { useInferenceContext } from '../context/inference.context';
+import StorageUtils from '../utils/storage';
 import {
   CanvasData,
   Conversation,
@@ -11,7 +11,7 @@ import {
   MessageExtra,
   PendingMessage,
   ViewingChat,
-} from './types';
+} from '../utils/types';
 
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;

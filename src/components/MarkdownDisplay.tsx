@@ -1,21 +1,21 @@
+import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { ElementContent, Root } from 'hast';
+import 'highlight.js/styles/stackoverflow-light.css';
+import 'katex/dist/katex.min.css';
+import { all as languages } from 'lowlight';
 import React, { useMemo, useState } from 'react';
 import Markdown, { ExtraProps } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import { all as languages } from 'lowlight';
-import 'highlight.js/styles/stackoverflow-light.css';
 import rehypeKatex from 'rehype-katex';
-import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
-import 'katex/dist/katex.min.css';
-import { classNames, copyStr } from '../utils/misc';
-import { ElementContent, Root } from 'hast';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import { visit } from 'unist-util-visit';
-import { useAppContext } from '../utils/app.context';
-import { CanvasType } from '../utils/types';
+import { useAppContext } from '../context/app.context';
+import { useMessageContext } from '../context/message.context';
 import { BtnWithTooltips } from '../utils/common';
-import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
-import { useMessageContext } from '../utils/message.context';
+import { classNames, copyStr } from '../utils/misc';
+import { CanvasType } from '../utils/types';
 
 export default function MarkdownDisplay({
   content,
