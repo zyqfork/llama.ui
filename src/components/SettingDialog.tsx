@@ -16,7 +16,7 @@ import {
   RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
@@ -796,12 +796,25 @@ const SettingsModalDropdown: React.FC<{
   options: { key: string; value: string; icon?: string }[];
   value: string;
 }> = ({ configKey, field, options, value, onChange }) => {
+  const disabled = useMemo(() => options.length < 2, [options]);
+
+  useEffect(() => {
+    if (options.length === 0 && value !== '') onChange('');
+    if (options.length === 1 && value !== options[0].value)
+      onChange(options[0].value);
+  }, [options, value, onChange]);
+
   return (
     <label className="form-control flex flex-col justify-center mb-3">
       <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
         {field.label || configKey}
       </div>
-      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+      <label
+        className={classNames({
+          'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
+          'bg-base-200': disabled,
+        })}
+      >
         <div tabIndex={0} role="button" className="font-bold hidden md:block">
           {field.label || configKey}
         </div>
@@ -810,6 +823,7 @@ const SettingsModalDropdown: React.FC<{
           className="grow"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
         >
           {options.map((p) => (
             <option key={p.key} value={p.key}>
