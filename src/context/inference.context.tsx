@@ -66,11 +66,6 @@ export const InferenceContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
-  useEffect(() => {
-    if (models.length > 0) CONFIG_DEFAULT.model = models[0].id;
-    else CONFIG_DEFAULT.model = '';
-  }, [models]);
-
   const fetchModels = async (
     config: Configuration,
     options: FetchOptions = { silent: false }

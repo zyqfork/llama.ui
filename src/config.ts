@@ -8,7 +8,7 @@ export const baseUrl = new URL('.', document.baseURI).href
   .toString()
   .replace(/\/$/, '');
 
-export const CONFIG_DEFAULT: Configuration = {
+export const CONFIG_DEFAULT: Readonly<Configuration> = Object.freeze({
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   provider: 'llama-cpp',
@@ -58,7 +58,7 @@ export const CONFIG_DEFAULT: Configuration = {
 
   /* experimental */
   pyIntepreterEnabled: false,
-};
+});
 
 // list of themes supported by daisyui
 export const THEMES = ['light', 'dark']
