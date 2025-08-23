@@ -254,7 +254,7 @@ class InferenceApiProvider {
    */
   async getServerProps(): Promise<LlamaCppServerProps> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/props`, {
+  const response = await fetch(new URL('/props', this.config.baseUrl).toString(), {
         headers: {
           'Content-Type': 'application/json',
           ...(this.config.apiKey
@@ -364,7 +364,7 @@ class InferenceApiProvider {
 
     // send request
     const fetchResponse = await fetch(
-      `${this.config.baseUrl}/v1/chat/completions`,
+      new URL('/v1/chat/completions', this.config.baseUrl).toString(),
       {
         method: 'POST',
         headers: this.getHeaders(),
@@ -383,7 +383,7 @@ class InferenceApiProvider {
    * @throws When the API returns a non-200 status or contains error data
    */
   async v1Models(): Promise<InferenceApiModel[]> {
-    const fetchResponse = await fetch(`${this.config.baseUrl}/v1/models`, {
+  const fetchResponse = await fetch(new URL('/v1/models', this.config.baseUrl).toString(), {
       method: 'GET',
       headers: this.getHeaders(),
       signal: AbortSignal.timeout(1000),
