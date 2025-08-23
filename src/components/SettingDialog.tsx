@@ -801,9 +801,11 @@ const SettingsModalDropdown: React.FC<{
   const disabled = useMemo(() => options.length < 2, [options]);
 
   useEffect(() => {
-    if (options.length === 0 && value !== '') onChange('');
-    if (options.length === 1 && value !== options[0].value)
+    if (options.length === 0 && value !== '') {
+      onChange('');
+    } else if (options.length === 1 && value !== options[0].value) {
       onChange(options[0].value);
+    }
   }, [options, value, onChange]);
 
   return (
