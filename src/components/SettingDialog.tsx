@@ -28,6 +28,7 @@ import providersData from '../utils/providers.json';
 import StorageUtils from '../utils/storage';
 import { Configuration, ProviderOption } from '../utils/types';
 import { useModals } from './ModalProvider';
+import { useDebouncedCallback } from './useDebouncedCallback';
 
 // --- Type Definitions ---
 
@@ -129,6 +130,7 @@ const DELIMETER: SettingFieldCustom = {
 };
 
 // --- Setting Tabs Configuration ---
+const UnusedCustomField: React.FC = () => null;
 
 const getSettingTabsConfiguration = (
   config: Configuration,
@@ -170,7 +172,7 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'fetch-models',
-        component: () => null, // dummy component, won't be used
+        component: UnusedCustomField,
       },
       DELIMETER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
@@ -239,7 +241,7 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'import-export',
-        component: () => null, // dummy component, won't be used
+        component: UnusedCustomField,
       },
     ],
   },
@@ -475,8 +477,10 @@ export default function SettingDialog({
     onClose();
   };
 
-  // hold models fetch on change
-  const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+  const debouncedFetchModels = useDebouncedCallback(
+    (newConfig: Configuration) => fetchModels(newConfig, { silent: true }),
+    1000
+  );
 
   const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
     // note: we do not perform validation here, because we may get incomplete value as user is still typing it
@@ -497,12 +501,7 @@ export default function SettingDialog({
       }
 
       if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
-        if (debounceRef.current) {
-          clearTimeout(debounceRef.current);
-        }
-        debounceRef.current = setTimeout(() => {
-          fetchModels(newConfig, { silent: true });
-        }, 1000);
+        debouncedFetchModels(newConfig);
       }
 
       return newConfig;
