@@ -1,5 +1,6 @@
 import {
   ArrowDownTrayIcon,
+  ArrowPathIcon,
   ArrowUpTrayIcon,
   BeakerIcon,
   ChatBubbleLeftEllipsisIcon,
@@ -624,6 +625,7 @@ export default function SettingDialog({
                           className="btn"
                           onClick={() => fetchModels(localConfig)}
                         >
+                          <ArrowPathIcon className={ICON_CLASSNAME} />
                           Fetch models
                         </button>
                       );
