@@ -9,12 +9,19 @@ import InferenceApi, {
 import providersData from './providers.json';
 import { Configuration } from './types';
 
+type FetchOptions = {
+  silent: boolean;
+};
+
 interface InferenceContextValue {
   api: InferenceApi;
   models: InferenceApiModel[];
   serverProps: LlamaCppServerProps | null;
 
-  fetchModels: (config: Configuration) => Promise<boolean>;
+  fetchModels: (
+    config: Configuration,
+    options?: FetchOptions
+  ) => Promise<boolean>;
 }
 
 const InferenceContext = createContext<InferenceContextValue>({
@@ -63,21 +70,29 @@ export const InferenceContextProvider = ({
     else CONFIG_DEFAULT.model = '';
   }, [models]);
 
-  const fetchModels = async (config: Configuration) => {
+  const fetchModels = async (
+    config: Configuration,
+    options: FetchOptions = { silent: false }
+  ) => {
     if (!isProviderReady(config)) return false;
     const newApi = InferenceApi.new(config);
     try {
       const newModels = await newApi.v1Models();
       setModels(newModels);
     } catch (err) {
-      console.error('fetch models failed: ', err);
-      toast.error('LLM inference server is unavailable.');
+      if (!options.silent) {
+        console.error('fetch models failed: ', err);
+        toast.error('LLM inference server is unavailable.');
+      }
       return false;
     }
     return true;
   };
 
-  const fetchServerProperties = async (config: Configuration) => {
+  const fetchServerProperties = async (
+    config: Configuration,
+    options: FetchOptions = { silent: false }
+  ) => {
     if (config.provider !== 'llama-cpp') return;
     if (!isProviderReady(config)) return false;
 
@@ -85,7 +100,9 @@ export const InferenceContextProvider = ({
     try {
       setServerProps(await newApi.getServerProps());
     } catch (err) {
-      /* TODO make better ignoring for not llama.cpp server */
+      if (!options.silent) {
+        console.error('fetch llama.cpp props failed: ', err);
+      }
     }
   };
 

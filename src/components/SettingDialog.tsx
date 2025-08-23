@@ -499,7 +499,7 @@ export default function SettingDialog({
           clearTimeout(debounceRef.current);
         }
         debounceRef.current = setTimeout(() => {
-          fetchModels(newConfig);
+          fetchModels(newConfig, { silent: true });
         }, 1000);
       }
 
