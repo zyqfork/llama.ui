@@ -27,6 +27,13 @@
     "allowCustomBaseUrl": true,
     "isKeyRequired": false
   },
+  "custom": {
+    "baseUrl": "",
+    "name": "Custom",
+    "icon": "",
+    "allowCustomBaseUrl": true,
+    "isKeyRequired": false
+  },
   "openai": {
     "baseUrl": "https://api.openai.com",
     "name": "OpenAI",
@@ -90,11 +97,39 @@
     "allowCustomBaseUrl": false,
     "isKeyRequired": true
   },
-  "custom": {
-    "baseUrl": "",
-    "name": "Custom",
-    "icon": "",
+  "cohere": {
+    "baseUrl": "https://api.cohere.ai",
+    "name": "Cohere",
+    "icon": "assets/providers/cohere.svg",
+    "allowCustomBaseUrl": false,
+    "isKeyRequired": true
+  },
+  "perplexity": {
+    "baseUrl": "https://api.perplexity.ai",
+    "name": "Perplexity",
+    "icon": "assets/providers/perplexity.svg",
+    "allowCustomBaseUrl": false,
+    "isKeyRequired": true
+  },
+  "together": {
+    "baseUrl": "https://api.together.xyz",
+    "name": "Together AI",
+    "icon": "assets/providers/together.svg",
+    "allowCustomBaseUrl": false,
+    "isKeyRequired": true
+  },
+  "azure": {
+    "baseUrl": "https://<your-resource-name>.openai.azure.com",
+    "name": "Azure",
+    "icon": "assets/providers/microsoft.svg",
     "allowCustomBaseUrl": true,
-    "isKeyRequired": false
+    "isKeyRequired": true
+  },
+  "aws": {
+    "baseUrl": "https://<your-resource-name>.amazonaws.com/openai",
+    "name": "AWS",
+    "icon": "assets/providers/aws.svg",
+    "allowCustomBaseUrl": true,
+    "isKeyRequired": true
   }
 }
