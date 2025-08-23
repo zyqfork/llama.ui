@@ -1,14 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT } from '../config';
-import InferenceApi, { InferenceApiModel } from './inferenceApi';
 import { useAppContext } from './app.context';
+import InferenceApi, {
+  InferenceApiModel,
+  LlamaCppServerProps,
+} from './inferenceApi';
 import providersData from './providers.json';
 import { Configuration } from './types';
 
 interface InferenceContextValue {
   api: InferenceApi;
   models: InferenceApiModel[];
+  serverProps: LlamaCppServerProps | null;
 
   fetchModels: (config: Configuration) => Promise<boolean>;
 }
@@ -16,6 +20,7 @@ interface InferenceContextValue {
 const InferenceContext = createContext<InferenceContextValue>({
   api: InferenceApi.new(CONFIG_DEFAULT),
   models: [],
+  serverProps: null,
   fetchModels: () => new Promise(() => false),
 });
 
@@ -27,6 +32,9 @@ export const InferenceContextProvider = ({
   const { config } = useAppContext();
   const [api, setApi] = useState<InferenceApi>(InferenceApi.new(config));
   const [models, setModels] = useState<InferenceApiModel[]>([]);
+  const [serverProps, setServerProps] = useState<LlamaCppServerProps | null>(
+    null
+  );
 
   const isProviderReady = (config: Configuration) => {
     if (!config.provider) return false;
@@ -43,7 +51,11 @@ export const InferenceContextProvider = ({
   useEffect(() => {
     const newApi = InferenceApi.new(config);
     setApi(newApi);
-    fetchModels(config);
+    const syncServer = async (config: Configuration) => {
+      await fetchModels(config);
+      await fetchServerProperties(config);
+    };
+    syncServer(config);
   }, [config]);
 
   useEffect(() => {
@@ -65,8 +77,22 @@ export const InferenceContextProvider = ({
     return true;
   };
 
+  const fetchServerProperties = async (config: Configuration) => {
+    if (config.provider !== 'llama-cpp') return;
+    if (!isProviderReady(config)) return false;
+
+    const newApi = InferenceApi.new(config);
+    try {
+      setServerProps(await newApi.getServerProps());
+    } catch (err) {
+      /* TODO make better ignoring for not llama.cpp server */
+    }
+  };
+
   return (
-    <InferenceContext.Provider value={{ api, models, fetchModels }}>
+    <InferenceContext.Provider
+      value={{ api, models, serverProps, fetchModels }}
+    >
       {children}
     </InferenceContext.Provider>
   );
