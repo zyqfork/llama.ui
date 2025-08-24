@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         manifest: {
           name: 'llama.ui',
           short_name: 'llama.ui',
