@@ -150,5 +150,11 @@
         "note": ""
       }
     }
+  },
+  "newVersion": {
+    "title": "🎉 New version available",
+    "description": "Update for the latest features. Your conversations will be saved.",
+    "updateBtnLabel": "Update",
+    "skipBtnLabel": "Later"
   }
 }
