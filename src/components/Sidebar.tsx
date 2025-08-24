@@ -77,9 +77,14 @@ export default function Sidebar() {
               <XMarkIcon className="w-5 h-5" />
             </label>
 
-            <h2 className="font-bold" role="heading">
-              Conversations
-            </h2>
+            <label
+              className="font-bold tracking-wider text-center cursor-pointer"
+              aria-label="llama.ui"
+              role="button"
+              onClick={() => navigate('/')}
+            >
+              llama.ui
+            </label>
 
             {/* new conversation button */}
             <button
