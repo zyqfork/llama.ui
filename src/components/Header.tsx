@@ -39,27 +39,30 @@ export default function Header() {
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
         <img
           src={INFERENCE_PROVIDERS[config.provider].icon}
+          alt="Provider"
           className="inline h-6 w-6 mr-2"
         />
-        <select
-          className={classNames({
-            'max-w-56 truncate': true,
-          })}
-          value={config.model}
-          onChange={(e) =>
-            saveConfig({
-              ...config,
-              model: e.target.value,
-            })
-          }
-          disabled={models.length < 2}
-        >
-          {models.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
+        <strong>
+          {models.length === 1 && <>{config.model}</>}
+          {models.length > 1 && (
+            <select
+              className="max-w-56 truncate"
+              value={config.model}
+              onChange={(e) =>
+                saveConfig({
+                  ...config,
+                  model: e.target.value,
+                })
+              }
+            >
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </strong>
       </div>
 
       {/* action buttons (top right) */}
