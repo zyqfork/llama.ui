@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Toast, Toaster, toast } from 'react-hot-toast';
-import { HashRouter, Outlet, Route, Routes } from 'react-router';
+import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 import ChatScreen from './components/ChatScreen';
 import { Footer } from './components/Footer';
 import Header from './components/Header';
@@ -16,7 +16,7 @@ import * as lang from './lang/en.json';
 const App: FC = () => {
   return (
     <ModalProvider>
-      <HashRouter>
+      <BrowserRouter>
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
             <InferenceContextProvider>
@@ -31,7 +31,7 @@ const App: FC = () => {
             </InferenceContextProvider>
           </AppContextProvider>
         </div>
-      </HashRouter>
+      </BrowserRouter>
     </ModalProvider>
   );
 };

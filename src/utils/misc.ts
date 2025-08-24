@@ -86,3 +86,17 @@ export const splitMessageContent = (content: string | null) => {
   }
   return { content: actualContent, reasoning_content: thought };
 };
+
+export function getUniqueRandomElements(array: string[], count: number = 4) {
+  if (count > array.length) {
+    return [...array];
+  }
+
+  const arrCopy = [...array];
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    const randomIndex = Math.floor(Math.random() * arrCopy.length);
+    result.push(arrCopy.splice(randomIndex, 1)[0]);
+  }
+  return result;
+}

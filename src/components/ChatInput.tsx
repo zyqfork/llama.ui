@@ -16,19 +16,17 @@ import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
  * If the current URL contains "?m=...", prefill the message input with the value.
  * If the current URL contains "?q=...", prefill and SEND the message.
  */
-const prefilledMsg = {
-  content() {
-    const url = new URL(window.location.href);
-    return url.searchParams.get('m') ?? url.searchParams.get('q') ?? '';
-  },
-  shouldSend() {
-    const url = new URL(window.location.href);
-    return url.searchParams.has('q');
-  },
-  clear() {
-    cleanCurrentUrl(['m', 'q']);
-  },
-};
+function getPrefilledContent() {
+  const searchParams = new URL(window.location.href).searchParams;
+  return searchParams.get('m') || searchParams.get('q') || '';
+}
+function isPrefilledSend() {
+  const searchParams = new URL(window.location.href).searchParams;
+  return searchParams.has('q');
+}
+function resetPrefilled() {
+  cleanCurrentUrl(['m', 'q']);
+}
 
 export function ChatInput({
   onSend,
@@ -42,7 +40,7 @@ export function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
-  const textarea: ChatTextareaApi = useChatTextarea(prefilledMsg.content());
+  const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
   useVSCodeContext(textarea, extraContext);
 
@@ -66,17 +64,21 @@ export function ChatInput({
   textarea.refOnSubmit.current = sendNewMessage;
 
   useEffect(() => {
-    if (prefilledMsg.shouldSend()) {
-      // send the prefilled message if needed
-      sendNewMessage();
-    } else {
-      // otherwise, focus on the input
-      textarea.focus();
+    // set textarea with prefilled value
+    const prefilled = getPrefilledContent();
+    if (prefilled) {
+      textarea.setValue(prefilled);
     }
-    prefilledMsg.clear();
+
+    // send the prefilled message if needed
+    // otherwise, focus on the input
+    if (isPrefilledSend()) sendNewMessage();
+    else textarea.focus();
+
     // no need to keep track of sendNewMessage
+    resetPrefilled();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textarea.ref]);
+  }, [window.location.href]);
 
   return (
     <DropzoneArea
