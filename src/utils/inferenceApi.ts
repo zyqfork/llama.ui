@@ -214,6 +214,24 @@ async function* getSSEStreamAsync(fetchResponse: Response) {
   }
 }
 
+/**
+ * Normalizes a URL by combining a base URL with a path, ensuring proper slash handling.
+ *
+ * This function removes trailing slashes from the base URL, ensures the path starts with
+ * a single slash, and removes any trailing slashes from the final path component.
+ *
+ * @param {string} path - The path to append (e.g., '/v1/models' or 'v1/models')
+ * @param {string} base - The base URL (e.g., 'https://api.example.com' or 'https://api.example.com/')
+ * @returns {string} The normalized URL with proper slash formatting
+ *
+ * @throws {TypeError} If baseUrl is not a string
+ */
+function normalizeUrl(path: string, base: string) {
+  const cleanBase = base.replace(/\/+$/, '');
+  const cleanPath = '/' + path.replace(/^\/+|\/+$/g, '').replace(/^$/, '');
+  return cleanBase + (cleanPath === '/' ? '' : cleanPath);
+}
+
 // --- Main Inference API Functions ---
 
 /**
@@ -367,7 +385,7 @@ class InferenceApiProvider {
 
     // send request
     const fetchResponse = await fetch(
-      new URL('/v1/chat/completions', this.config.baseUrl).toString(),
+      normalizeUrl(`/v1/chat/completions`, this.config.baseUrl),
       {
         method: 'POST',
         headers: this.getHeaders(),
@@ -387,7 +405,7 @@ class InferenceApiProvider {
    */
   async v1Models(): Promise<InferenceApiModel[]> {
     const fetchResponse = await fetch(
-      new URL('/v1/models', this.config.baseUrl).toString(),
+      normalizeUrl(`/v1/models`, this.config.baseUrl),
       {
         method: 'GET',
         headers: this.getHeaders(),
