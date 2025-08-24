@@ -652,6 +652,8 @@ export default function SettingDialog({
             })}
 
             <p className="opacity-40 mb-6 text-sm mt-8">
+              App Version: {import.meta.env.PACKAGE_VERSION}
+              <br />
               Settings are saved in browser's localStorage
             </p>
           </div>
