@@ -1,7 +1,7 @@
 import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
 import daisyuiThemes from 'daisyui/theme/object';
 import { useEffect, useState } from 'react';
-import { INFERENCE_PROVIDERS, THEMES } from '../config';
+import { THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -37,11 +37,6 @@ export default function Header() {
 
       {/* model information*/}
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <img
-          src={INFERENCE_PROVIDERS[config.provider].icon}
-          alt="Provider"
-          className="inline h-6 w-6 mr-2"
-        />
         <strong>
           {models.length === 1 && <>{config.model}</>}
           {models.length > 1 && (
