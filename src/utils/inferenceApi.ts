@@ -232,6 +232,8 @@ function normalizeUrl(path: string, base: string) {
   return cleanBase + (cleanPath === '/' ? '' : cleanPath);
 }
 
+const noResponse = new Response(null, { status: 444 });
+
 // --- Main Inference API Functions ---
 
 /**
@@ -271,38 +273,27 @@ class InferenceApiProvider {
    * In development mode, logs the server properties for debugging purposes. [[7]]
    */
   async getServerProps(): Promise<LlamaCppServerProps> {
+    let fetchResponse = noResponse;
     try {
-      const response = await fetch(
-        new URL('/props', this.config.baseUrl).toString(),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(this.config.apiKey
-              ? { Authorization: `Bearer ${this.config.apiKey}` }
-              : {}),
-          },
-          signal: AbortSignal.timeout(1000),
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch server props');
-      }
-      const data = await response.json();
-      if (isDev)
-        console.debug('server props:\n', JSON.stringify(data, null, 2));
-      return {
-        build_info: data.build_info,
-        model: data?.model_path
-          ?.split(/(\\|\/)/)
-          .pop()
-          ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
-        n_ctx: data.n_ctx,
-        modalities: data?.modalities,
-      };
-    } catch (error) {
-      console.error('Error fetching server props:', error);
-      throw error;
+      fetchResponse = await fetch(normalizeUrl('/props', this.config.baseUrl), {
+        headers: this.getHeaders(),
+        signal: AbortSignal.timeout(1000),
+      });
+    } catch {
+      // do nothing
     }
+    await this.isErrorResponse(fetchResponse);
+    const data = await fetchResponse.json();
+    if (isDev) console.debug('server props:\n', JSON.stringify(data, null, 2));
+    return {
+      build_info: data.build_info,
+      model: data?.model_path
+        ?.split(/(\\|\/)/)
+        .pop()
+        ?.replace(/[-](?:[\d\w]+[_\d\w]+)(?:\.[a-z]+)?$/, ''),
+      n_ctx: data.n_ctx,
+      modalities: data?.modalities,
+    };
   }
 
   /**
@@ -384,15 +375,20 @@ class InferenceApiProvider {
       params = Object.assign(params, JSON.parse(this.config.custom));
 
     // send request
-    const fetchResponse = await fetch(
-      normalizeUrl(`/v1/chat/completions`, this.config.baseUrl),
-      {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(params),
-        signal: abortSignal,
-      }
-    );
+    let fetchResponse = noResponse;
+    try {
+      fetchResponse = await fetch(
+        normalizeUrl('/v1/chat/completions', this.config.baseUrl),
+        {
+          method: 'POST',
+          headers: this.getHeaders(),
+          body: JSON.stringify(params),
+          signal: abortSignal,
+        }
+      );
+    } catch {
+      // do nothing
+    }
     await this.isErrorResponse(fetchResponse);
     return getSSEStreamAsync(fetchResponse);
   }
@@ -404,14 +400,19 @@ class InferenceApiProvider {
    * @throws When the API returns a non-200 status or contains error data
    */
   async v1Models(): Promise<InferenceApiModel[]> {
-    const fetchResponse = await fetch(
-      normalizeUrl(`/v1/models`, this.config.baseUrl),
-      {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: AbortSignal.timeout(1000),
-      }
-    );
+    let fetchResponse = noResponse;
+    try {
+      fetchResponse = await fetch(
+        normalizeUrl('/v1/models', this.config.baseUrl),
+        {
+          method: 'GET',
+          headers: this.getHeaders(),
+          signal: AbortSignal.timeout(1000),
+        }
+      );
+    } catch {
+      // do nothing
+    }
     await this.isErrorResponse(fetchResponse);
     const json = await fetchResponse.json();
     const res: InferenceApiModel[] = [];
@@ -475,12 +476,24 @@ class InferenceApiProvider {
         throw new Error('Bad request');
       case 401:
         throw new Error('Unauthorized');
+      case 402:
+        throw new Error('Payment required');
       case 403:
         throw new Error('Forbidden');
       case 404:
         throw new Error('Not found');
+      case 429:
+        throw new Error('Too many requests');
+      case 444:
+        throw new Error('No response');
       case 500:
         throw new Error('Internal server error');
+      case 502:
+        throw new Error('Bad gateway');
+      case 503:
+        throw new Error('Service unavailable');
+      case 504:
+        throw new Error('Gateway timeout');
       default:
         throw new Error(
           body?.error?.message || `Unknown error: ${response.status}`

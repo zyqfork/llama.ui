@@ -89,7 +89,9 @@ export const InferenceContextProvider = ({
     } catch (err) {
       if (!options.silent) {
         console.error('fetch models failed: ', err);
-        toast.error('Inference server is unavailable, check Settings.');
+        toast.error(
+          `Inference Provider: ${(err as Error).message}.\nPlease check Settings.`
+        );
       }
     }
     return newModels;
