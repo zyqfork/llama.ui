@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/llama.ui/sw.js', { scope: '/llama.ui/' })})}
