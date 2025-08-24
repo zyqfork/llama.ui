@@ -16,7 +16,7 @@ import {
   RocketLaunchIcon,
   SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
@@ -96,7 +96,21 @@ interface SettingTab {
 // --- Helper Functions ---
 
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
-const TITLE_ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+
+const toSection = (
+  label: string | ReactElement,
+  icon?: string | ReactElement
+): SettingSection => {
+  return {
+    type: SettingInputType.SECTION,
+    label: (
+      <>
+        {icon}
+        {label}
+      </>
+    ),
+  };
+};
 
 const toInput = (
   type: SettingFieldInputType,
@@ -188,42 +202,24 @@ const getSettingTabsConfiguration = (
       </>
     ),
     fields: [
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <ChatBubbleLeftEllipsisIcon className={TITLE_ICON_CLASSNAME} />
-            Chat
-          </>
-        ),
-      },
+      toSection(
+        'Chat',
+        <ChatBubbleLeftEllipsisIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
       toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
 
       /* Performance */
       DELIMETER,
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <RocketLaunchIcon className={ICON_CLASSNAME} />
-            Performance
-          </>
-        ),
-      },
+      toSection('Performance', <RocketLaunchIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
       DELIMETER,
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-            Reasoning
-          </>
-        ),
-      },
+      toSection(
+        'Reasoning',
+        <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
       toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
     ],
@@ -256,15 +252,7 @@ const getSettingTabsConfiguration = (
     ),
     fields: [
       /* Generation */
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <CogIcon className={TITLE_ICON_CLASSNAME} />
-            Generation
-          </>
-        ),
-      },
+      toSection('Generation', <CogIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
       ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
         toInput(
@@ -276,15 +264,7 @@ const getSettingTabsConfiguration = (
 
       /* Samplers */
       DELIMETER,
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <FunnelIcon className={ICON_CLASSNAME} />
-            Samplers
-          </>
-        ),
-      },
+      toSection('Samplers', <FunnelIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
       ...[
         'samplers',
@@ -303,15 +283,7 @@ const getSettingTabsConfiguration = (
 
       /* Penalties */
       DELIMETER,
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <HandRaisedIcon className={ICON_CLASSNAME} />
-            Penalties
-          </>
-        ),
-      },
+      toSection('Penalties', <HandRaisedIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
       ...[
         'repeat_last_n',
@@ -332,15 +304,7 @@ const getSettingTabsConfiguration = (
 
       /* Custom */
       DELIMETER,
-      {
-        type: SettingInputType.SECTION,
-        label: (
-          <>
-            <CpuChipIcon className={TITLE_ICON_CLASSNAME} />
-            Custom
-          </>
-        ),
-      },
+      toSection('Custom', <CpuChipIcon className={ICON_CLASSNAME} />),
       {
         type: SettingInputType.LONG_INPUT,
         label: (
