@@ -156,5 +156,27 @@
     "description": "Update for the latest features. Your conversations will be saved.",
     "updateBtnLabel": "Update",
     "skipBtnLabel": "Later"
-  }
+  },
+  "samplePrompts": [
+    "Tell me a fun fact for today.",
+    "Tell me a joke.",
+    "Give me three interesting science facts.",
+    "List the planets in our solar system.",
+    "Explain the rules of chess.",
+    "What are some good conversation starters?",
+    "Give 10 gift ideas for best friend.",
+    "Write a birthday message for my friend.",
+    "Suggest themes for a birthday party.",
+    "Give me ideas for a game night.",
+    "Give me ideas for a weekend getaway.",
+    "Tips for my first solo trip.",
+    "Explain a complex concept simply.",
+    "Fix the grammar in this text.",
+    "Summarize the following text.",
+    "Rewrite this to be more formal/casual.",
+    "Help me write a professional email.",
+    "Create a schedule for my workday.",
+    "Summarize these meeting notes.",
+    "Give me ideas for a team building activity."
+  ]
 }
