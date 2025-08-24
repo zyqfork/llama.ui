@@ -1,4 +1,5 @@
 import daisyuiThemes from 'daisyui/theme/object';
+import * as lang from './lang/en.json';
 import { Configuration, InferenceProviders } from './utils/types';
 
 export const isDev = import.meta.env.MODE === 'development';
@@ -16,6 +17,9 @@ export const CONFIG_DEFAULT: Readonly<Configuration> = Object.freeze({
   apiKey: '',
   model: '',
   systemMessage: '',
+
+  /* ui */
+  initials: lang.chatMessage.userLabel,
 
   /* conversations */
   pasteLongTextToFileLen: 10000,

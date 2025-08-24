@@ -109,14 +109,17 @@ export default function ChatMessage({
           })}
         >
           {/* message metadata*/}
-          {isAssistant && (
-            <div className="mb-1 text-sm">
-              {msg.model && <span className="font-bold mr-1">{msg.model}</span>}
-              <span className="text-xs opacity-40">
-                {timeFormatter.format(msg.timestamp)}
-              </span>
-            </div>
-          )}
+          <div className="mb-1 text-sm">
+            {isUser && (
+              <span className="font-bold mr-1">{config.initials}</span>
+            )}
+            {isAssistant && msg.model && (
+              <span className="font-bold mr-1">{msg.model}</span>
+            )}
+            <span className="text-xs opacity-40">
+              {timeFormatter.format(msg.timestamp)}
+            </span>
+          </div>
 
           {/* textarea for editing message */}
           {isEditing && (

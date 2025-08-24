@@ -3,6 +3,10 @@
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
   },
+  "chatMessage": {
+    "systemLabel": "System",
+    "userLabel": "User"
+  },
   "settings": {
     "parameters": {
       "provider": {
@@ -24,6 +28,10 @@
       "systemMessage": {
         "label": "System Message (will be disabled if left empty)",
         "note": "The starting message that defines how model should behave. You can get examples from <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "User Name",
+        "note": ""
       },
       "pasteLongTextToFileLen": {
         "label": "On Paste: convert to file if length >",
