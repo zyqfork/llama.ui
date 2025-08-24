@@ -48,10 +48,12 @@ function AppLayout() {
         </main>
         <Footer />
       </div>
-      <SettingDialog
-        show={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
+      {showSettings && (
+        <SettingDialog
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
       <Toaster />
     </>
   );

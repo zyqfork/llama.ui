@@ -1,14 +1,16 @@
 import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
 import daisyuiThemes from 'daisyui/theme/object';
 import { useEffect, useState } from 'react';
-import { THEMES } from '../config';
+import { INFERENCE_PROVIDERS, THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
+import { useInferenceContext } from '../context/inference.context';
 
 export default function Header() {
   const [selectedTheme, setSelectedTheme] = useState(StorageUtils.getTheme());
-  const { config, setShowSettings } = useAppContext();
+  const { config, setShowSettings, saveConfig } = useAppContext();
+  const { models } = useInferenceContext();
 
   const setTheme = (theme: string) => {
     StorageUtils.setTheme(theme);
@@ -35,7 +37,32 @@ export default function Header() {
 
       {/* model information*/}
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <b>{config.model}</b>
+        <img
+          src={INFERENCE_PROVIDERS[config.provider].icon}
+          alt="Provider"
+          className="inline h-6 w-6 mr-2"
+        />
+        <strong>
+          {models.length === 1 && <>{config.model}</>}
+          {models.length > 1 && (
+            <select
+              className="max-w-56 truncate"
+              value={config.model}
+              onChange={(e) =>
+                saveConfig({
+                  ...config,
+                  model: e.target.value,
+                })
+              }
+            >
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </strong>
       </div>
 
       {/* action buttons (top right) */}

@@ -423,11 +423,14 @@ export default function SettingDialog({
 
   // clone the config object to prevent direct mutation
   const [localConfig, setLocalConfig] = useState<Configuration>(
-    JSON.parse(JSON.stringify(config))
+    Object.assign({}, config)
+  );
+  const [localModels, setLocalModels] = useState<InferenceApiModel[]>(
+    Object.assign([], models)
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig, models),
-    [localConfig, models]
+    () => getSettingTabsConfiguration(localConfig, localModels),
+    [localConfig, localModels]
   );
 
   const { showConfirm, showAlert } = useModals();
@@ -478,7 +481,10 @@ export default function SettingDialog({
   };
 
   const debouncedFetchModels = useDebouncedCallback(
-    (newConfig: Configuration) => fetchModels(newConfig, { silent: true }),
+    (newConfig: Configuration) =>
+      fetchModels(newConfig, { silent: true }).then((models) =>
+        setLocalModels(models)
+      ),
     1000
   );
 
@@ -623,6 +629,7 @@ export default function SettingDialog({
                     case 'fetch-models':
                       return (
                         <button
+                          key={key}
                           className="btn"
                           onClick={() => fetchModels(localConfig)}
                         >
@@ -800,9 +807,11 @@ const SettingsModalDropdown: React.FC<{
   const disabled = useMemo(() => options.length < 2, [options]);
 
   useEffect(() => {
-    if (options.length === 0 && value !== '') onChange('');
-    if (options.length === 1 && value !== options[0].value)
+    if (options.length === 0 && value !== '') {
+      onChange('');
+    } else if (options.length === 1 && value !== options[0].value) {
       onChange(options[0].value);
+    }
   }, [options, value, onChange]);
 
   return (
