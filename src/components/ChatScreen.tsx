@@ -191,7 +191,7 @@ export default function ChatScreen() {
                   key={text}
                   className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
                   onClick={() => {
-                    navigate(`/chat?m=${encodeURIComponent(text)}`, {});
+                    navigate(`/chat?q=${encodeURIComponent(text)}`, {});
                   }}
                 >
                   {text}
