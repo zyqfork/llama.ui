@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { isDev } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration } from '../utils/types';
 
@@ -25,6 +26,7 @@ export const AppContextProvider = ({
   const [showSettings, setShowSettings] = useState(false);
 
   const saveConfig = (config: Configuration) => {
+    if (isDev) console.debug('saveConfig', config);
     StorageUtils.setConfig(config);
     setConfig(config);
   };
