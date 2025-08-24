@@ -19,6 +19,9 @@ export interface Configuration {
   model: string;
   systemMessage: string;
 
+  /* ui */
+  initials: string;
+
   /* conversations */
   pasteLongTextToFileLen: number;
   pdfAsImage: boolean;

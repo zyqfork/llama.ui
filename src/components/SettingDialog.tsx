@@ -15,6 +15,7 @@ import {
   HandRaisedIcon,
   RocketLaunchIcon,
   SquaresPlusIcon,
+  TvIcon,
 } from '@heroicons/react/24/outline';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
@@ -160,6 +161,7 @@ const getSettingTabsConfiguration = (
       </>
     ),
     fields: [
+      toSection('Inference Provider'),
       toDropdown(
         'provider',
         Object.entries(INFERENCE_PROVIDERS).map(
@@ -188,8 +190,15 @@ const getSettingTabsConfiguration = (
         key: 'fetch-models',
         component: UnusedCustomField,
       },
+
+      DELIMETER,
       DELIMETER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
+
+      DELIMETER,
+      DELIMETER,
+      toSection('UI', <TvIcon className={ICON_CLASSNAME} />),
+      toInput(SettingInputType.SHORT_INPUT, 'initials'),
     ],
   },
 
