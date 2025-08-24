@@ -20,7 +20,7 @@ interface InferenceContextValue {
   fetchModels: (
     config: Configuration,
     options?: FetchOptions
-  ) => Promise<boolean>;
+  ) => Promise<InferenceApiModel[]>;
 }
 
 const noModels: InferenceApiModel[] = [];
@@ -38,7 +38,7 @@ const InferenceContext = createContext<InferenceContextValue>({
   api: InferenceApi.new(CONFIG_DEFAULT),
   models: noModels,
   serverProps: noServerProps,
-  fetchModels: () => new Promise(() => false),
+  fetchModels: () => new Promise(() => noModels),
 });
 
 export const InferenceContextProvider = ({
@@ -67,8 +67,8 @@ export const InferenceContextProvider = ({
     const newApi = InferenceApi.new(config);
     setApi(newApi);
     const syncServer = async (config: Configuration) => {
-      await fetchModels(config);
-      await fetchServerProperties(config);
+      setModels(await fetchModels(config));
+      setServerProps(await fetchServerProperties(config));
     };
     syncServer(config);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,45 +77,42 @@ export const InferenceContextProvider = ({
   const fetchModels = async (
     config: Configuration,
     options: FetchOptions = { silent: false }
-  ) => {
+  ): Promise<InferenceApiModel[]> => {
     if (!isProviderReady(config)) {
-      setModels(noModels);
-      return false;
+      return noModels;
     }
 
     const newApi = InferenceApi.new(config);
+    let newModels = noModels;
     try {
-      const newModels = await newApi.v1Models();
-      setModels(newModels);
+      newModels = await newApi.v1Models();
     } catch (err) {
-      setModels(noModels);
       if (!options.silent) {
         console.error('fetch models failed: ', err);
         toast.error('Inference server is unavailable, check Settings.');
       }
-      return false;
     }
-    return true;
+    return newModels;
   };
 
   const fetchServerProperties = async (
     config: Configuration,
     options: FetchOptions = { silent: false }
-  ) => {
+  ): Promise<LlamaCppServerProps> => {
     if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
-      setServerProps(noServerProps);
-      return false;
+      return noServerProps;
     }
 
     const newApi = InferenceApi.new(config);
+    let newProps = noServerProps;
     try {
-      setServerProps(await newApi.getServerProps());
+      newProps = await newApi.getServerProps();
     } catch (err) {
-      setServerProps(noServerProps);
       if (!options.silent) {
         console.error('fetch llama.cpp props failed: ', err);
       }
     }
+    return newProps;
   };
 
   return (

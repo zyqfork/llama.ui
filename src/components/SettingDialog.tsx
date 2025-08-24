@@ -423,11 +423,14 @@ export default function SettingDialog({
 
   // clone the config object to prevent direct mutation
   const [localConfig, setLocalConfig] = useState<Configuration>(
-    JSON.parse(JSON.stringify(config))
+    Object.assign({}, config)
+  );
+  const [localModels, setLocalModels] = useState<InferenceApiModel[]>(
+    Object.assign([], models)
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig, models),
-    [localConfig, models]
+    () => getSettingTabsConfiguration(localConfig, localModels),
+    [localConfig, localModels]
   );
 
   const { showConfirm, showAlert } = useModals();
@@ -478,7 +481,10 @@ export default function SettingDialog({
   };
 
   const debouncedFetchModels = useDebouncedCallback(
-    (newConfig: Configuration) => fetchModels(newConfig, { silent: true }),
+    (newConfig: Configuration) =>
+      fetchModels(newConfig, { silent: true }).then((models) =>
+        setLocalModels(models)
+      ),
     1000
   );
 
