@@ -11,6 +11,7 @@ import { usePWAUpdatePrompt } from './components/usePWAUpdatePrompt';
 import { AppContextProvider, useAppContext } from './context/app.context';
 import { InferenceContextProvider } from './context/inference.context';
 import { MessageContextProvider } from './context/message.context';
+import * as lang from './lang/en.json';
 
 const App: FC = () => {
   return (
@@ -76,12 +77,8 @@ const NewVersionPopup: FC<{ t: Toast; handleUpdate: () => Promise<void> }> = ({
   handleUpdate,
 }) => (
   <div className="flex flex-col gap-2">
-    <p className="font-medium">🎉 New version available</p>
-    <p className="text-sm">
-      Update for the latest features.
-      <br />
-      Your conversations will be saved.
-    </p>
+    <p className="font-medium">{lang.newVersion.title}</p>
+    <p className="text-sm">{lang.newVersion.description}</p>
     <div className="flex justify-center gap-2 mt-1">
       <button
         onClick={() => {
@@ -90,13 +87,13 @@ const NewVersionPopup: FC<{ t: Toast; handleUpdate: () => Promise<void> }> = ({
         }}
         className="btn btn-neutral btn-sm"
       >
-        Update
+        {lang.newVersion.updateBtnLabel}
       </button>
       <button
         onClick={() => toast.dismiss(t.id)}
         className="btn btn-ghost btn-sm"
       >
-        Later
+        {lang.newVersion.skipBtnLabel}
       </button>
     </div>
   </div>
