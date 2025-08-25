@@ -152,10 +152,18 @@
     }
   },
   "newVersion": {
+    "icon": null,
     "title": "🎉 New version available",
     "description": "Update for the latest features. Your conversations will be saved.",
-    "updateBtnLabel": "Update",
-    "skipBtnLabel": "Later"
+    "submitBtnLabel": "Update",
+    "cancelBtnLabel": "Later"
+  },
+  "setupPopup": {
+    "icon": null,
+    "title": "👋 Welcome",
+    "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
+    "submitBtnLabel": "Open Settings",
+    "cancelBtnLabel": "Skip"
   },
   "samplePrompts": [
     "Tell me a fun fact for today.",
