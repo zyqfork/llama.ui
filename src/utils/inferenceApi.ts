@@ -470,7 +470,9 @@ class InferenceApiProvider {
       // fallback if response is not JSON
       body = {};
     }
-    console.error('API error: ', body);
+
+    if (Object.keys(body).length > 0) console.error('API error: ', body);
+
     switch (response.status) {
       case 400:
         throw new Error('Bad request');
