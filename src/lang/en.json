@@ -154,7 +154,7 @@
   "newVersion": {
     "icon": null,
     "title": "🎉 New version available",
-    "description": "Update for the latest features. Your conversations will be saved.",
+    "description": "Update for the latest features & fixes.\n\nYour conversations will be saved, but don't forget to make a backup before update: Settings -> Import/Export -> Export button.",
     "submitBtnLabel": "Update",
     "cancelBtnLabel": "Later"
   },
