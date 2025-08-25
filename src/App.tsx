@@ -16,7 +16,7 @@ import * as lang from './lang/en.json';
 const App: FC = () => {
   return (
     <ModalProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
             <InferenceContextProvider>
