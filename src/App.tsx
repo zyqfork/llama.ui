@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 import ChatScreen from './components/ChatScreen';
@@ -17,6 +17,12 @@ import {
 } from './context/inference.context';
 import { MessageContextProvider } from './context/message.context';
 import * as lang from './lang/en.json';
+
+const DEBOUNCE_DELAY = 1000;
+const TOAST_IDS = {
+  PROVIDER_SETUP: 'provider-setup',
+  PWA_UPDATE: 'pwa-update',
+};
 
 const App: FC = () => {
   return (
@@ -46,73 +52,73 @@ const AppLayout: FC = () => {
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
-  const delayedNoModels = useDebouncedCallback(
+  const checkModelsAndShowToast = useCallback(
     (showSettings: boolean, models: unknown[]) => {
+      console.log('checkModelsAndShowToast', { showSettings, models });
       if (showSettings) return;
-      if (Array.isArray(models) && models.length > 0) {
-        toast.dismiss('provider-setup');
-        return;
-      }
+      if (Array.isArray(models) && models.length > 0) return;
 
       toast(
         (t) => {
-          // initial setup
-          if (config.baseUrl === '') {
-            return (
-              <ToastPopup
-                t={t}
-                onSubmit={() => setShowSettings(true)}
-                title={lang.welcomePopup.title}
-                description={lang.welcomePopup.description}
-                submitBtn={lang.welcomePopup.submitBtnLabel}
-                cancelBtn={lang.welcomePopup.cancelBtnLabel}
-              />
-            );
-          }
-          // an issue with provider
+          const isInitialSetup = config.baseUrl === '';
+          const popupConfig = isInitialSetup
+            ? lang.welcomePopup
+            : lang.noModelsPopup;
+
           return (
             <ToastPopup
               t={t}
               onSubmit={() => setShowSettings(true)}
-              title={lang.noModelsPopup.title}
-              description={lang.noModelsPopup.description}
-              submitBtn={lang.noModelsPopup.submitBtnLabel}
-              cancelBtn={lang.noModelsPopup.cancelBtnLabel}
+              title={popupConfig.title}
+              description={popupConfig.description}
+              submitBtn={popupConfig.submitBtnLabel}
+              cancelBtn={popupConfig.cancelBtnLabel}
             />
           );
         },
         {
-          id: 'provider-setup',
+          id: TOAST_IDS.PROVIDER_SETUP,
           duration: config.baseUrl === '' ? Infinity : 10000,
           position: 'top-center',
         }
       );
     },
-    1000
+    [config.baseUrl, setShowSettings]
   );
 
-  if (isNewVersion) {
-    toast(
-      (t) => (
-        <ToastPopup
-          t={t}
-          onSubmit={handleUpdate}
-          title={lang.newVersion.title}
-          description={lang.newVersion.description}
-          submitBtn={lang.newVersion.submitBtnLabel}
-          cancelBtn={lang.newVersion.cancelBtnLabel}
-        />
-      ),
-      {
-        id: 'pwa-update',
-        duration: Infinity,
-        position: 'top-center',
-        icon: lang.newVersion.icon,
-      }
-    );
-  }
+  const delayedNoModels = useDebouncedCallback(
+    checkModelsAndShowToast,
+    DEBOUNCE_DELAY
+  );
 
-  delayedNoModels(showSettings, models);
+  // Handle PWA updates
+  useEffect(() => {
+    if (isNewVersion) {
+      toast(
+        (t) => (
+          <ToastPopup
+            t={t}
+            onSubmit={handleUpdate}
+            title={lang.newVersion.title}
+            description={lang.newVersion.description}
+            submitBtn={lang.newVersion.submitBtnLabel}
+            cancelBtn={lang.newVersion.cancelBtnLabel}
+          />
+        ),
+        {
+          id: TOAST_IDS.PWA_UPDATE,
+          duration: Infinity,
+          position: 'top-center',
+          icon: lang.newVersion.icon,
+        }
+      );
+    }
+  }, [isNewVersion, handleUpdate]);
+
+  // Handle model checking
+  useEffect(() => {
+    delayedNoModels(showSettings, models);
+  }, [showSettings, models, delayedNoModels]);
 
   return (
     <>
