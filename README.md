@@ -12,6 +12,30 @@ This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) 
 
 ![welcome-screen](public/screenshots/desktop.png)
 
+## 🌟 Key Features
+
+1. **Multi-Provider Support**: Works with llama.cpp, LM Studio, Ollama, vLLM, OpenAI,.. and many more!
+
+2. **Conversation Management**:
+   - IndexedDB storage for conversations
+   - Branching conversation support (edit messages while preserving history)
+   - Import/export functionality
+
+3. **Rich UI Components**:
+   - Markdown rendering with syntax highlighting
+   - LaTeX math support
+   - File attachments (text, images, PDFs)
+   - Theme customization with DaisyUI themes
+   - Responsive design for mobile and desktop
+
+4. **Advanced Features**:
+   - PWA support with offline capabilities
+   - Streaming responses with Server-Sent Events
+   - Customizable generation parameters
+   - Performance metrics display
+
+5. **Privacy Focused**: All data is stored locally in your browser - no cloud required!
+
 ## 🚀 Getting Started in 60 Seconds!
 
 ### 💻 Standalone Mode (Zero Installation)
@@ -101,12 +125,12 @@ llama-server ^
 - 📚 **Documentation heroes** needed! 🦸
 - ✨ **Make magic** with your commits! (Follow [Conventional Commits](https://www.conventionalcommits.org))
 
-### 🛠️ Developer Wonderland
+## 🛠️ Developer Wonderland
 
 **Prerequisites:**
 
 - 💻 macOS/Windows/Linux
-- ⬢ Node.js >= 22
+- ⬢ [Node.js](https://nodejs.org/) >= 22
 - 🦙 Local [llama.cpp server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) humming along
 
 **Build the future:**
@@ -116,6 +140,25 @@ npm ci       # 📦 Grab dependencies
 npm run build  # 🔨 Craft the magic
 npm start    # 🎬 Launch dev server (http://localhost:5173) for live-coding bliss! 🔥
 ```
+
+### 🏗️ Architecture
+
+#### Core Technologies
+
+- **Frontend**: [React](https://react.dev/) with [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/docs/) + [DaisyUI](https://daisyui.com/)
+- **State Management**: React Context API
+- **Routing**: [React Router](https://reactrouter.com/)
+- **Storage**: IndexedDB via [Dexie.js](https://dexie.org/)
+- **Build Tool**: [Vite](https://vite.dev/)
+
+#### Key Components
+
+1. **App Context**: Manages global configuration and settings
+2. **Inference Context**: Handles API communication with inference providers
+3. **Message Context**: Manages conversation state and message generation
+4. **Storage Utils**: IndexedDB operations and localStorage management
+5. **Inference API**: HTTP client for communicating with inference servers
 
 ## 📜 License - Freedom First!
 
