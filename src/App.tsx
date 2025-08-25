@@ -8,6 +8,7 @@ import { ModalProvider } from './components/ModalProvider';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
+import { useDebouncedCallback } from './components/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './components/usePWAUpdatePrompt';
 import { AppContextProvider, useAppContext } from './context/app.context';
 import {
@@ -45,39 +46,50 @@ const AppLayout: FC = () => {
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
-  if (!showSettings && Array.isArray(models) && models.length === 0) {
-    toast(
-      (t) => {
-        if (config.baseUrl === '') {
+  const delayedNoModels = useDebouncedCallback(
+    (showSettings: boolean, models: unknown[]) => {
+      if (showSettings) return;
+      if (Array.isArray(models) && models.length > 0) {
+        toast.dismiss('provider-setup');
+        return;
+      }
+
+      toast(
+        (t) => {
+          // initial setup
+          if (config.baseUrl === '') {
+            return (
+              <ToastPopup
+                t={t}
+                onSubmit={() => setShowSettings(true)}
+                title={lang.welcomePopup.title}
+                description={lang.welcomePopup.description}
+                submitBtn={lang.welcomePopup.submitBtnLabel}
+                cancelBtn={lang.welcomePopup.cancelBtnLabel}
+              />
+            );
+          }
+          // an issue with provider
           return (
             <ToastPopup
               t={t}
               onSubmit={() => setShowSettings(true)}
-              title={lang.welcomePopup.title}
-              description={lang.welcomePopup.description}
-              submitBtn={lang.welcomePopup.submitBtnLabel}
-              cancelBtn={lang.welcomePopup.cancelBtnLabel}
+              title={lang.noModelsPopup.title}
+              description={lang.noModelsPopup.description}
+              submitBtn={lang.noModelsPopup.submitBtnLabel}
+              cancelBtn={lang.noModelsPopup.cancelBtnLabel}
             />
           );
+        },
+        {
+          id: 'provider-setup',
+          duration: Infinity,
+          position: 'top-center',
         }
-        return (
-          <ToastPopup
-            t={t}
-            onSubmit={() => setShowSettings(true)}
-            title={lang.noModelsPopup.title}
-            description={lang.noModelsPopup.description}
-            submitBtn={lang.noModelsPopup.submitBtnLabel}
-            cancelBtn={lang.noModelsPopup.cancelBtnLabel}
-          />
-        );
-      },
-      {
-        id: 'provider-setup',
-        duration: Infinity,
-        position: 'top-center',
-      }
-    );
-  }
+      );
+    },
+    1000
+  );
 
   if (isNewVersion) {
     toast(
@@ -99,6 +111,8 @@ const AppLayout: FC = () => {
       }
     );
   }
+
+  delayedNoModels(showSettings, models);
 
   return (
     <>
