@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { Toast, Toaster, toast } from 'react-hot-toast';
+import { FC, useCallback, useEffect } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 import ChatScreen from './components/ChatScreen';
 import { Footer } from './components/Footer';
@@ -7,11 +7,22 @@ import Header from './components/Header';
 import { ModalProvider } from './components/ModalProvider';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
+import { ToastPopup } from './components/ToastPopup';
+import { useDebouncedCallback } from './components/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './components/usePWAUpdatePrompt';
 import { AppContextProvider, useAppContext } from './context/app.context';
-import { InferenceContextProvider } from './context/inference.context';
+import {
+  InferenceContextProvider,
+  useInferenceContext,
+} from './context/inference.context';
 import { MessageContextProvider } from './context/message.context';
 import * as lang from './lang/en.json';
+
+const DEBOUNCE_DELAY = 1000;
+const TOAST_IDS = {
+  PROVIDER_SETUP: 'provider-setup',
+  PWA_UPDATE: 'pwa-update',
+};
 
 const App: FC = () => {
   return (
@@ -37,16 +48,77 @@ const App: FC = () => {
 };
 
 const AppLayout: FC = () => {
-  const { showSettings, setShowSettings } = useAppContext();
+  const { config, showSettings, setShowSettings } = useAppContext();
+  const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
-  if (isNewVersion) {
-    toast((t) => <NewVersionPopup t={t} handleUpdate={handleUpdate} />, {
-      id: 'pwa-update',
-      duration: Infinity,
-      position: 'top-center',
-    });
-  }
+  const checkModelsAndShowToast = useCallback(
+    (showSettings: boolean, models: unknown[]) => {
+      console.log('checkModelsAndShowToast', { showSettings, models });
+      if (showSettings) return;
+      if (Array.isArray(models) && models.length > 0) return;
+
+      toast(
+        (t) => {
+          const isInitialSetup = config.baseUrl === '';
+          const popupConfig = isInitialSetup
+            ? lang.welcomePopup
+            : lang.noModelsPopup;
+
+          return (
+            <ToastPopup
+              t={t}
+              onSubmit={() => setShowSettings(true)}
+              title={popupConfig.title}
+              description={popupConfig.description}
+              submitBtn={popupConfig.submitBtnLabel}
+              cancelBtn={popupConfig.cancelBtnLabel}
+            />
+          );
+        },
+        {
+          id: TOAST_IDS.PROVIDER_SETUP,
+          duration: config.baseUrl === '' ? Infinity : 10000,
+          position: 'top-center',
+        }
+      );
+    },
+    [config.baseUrl, setShowSettings]
+  );
+
+  const delayedNoModels = useDebouncedCallback(
+    checkModelsAndShowToast,
+    DEBOUNCE_DELAY
+  );
+
+  // Handle PWA updates
+  useEffect(() => {
+    if (isNewVersion) {
+      toast(
+        (t) => (
+          <ToastPopup
+            t={t}
+            onSubmit={handleUpdate}
+            title={lang.newVersion.title}
+            description={lang.newVersion.description}
+            submitBtn={lang.newVersion.submitBtnLabel}
+            cancelBtn={lang.newVersion.cancelBtnLabel}
+          />
+        ),
+        {
+          id: TOAST_IDS.PWA_UPDATE,
+          duration: Infinity,
+          position: 'top-center',
+          icon: lang.newVersion.icon,
+        }
+      );
+    }
+  }, [isNewVersion, handleUpdate]);
+
+  // Handle model checking
+  useEffect(() => {
+    delayedNoModels(showSettings, models);
+  }, [showSettings, models, delayedNoModels]);
 
   return (
     <>
@@ -71,32 +143,5 @@ const AppLayout: FC = () => {
     </>
   );
 };
-
-const NewVersionPopup: FC<{ t: Toast; handleUpdate: () => Promise<void> }> = ({
-  t,
-  handleUpdate,
-}) => (
-  <div className="flex flex-col gap-2">
-    <p className="font-medium">{lang.newVersion.title}</p>
-    <p className="text-sm">{lang.newVersion.description}</p>
-    <div className="flex justify-center gap-2 mt-1">
-      <button
-        onClick={() => {
-          handleUpdate();
-          toast.dismiss(t.id);
-        }}
-        className="btn btn-neutral btn-sm"
-      >
-        {lang.newVersion.updateBtnLabel}
-      </button>
-      <button
-        onClick={() => toast.dismiss(t.id)}
-        className="btn btn-ghost btn-sm"
-      >
-        {lang.newVersion.skipBtnLabel}
-      </button>
-    </div>
-  </div>
-);
 
 export default App;

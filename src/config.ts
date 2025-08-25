@@ -13,7 +13,7 @@ export const CONFIG_DEFAULT: Readonly<Configuration> = Object.freeze({
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   provider: 'llama-cpp',
-  baseUrl: baseUrl,
+  baseUrl: '',
   apiKey: '',
   model: '',
   systemMessage: '',
@@ -100,13 +100,6 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
     baseUrl: 'http://localhost:8000',
     name: 'vLLM',
     icon: 'assets/providers/vllm.svg',
-    allowCustomBaseUrl: true,
-    isKeyRequired: false,
-  },
-  custom: {
-    baseUrl: '',
-    name: 'Custom',
-    icon: '',
     allowCustomBaseUrl: true,
     isKeyRequired: false,
   },
@@ -207,5 +200,12 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
     icon: 'assets/providers/aws.svg',
     allowCustomBaseUrl: true,
     isKeyRequired: true,
+  },
+  custom: {
+    baseUrl: 'https://api.custom.com',
+    name: 'OpenAI Compatible',
+    icon: '',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
   },
 });
