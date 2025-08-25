@@ -45,28 +45,36 @@ const AppLayout: FC = () => {
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
-  if (
-    config.baseUrl === '' &&
-    !showSettings &&
-    Array.isArray(models) &&
-    models.length === 0
-  ) {
+  if (!showSettings && Array.isArray(models) && models.length === 0) {
     toast(
-      (t) => (
-        <ToastPopup
-          t={t}
-          onSubmit={() => setShowSettings(true)}
-          title={lang.setupPopup.title}
-          description={lang.setupPopup.description}
-          submitBtn={lang.setupPopup.submitBtnLabel}
-          cancelBtn={lang.setupPopup.cancelBtnLabel}
-        />
-      ),
+      (t) => {
+        if (config.baseUrl === '') {
+          return (
+            <ToastPopup
+              t={t}
+              onSubmit={() => setShowSettings(true)}
+              title={lang.welcomePopup.title}
+              description={lang.welcomePopup.description}
+              submitBtn={lang.welcomePopup.submitBtnLabel}
+              cancelBtn={lang.welcomePopup.cancelBtnLabel}
+            />
+          );
+        }
+        return (
+          <ToastPopup
+            t={t}
+            onSubmit={() => setShowSettings(true)}
+            title={lang.noModelsPopup.title}
+            description={lang.noModelsPopup.description}
+            submitBtn={lang.noModelsPopup.submitBtnLabel}
+            cancelBtn={lang.noModelsPopup.cancelBtnLabel}
+          />
+        );
+      },
       {
-        id: 'pwa-update',
+        id: 'provider-setup',
         duration: Infinity,
         position: 'top-center',
-        icon: lang.setupPopup.icon,
       }
     );
   }

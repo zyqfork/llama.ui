@@ -158,10 +158,17 @@
     "submitBtnLabel": "Update",
     "cancelBtnLabel": "Later"
   },
-  "setupPopup": {
+  "welcomePopup": {
     "icon": null,
     "title": "👋 Welcome",
     "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
+    "submitBtnLabel": "Open Settings",
+    "cancelBtnLabel": "Skip"
+  },
+  "noModelsPopup": {
+    "icon": null,
+    "title": "😔 No Models Found",
+    "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
     "submitBtnLabel": "Open Settings",
     "cancelBtnLabel": "Skip"
   },
