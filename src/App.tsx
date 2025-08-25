@@ -83,7 +83,7 @@ const AppLayout: FC = () => {
         },
         {
           id: 'provider-setup',
-          duration: Infinity,
+          duration: config.baseUrl === '' ? Infinity : 10000,
           position: 'top-center',
         }
       );
