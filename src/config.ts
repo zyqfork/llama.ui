@@ -103,13 +103,6 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
     allowCustomBaseUrl: true,
     isKeyRequired: false,
   },
-  custom: {
-    baseUrl: '',
-    name: 'Custom',
-    icon: '',
-    allowCustomBaseUrl: true,
-    isKeyRequired: false,
-  },
   openai: {
     baseUrl: 'https://api.openai.com',
     name: 'OpenAI',
@@ -207,5 +200,12 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
     icon: 'assets/providers/aws.svg',
     allowCustomBaseUrl: true,
     isKeyRequired: true,
+  },
+  custom: {
+    baseUrl: 'https://api.custom.com',
+    name: 'OpenAI Compatible',
+    icon: '',
+    allowCustomBaseUrl: true,
+    isKeyRequired: false,
   },
 });
