@@ -10,6 +10,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
+import * as lang from '../lang/en.json';
 import { BtnWithTooltips, timeFormatter } from '../utils/common';
 import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
@@ -111,7 +112,9 @@ export default function ChatMessage({
           {/* message metadata*/}
           <div className="mb-1 text-sm">
             {isUser && (
-              <span className="font-bold mr-1">{config.initials}</span>
+              <span className="font-bold mr-1">
+                {config.initials || lang.chatMessage.userLabel}
+              </span>
             )}
             {isAssistant && msg.model && (
               <span className="font-bold mr-1">{msg.model}</span>
