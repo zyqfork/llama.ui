@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => {
           description:
             'Minimal Interface for AI Companion that runs entirely in your browser.',
           display: 'standalone',
-          theme_color: '#f8f8f8',
-          background_color: '#f8f8f8',
+          theme_color: '#EEEEEE',
+          background_color: '#EEEEEE',
           icons: [
             {
               purpose: 'maskable',
