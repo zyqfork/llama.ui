@@ -139,7 +139,7 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
     isKeyRequired: true,
   },
   qwen: {
-    baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode',
     name: 'Qwen',
     icon: 'assets/providers/qwen.svg',
     allowCustomBaseUrl: false,
