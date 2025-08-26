@@ -1,3 +1,98 @@
+## [2.5.1] - 2025-08-26
+
+### 🛠 Fixes
+
+- Qwen API url (#74)
+
+## [2.5.0] - 2025-08-25
+
+### 🚀 Enhancements
+
+- Welcome message (#62)
+- No models popup screen
+
+### 🛠 Fixes
+
+- Api error body logging
+
+### 🎨 Styling
+
+- Update new version message
+- Rename custom provider
+
+## [2.4.2] - 2025-08-25
+
+### 🛠 Fixes
+
+- Fix routing issue (#61)
+
+## [2.4.0] - 2025-08-24
+
+### 🚀 Enhancements
+
+- App version & title (#59)
+
+### 🛠 Fixes
+
+- Update screentshots
+
+## [2.3.0] - 2025-08-24
+
+### 🚀 Enhancements
+
+- Display Sample Prompts on Welcome (#58)
+
+## [2.2.0] - 2025-08-24
+
+### 🚀 Enhancements
+
+- PWA Update on User Prompt (#55)
+
+## [2.1.0] - 2025-08-24
+
+### 🚀 Enhancements
+
+- Allow custom user labels (#54)
+
+## [2.0.2] - 2025-08-24
+
+### 🛠 Fixes
+
+- CORS error on provider select #49 (#53)
+
+## [2.0.1] - 2025-08-24
+
+### 🚀 Enhancements
+
+- Header shows model dropdown
+
+### 🛠 Fixes
+
+- Model update (#51)
+
+## [2.0.0] - 2025-08-23
+
+### 🚀 Enhancements
+
+- Multiple providers support (#48)
+- Create SettingsModalDropdown component
+- Add manual fetch models button
+- Add provider icons
+- Handle api error codes
+
+### 🛠 Fixes
+
+- Filter system messages on send
+- Freeze default config
+
+### 🎨 Styling
+
+- SettingDialog notes width
+
+### 🚜 Refactor
+
+- Split app.context into app, inferenceApi and message
+
 ## [1.3.2] - 2025-08-20
 
 ### 🛠 Fixes
