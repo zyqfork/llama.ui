@@ -118,15 +118,31 @@ jobs:
                   "labels": ["fix", "bug"]
                 },
                 {
+                  "title": "### 🛡️ Security",
+                  "labels": ["security"]
+                },
+                {
                   "title": "### ⚡️ Performance",
                   "labels": ["perf"]
+                },
+                {
+                  "title": "### 🎨 Styling",
+                  "labels": ["style"]
+                },
+                {
+                  "title": "### 🧪 Testing",
+                  "labels": ["test"]
                 },
                 {
                   "title": "### 📚 Documentation",
                   "labels": ["docs"]
                 },
                 {
-                  "title": "### 💬 Other",
+                  "title": "### ◀️ Revert",
+                  "labels": ["revert"]
+                },
+                {
+                  "title": "### 💼 Other",
                   "labels": []
                 }
               ],
@@ -136,9 +152,7 @@ jobs:
                 "chore",
                 "ci",
                 "refactor",
-                "revert",
-                "style",
-                "test",
+                "review",
                 "release"
               ],
               "label_extractor": [
