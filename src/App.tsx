@@ -54,7 +54,6 @@ const AppLayout: FC = () => {
 
   const checkModelsAndShowToast = useCallback(
     (showSettings: boolean, models: unknown[]) => {
-      console.log('checkModelsAndShowToast', { showSettings, models });
       if (showSettings) return;
       if (Array.isArray(models) && models.length > 0) return;
 
