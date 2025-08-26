@@ -2,7 +2,7 @@
 
 ### 🛠 Fixes
 
-- System prompt is not used (#46)
+- System prompt is not used #45 (#46)
 
 ## [1.3.1] - 2025-08-20
 
@@ -18,7 +18,8 @@
 
 ### 🛠 Fixes
 
-- Reasoning content is not displayed #15
+- Reasoning content is not displayed #15 (#43)
+- ChatScreen code block styles (#42)
 
 ### 🚜 Refactor
 
@@ -41,7 +42,7 @@
 
 - Header title align (#36)
 - Syntax highlighting for code blocks (#37)
-- Side panel scroll (#38)
+- Side panel scroll #34 (#38)
 
 ## [1.2.2] - 2025-08-18
 
