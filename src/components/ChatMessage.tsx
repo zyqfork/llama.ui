@@ -131,11 +131,6 @@ export default function ChatMessage({
             />
           )}
 
-          {/* show loading dots for pending message */}
-          {!isEditing && !content && !reasoning_content && (
-            <span className="loading loading-dots loading-md"></span>
-          )}
-
           {/* render message as markdown */}
           {!isEditing && (!!content || !!reasoning_content) && (
             <div dir="auto" tabIndex={0}>
@@ -147,16 +142,14 @@ export default function ChatMessage({
               )}
 
               {!!content && (
-                <div>
-                  <MarkdownDisplay content={content} isGenerating={!!isPending} />
-                  {isPending && isAssistant && (
-                    <div className="flex justify-start mt-1">
-                      <span className="loading loading-dots loading-sm"></span>
-                    </div>
-                  )}
-                </div>
+                <MarkdownDisplay content={content} isGenerating={!!isPending} />
               )}
             </div>
+          )}
+
+          {/* show loading dots for pending message */}
+          {!isEditing && isPending && (
+            <span className="loading loading-dots loading-md"></span>
           )}
         </div>
       </div>
