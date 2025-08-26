@@ -43,13 +43,13 @@ export default defineConfig(({ mode }) => {
           screenshots: [
             {
               src: 'screenshots/desktop.png',
-              sizes: '1280x962',
+              sizes: '1366x1024',
               type: 'image/png',
               form_factor: 'wide',
             },
             {
               src: 'screenshots/mobile.png',
-              sizes: '576x1280',
+              sizes: '390x844',
               type: 'image/png',
               form_factor: 'narrow',
             },
