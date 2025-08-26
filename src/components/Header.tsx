@@ -51,7 +51,7 @@ export default function Header() {
               }
             >
               {models.map((m) => (
-                <option key={m.id} value={m.id}>
+                <option key={m.id} value={m.id} className="bg-base-100 text-base-content">
                   {m.name}
                 </option>
               ))}
