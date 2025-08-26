@@ -56,7 +56,7 @@ function isProviderReady(config: Configuration) {
   return (
     !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
   );
-};
+}
 
 export const InferenceContextProvider = ({
   children,

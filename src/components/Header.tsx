@@ -23,6 +23,15 @@ export default function Header() {
       'data-color-scheme',
       daisyuiThemes[selectedTheme]?.['color-scheme'] ?? 'auto'
     );
+
+    if (document.getElementsByClassName('bg-base-300').length > 0) {
+      const color = window
+        .getComputedStyle(document.getElementsByClassName('bg-base-300')[0])
+        .getPropertyValue('background-color');
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', color);
+    }
   }, [selectedTheme]);
 
   return (
