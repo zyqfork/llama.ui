@@ -45,6 +45,19 @@ const InferenceContext = createContext<InferenceContextValue>({
   fetchModels: () => new Promise(() => noModels),
 });
 
+// --- Helper Functions ---
+
+function isProviderReady(config: Configuration) {
+  if (!config.provider) return false;
+
+  const providerInfo = INFERENCE_PROVIDERS[config.provider];
+  if (!providerInfo) return true;
+
+  return (
+    !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
+  );
+};
+
 export const InferenceContextProvider = ({
   children,
 }: {
@@ -55,17 +68,6 @@ export const InferenceContextProvider = ({
   const [models, setModels] = useState<InferenceApiModel[]>(noModels);
   const [serverProps, setServerProps] =
     useState<LlamaCppServerProps>(noServerProps);
-
-  const isProviderReady = (config: Configuration) => {
-    if (!config.provider) return false;
-
-    const providerInfo = INFERENCE_PROVIDERS[config.provider];
-    if (!providerInfo) return true;
-
-    return (
-      !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
-    );
-  };
 
   useEffect(() => {
     if (!config) return;
@@ -96,6 +98,7 @@ export const InferenceContextProvider = ({
       return noModels;
     }
 
+    if (isDev) console.debug('Fetch models');
     const newApi = InferenceApi.new(config);
     let newModels = noModels;
     try {
@@ -117,6 +120,7 @@ export const InferenceContextProvider = ({
       return noServerProps;
     }
 
+    if (isDev) console.debug('Fetch server properties');
     const newApi = InferenceApi.new(config);
     let newProps = noServerProps;
     try {
