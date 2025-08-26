@@ -131,11 +131,6 @@ export default function ChatMessage({
             />
           )}
 
-          {/* show loading dots for pending message */}
-          {!isEditing && !content && !reasoning_content && (
-            <span className="loading loading-dots loading-md"></span>
-          )}
-
           {/* render message as markdown */}
           {!isEditing && (!!content || !!reasoning_content) && (
             <div dir="auto" tabIndex={0}>
@@ -150,6 +145,11 @@ export default function ChatMessage({
                 <MarkdownDisplay content={content} isGenerating={!!isPending} />
               )}
             </div>
+          )}
+
+          {/* show loading dots for pending message */}
+          {!isEditing && isPending && (
+            <span className="loading loading-dots loading-md"></span>
           )}
         </div>
       </div>
