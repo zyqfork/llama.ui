@@ -147,7 +147,14 @@ export default function ChatMessage({
               )}
 
               {!!content && (
-                <MarkdownDisplay content={content} isGenerating={!!isPending} />
+                <div>
+                  <MarkdownDisplay content={content} isGenerating={!!isPending} />
+                  {isPending && isAssistant && (
+                    <div className="flex justify-start mt-1">
+                      <span className="loading loading-dots loading-sm"></span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
