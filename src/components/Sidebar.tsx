@@ -64,7 +64,7 @@ export default function Sidebar() {
         tabIndex={0}
       >
         <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0">
-          <div className="flex flex-row items-center justify-between leading-10 py-2">
+          <div className="flex flex-row items-center justify-between leading-10 xl:py-2">
             {/* close sidebar button */}
             <label className="w-8 h-8 p-0 max-xl:hidden"></label>
             <label

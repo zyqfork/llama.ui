@@ -35,7 +35,7 @@ export default function Header() {
   }, [selectedTheme]);
 
   return (
-    <header className="flex flex-row items-center py-2 sticky top-0 z-10">
+    <header className="flex flex-row items-center xl:py-2 sticky top-0 z-10">
       {/* open sidebar button */}
       <label
         htmlFor="toggle-drawer"
