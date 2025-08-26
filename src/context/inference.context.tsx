@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import InferenceApi, {
   InferenceApiModel,
   LlamaCppServerProps,
 } from '../utils/inferenceApi';
 import { Configuration } from '../utils/types';
 import { useAppContext } from './app.context';
+
+// --- Type Definitions ---
 
 type FetchOptions = {
   silent: boolean;
@@ -22,6 +24,8 @@ interface InferenceContextValue {
     options?: FetchOptions
   ) => Promise<InferenceApiModel[]>;
 }
+
+// --- Constants ---
 
 const noModels: InferenceApiModel[] = [];
 const noServerProps: LlamaCppServerProps = {
@@ -41,6 +45,19 @@ const InferenceContext = createContext<InferenceContextValue>({
   fetchModels: () => new Promise(() => noModels),
 });
 
+// --- Helper Functions ---
+
+function isProviderReady(config: Configuration) {
+  if (!config.provider) return false;
+
+  const providerInfo = INFERENCE_PROVIDERS[config.provider];
+  if (!providerInfo) return true;
+
+  return (
+    !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
+  );
+};
+
 export const InferenceContextProvider = ({
   children,
 }: {
@@ -52,27 +69,26 @@ export const InferenceContextProvider = ({
   const [serverProps, setServerProps] =
     useState<LlamaCppServerProps>(noServerProps);
 
-  const isProviderReady = (config: Configuration) => {
-    if (!config.provider) return false;
-
-    const providerInfo = INFERENCE_PROVIDERS[config.provider];
-    if (!providerInfo) return true;
-
-    return (
-      !!config.baseUrl && (!providerInfo.isKeyRequired || config.apiKey !== '')
-    );
-  };
-
   useEffect(() => {
+    if (!config) return;
+    if (isDev) console.debug('Update Inference API');
     const newApi = InferenceApi.new(config);
     setApi(newApi);
+  }, [config]);
+
+  const { baseUrl, apiKey } = config;
+  useEffect(() => {
+    if (!baseUrl) return;
+    if (isDev) console.debug('Update inference model list');
     const syncServer = async (config: Configuration) => {
       setModels(await fetchModels(config));
       setServerProps(await fetchServerProperties(config));
     };
     syncServer(config);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config]);
+  }, [baseUrl, apiKey]);
+
+  // --- Main Functions ---
 
   const fetchModels = async (
     config: Configuration,
@@ -82,6 +98,7 @@ export const InferenceContextProvider = ({
       return noModels;
     }
 
+    if (isDev) console.debug('Fetch models');
     const newApi = InferenceApi.new(config);
     let newModels = noModels;
     try {
@@ -103,6 +120,7 @@ export const InferenceContextProvider = ({
       return noServerProps;
     }
 
+    if (isDev) console.debug('Fetch server properties');
     const newApi = InferenceApi.new(config);
     let newProps = noServerProps;
     try {

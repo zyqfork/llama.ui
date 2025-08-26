@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import { isDev } from '../config';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { CONFIG_DEFAULT, isDev } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration } from '../utils/types';
 
@@ -22,11 +22,16 @@ export const AppContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const [config, setConfig] = useState(StorageUtils.getConfig());
-  const [showSettings, setShowSettings] = useState(false);
+  const [config, setConfig] = useState<Configuration>(CONFIG_DEFAULT);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isDev) console.debug('Load config');
+    setConfig(StorageUtils.getConfig());
+  }, []);
 
   const saveConfig = (config: Configuration) => {
-    if (isDev) console.debug('saveConfig', config);
+    if (isDev) console.debug('Save config', config);
     StorageUtils.setConfig(config);
     setConfig(config);
   };
