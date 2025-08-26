@@ -5,7 +5,7 @@
   },
   "chatMessage": {
     "systemLabel": "System",
-    "userLabel": "User"
+    "userLabel": "You"
   },
   "settings": {
     "parameters": {
