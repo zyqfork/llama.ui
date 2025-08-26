@@ -811,7 +811,11 @@ const SettingsModalDropdown: React.FC<{
           disabled={disabled}
         >
           {options.map((p) => (
-            <option key={p.key} value={p.key} className="bg-base-100 text-base-content">
+            <option
+              key={p.key}
+              value={p.key}
+              className="bg-base-100 text-base-content"
+            >
               {p.value}
             </option>
           ))}
