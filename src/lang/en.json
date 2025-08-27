@@ -149,6 +149,16 @@
         "label": "",
         "note": ""
       }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "Save current settings as a preset",
+        "saveBtnLabel": "Save New Preset"
+      },
+      "savedPresets": {
+        "title": "Existing presets",
+        "noPresetFound": "No presets yet."
+      }
     }
   },
   "newVersion": {

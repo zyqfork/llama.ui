@@ -3,10 +3,13 @@ import {
   ArrowPathIcon,
   ArrowUpTrayIcon,
   BeakerIcon,
+  BookmarkIcon,
   ChatBubbleLeftEllipsisIcon,
   ChatBubbleLeftRightIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   CircleStackIcon,
+  CloudArrowDownIcon,
+  CloudArrowUpIcon,
   Cog6ToothIcon,
   CogIcon,
   CpuChipIcon,
@@ -15,20 +18,22 @@ import {
   HandRaisedIcon,
   RocketLaunchIcon,
   SquaresPlusIcon,
+  TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
 import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
-import { OpenInNewTab } from '../utils/common';
+import { dateFormatter, OpenInNewTab } from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
   Configuration,
   ConfigurationKey,
+  ConfigurationPreset,
   InferenceProvidersKey,
   ProviderOption,
 } from '../utils/types';
@@ -60,7 +65,12 @@ interface SettingFieldInput {
 
 interface SettingFieldCustom {
   type: SettingInputType.CUSTOM;
-  key: ConfigurationKey | 'custom' | 'import-export' | 'fetch-models';
+  key:
+    | ConfigurationKey
+    | 'custom'
+    | 'import-export'
+    | 'preset-manager'
+    | 'fetch-models';
   component:
     | string
     | React.FC<{
@@ -231,6 +241,23 @@ const getSettingTabsConfiguration = (
       ),
       toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
       toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
+    ],
+  },
+
+  /* Presets */
+  {
+    title: (
+      <>
+        <BookmarkIcon className={ICON_CLASSNAME} />
+        Presets
+      </>
+    ),
+    fields: [
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'preset-manager',
+        component: UnusedCustomField,
+      },
     ],
   },
 
@@ -599,6 +626,14 @@ export default function SettingDialog({
                       return (
                         <ImportExportComponent key={key} onClose={onClose} />
                       );
+                    case 'preset-manager':
+                      return (
+                        <PresetManager
+                          key={key}
+                          config={localConfig}
+                          onLoadConfig={setLocalConfig}
+                        />
+                      );
                     case 'fetch-models':
                       return (
                         <button
@@ -836,7 +871,7 @@ const SettingsModalDropdown: React.FC<{
 const SettingsSectionLabel: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => (
-  <div className="pb-2">
+  <div className="mb-2">
     <h4>{children}</h4>
   </div>
 );
@@ -844,6 +879,120 @@ const SettingsSectionLabel: React.FC<{
 const DelimeterComponent: React.FC = () => (
   <div className="pb-3" aria-label="delimeter" />
 );
+
+const PresetManager: FC<{
+  config: Configuration;
+  onLoadConfig: (config: Configuration) => void;
+}> = ({ config, onLoadConfig }) => {
+  const { presets, savePreset, removePreset } = useAppContext();
+  const { showConfirm, showPrompt } = useModals();
+
+  const handleSavePreset = async () => {
+    const newPresetName = (
+      (await showPrompt('Enter the new preset name')) || ''
+    ).trim();
+    if (newPresetName === '') return;
+
+    const existingPreset = presets.find((p) => p.name === newPresetName);
+    if (
+      !existingPreset ||
+      (await showConfirm(
+        `Preset "${newPresetName}" already exists, overwrite it?`
+      ))
+    ) {
+      savePreset(newPresetName, config);
+    }
+  };
+
+  const handleLoadPreset = async (preset: ConfigurationPreset) => {
+    if (
+      await showConfirm(
+        `Load preset "${preset.name}"? Current settings will be replaced.`
+      )
+    ) {
+      onLoadConfig(
+        Object.assign(Object.assign({}, CONFIG_DEFAULT), preset.config)
+      );
+    }
+  };
+
+  const handleDeletePreset = async (preset: ConfigurationPreset) => {
+    if (await showConfirm(`Delete preset "${preset.name}"?`)) {
+      removePreset(preset.name);
+    }
+  };
+
+  return (
+    <>
+      {/* Save new preset */}
+      <SettingsSectionLabel>
+        {lang.settings.presetManager.newPreset.title}
+      </SettingsSectionLabel>
+
+      <button
+        className="btn btn-neutral max-w-80 mb-4"
+        onClick={handleSavePreset}
+        title="Save new preset"
+        aria-label="Save new preset"
+      >
+        <CloudArrowUpIcon className="w-5 h-5" />
+        {lang.settings.presetManager.newPreset.saveBtnLabel}
+      </button>
+
+      {/* List of saved presets */}
+      <SettingsSectionLabel>
+        {lang.settings.presetManager.savedPresets.title}
+      </SettingsSectionLabel>
+
+      {presets.length === 0 && (
+        <div className="block opacity-75 max-w-80">
+          <div
+            className="text-xs"
+            dangerouslySetInnerHTML={{
+              __html: lang.settings.presetManager.savedPresets.noPresetFound,
+            }}
+          />
+        </div>
+      )}
+
+      {presets.length > 0 && (
+        <div className="grid grid-rows-1 gap-2 max-h-64 overflow-y-auto">
+          {presets.map((preset) => (
+            <div key={preset.id} className="card bg-base-200 p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium">{preset.name}</h4>
+                  <p className="text-xs opacity-40">
+                    Created: {dateFormatter.format(preset.createdAt)}
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                    onClick={() => handleLoadPreset(preset)}
+                    title="Load preset"
+                    aria-label="Load preset"
+                  >
+                    <CloudArrowDownIcon className="w-5 h-5" />
+                  </button>
+                  <button
+                    className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                    onClick={() => handleDeletePreset(preset)}
+                    title="Delete preset"
+                    aria-label="Delete preset"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
 
 const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   onClose,

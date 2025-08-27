@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import {
   Configuration,
+  ConfigurationPreset,
   Conversation,
   ExportJsonStructure,
   Message,
@@ -434,6 +435,59 @@ const StorageUtils = {
     } else {
       localStorage.setItem('theme', theme);
     }
+  },
+
+  /**
+   * Retrieves the user's configuration presets.
+   * @returns The array of configuration preset.
+   */
+  getPresets(): ConfigurationPreset[] {
+    const json = localStorage.getItem('presets');
+    if (!json) return [];
+
+    let presets = [];
+    try {
+      presets = JSON.parse(json);
+    } catch (e) {
+      console.error('Failed to parse saved presets from localStorage:', e);
+    }
+    return presets;
+  },
+
+  /**
+   * Saves the user's configuration preset to localStorage, replacing the existing one.
+   * @param name The preset name to save.
+   * @param config The Configuration object to save.
+   */
+  savePreset(name: string, config: Configuration, id?: string) {
+    const presets = this.getPresets();
+    const now = Date.now();
+
+    const newPreset: ConfigurationPreset = {
+      id: id || `preset-${now}`,
+      name,
+      createdAt: now,
+      config,
+    };
+    localStorage.setItem(
+      'presets',
+      JSON.stringify([
+        newPreset,
+        ...presets.filter((p) => p.name !== newPreset.name),
+      ])
+    );
+  },
+
+  /**
+   * Removes the user's configuration preset.
+   * @param name The preset name to remove.
+   */
+  removePreset(name: string) {
+    const presets = this.getPresets();
+    localStorage.setItem(
+      'presets',
+      JSON.stringify([...presets.filter((p) => p.name !== name)])
+    );
   },
 };
 
