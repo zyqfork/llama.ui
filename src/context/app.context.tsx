@@ -1,8 +1,10 @@
+import daisyuiThemes from 'daisyui/theme/object';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration, ConfigurationPreset } from '../utils/types';
+import usePrefersColorScheme from '../components/usePrefersColorScheme';
 
 interface AppContextValue {
   config: Configuration;
@@ -12,6 +14,9 @@ interface AppContextValue {
   removePreset: (name: string) => Promise<void>;
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
+  currentTheme: string;
+  switchTheme: (theme: string) => void;
+  colorScheme: string;
 }
 
 const AppContext = createContext<AppContextValue>({
@@ -22,6 +27,9 @@ const AppContext = createContext<AppContextValue>({
   removePreset: () => new Promise(() => {}),
   showSettings: false,
   setShowSettings: () => {},
+  currentTheme: 'auto',
+  switchTheme: () => {},
+  colorScheme: 'light',
 });
 
 export const AppContextProvider = ({
@@ -32,6 +40,12 @@ export const AppContextProvider = ({
   const [config, setConfig] = useState<Configuration>(CONFIG_DEFAULT);
   const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [currentTheme, setCurrentTheme] = useState<string>(
+    StorageUtils.getTheme()
+  );
+  const { colorScheme } = usePrefersColorScheme();
+
+  // --- Initialization ---
 
   useEffect(() => {
     const init = async () => {
@@ -43,6 +57,27 @@ export const AppContextProvider = ({
     };
     init();
   }, []);
+
+  // --- DaisyUI Theme ---
+
+  useEffect(() => {
+    // Update body color scheme
+    document.body.setAttribute('data-theme', currentTheme);
+    document.body.setAttribute(
+      'data-color-scheme',
+      daisyuiThemes[currentTheme]?.['color-scheme'] ?? 'auto'
+    );
+
+    // Update <meta name="theme-color" />
+    if (document.getElementsByClassName('bg-base-300').length > 0) {
+      const color = window
+        .getComputedStyle(document.getElementsByClassName('bg-base-300')[0])
+        .getPropertyValue('background-color');
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', color);
+    }
+  }, [currentTheme]);
 
   const saveConfig = (config: Configuration) => {
     if (isDev) console.debug('Save config', config);
@@ -64,6 +99,12 @@ export const AppContextProvider = ({
     toast.success('Preset is removed successfully');
   };
 
+  const switchTheme = (theme: string) => {
+    if (isDev) console.debug('Switch theme', theme);
+    StorageUtils.setTheme(theme);
+    setCurrentTheme(theme);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -74,6 +115,9 @@ export const AppContextProvider = ({
         removePreset,
         showSettings,
         setShowSettings,
+        currentTheme,
+        switchTheme,
+        colorScheme,
       }}
     >
       {children}
