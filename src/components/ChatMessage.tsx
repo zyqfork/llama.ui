@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
 import * as lang from '../lang/en.json';
-import { BtnWithTooltips, timeFormatter } from '../utils/common';
+import { timeFormatter } from '../utils/common';
 import { classNames, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
@@ -173,12 +173,11 @@ export default function ChatMessage({
               aria-description={`Message version ${siblingCurrIdx + 1} of ${siblingLeafNodeIds.length}`}
             >
               <button
-                className={classNames({
-                  'btn btn-sm btn-ghost p-1': true,
-                  'opacity-20': !prevSibling,
-                })}
+                className="btn btn-ghost w-6 h-8 p-0"
                 onClick={() => prevSibling && onChangeSibling(prevSibling)}
-                aria-label="Previous message version"
+                disabled={!prevSibling}
+                title="Previous message version"
+                aria-label="Switch to the previous message version"
               >
                 <ChevronLeftIcon className="h-4 w-4" />
               </button>
@@ -186,12 +185,11 @@ export default function ChatMessage({
                 {siblingCurrIdx + 1} / {siblingLeafNodeIds.length}
               </span>
               <button
-                className={classNames({
-                  'btn btn-sm btn-ghost p-1': true,
-                  'opacity-20': !nextSibling,
-                })}
+                className="btn btn-ghost w-6 h-8 p-0"
                 onClick={() => nextSibling && onChangeSibling(nextSibling)}
-                aria-label="Next message version"
+                disabled={!nextSibling}
+                title="Next message version"
+                aria-label="Switch to the next message version"
               >
                 <ChevronRightIcon className="h-4 w-4" />
               </button>
@@ -200,37 +198,40 @@ export default function ChatMessage({
 
           {/* re-generate assistant message */}
           {isAssistant && !isPending && (
-            <BtnWithTooltips
-              className="btn-mini w-8 h-8"
+            <button
+              className="btn btn-ghost w-8 h-8 p-0"
               onClick={() => {
                 if (msg.content !== null) {
                   onRegenerateMessage(msg as Message);
                 }
               }}
               disabled={!msg.content}
-              tooltipsContent="Regenerate response"
+              title="Regenerate response"
+              aria-label="Regenerate the response"
             >
               <ArrowPathIcon className="h-4 w-4" />
-            </BtnWithTooltips>
+            </button>
           )}
 
           {/* edit message */}
           {(isUser || (isAssistant && !isPending)) && (
-            <BtnWithTooltips
-              className="btn-mini w-8 h-8"
+            <button
+              className="btn btn-ghost w-8 h-8 p-0"
               onClick={() => setIsEditing(msg.content !== null)}
               disabled={!msg.content}
-              tooltipsContent="Edit message"
+              title="Edit message"
+              aria-label="Edit the message"
             >
               <PencilSquareIcon className="h-4 w-4" />
-            </BtnWithTooltips>
+            </button>
           )}
 
           {/* render timings if enabled */}
           {isAssistant && timings && config.showTokensPerSecond && (
-            <BtnWithTooltips
-              className="btn-mini w-8 h-8"
-              tooltipsContent="Performance"
+            <button
+              className="btn btn-ghost w-8 h-8 p-0"
+              title="Performance"
+              aria-label="Show performance metric"
             >
               <div className="dropdown dropdown-hover dropdown-top">
                 <ExclamationCircleIcon className="h-4 w-4" />
@@ -256,9 +257,12 @@ export default function ChatMessage({
                   </ul>
                 </div>
               </div>
-            </BtnWithTooltips>
+            </button>
           )}
-          <CopyButton className="btn-mini w-8 h-8" content={msg.content} />
+          <CopyButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            content={msg.content}
+          />
         </div>
       )}
     </div>
@@ -373,13 +377,13 @@ function ThoughtProcess({
         <div className="btn border-0 rounded-xl">
           {isThinking && (
             <>
-              <CubeTransparentIcon className="w-6 h-6 mr-1 p-0 animate-spin" />
+              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0 animate-spin" />
               Thinking
             </>
           )}
           {!isThinking && (
             <>
-              <CubeTransparentIcon className="w-6 h-6 mr-1 p-0" />
+              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0" />
               Thoughts
             </>
           )}

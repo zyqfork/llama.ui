@@ -74,77 +74,72 @@ export default function Header() {
       </div>
 
       {/* action buttons (top right) */}
-      <div className="flex items-center mr-2">
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="Settings"
+      <div className="flex items-center">
+        <button
+          className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+          title="Settings"
+          aria-label="Open settings menu"
           onClick={() => setShowSettings(true)}
         >
-          <button
-            className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-            aria-hidden={true}
-          >
-            {/* settings button */}
-            <Cog8ToothIcon className="w-5 h-5" />
-          </button>
-        </div>
+          {/* settings button */}
+          <Cog8ToothIcon className="w-5 h-5" />
+        </button>
 
         {/* theme controller is copied from https://daisyui.com/components/theme-controller/ */}
-        <div className="tooltip tooltip-bottom" data-tip="Themes">
-          <div className="dropdown dropdown-end dropdown-bottom">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost m-1 w-8 h-8 p-0 rounded-full"
-            >
-              <div className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm">
-                <div className="bg-base-content size-1 rounded-full"></div>{' '}
-                <div className="bg-primary size-1 rounded-full"></div>{' '}
-                <div className="bg-secondary size-1 rounded-full"></div>{' '}
-                <div className="bg-accent size-1 rounded-full"></div>
-              </div>
+        <div className="dropdown dropdown-end dropdown-bottom">
+          <button
+            tabIndex={0}
+            className="btn btn-ghost m-1 w-8 h-8 p-0 rounded-full"
+            title="Themes"
+            aria-label="Open theme menu"
+          >
+            <div className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm">
+              <div className="bg-base-content size-1 rounded-full"></div>{' '}
+              <div className="bg-primary size-1 rounded-full"></div>{' '}
+              <div className="bg-secondary size-1 rounded-full"></div>{' '}
+              <div className="bg-accent size-1 rounded-full"></div>
             </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content rounded-box z-[1] w-50 p-2 shadow-2xl h-80 text-sm overflow-y-auto"
-            >
-              <li>
+          </button>
+          <ul
+            tabIndex={0}
+            className="dropdown-content bg-base-100 rounded-box z-[1] w-50 p-2 shadow-2xl h-80 text-sm overflow-y-auto"
+          >
+            <li>
+              <button
+                className={classNames({
+                  'flex gap-3 p-2 btn btn-sm btn-ghost': true,
+                  'btn-active': selectedTheme === 'auto',
+                })}
+                onClick={() => setTheme('auto')}
+              >
+                <div className="w-32 ml-6 pl-1 truncate text-left">auto</div>
+              </button>
+            </li>
+            {THEMES.map((theme) => (
+              <li key={theme}>
                 <button
                   className={classNames({
                     'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                    'btn-active': selectedTheme === 'auto',
+                    'btn-active': selectedTheme === theme,
                   })}
-                  onClick={() => setTheme('auto')}
+                  data-set-theme={theme}
+                  data-act-class="[&amp;_svg]:visible"
+                  onClick={() => setTheme(theme)}
                 >
-                  <div className="w-32 ml-6 pl-1 truncate text-left">auto</div>
+                  <div
+                    data-theme={theme}
+                    className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
+                  >
+                    <div className="bg-base-content size-1 rounded-full"></div>{' '}
+                    <div className="bg-primary size-1 rounded-full"></div>{' '}
+                    <div className="bg-secondary size-1 rounded-full"></div>{' '}
+                    <div className="bg-accent size-1 rounded-full"></div>
+                  </div>
+                  <div className="w-32 truncate text-left">{theme}</div>
                 </button>
               </li>
-              {THEMES.map((theme) => (
-                <li key={theme}>
-                  <button
-                    className={classNames({
-                      'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                      'btn-active': selectedTheme === theme,
-                    })}
-                    data-set-theme={theme}
-                    data-act-class="[&amp;_svg]:visible"
-                    onClick={() => setTheme(theme)}
-                  >
-                    <div
-                      data-theme={theme}
-                      className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
-                    >
-                      <div className="bg-base-content size-1 rounded-full"></div>{' '}
-                      <div className="bg-primary size-1 rounded-full"></div>{' '}
-                      <div className="bg-secondary size-1 rounded-full"></div>{' '}
-                      <div className="bg-accent size-1 rounded-full"></div>
-                    </div>
-                    <div className="w-32 truncate text-left">{theme}</div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+            ))}
+          </ul>
         </div>
       </div>
     </header>
