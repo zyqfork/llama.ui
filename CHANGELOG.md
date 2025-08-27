@@ -1,3 +1,89 @@
+## [2.6.4] - 2025-08-27
+
+### 🛠 Fixes
+
+- Switch syntax highlight theme on light/dark color scheme (#88)
+
+### 🚜 Refactor
+
+- Move theme logic to app context (#87)
+
+## [2.6.3] - 2025-08-27
+
+### 🛠 Fixes
+
+- Button tooltip shows scroll (#86)
+
+### 🎨 Styling
+
+- Replaced the tooltips with a titles to prevent scrolling from appearing incorrectly
+- Reduce list left padding
+- Change think icon size
+
+## [2.6.2] - 2025-08-27
+
+### 🛠 Fixes
+
+- PWA - start_url is missing (#85)
+- PWA - fix icons path (#85)
+
+## [2.6.1] - 2025-08-27
+
+### 🛠 Fixes
+
+- Settings - Fetch Models button does not work (#83)
+- Settings - Modal dropdown overflows on long names (#84)
+
+## [2.6.0] - 2025-08-27
+
+### 🚀 Enhancements
+
+- Configuration presets #9 (#82)
+
+## [2.5.5] - 2025-08-26
+
+### 🛠 Fixes
+
+- PWA dynamically update theme color (#79)
+
+### 🎨 Styling
+
+- Header - reduce padding on mobile devices (#80)
+
+## [2.5.4] - 2025-08-26
+
+### 🛠 Fixes
+
+- Fetch models only on baseUrl and apiKey update (#77)
+
+### 🎨 Styling
+
+- Change default chat message user label (#78)
+
+### 🚜 Refactor
+
+- Inference Context - extract helper functions
+
+## [2.5.3] - 2025-08-26
+
+### 🎨 Styling
+
+- Change default chat message user label
+
+### 🚜 Refactor
+
+- PWA - update screenshots sizes
+
+## [2.5.2] - 2025-08-26
+
+### 🛠 Fixes
+
+- Style option elements matching current theme (#72)
+
+### 🎨 Styling
+
+- Display visual feedback when assistant is typing (#70)
+
 ## [2.5.1] - 2025-08-26
 
 ### 🛠 Fixes
