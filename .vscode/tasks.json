@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: start",
+      "detail": "vite",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start", "--", "--host"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": ["npm: format"],
+      "isBackground": true,
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "npm: build",
+      "detail": "tsc -b && vite build",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build", "--", "--base", "/llama.ui"],
+      "group": "build",
+      "dependsOn": ["npm: format"],
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "npm: format",
+      "detail": "eslint . && prettier --write .",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "format"],
+      "group": "build",
+      "problemMatcher": ["$eslint-stylish"]
+    }
+  ]
+}
