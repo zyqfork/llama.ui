@@ -377,13 +377,13 @@ function ThoughtProcess({
         <div className="btn border-0 rounded-xl">
           {isThinking && (
             <>
-              <CubeTransparentIcon className="w-8 h-8 mr-1 p-0 animate-spin" />
+              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0 animate-spin" />
               Thinking
             </>
           )}
           {!isThinking && (
             <>
-              <CubeTransparentIcon className="w-8 h-8 mr-1 p-0" />
+              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0" />
               Thoughts
             </>
           )}
