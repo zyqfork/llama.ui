@@ -840,7 +840,7 @@ const SettingsModalDropdown: React.FC<{
         </div>
 
         <select
-          className="grow"
+          className="grow max-w-60 truncate"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
