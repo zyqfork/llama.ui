@@ -1,38 +1,13 @@
 import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
-import daisyuiThemes from 'daisyui/theme/object';
-import { useEffect, useState } from 'react';
 import { THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
-import { classNames } from '../utils/misc';
-import StorageUtils from '../utils/storage';
 import { useInferenceContext } from '../context/inference.context';
+import { classNames } from '../utils/misc';
 
 export default function Header() {
-  const [selectedTheme, setSelectedTheme] = useState(StorageUtils.getTheme());
-  const { config, setShowSettings, saveConfig } = useAppContext();
+  const { config, setShowSettings, saveConfig, currentTheme, switchTheme } =
+    useAppContext();
   const { models } = useInferenceContext();
-
-  const setTheme = (theme: string) => {
-    StorageUtils.setTheme(theme);
-    setSelectedTheme(theme);
-  };
-
-  useEffect(() => {
-    document.body.setAttribute('data-theme', selectedTheme);
-    document.body.setAttribute(
-      'data-color-scheme',
-      daisyuiThemes[selectedTheme]?.['color-scheme'] ?? 'auto'
-    );
-
-    if (document.getElementsByClassName('bg-base-300').length > 0) {
-      const color = window
-        .getComputedStyle(document.getElementsByClassName('bg-base-300')[0])
-        .getPropertyValue('background-color');
-      document
-        .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', color);
-    }
-  }, [selectedTheme]);
 
   return (
     <header className="flex flex-row items-center xl:py-2 sticky top-0 z-10">
@@ -108,9 +83,9 @@ export default function Header() {
               <button
                 className={classNames({
                   'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                  'btn-active': selectedTheme === 'auto',
+                  'btn-active': currentTheme === 'auto',
                 })}
-                onClick={() => setTheme('auto')}
+                onClick={() => switchTheme('auto')}
               >
                 <div className="w-32 ml-6 pl-1 truncate text-left">auto</div>
               </button>
@@ -120,11 +95,11 @@ export default function Header() {
                 <button
                   className={classNames({
                     'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                    'btn-active': selectedTheme === theme,
+                    'btn-active': currentTheme === theme,
                   })}
                   data-set-theme={theme}
                   data-act-class="[&amp;_svg]:visible"
-                  onClick={() => setTheme(theme)}
+                  onClick={() => switchTheme(theme)}
                 >
                   <div
                     data-theme={theme}
