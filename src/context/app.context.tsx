@@ -8,8 +8,8 @@ interface AppContextValue {
   config: Configuration;
   saveConfig: (config: Configuration) => void;
   presets: ConfigurationPreset[];
-  savePreset: (name: string, config: Configuration) => void;
-  removePreset: (name: string) => void;
+  savePreset: (name: string, config: Configuration) => Promise<void>;
+  removePreset: (name: string) => Promise<void>;
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
 }
@@ -18,8 +18,8 @@ const AppContext = createContext<AppContextValue>({
   config: {} as Configuration,
   saveConfig: () => {},
   presets: [],
-  savePreset: () => {},
-  removePreset: () => {},
+  savePreset: () => new Promise(() => {}),
+  removePreset: () => new Promise(() => {}),
   showSettings: false,
   setShowSettings: () => {},
 });
@@ -30,17 +30,18 @@ export const AppContextProvider = ({
   children: React.ReactElement;
 }) => {
   const [config, setConfig] = useState<Configuration>(CONFIG_DEFAULT);
-  const [presets, setPresets] = useState<ConfigurationPreset[]>(
-    StorageUtils.getPresets()
-  );
+  const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isDev) console.debug('Load config');
-    setConfig(StorageUtils.getConfig());
+    const init = async () => {
+      if (isDev) console.debug('Load config');
+      setConfig(StorageUtils.getConfig());
 
-    if (isDev) console.debug('Load presets');
-    setPresets(StorageUtils.getPresets());
+      if (isDev) console.debug('Load presets');
+      setPresets(await StorageUtils.getPresets());
+    };
+    init();
   }, []);
 
   const saveConfig = (config: Configuration) => {
@@ -49,18 +50,18 @@ export const AppContextProvider = ({
     setConfig(config);
   };
 
-  const savePreset = (name: string, config: Configuration) => {
+  const savePreset = async (name: string, config: Configuration) => {
     if (isDev) console.debug('Save preset', { name, config });
     StorageUtils.savePreset(name, config);
-    setPresets(StorageUtils.getPresets());
-    toast.success('Preset saved successfully');
+    setPresets(await StorageUtils.getPresets());
+    toast.success('Preset is saved successfully');
   };
 
-  const removePreset = (name: string) => {
+  const removePreset = async (name: string) => {
     if (isDev) console.debug('Remove preset', name);
     StorageUtils.removePreset(name);
-    setPresets(StorageUtils.getPresets());
-    toast.success('Preset removed successfully');
+    setPresets(await StorageUtils.getPresets());
+    toast.success('Preset is removed successfully');
   };
 
   return (

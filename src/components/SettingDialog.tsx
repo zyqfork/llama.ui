@@ -900,7 +900,7 @@ const PresetManager: FC<{
         `Preset "${newPresetName}" already exists, overwrite it?`
       ))
     ) {
-      savePreset(newPresetName, config);
+      await savePreset(newPresetName, config);
     }
   };
 
@@ -918,7 +918,7 @@ const PresetManager: FC<{
 
   const handleDeletePreset = async (preset: ConfigurationPreset) => {
     if (await showConfirm(`Delete preset "${preset.name}"?`)) {
-      removePreset(preset.name);
+      await removePreset(preset.name);
     }
   };
 
@@ -957,37 +957,39 @@ const PresetManager: FC<{
 
       {presets.length > 0 && (
         <div className="grid grid-rows-1 gap-2 max-h-64 overflow-y-auto">
-          {presets.map((preset) => (
-            <div key={preset.id} className="card bg-base-200 p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium">{preset.name}</h4>
-                  <p className="text-xs opacity-40">
-                    Created: {dateFormatter.format(preset.createdAt)}
-                  </p>
-                </div>
+          {presets
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .map((preset) => (
+              <div key={preset.id} className="card bg-base-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">{preset.name}</h4>
+                    <p className="text-xs opacity-40">
+                      Created: {dateFormatter.format(preset.createdAt)}
+                    </p>
+                  </div>
 
-                <div className="flex gap-2">
-                  <button
-                    className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                    onClick={() => handleLoadPreset(preset)}
-                    title="Load preset"
-                    aria-label="Load preset"
-                  >
-                    <CloudArrowDownIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                    onClick={() => handleDeletePreset(preset)}
-                    title="Delete preset"
-                    aria-label="Delete preset"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                      onClick={() => handleLoadPreset(preset)}
+                      title="Load preset"
+                      aria-label="Load preset"
+                    >
+                      <CloudArrowDownIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                      onClick={() => handleDeletePreset(preset)}
+                      title="Delete preset"
+                      aria-label="Delete preset"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </>
