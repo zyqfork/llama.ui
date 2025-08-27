@@ -10,7 +10,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router';
 import { useMessageContext } from '../context/message.context';
-import { BtnWithTooltips } from '../utils/common';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import { Conversation } from '../utils/types';
@@ -233,17 +232,17 @@ function ConversationItem({
       </button>
 
       <div tabIndex={0} className="dropdown dropdown-end h-5">
-        <BtnWithTooltips
+        <button
           // on mobile, we always show the ellipsis icon
           // on desktop, we only show it when the user hovers over the conversation item
           // we use opacity instead of hidden to avoid layout shift
           className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
           onClick={() => {}}
-          tooltipsContent="More"
+          title="More"
           aria-label="Show more options"
         >
           <EllipsisVerticalIcon className="w-5 h-5" />
-        </BtnWithTooltips>
+        </button>
         {/* dropdown menu */}
         <ul
           aria-label="More options"

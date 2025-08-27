@@ -13,7 +13,6 @@ import remarkMath from 'remark-math';
 import { visit } from 'unist-util-visit';
 import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
-import { BtnWithTooltips } from '../utils/common';
 import { classNames, copyStr } from '../utils/misc';
 import { CanvasType } from '../utils/types';
 
@@ -91,7 +90,7 @@ const CodeBlockButtons: React.ElementType<
       })}
     >
       {canRunCode && (
-        <RunPyCodeButton
+        <RunCodeButton
           className="btn btn-ghost w-8 h-8 p-0"
           content={copiedContent}
         />
@@ -113,21 +112,22 @@ export const CopyButton = ({
 }) => {
   const [copied, setCopied] = useState(false);
   return (
-    <BtnWithTooltips
+    <button
       className={className}
       onClick={() => {
         copyStr(content);
         setCopied(true);
       }}
       onMouseLeave={() => setCopied(false)}
-      tooltipsContent={copied ? 'Copied!' : 'Copy'}
+      title={copied ? 'Copied!' : 'Copy'}
+      aria-label={copied ? 'Content copied' : 'Copy content'}
     >
       <DocumentDuplicateIcon className="h-4 w-4" />
-    </BtnWithTooltips>
+    </button>
   );
 };
 
-export const RunPyCodeButton = ({
+export const RunCodeButton = ({
   content,
   className,
 }: {
@@ -137,7 +137,7 @@ export const RunPyCodeButton = ({
   const { setCanvasData } = useMessageContext();
   return (
     <>
-      <BtnWithTooltips
+      <button
         className={className}
         onClick={() =>
           setCanvasData({
@@ -145,10 +145,11 @@ export const RunPyCodeButton = ({
             content,
           })
         }
-        tooltipsContent="Run code"
+        title="Run code"
+        aria-label="Run the code"
       >
         <PlayIcon className="h-4 w-4" />
-      </BtnWithTooltips>
+      </button>
     </>
   );
 };

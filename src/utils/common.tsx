@@ -37,6 +37,10 @@ export const OpenInNewTab = ({
   </a>
 );
 
+/**
+ * Renders button with tooltip
+ * @deprecated
+ */
 export function BtnWithTooltips({
   className,
   onClick,
