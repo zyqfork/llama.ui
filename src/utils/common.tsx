@@ -73,10 +73,17 @@ export function BtnWithTooltips({
   );
 }
 
+export const dateFormatter = new Intl.DateTimeFormat(
+  Intl.DateTimeFormat().resolvedOptions().locale,
+  {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }
+);
+
 export const timeFormatter = new Intl.DateTimeFormat(
   Intl.DateTimeFormat().resolvedOptions().locale,
   {
-    hour: '2-digit',
-    minute: '2-digit',
+    timeStyle: 'short',
   }
 );

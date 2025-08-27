@@ -65,6 +65,13 @@ export interface Configuration {
 }
 export type ConfigurationKey = keyof Configuration;
 
+export interface ConfigurationPreset {
+  id: string;
+  name: string;
+  createdAt: number;
+  config: Partial<Configuration>;
+}
+
 export interface InferenceProviders {
   [key: string]: {
     baseUrl: string;

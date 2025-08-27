@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import {
   Configuration,
+  ConfigurationPreset,
   Conversation,
   ExportJsonStructure,
   Message,
@@ -50,6 +51,7 @@ const dispatchConversationChange = (convId: string) => {
 const db = new Dexie('LlamacppWebui') as Dexie & {
   conversations: Table<Conversation, string>;
   messages: Table<Message, number>;
+  userConfigurations: Table<ConfigurationPreset, string>;
 };
 
 // Define database schema
@@ -59,6 +61,8 @@ db.version(1).stores({
   conversations: '&id, lastModified',
   // Index messages by 'id' (unique), 'convId', composite key '[convId+id]', and 'timestamp'
   messages: '&id, convId, [convId+id], timestamp',
+  // Index userConfigurations by 'id' (unique) and 'name'
+  userConfigurations: '&id, name',
 });
 
 // --- Main Storage Utility Functions ---
@@ -434,6 +438,51 @@ const StorageUtils = {
     } else {
       localStorage.setItem('theme', theme);
     }
+  },
+
+  /**
+   * Retrieves the user's configuration presets.
+   * @returns The array of configuration preset.
+   */
+  async getPresets() {
+    const presets = await db.transaction(
+      'r',
+      db.userConfigurations,
+      async () => {
+        return await db.userConfigurations.toArray();
+      }
+    );
+    return presets;
+  },
+
+  /**
+   * Saves the user's configuration preset to localStorage, replacing the existing one.
+   * @param name The preset name to save.
+   * @param config The Configuration object to save.
+   */
+  async savePreset(name: string, config: Configuration, id?: string) {
+    const now = Date.now();
+    const newPreset: ConfigurationPreset = {
+      id: id || `config-${now}`,
+      name,
+      createdAt: now,
+      config,
+    };
+    return await db.transaction('rw', db.userConfigurations, async () => {
+      await db.userConfigurations.where('name').equals(name).delete();
+      await db.userConfigurations.add(newPreset);
+      return newPreset;
+    });
+  },
+
+  /**
+   * Removes the user's configuration preset.
+   * @param name The preset name to remove.
+   */
+  async removePreset(name: string) {
+    return await db.transaction('rw', db.userConfigurations, async () => {
+      return await db.userConfigurations.where('name').equals(name).delete();
+    });
   },
 };
 
