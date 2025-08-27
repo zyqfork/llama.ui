@@ -21,13 +21,13 @@ export default defineConfig({
           {
             purpose: 'maskable',
             sizes: '512x512',
-            src: 'icon512_maskable.png',
+            src: 'assets/icon512_maskable.png',
             type: 'image/png',
           },
           {
             purpose: 'any',
             sizes: '512x512',
-            src: 'icon512_rounded.png',
+            src: 'assets/icon512_rounded.png',
             type: 'image/png',
           },
           {
