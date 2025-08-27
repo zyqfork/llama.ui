@@ -1,7 +1,6 @@
-/* Tailwind CSS directives */
-@import 'tailwindcss';
+@use 'sass:meta';
+@use 'tailwindcss';
 
-/* DaisyUI directives */
 @plugin 'daisyui' {
   themes: all;
 }

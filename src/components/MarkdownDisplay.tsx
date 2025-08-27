@@ -1,6 +1,5 @@
 import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
 import { ElementContent, Root } from 'hast';
-import 'highlight.js/styles/stackoverflow-light.css';
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
 import React, { useMemo, useState } from 'react';
