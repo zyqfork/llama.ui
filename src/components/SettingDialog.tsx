@@ -22,7 +22,14 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
@@ -841,6 +848,8 @@ const SettingsModalDropdown: React.FC<{
 }) => {
   const [search, setSearch] = useState('');
 
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+
   const disabled = useMemo(() => options.length < 2, [options]);
   const selectedValue = useMemo(() => {
     const selectedOption = options.find((option) => option.key === value);
@@ -855,12 +864,15 @@ const SettingsModalDropdown: React.FC<{
   );
 
   useEffect(() => {
-    if (options.length === 0 && value !== '') {
-      onChange('');
-    } else if (options.length === 1 && value !== options[0].key) {
+    if (options.length > 0 && !options.some((option) => option.key === value)) {
       onChange(options[0].key);
     }
   }, [options, value, onChange]);
+
+  const handleChange = (value: string) => () => {
+    onChange(value);
+    dropdownRef.current?.removeAttribute('open');
+  };
 
   return (
     <div className="form-control flex flex-col justify-center mb-3">
@@ -875,65 +887,80 @@ const SettingsModalDropdown: React.FC<{
           {field.label || configKey}
         </div>
 
-        <div className="grow flex dropdown dropdown-end dropdown-bottom">
-          <button
-            tabIndex={0}
-            className="grow flex justify-between cursor-pointer"
+        {/* disabled dropdown */}
+        {disabled && (
+          <div
+            className="grow truncate text-left"
             title={configKey}
             aria-label={`Choose ${configKey}`}
-            disabled={disabled}
           >
             {selectedValue}
-            {!disabled && <ChevronDownIcon className="inline h-5 w-5 ml-1" />}
-          </button>
-
-          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
-            {isSearchEnabled && (
-              <input
-                type="text"
-                placeholder={`Search ${configKey}s...`}
-                className="input w-full p-2 mb-2"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                autoFocus
-              />
-            )}
-
-            {filteredOptions.length === 0 && (
-              <div className="p-2 text-sm">No options found</div>
-            )}
-            {filteredOptions.length > 0 && (
-              <ul className="max-h-80 overflow-y-auto">
-                {options
-                  .filter((option) =>
-                    option.value
-                      .toLowerCase()
-                      .includes(search.trim().toLowerCase())
-                  )
-                  .map((option) => (
-                    <li key={option.key}>
-                      <button
-                        className={classNames({
-                          'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
-                          'btn-active': value === option.key,
-                        })}
-                        onClick={() => onChange(option.key)}
-                        aria-label={`${option.value}${value === option.key ? ' (selected)' : ''}`}
-                      >
-                        {option.icon && (
-                          <img
-                            src={option.icon}
-                            className="inline h-5 w-5 mr-1"
-                          />
-                        )}
-                        {option.value}
-                      </button>
-                    </li>
-                  ))}
-              </ul>
-            )}
           </div>
-        </div>
+        )}
+        {/* dropdown */}
+        {!disabled && (
+          <details
+            ref={dropdownRef}
+            className="grow flex dropdown dropdown-end dropdown-bottom"
+          >
+            <summary
+              className="grow truncate flex justify-between cursor-pointer"
+              title={configKey}
+              aria-label={`Choose ${configKey}`}
+            >
+              {selectedValue}
+              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+            </summary>
+
+            {/* dropdown content */}
+            <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
+              {isSearchEnabled && (
+                <input
+                  type="text"
+                  placeholder={`Search ${configKey}s...`}
+                  className="input w-full focus:outline-base-content/30 p-2 mb-2"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  autoFocus
+                />
+              )}
+
+              {filteredOptions.length === 0 && (
+                <div className="p-2 text-sm">No options found</div>
+              )}
+              {filteredOptions.length > 0 && (
+                <ul className="max-h-80 overflow-y-auto">
+                  {options
+                    .filter((option) =>
+                      option.value
+                        .toLowerCase()
+                        .includes(search.trim().toLowerCase())
+                    )
+                    .map((option) => (
+                      <li key={option.key}>
+                        <button
+                          className={classNames({
+                            'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                            'btn-active': value === option.key,
+                          })}
+                          onClick={handleChange(option.key)}
+                          aria-label={`${option.value}${value === option.key ? ' (selected)' : ''}`}
+                        >
+                          {option.icon && (
+                            <img
+                              src={option.icon}
+                              className="inline h-5 w-5 mr-1"
+                            />
+                          )}
+                          {option.value}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          </details>
+        )}
       </label>
 
       {field.note && (
