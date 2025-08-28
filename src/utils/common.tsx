@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { ReactNode, useMemo, useRef, useState } from 'react';
-import { useDebouncedCallback } from '../components/useDebouncedCallback';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { isDev } from '../config';
 import { classNames } from './misc';
 
@@ -130,25 +129,30 @@ export function Dropdown<T extends { value: string; label: string }>({
   entity: string;
   options: T[];
   isSearchEnabled?: boolean;
-  value: string;
   currentValue: ReactNode;
   renderOption: (option: T) => ReactNode;
   isSelected: (option: T) => boolean;
   onFilter: (option: T, value: string) => boolean;
   onSelect: (option: T) => void;
 }) {
-  const [search, setSearch] = useState<string>('');
   const dropdownRef = useRef<HTMLDetailsElement>(null);
+  const [search, setSearch] = useState<string>('');
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
   const filteredOptions = useMemo(
     () => options.filter((option) => onFilter(option, search.trim())),
     [options, search, onFilter]
   );
 
-  const debouncedSearch = useDebouncedCallback(
-    (searchValue: string) => setSearch(searchValue),
-    250
-  );
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = dropdownRef.current;
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        dropdown.removeAttribute('open');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelect = (option: T) => () => {
     onSelect(option);
@@ -190,14 +194,14 @@ export function Dropdown<T extends { value: string; label: string }>({
           </summary>
 
           {/* dropdown content */}
-          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
+          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-1 shadow-2xl">
             {isSearchEnabled && (
               <input
                 type="text"
                 placeholder={`Search ${entity}s...`}
-                className="input w-full focus:outline-base-content/30 p-2 mb-2"
+                className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
                 value={search}
-                onChange={(e) => debouncedSearch(e.target.value)}
+                onChange={(e) => setSearch(e.target.value)}
                 autoFocus
               />
             )}
