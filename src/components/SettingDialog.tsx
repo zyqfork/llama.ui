@@ -417,7 +417,8 @@ export default function SettingDialog({
   show: boolean;
   onClose: () => void;
 }) {
-  const { config, saveConfig } = useAppContext();
+  const { config, saveConfig, presets, savePreset, removePreset } =
+    useAppContext();
   const { models, fetchModels } = useInferenceContext();
   const [tabIdx, setTabIdx] = useState(0);
 
@@ -632,6 +633,9 @@ export default function SettingDialog({
                           key={key}
                           config={localConfig}
                           onLoadConfig={setLocalConfig}
+                          presets={presets}
+                          onSavePreset={savePreset}
+                          onRemovePreset={removePreset}
                         />
                       );
                     case 'fetch-models':
@@ -887,8 +891,10 @@ const DelimeterComponent: React.FC = () => (
 const PresetManager: FC<{
   config: Configuration;
   onLoadConfig: (config: Configuration) => void;
-}> = ({ config, onLoadConfig }) => {
-  const { presets, savePreset, removePreset } = useAppContext();
+  presets: ConfigurationPreset[];
+  onSavePreset: (name: string, config: Configuration) => Promise<void>;
+  onRemovePreset: (name: string) => Promise<void>;
+}> = ({ config, onLoadConfig, presets, onSavePreset, onRemovePreset }) => {
   const { showConfirm, showPrompt } = useModals();
 
   const handleSavePreset = async () => {
@@ -904,7 +910,7 @@ const PresetManager: FC<{
         `Preset "${newPresetName}" already exists, overwrite it?`
       ))
     ) {
-      await savePreset(newPresetName, config);
+      await onSavePreset(newPresetName, config);
     }
   };
 
@@ -922,7 +928,7 @@ const PresetManager: FC<{
 
   const handleDeletePreset = async (preset: ConfigurationPreset) => {
     if (await showConfirm(`Delete preset "${preset.name}"?`)) {
-      await removePreset(preset.name);
+      await onRemovePreset(preset.name);
     }
   };
 
@@ -960,7 +966,7 @@ const PresetManager: FC<{
       )}
 
       {presets.length > 0 && (
-        <div className="grid grid-rows-1 gap-2 max-h-64 overflow-y-auto">
+        <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
           {presets
             .sort((a, b) => b.createdAt - a.createdAt)
             .map((preset) => (
