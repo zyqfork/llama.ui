@@ -7,6 +7,7 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ChatBubbleLeftRightIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  ChevronDownIcon,
   CircleStackIcon,
   CloudArrowDownIcon,
   CloudArrowUpIcon,
@@ -21,7 +22,14 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
@@ -80,12 +88,18 @@ interface SettingFieldCustom {
     | 'delimeter';
 }
 
+interface DropdownOption {
+  key: string;
+  value: string;
+  icon?: string;
+}
 interface SettingFieldDropdown {
   type: SettingInputType.DROPDOWN;
   label: string | React.ReactElement;
   note?: string | TrustedHTML;
   key: ConfigurationKey;
-  options: { key: string; value: string }[];
+  options: DropdownOption[];
+  isSearchEnabled: boolean;
 }
 
 interface SettingSection {
@@ -138,7 +152,8 @@ const toInput = (
 };
 const toDropdown = (
   key: ConfigurationKey,
-  options: { key: string; value: string }[]
+  options: DropdownOption[],
+  isSearchEnabled: boolean = false
 ): SettingFieldDropdown => {
   return {
     type: SettingInputType.DROPDOWN,
@@ -146,6 +161,7 @@ const toDropdown = (
     label: lang.settings.parameters[key].label,
     note: lang.settings.parameters[key].note,
     options,
+    isSearchEnabled,
   };
 };
 
@@ -193,7 +209,8 @@ const getSettingTabsConfiguration = (
         models.map((m) => ({
           key: m.id,
           value: m.name,
-        }))
+        })),
+        true
       ),
       {
         type: SettingInputType.CUSTOM,
@@ -616,9 +633,12 @@ export default function SettingDialog({
                       key={key}
                       configKey={field.key}
                       field={field}
+                      options={(field as SettingFieldDropdown).options}
+                      isSearchEnabled={
+                        (field as SettingFieldDropdown).isSearchEnabled
+                      }
                       value={String(localConfig[field.key])}
                       onChange={onChange(field.key)}
-                      options={(field as SettingFieldDropdown).options}
                     />
                   );
                 case SettingInputType.CUSTOM:
@@ -774,12 +794,10 @@ const SettingsModalShortInput: React.FC<
         />
       </label>
       {field.note && (
-        <div className="block opacity-75 max-w-80">
-          <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
     </label>
   );
@@ -804,12 +822,10 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         <span className="ml-2">{field.label || configKey}</span>
       </div>
       {field.note && (
-        <div className="block opacity-75 max-w-80">
-          <p
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80 mt-1"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
     </label>
   );
@@ -818,61 +834,142 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
 const SettingsModalDropdown: React.FC<{
   configKey: ConfigurationKey;
   field: SettingFieldInput;
-  onChange: (value: string) => void;
-  options: { key: string; value: string; icon?: string }[];
+  options: DropdownOption[];
+  isSearchEnabled?: boolean;
   value: string;
-}> = ({ configKey, field, options, value, onChange }) => {
+  onChange: (value: string) => void;
+}> = ({
+  configKey,
+  field,
+  options,
+  isSearchEnabled = false,
+  value,
+  onChange,
+}) => {
+  const [search, setSearch] = useState('');
+
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+
   const disabled = useMemo(() => options.length < 2, [options]);
+  const selectedValue = useMemo(() => {
+    const selectedOption = options.find((option) => option.key === value);
+    return selectedOption ? selectedOption.value : '';
+  }, [options, value]);
+  const filteredOptions = useMemo(
+    () =>
+      options.filter((option) =>
+        option.value.toLowerCase().includes(search.trim().toLowerCase())
+      ),
+    [options, search]
+  );
 
   useEffect(() => {
-    if (options.length === 0 && value !== '') {
-      onChange('');
-    } else if (options.length === 1 && value !== options[0].value) {
-      onChange(options[0].value);
+    if (options.length > 0 && !options.some((option) => option.key === value)) {
+      onChange(options[0].key);
     }
   }, [options, value, onChange]);
 
+  const handleChange = (value: string) => () => {
+    onChange(value);
+    dropdownRef.current?.removeAttribute('open');
+  };
+
   return (
-    <label className="form-control flex flex-col justify-center mb-3">
-      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-        {field.label || configKey}
-      </div>
+    <div className="form-control flex flex-col justify-center mb-3">
+      <div className="font-bold mb-1 md:hidden">{field.label || configKey}</div>
       <label
         className={classNames({
           'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
           'bg-base-200': disabled,
         })}
       >
-        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+        <div className="font-bold hidden md:block">
           {field.label || configKey}
         </div>
 
-        <select
-          className="grow max-w-60 truncate"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-        >
-          {options.map((p) => (
-            <option
-              key={p.key}
-              value={p.key}
-              className="bg-base-100 text-base-content"
-            >
-              {p.value}
-            </option>
-          ))}
-        </select>
-      </label>
-      {field.note && (
-        <div className="block opacity-75 max-w-80">
+        {/* disabled dropdown */}
+        {disabled && (
           <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+            className="grow truncate text-left"
+            title={configKey}
+            aria-label={`Choose ${configKey}`}
+          >
+            {selectedValue}
+          </div>
+        )}
+        {/* dropdown */}
+        {!disabled && (
+          <details
+            ref={dropdownRef}
+            className="grow flex dropdown dropdown-end dropdown-bottom"
+          >
+            <summary
+              className="grow truncate flex justify-between cursor-pointer"
+              title={configKey}
+              aria-label={`Choose ${configKey}`}
+            >
+              {selectedValue}
+              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+            </summary>
+
+            {/* dropdown content */}
+            <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
+              {isSearchEnabled && (
+                <input
+                  type="text"
+                  placeholder={`Search ${configKey}s...`}
+                  className="input w-full focus:outline-base-content/30 p-2 mb-2"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  autoFocus
+                />
+              )}
+
+              {filteredOptions.length === 0 && (
+                <div className="p-2 text-sm">No options found</div>
+              )}
+              {filteredOptions.length > 0 && (
+                <ul className="max-h-80 overflow-y-auto">
+                  {options
+                    .filter((option) =>
+                      option.value
+                        .toLowerCase()
+                        .includes(search.trim().toLowerCase())
+                    )
+                    .map((option) => (
+                      <li key={option.key}>
+                        <button
+                          className={classNames({
+                            'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                            'btn-active': value === option.key,
+                          })}
+                          onClick={handleChange(option.key)}
+                          aria-label={`${option.value}${value === option.key ? ' (selected)' : ''}`}
+                        >
+                          {option.icon && (
+                            <img
+                              src={option.icon}
+                              className="inline h-5 w-5 mr-1"
+                            />
+                          )}
+                          {option.value}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          </details>
+        )}
+      </label>
+
+      {field.note && (
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
-    </label>
+    </div>
   );
 };
 
@@ -955,14 +1052,12 @@ const PresetManager: FC<{
       </SettingsSectionLabel>
 
       {presets.length === 0 && (
-        <div className="block opacity-75 max-w-80">
-          <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{
-              __html: lang.settings.presetManager.savedPresets.noPresetFound,
-            }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{
+            __html: lang.settings.presetManager.savedPresets.noPresetFound,
+          }}
+        />
       )}
 
       {presets.length > 0 && (
