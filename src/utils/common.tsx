@@ -1,5 +1,7 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ReactNode, useMemo, useRef, useState } from 'react';
+import { useDebouncedCallback } from '../components/useDebouncedCallback';
+import { isDev } from '../config';
 import { classNames } from './misc';
 
 /**
@@ -134,24 +136,34 @@ export function Dropdown({
   isSelected: (value: string) => boolean;
   onFilter: (option: string, value: string) => boolean;
   onChange: (value: string) => void;
-}): JSX.Element {
-  const [search, setSearch] = useState('');
+}) {
+  const [search, setSearch] = useState<string>('');
   const dropdownRef = useRef<HTMLDetailsElement>(null);
-  const disabled = useMemo(() => options.length < 2, [options]);
+  const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
   const filteredOptions = useMemo(
     () => options.filter((option) => onFilter(option, search.trim())),
     [options, search, onFilter]
   );
 
-  const handleChange = (value: string) => () => {
-    onChange(value);
+  const debouncedSearch = useDebouncedCallback(
+    (searchValue: string) => setSearch(searchValue),
+    250
+  );
+
+  const handleChange = (selectedValue: string) => () => {
+    onChange(selectedValue);
     dropdownRef.current?.removeAttribute('open');
   };
+
+  if (!Array.isArray(options)) {
+    if (isDev) console.warn(`${entity} options must be an array`);
+    return null;
+  }
 
   return (
     <div className={`${className ?? ''} flex`}>
       {/* disabled dropdown */}
-      {disabled && (
+      {isDisabled && (
         <div
           className="grow truncate"
           title={entity}
@@ -162,7 +174,7 @@ export function Dropdown({
       )}
 
       {/* dropdown */}
-      {!disabled && (
+      {!isDisabled && (
         <details
           ref={dropdownRef}
           className="grow dropdown dropdown-end dropdown-bottom"
@@ -171,6 +183,7 @@ export function Dropdown({
             className="grow truncate flex justify-between cursor-pointer"
             title={entity}
             aria-label={`Choose ${entity}`}
+            aria-haspopup="listbox"
           >
             {currentValue}
             <ChevronDownIcon className="inline h-5 w-5 ml-1" />
@@ -184,7 +197,7 @@ export function Dropdown({
                 placeholder={`Search ${entity}s...`}
                 className="input w-full focus:outline-base-content/30 p-2 mb-2"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => debouncedSearch(e.target.value)}
                 autoFocus
               />
             )}
