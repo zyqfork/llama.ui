@@ -1,3 +1,10 @@
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ReactNode, useMemo, useRef, useState } from 'react';
+import { classNames } from './misc';
+
+/**
+ * A close button (X icon) with a default Tailwind CSS styling.
+ */
 export const XCloseButton: React.ElementType<
   React.ClassAttributes<HTMLButtonElement> &
     React.HTMLAttributes<HTMLButtonElement>
@@ -20,6 +27,12 @@ export const XCloseButton: React.ElementType<
   </button>
 );
 
+/**
+ * Renders a link that opens in a new tab with proper security and accessibility attributes.
+ *
+ * @param href - URL to visit in new tab
+ * @param children - Visible link text
+ */
 export const OpenInNewTab = ({
   href,
   children,
@@ -38,8 +51,16 @@ export const OpenInNewTab = ({
 );
 
 /**
- * Renders button with tooltip
- * @deprecated
+ * @deprecated Use `title` and `aria-label` props in button directly as utiliy classes.
+ *
+ * Wraps any button that needs a tooltip message.
+ *
+ * @param className - Optional additional classes to apply to the button
+ * @param onClick - Optional click handler for the container element
+ * @param onMouseLeave - Optional mouse leave handler for the inner button
+ * @param children - React node to render inside the button
+ * @param tooltipsContent - Text content to show in tooltip
+ * @param disabled - Whether the button should be disabled
  */
 export function BtnWithTooltips({
   className,
@@ -77,6 +98,134 @@ export function BtnWithTooltips({
   );
 }
 
+/**
+ * A customizable dropdown component that supports filtering, selection, and custom rendering of options.
+ *
+ * @param className - Optional CSS class names to apply to the dropdown container.
+ * @param entity - The name of the entity the dropdown represents (used for labeling and accessibility).
+ * @param options - An array of available options to display in the dropdown.
+ * @param [isSearchEnabled=false] - Whether to enable search functionality within the dropdown.
+ * @param value - The currently selected value.
+ * @param currentValue - The JSX representation of the currently selected value to display in the dropdown trigger.
+ * @param renderOption - A function that takes an option and returns a JSX element to render for that option.
+ * @param isSelected - A function that takes a value and returns whether it is currently selected.
+ * @param onFilter - A function that filters options based on the search term and option value.
+ * @param onChange - A callback function triggered when a new option is selected.
+ */
+export function Dropdown({
+  className,
+  entity,
+  options,
+  isSearchEnabled = false,
+  value,
+  currentValue,
+  renderOption,
+  isSelected,
+  onFilter,
+  onChange,
+}: {
+  className?: string;
+  entity: string;
+  options: string[];
+  isSearchEnabled?: boolean;
+  value: string;
+  currentValue: ReactNode;
+  renderOption: (option: string) => ReactNode;
+  isSelected: (value: string) => boolean;
+  onFilter: (option: string, value: string) => boolean;
+  onChange: (value: string) => void;
+}): JSX.Element {
+  const [search, setSearch] = useState('');
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+  const disabled = useMemo(() => options.length < 2, [options]);
+  const filteredOptions = useMemo(
+    () => options.filter((option) => onFilter(option, search.trim())),
+    [options, search, onFilter]
+  );
+
+  const handleChange = (value: string) => () => {
+    onChange(value);
+    dropdownRef.current?.removeAttribute('open');
+  };
+
+  return (
+    <div className={`${className ?? ''} flex`}>
+      {/* disabled dropdown */}
+      {disabled && (
+        <div
+          className="grow truncate"
+          title={entity}
+          aria-label={`Choose ${entity}`}
+        >
+          {currentValue}
+        </div>
+      )}
+
+      {/* dropdown */}
+      {!disabled && (
+        <details
+          ref={dropdownRef}
+          className="grow dropdown dropdown-end dropdown-bottom"
+        >
+          <summary
+            className="grow truncate flex justify-between cursor-pointer"
+            title={entity}
+            aria-label={`Choose ${entity}`}
+          >
+            {currentValue}
+            <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+          </summary>
+
+          {/* dropdown content */}
+          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
+            {isSearchEnabled && (
+              <input
+                type="text"
+                placeholder={`Search ${entity}s...`}
+                className="input w-full focus:outline-base-content/30 p-2 mb-2"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+              />
+            )}
+
+            {filteredOptions.length === 0 && (
+              <div className="p-2 text-sm">No options found</div>
+            )}
+            {filteredOptions.length > 0 && (
+              <ul className="max-h-80 overflow-y-auto">
+                {filteredOptions.map((option, idx) => (
+                  <li key={idx}>
+                    <button
+                      className={classNames({
+                        'btn btn-sm btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                        'btn-active': isSelected(value),
+                      })}
+                      onClick={handleChange(option)}
+                      aria-label={
+                        isSelected(value) ? `${entity} (selected)` : ''
+                      }
+                    >
+                      {renderOption(option)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A language-sensitive formatter for both date and time information.
+ *
+ * @example
+ * const date = new Date();
+ * dateFormatter.format(date); // Returns localized short date + time
+ */
 export const dateFormatter = new Intl.DateTimeFormat(
   Intl.DateTimeFormat().resolvedOptions().locale,
   {
@@ -85,6 +234,13 @@ export const dateFormatter = new Intl.DateTimeFormat(
   }
 );
 
+/**
+ * A language-sensitive formatter for time information only.
+ *
+ * @example
+ * const date = new Date();
+ * timeFormatter.format(date); // Returns localized short time
+ */
 export const timeFormatter = new Intl.DateTimeFormat(
   Intl.DateTimeFormat().resolvedOptions().locale,
   {
