@@ -80,12 +80,17 @@ interface SettingFieldCustom {
     | 'delimeter';
 }
 
+interface DropdownOption {
+  key: string;
+  value: string;
+  icon?: string;
+}
 interface SettingFieldDropdown {
   type: SettingInputType.DROPDOWN;
   label: string | React.ReactElement;
   note?: string | TrustedHTML;
   key: ConfigurationKey;
-  options: { key: string; value: string }[];
+  options: DropdownOption[];
 }
 
 interface SettingSection {
@@ -138,7 +143,7 @@ const toInput = (
 };
 const toDropdown = (
   key: ConfigurationKey,
-  options: { key: string; value: string }[]
+  options: DropdownOption[]
 ): SettingFieldDropdown => {
   return {
     type: SettingInputType.DROPDOWN,
@@ -819,7 +824,7 @@ const SettingsModalDropdown: React.FC<{
   configKey: ConfigurationKey;
   field: SettingFieldInput;
   onChange: (value: string) => void;
-  options: { key: string; value: string; icon?: string }[];
+  options: DropdownOption[];
   value: string;
 }> = ({ configKey, field, options, value, onChange }) => {
   const disabled = useMemo(() => options.length < 2, [options]);
