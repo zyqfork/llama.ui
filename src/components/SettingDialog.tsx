@@ -823,6 +823,10 @@ const SettingsModalDropdown: React.FC<{
   value: string;
 }> = ({ configKey, field, options, value, onChange }) => {
   const disabled = useMemo(() => options.length < 2, [options]);
+  const inputValue = useMemo(() => {
+    const selectedOption = options.find((option) => option.key === value);
+    return selectedOption ? selectedOption.value : value;
+  }, [options, value]);
 
   useEffect(() => {
     if (options.length === 0 && value !== '') {
@@ -831,6 +835,14 @@ const SettingsModalDropdown: React.FC<{
       onChange(options[0].value);
     }
   }, [options, value, onChange]);
+
+  const datalistId = `settings-modal-dropdown-datalist-${configKey}`;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedOption = options.find(
+      (option) => option.value === e.target.value
+    );
+    onChange(selectedOption ? selectedOption.key : '');
+  };
 
   return (
     <label className="form-control flex flex-col justify-center mb-3">
@@ -847,23 +859,26 @@ const SettingsModalDropdown: React.FC<{
           {field.label || configKey}
         </div>
 
-        <select
+        <input
+          type="search"
           className="grow max-w-60 truncate"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          list={datalistId}
+          value={inputValue}
+          onChange={handleChange}
+          placeholder={`Choose a ${configKey}`}
           disabled={disabled}
-        >
+        />
+        <datalist id={datalistId} className="">
           {options.map((p) => (
             <option
-              key={p.key}
-              value={p.key}
               className="bg-base-100 text-base-content"
-            >
-              {p.value}
-            </option>
+              key={p.key}
+              value={p.value}
+            />
           ))}
-        </select>
+        </datalist>
       </label>
+
       {field.note && (
         <div className="block opacity-75 max-w-80">
           <div
