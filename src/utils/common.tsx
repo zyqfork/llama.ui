@@ -103,39 +103,39 @@ export function BtnWithTooltips({
 /**
  * A customizable dropdown component that supports filtering, selection, and custom rendering of options.
  *
+ * @template T - The type of option items. Must be an object with 'value' and 'label' properties.
+ *
  * @param className - Optional CSS class names to apply to the dropdown container.
  * @param entity - The name of the entity the dropdown represents (used for labeling and accessibility).
  * @param options - An array of available options to display in the dropdown.
  * @param [isSearchEnabled=false] - Whether to enable search functionality within the dropdown.
- * @param value - The currently selected value.
  * @param currentValue - The JSX representation of the currently selected value to display in the dropdown trigger.
  * @param renderOption - A function that takes an option and returns a JSX element to render for that option.
  * @param isSelected - A function that takes a value and returns whether it is currently selected.
  * @param onFilter - A function that filters options based on the search term and option value.
- * @param onChange - A callback function triggered when a new option is selected.
+ * @param onSelect - A callback function triggered when a new option is selected.
  */
-export function Dropdown({
+export function Dropdown<T extends { value: string; label: string }>({
   className,
   entity,
   options,
   isSearchEnabled = false,
-  value,
   currentValue,
   renderOption,
   isSelected,
   onFilter,
-  onChange,
+  onSelect,
 }: {
   className?: string;
   entity: string;
-  options: string[];
+  options: T[];
   isSearchEnabled?: boolean;
   value: string;
   currentValue: ReactNode;
-  renderOption: (option: string) => ReactNode;
-  isSelected: (value: string) => boolean;
-  onFilter: (option: string, value: string) => boolean;
-  onChange: (value: string) => void;
+  renderOption: (option: T) => ReactNode;
+  isSelected: (option: T) => boolean;
+  onFilter: (option: T, value: string) => boolean;
+  onSelect: (option: T) => void;
 }) {
   const [search, setSearch] = useState<string>('');
   const dropdownRef = useRef<HTMLDetailsElement>(null);
@@ -150,8 +150,8 @@ export function Dropdown({
     250
   );
 
-  const handleChange = (selectedValue: string) => () => {
-    onChange(selectedValue);
+  const handleSelect = (option: T) => () => {
+    onSelect(option);
     dropdownRef.current?.removeAttribute('open');
   };
 
@@ -207,16 +207,18 @@ export function Dropdown({
             )}
             {filteredOptions.length > 0 && (
               <ul className="max-h-80 overflow-y-auto">
-                {filteredOptions.map((option, idx) => (
-                  <li key={idx}>
+                {filteredOptions.map((option) => (
+                  <li key={option.value}>
                     <button
                       className={classNames({
                         'btn btn-sm btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
-                        'btn-active': isSelected(value),
+                        'btn-active': isSelected(option),
                       })}
-                      onClick={handleChange(option)}
+                      onClick={handleSelect(option)}
                       aria-label={
-                        isSelected(value) ? `${entity} (selected)` : ''
+                        isSelected(option)
+                          ? `${option.label} selected`
+                          : `${option.label} option`
                       }
                     >
                       {renderOption(option)}
