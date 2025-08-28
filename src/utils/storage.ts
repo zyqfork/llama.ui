@@ -445,14 +445,9 @@ const StorageUtils = {
    * @returns The array of configuration preset.
    */
   async getPresets() {
-    const presets = await db.transaction(
-      'r',
-      db.userConfigurations,
-      async () => {
-        return await db.userConfigurations.toArray();
-      }
-    );
-    return presets;
+    return db.transaction('r', db.userConfigurations, async () => {
+      return db.userConfigurations.toArray();
+    });
   },
 
   /**
@@ -468,11 +463,11 @@ const StorageUtils = {
       createdAt: now,
       config,
     };
-    return await db.transaction('rw', db.userConfigurations, async () => {
+    await db.transaction('rw', db.userConfigurations, async () => {
       await db.userConfigurations.where('name').equals(name).delete();
       await db.userConfigurations.add(newPreset);
-      return newPreset;
     });
+    return newPreset;
   },
 
   /**
@@ -480,8 +475,8 @@ const StorageUtils = {
    * @param name The preset name to remove.
    */
   async removePreset(name: string) {
-    return await db.transaction('rw', db.userConfigurations, async () => {
-      return await db.userConfigurations.where('name').equals(name).delete();
+    return db.transaction('rw', db.userConfigurations, async () => {
+      return db.userConfigurations.where('name').equals(name).delete();
     });
   },
 };

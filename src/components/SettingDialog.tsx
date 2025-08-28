@@ -639,8 +639,10 @@ export default function SettingDialog({
                         <button
                           key={key}
                           className="btn"
-                          onClick={async () =>
-                            setLocalModels(await fetchModels(localConfig))
+                          onClick={() =>
+                            fetchModels(localConfig).then((models) =>
+                              setLocalModels(models)
+                            )
                           }
                         >
                           <ArrowPathIcon className={ICON_CLASSNAME} />

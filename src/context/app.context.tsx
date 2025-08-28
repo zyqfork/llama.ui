@@ -87,14 +87,14 @@ export const AppContextProvider = ({
 
   const savePreset = async (name: string, config: Configuration) => {
     if (isDev) console.debug('Save preset', { name, config });
-    StorageUtils.savePreset(name, config);
+    await StorageUtils.savePreset(name, config);
     setPresets(await StorageUtils.getPresets());
     toast.success('Preset is saved successfully');
   };
 
   const removePreset = async (name: string) => {
     if (isDev) console.debug('Remove preset', name);
-    StorageUtils.removePreset(name);
+    await StorageUtils.removePreset(name);
     setPresets(await StorageUtils.getPresets());
     toast.success('Preset is removed successfully');
   };
