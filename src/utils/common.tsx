@@ -99,6 +99,10 @@ export function BtnWithTooltips({
   );
 }
 
+export interface DropdownOption {
+  value: string;
+  label: string;
+}
 /**
  * A customizable dropdown component that supports filtering, selection, and custom rendering of options.
  *
@@ -114,33 +118,36 @@ export function BtnWithTooltips({
  * @param onFilter - A function that filters options based on the search term and option value.
  * @param onSelect - A callback function triggered when a new option is selected.
  */
-export function Dropdown<T extends { value: string; label: string }>({
+export function Dropdown<T extends DropdownOption>({
   className,
   entity,
   options,
   isSearchEnabled = false,
+  hideChevron = false,
   currentValue,
   renderOption,
   isSelected,
-  onFilter,
   onSelect,
 }: {
   className?: string;
   entity: string;
   options: T[];
   isSearchEnabled?: boolean;
+  hideChevron?: boolean;
   currentValue: ReactNode;
   renderOption: (option: T) => ReactNode;
   isSelected: (option: T) => boolean;
-  onFilter: (option: T, value: string) => boolean;
   onSelect: (option: T) => void;
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
   const [search, setSearch] = useState<string>('');
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
   const filteredOptions = useMemo(
-    () => options.filter((option) => onFilter(option, search.trim())),
-    [options, search, onFilter]
+    () =>
+      options.filter((option) =>
+        option.label.toLowerCase().includes(search.trim().toLowerCase())
+      ),
+    [options, search]
   );
 
   useEffect(() => {
@@ -184,17 +191,19 @@ export function Dropdown<T extends { value: string; label: string }>({
           className="grow dropdown dropdown-end dropdown-bottom"
         >
           <summary
-            className="grow truncate flex justify-between cursor-pointer"
+            className="grow truncate flex justify-between items-center cursor-pointer"
             title={entity}
             aria-label={`Choose ${entity}`}
             aria-haspopup="listbox"
           >
             {currentValue}
-            <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+            {!hideChevron && (
+              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+            )}
           </summary>
 
           {/* dropdown content */}
-          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-1 shadow-2xl">
+          <div className="dropdown-content bg-base-100 max-w-60 p-2 shadow-2xl">
             {isSearchEnabled && (
               <input
                 type="text"
@@ -210,7 +219,7 @@ export function Dropdown<T extends { value: string; label: string }>({
               <div className="p-2 text-sm">No options found</div>
             )}
             {filteredOptions.length > 0 && (
-              <ul className="max-h-80 overflow-y-auto">
+              <ul className="flex flex-col gap-1 max-h-80 overflow-y-auto">
                 {filteredOptions.map((option) => (
                   <li key={option.value}>
                     <button
