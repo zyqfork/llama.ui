@@ -189,16 +189,23 @@ export const INFERENCE_PROVIDERS: Readonly<InferenceProviders> = Object.freeze({
   },
   azure: {
     baseUrl: 'https://<your-resource-name>.openai.azure.com',
-    name: 'Azure',
+    name: 'Azure AI',
     icon: 'assets/providers/microsoft.svg',
     allowCustomBaseUrl: true,
     isKeyRequired: true,
   },
   aws: {
     baseUrl: 'https://<your-resource-name>.amazonaws.com/openai',
-    name: 'AWS',
+    name: 'AWS Bedrock',
     icon: 'assets/providers/aws.svg',
     allowCustomBaseUrl: true,
+    isKeyRequired: true,
+  },
+  nvidia: {
+    baseUrl: 'https://integrate.api.nvidia.com',
+    name: 'Nvidia',
+    icon: 'assets/providers/nvidia.svg',
+    allowCustomBaseUrl: false,
     isKeyRequired: true,
   },
   custom: {
