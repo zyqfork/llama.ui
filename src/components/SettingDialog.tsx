@@ -7,6 +7,7 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ChatBubbleLeftRightIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  ChevronDownIcon,
   CircleStackIcon,
   CloudArrowDownIcon,
   CloudArrowUpIcon,
@@ -91,6 +92,7 @@ interface SettingFieldDropdown {
   note?: string | TrustedHTML;
   key: ConfigurationKey;
   options: DropdownOption[];
+  isSearchEnabled: boolean;
 }
 
 interface SettingSection {
@@ -143,7 +145,8 @@ const toInput = (
 };
 const toDropdown = (
   key: ConfigurationKey,
-  options: DropdownOption[]
+  options: DropdownOption[],
+  isSearchEnabled: boolean = false
 ): SettingFieldDropdown => {
   return {
     type: SettingInputType.DROPDOWN,
@@ -151,6 +154,7 @@ const toDropdown = (
     label: lang.settings.parameters[key].label,
     note: lang.settings.parameters[key].note,
     options,
+    isSearchEnabled,
   };
 };
 
@@ -198,7 +202,8 @@ const getSettingTabsConfiguration = (
         models.map((m) => ({
           key: m.id,
           value: m.name,
-        }))
+        })),
+        true
       ),
       {
         type: SettingInputType.CUSTOM,
@@ -621,9 +626,12 @@ export default function SettingDialog({
                       key={key}
                       configKey={field.key}
                       field={field}
+                      options={(field as SettingFieldDropdown).options}
+                      isSearchEnabled={
+                        (field as SettingFieldDropdown).isSearchEnabled
+                      }
                       value={String(localConfig[field.key])}
                       onChange={onChange(field.key)}
-                      options={(field as SettingFieldDropdown).options}
                     />
                   );
                 case SettingInputType.CUSTOM:
@@ -779,12 +787,10 @@ const SettingsModalShortInput: React.FC<
         />
       </label>
       {field.note && (
-        <div className="block opacity-75 max-w-80">
-          <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
     </label>
   );
@@ -809,12 +815,10 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
         <span className="ml-2">{field.label || configKey}</span>
       </div>
       {field.note && (
-        <div className="block opacity-75 max-w-80">
-          <p
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80 mt-1"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
     </label>
   );
@@ -823,76 +827,122 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
 const SettingsModalDropdown: React.FC<{
   configKey: ConfigurationKey;
   field: SettingFieldInput;
-  onChange: (value: string) => void;
   options: DropdownOption[];
+  isSearchEnabled?: boolean;
   value: string;
-}> = ({ configKey, field, options, value, onChange }) => {
+  onChange: (value: string) => void;
+}> = ({
+  configKey,
+  field,
+  options,
+  isSearchEnabled = false,
+  value,
+  onChange,
+}) => {
+  const [search, setSearch] = useState('');
+
   const disabled = useMemo(() => options.length < 2, [options]);
-  const inputValue = useMemo(() => {
+  const selectedValue = useMemo(() => {
     const selectedOption = options.find((option) => option.key === value);
-    return selectedOption ? selectedOption.value : value;
+    return selectedOption ? selectedOption.value : '';
   }, [options, value]);
+  const filteredOptions = useMemo(
+    () =>
+      options.filter((option) =>
+        option.value.toLowerCase().includes(search.trim().toLowerCase())
+      ),
+    [options, search]
+  );
 
   useEffect(() => {
     if (options.length === 0 && value !== '') {
       onChange('');
-    } else if (options.length === 1 && value !== options[0].value) {
-      onChange(options[0].value);
+    } else if (options.length === 1 && value !== options[0].key) {
+      onChange(options[0].key);
     }
   }, [options, value, onChange]);
 
-  const datalistId = `settings-modal-dropdown-datalist-${configKey}`;
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedOption = options.find(
-      (option) => option.value === e.target.value
-    );
-    onChange(selectedOption ? selectedOption.key : '');
-  };
-
   return (
-    <label className="form-control flex flex-col justify-center mb-3">
-      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-        {field.label || configKey}
-      </div>
+    <div className="form-control flex flex-col justify-center mb-3">
+      <div className="font-bold mb-1 md:hidden">{field.label || configKey}</div>
       <label
         className={classNames({
           'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
           'bg-base-200': disabled,
         })}
       >
-        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+        <div className="font-bold hidden md:block">
           {field.label || configKey}
         </div>
 
-        <input
-          type="search"
-          className="grow max-w-60 truncate"
-          list={datalistId}
-          value={inputValue}
-          onChange={handleChange}
-          placeholder={`Choose a ${configKey}`}
-          disabled={disabled}
-        />
-        <datalist id={datalistId} className="">
-          {options.map((p) => (
-            <option
-              className="bg-base-100 text-base-content"
-              key={p.key}
-              value={p.value}
-            />
-          ))}
-        </datalist>
+        <div className="grow flex dropdown dropdown-end dropdown-bottom">
+          <button
+            tabIndex={0}
+            className="grow flex justify-between cursor-pointer"
+            title={configKey}
+            aria-label={`Choose ${configKey}`}
+            disabled={disabled}
+          >
+            {selectedValue}
+            {!disabled && <ChevronDownIcon className="inline h-5 w-5 ml-1" />}
+          </button>
+
+          <div className="dropdown-content bg-base-100 z-[1] max-w-60 p-2 shadow-2xl">
+            {isSearchEnabled && (
+              <input
+                type="text"
+                placeholder={`Search ${configKey}s...`}
+                className="input w-full p-2 mb-2"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+              />
+            )}
+
+            {filteredOptions.length === 0 && (
+              <div className="p-2 text-sm">No options found</div>
+            )}
+            {filteredOptions.length > 0 && (
+              <ul className="max-h-80 overflow-y-auto">
+                {options
+                  .filter((option) =>
+                    option.value
+                      .toLowerCase()
+                      .includes(search.trim().toLowerCase())
+                  )
+                  .map((option) => (
+                    <li key={option.key}>
+                      <button
+                        className={classNames({
+                          'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                          'btn-active': value === option.key,
+                        })}
+                        onClick={() => onChange(option.key)}
+                        aria-label={`${option.value}${value === option.key ? ' (selected)' : ''}`}
+                      >
+                        {option.icon && (
+                          <img
+                            src={option.icon}
+                            className="inline h-5 w-5 mr-1"
+                          />
+                        )}
+                        {option.value}
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </label>
 
       {field.note && (
-        <div className="block opacity-75 max-w-80">
-          <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{ __html: field.note }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
       )}
-    </label>
+    </div>
   );
 };
 
@@ -975,14 +1025,12 @@ const PresetManager: FC<{
       </SettingsSectionLabel>
 
       {presets.length === 0 && (
-        <div className="block opacity-75 max-w-80">
-          <div
-            className="text-xs"
-            dangerouslySetInnerHTML={{
-              __html: lang.settings.presetManager.savedPresets.noPresetFound,
-            }}
-          />
-        </div>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{
+            __html: lang.settings.presetManager.savedPresets.noPresetFound,
+          }}
+        />
       )}
 
       {presets.length > 0 && (
