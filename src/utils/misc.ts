@@ -75,7 +75,7 @@ export const cleanCurrentUrl = (removeQueryParams: string[]) => {
  */
 export function normalizeUrl(path: string, base: string) {
   const cleanBase = base.replace(/\/+$/, '');
-  const cleanPath = '/' + path.replace(/^\/+|\/+$/g, '').replace(/^$/, '');
+  const cleanPath = '/' + path.replace(/^\/+|\/+$/g, '');
   return cleanBase + (cleanPath === '/' ? '' : cleanPath);
 }
 
