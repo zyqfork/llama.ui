@@ -43,6 +43,7 @@ interface MessageContextValue {
     extra: MessageExtra[] | undefined,
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
+  branchMessage: (msg: Message) => Promise<void>;
 }
 
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
@@ -56,6 +57,7 @@ const MessageContext = createContext<MessageContextValue>({
   stopGenerating: () => {},
   replaceMessage: async () => {},
   replaceMessageAndGenerate: async () => {},
+  branchMessage: async () => {},
   canvasData: null,
   setCanvasData: () => {},
 });
@@ -373,6 +375,18 @@ export const MessageContextProvider = ({
     await generateMessage(convId, parentNodeId, onChunk);
   };
 
+  const branchMessage = async (msg: Message) => {
+    if (isGenerating(msg.convId)) return;
+
+    try {
+      const conv = await StorageUtils.branchConversation(msg.convId, msg.id);
+      navigate(`/chat/${conv.id}`);
+    } catch (error) {
+      console.error('Conversation branch failed:', error);
+      toast.error('Failed to branch conversation.');
+    }
+  };
+
   return (
     <MessageContext.Provider
       value={{
@@ -383,6 +397,7 @@ export const MessageContextProvider = ({
         stopGenerating,
         replaceMessage,
         replaceMessageAndGenerate,
+        branchMessage,
         canvasData,
         setCanvasData,
       }}
