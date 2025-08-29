@@ -25,26 +25,27 @@ export default function Header() {
         <Bars3Icon className="h-5 w-5" />
       </label>
 
-      {/* model information*/}
-      <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <FilterableDropdown
-          className="max-w-56 truncate"
-          entity="Model"
-          options={models.map((model) => ({
-            value: model.id,
-            label: model.name,
-          }))}
-          currentValue={<strong>{selectedModel}</strong>}
-          renderOption={(option: DropdownOption) => <span>{option.label}</span>}
-          isSelected={(option: DropdownOption) => config.model === option.value}
-          onSelect={(option: DropdownOption) =>
-            saveConfig({
-              ...config,
-              model: option.value,
-            })
-          }
-        />
-      </div>
+      {/* model information */}
+      <FilterableDropdown
+        className="max-w-56 text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0"
+        entity="Model"
+        options={models.map((model) => ({
+          value: model.id,
+          label: model.name,
+        }))}
+        currentValue={<strong>{selectedModel}</strong>}
+        renderOption={(option: DropdownOption) => <span>{option.label}</span>}
+        isSelected={(option: DropdownOption) => config.model === option.value}
+        onSelect={(option: DropdownOption) =>
+          saveConfig({
+            ...config,
+            model: option.value,
+          })
+        }
+      />
+
+      {/* spacer */}
+      <div className="grow"></div>
 
       {/* action buttons (top right) */}
       <div className="flex items-center">

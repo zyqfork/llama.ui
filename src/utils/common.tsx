@@ -168,7 +168,7 @@ export function FilterableDropdown<T extends DropdownOption>({
   }
 
   return (
-    <div className={`${className ?? ''} flex`}>
+    <div className={className ? `${className} flex` : 'flex'}>
       {/* disabled dropdown */}
       {isDisabled && (
         <div
