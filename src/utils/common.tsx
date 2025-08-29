@@ -213,7 +213,7 @@ export function FilterableDropdown<T extends DropdownOption>({
               <div className="p-2 text-sm">No options found</div>
             )}
             {filteredOptions.length > 0 && (
-              <ul className="flex flex-col gap-1 max-h-80 overflow-y-auto">
+              <ul className="flex flex-col gap-1 max-h-72 overflow-y-auto">
                 {filteredOptions.map((option) => (
                   <li key={option.value}>
                     <button
