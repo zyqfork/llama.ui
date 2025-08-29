@@ -1,13 +1,19 @@
 import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
+import { useMemo } from 'react';
 import { THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
-import { classNames } from '../utils/misc';
+import { FilterableDropdown, DropdownOption, Dropdown } from '../utils/common';
 
 export default function Header() {
   const { config, setShowSettings, saveConfig, currentTheme, switchTheme } =
     useAppContext();
   const { models } = useInferenceContext();
+
+  const selectedModel = useMemo(() => {
+    const selectedModel = models.find((model) => model.id === config.model);
+    return selectedModel ? selectedModel.name : '';
+  }, [models, config.model]);
 
   return (
     <header className="flex flex-row items-center xl:py-2 sticky top-0 z-10">
@@ -19,34 +25,27 @@ export default function Header() {
         <Bars3Icon className="h-5 w-5" />
       </label>
 
-      {/* model information*/}
-      <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <strong>
-          {models.length === 1 && <>{config.model}</>}
-          {models.length > 1 && (
-            <select
-              className="max-w-56 truncate"
-              value={config.model}
-              onChange={(e) =>
-                saveConfig({
-                  ...config,
-                  model: e.target.value,
-                })
-              }
-            >
-              {models.map((m) => (
-                <option
-                  key={m.id}
-                  value={m.id}
-                  className="bg-base-300 text-base-content"
-                >
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </strong>
-      </div>
+      {/* model information */}
+      <FilterableDropdown
+        className="max-w-56 text-nowrap ml-2 px-1 sm:px-4 py-0"
+        entity="Model"
+        options={models.map((model) => ({
+          value: model.id,
+          label: model.name,
+        }))}
+        currentValue={<strong>{selectedModel}</strong>}
+        renderOption={(option: DropdownOption) => <span>{option.label}</span>}
+        isSelected={(option: DropdownOption) => config.model === option.value}
+        onSelect={(option: DropdownOption) =>
+          saveConfig({
+            ...config,
+            model: option.value,
+          })
+        }
+      />
+
+      {/* spacer */}
+      <div className="grow"></div>
 
       {/* action buttons (top right) */}
       <div className="flex items-center">
@@ -61,61 +60,40 @@ export default function Header() {
         </button>
 
         {/* theme controller is copied from https://daisyui.com/components/theme-controller/ */}
-        <div className="dropdown dropdown-end dropdown-bottom">
-          <button
-            tabIndex={0}
-            className="btn btn-ghost m-1 w-8 h-8 p-0 rounded-full"
-            title="Themes"
-            aria-label="Open theme menu"
-          >
-            <div className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm">
-              <div className="bg-base-content size-1 rounded-full"></div>{' '}
-              <div className="bg-primary size-1 rounded-full"></div>{' '}
-              <div className="bg-secondary size-1 rounded-full"></div>{' '}
-              <div className="bg-accent size-1 rounded-full"></div>
+        <Dropdown
+          entity="Theme"
+          options={['auto', ...THEMES].map((theme) => ({
+            value: theme,
+            label: theme,
+          }))}
+          hideChevron={true}
+          currentValue={
+            <div className="btn btn-ghost m-1 w-8 h-8 p-0 rounded-full">
+              <div className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm">
+                <div className="bg-base-content size-1 rounded-full"></div>{' '}
+                <div className="bg-primary size-1 rounded-full"></div>{' '}
+                <div className="bg-secondary size-1 rounded-full"></div>{' '}
+                <div className="bg-accent size-1 rounded-full"></div>
+              </div>
             </div>
-          </button>
-          <ul
-            tabIndex={0}
-            className="dropdown-content bg-base-100 rounded-box z-[1] w-50 p-2 shadow-2xl h-80 text-sm overflow-y-auto"
-          >
-            <li>
-              <button
-                className={classNames({
-                  'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                  'btn-active': currentTheme === 'auto',
-                })}
-                onClick={() => switchTheme('auto')}
+          }
+          renderOption={(option: DropdownOption) => (
+            <>
+              <div
+                data-theme={option.value}
+                className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
               >
-                <div className="w-32 ml-6 pl-1 truncate text-left">auto</div>
-              </button>
-            </li>
-            {THEMES.map((theme) => (
-              <li key={theme}>
-                <button
-                  className={classNames({
-                    'flex gap-3 p-2 btn btn-sm btn-ghost': true,
-                    'btn-active': currentTheme === theme,
-                  })}
-                  data-set-theme={theme}
-                  data-act-class="[&amp;_svg]:visible"
-                  onClick={() => switchTheme(theme)}
-                >
-                  <div
-                    data-theme={theme}
-                    className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
-                  >
-                    <div className="bg-base-content size-1 rounded-full"></div>{' '}
-                    <div className="bg-primary size-1 rounded-full"></div>{' '}
-                    <div className="bg-secondary size-1 rounded-full"></div>{' '}
-                    <div className="bg-accent size-1 rounded-full"></div>
-                  </div>
-                  <div className="w-32 truncate text-left">{theme}</div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+                <div className="bg-base-content size-1 rounded-full"></div>{' '}
+                <div className="bg-primary size-1 rounded-full"></div>{' '}
+                <div className="bg-secondary size-1 rounded-full"></div>{' '}
+                <div className="bg-accent size-1 rounded-full"></div>
+              </div>
+              <div className="w-32 truncate text-left">{option.label}</div>
+            </>
+          )}
+          isSelected={(option: DropdownOption) => currentTheme === option.value}
+          onSelect={(option) => switchTheme(option.value)}
+        />
       </div>
     </header>
   );
