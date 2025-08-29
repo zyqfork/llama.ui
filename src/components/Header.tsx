@@ -27,7 +27,7 @@ export default function Header() {
 
       {/* model information */}
       <FilterableDropdown
-        className="max-w-56 text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0"
+        className="max-w-56 text-nowrap ml-2 px-1 sm:px-4 py-0"
         entity="Model"
         options={models.map((model) => ({
           value: model.id,
