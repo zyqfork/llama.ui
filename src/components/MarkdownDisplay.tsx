@@ -1,5 +1,4 @@
 import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
-import { ElementContent, Root } from 'hast';
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
 import React, { useMemo, useState } from 'react';
@@ -9,7 +8,6 @@ import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { visit } from 'unist-util-visit';
 import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
 import { classNames, copyStr } from '../utils/misc';
@@ -29,14 +27,10 @@ export default function MarkdownDisplay({
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-      rehypePlugins={[
-        [rehypeHighlight, { languages }],
-        rehypeKatex,
-        rehypeCustomCopyButton,
-      ]}
+      rehypePlugins={[[rehypeHighlight, { languages }], rehypeKatex]}
       components={{
-        button: (props) => (
-          <CodeBlockButtons
+        pre: (props) => (
+          <CustomPre
             {...props}
             isGenerating={isGenerating}
             origContent={preprocessedContent}
@@ -50,11 +44,11 @@ export default function MarkdownDisplay({
   );
 }
 
-const CodeBlockButtons: React.ElementType<
-  React.ClassAttributes<HTMLButtonElement> &
-    React.HTMLAttributes<HTMLButtonElement> &
+const CustomPre: React.ElementType<
+  React.ClassAttributes<HTMLPreElement> &
+    React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
-> = ({ node, origContent, isGenerating }) => {
+> = ({ children, node, origContent, isGenerating }) => {
   const { config } = useAppContext();
   const startOffset = node?.position?.start.offset ?? 0;
   const endOffset = node?.position?.end.offset ?? 0;
@@ -71,33 +65,46 @@ const CodeBlockButtons: React.ElementType<
   const codeLanguage = useMemo(
     () =>
       origContent
-        .substring(startOffset, startOffset + 10)
+        .substring(startOffset, endOffset)
         .match(/^```([^\n]+)\n/)?.[1] ?? '',
-    [origContent, startOffset]
+    [origContent, startOffset, endOffset]
   );
 
   const canRunCode =
     !isGenerating &&
     config.pyIntepreterEnabled &&
-    codeLanguage.startsWith('py');
+    codeLanguage.toLowerCase() === 'python';
 
   return (
-    <div
-      className={classNames({
-        'text-right sticky h-0 mr-1': true,
-        'display-none': !node?.position,
-      })}
-    >
-      {canRunCode && (
-        <RunCodeButton
+    <div>
+      <div
+        className={classNames({
+          'sticky h-0 z-[1] text-right mr-1': true,
+          'display-none': !node?.position,
+        })}
+        aria-label="Button block"
+      >
+        {canRunCode && (
+          <RunCodeButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            content={copiedContent}
+          />
+        )}
+        <CopyButton
           className="btn btn-ghost w-8 h-8 p-0"
           content={copiedContent}
         />
-      )}
-      <CopyButton
-        className="btn btn-ghost w-8 h-8 p-0"
-        content={copiedContent}
-      />
+      </div>
+
+      <pre {...node?.properties}>
+        {codeLanguage && (
+          <div className="text-sm opacity-75 ml-2" aria-label="Code language">
+            {codeLanguage}
+          </div>
+        )}
+
+        {children}
+      </pre>
     </div>
   );
 };
@@ -152,34 +159,6 @@ export const RunCodeButton = ({
     </>
   );
 };
-
-/**
- * This injects the "button" element before each "pre" element.
- * The actual button will be replaced with a react component in the MarkdownDisplay.
- * We don't replace "pre" node directly because it will cause the node to re-render, which causes this bug: https://github.com/ggerganov/llama.cpp/issues/9608
- */
-function rehypeCustomCopyButton() {
-  return function (tree: Root) {
-    visit(tree, 'element', function (node) {
-      if (node.tagName === 'pre' && !node.properties.visited) {
-        const preNode = { ...node };
-        // replace current node
-        preNode.properties.visited = 'true';
-        node.tagName = 'div';
-        node.properties = {};
-        // add node for button
-        const btnNode: ElementContent = {
-          type: 'element',
-          tagName: 'button',
-          properties: {},
-          children: [],
-          position: node.position,
-        };
-        node.children = [btnNode, preNode];
-      }
-    });
-  };
-}
 
 /**
  * The part below is copied and adapted from:
