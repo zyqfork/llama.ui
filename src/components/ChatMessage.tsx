@@ -6,6 +6,7 @@ import {
   ExclamationCircleIcon,
   PaperClipIcon,
   PencilSquareIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
@@ -263,6 +264,12 @@ export default function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             content={msg.content}
           />
+          {!isPending && (
+            <BranchButton
+              className="btn btn-ghost w-8 h-8 p-0"
+              msg={msg as Message}
+            />
+          )}
         </div>
       )}
     </div>
@@ -401,3 +408,24 @@ function ThoughtProcess({
     </div>
   );
 }
+
+const BranchButton = ({
+  className,
+  msg,
+}: {
+  className?: string;
+  msg: Message;
+}) => {
+  const { branchMessage } = useMessageContext();
+  return (
+    <button
+      className={className}
+      onClick={async () => await branchMessage(msg)}
+      disabled={!msg.content}
+      title="Branch chat after this message"
+      aria-label="Branch chat after this message"
+    >
+      <ShareIcon className="h-4 w-4 rotate-299" />
+    </button>
+  );
+};

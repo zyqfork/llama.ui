@@ -186,6 +186,71 @@ const StorageUtils = {
   },
 
   /**
+   * Creates a new conversation by branching from an existing message.
+   * @param convId The ID of the conversation to branch.
+   * @param msgId The ID of the message to branch from.
+   * @returns A promise resolving to the newly created Conversation object.
+   */
+  async branchConversation(
+    convId: Conversation['id'],
+    msgId: Message['id']
+  ): Promise<Conversation> {
+    // Get the source conversation
+    const conv = await this.getOneConversation(convId);
+    if (!conv) {
+      throw new Error(`Branch conversation is not found`);
+    }
+
+    // Get the path from root to the fork message
+    const convMsgs = await this.getMessages(convId);
+    if (!convMsgs.some((msg) => msg.id === msgId)) {
+      throw new Error(`Branch message is not found in conversation`);
+    }
+    const currNodes = this.filterByLeafNodeId(convMsgs, msgId, true);
+
+    // Create mapping from old message IDs to new message IDs
+    const msgIdMap = new Map<Message['id'], Message['id']>();
+    const now = Date.now();
+    let currentId = now;
+    for (const msg of currNodes) {
+      msgIdMap.set(msg.id, currentId++);
+    }
+
+    // Create new conversation with fork source information
+    const branchConvId = `conv-${now}`;
+    const branchConv: Conversation = {
+      id: branchConvId,
+      lastModified: now,
+      currNode: msgIdMap.get(msgId)!,
+      name: `${conv.name} - Branched`,
+    };
+
+    await db.transaction('rw', db.conversations, db.messages, async () => {
+      // Add the new conversation
+      await db.conversations.add(branchConv);
+
+      // Copy all messages from the path to the new conversation with new IDs
+      for (const msg of currNodes) {
+        const newParentId = msg.parent === -1 ? -1 : msgIdMap.get(msg.parent)!;
+        const newChildren = msg.children
+          .map((childId) => msgIdMap.get(childId))
+          .filter((id): id is number => id !== undefined);
+
+        await db.messages.add({
+          ...msg,
+          id: msgIdMap.get(msg.id)!,
+          convId: branchConvId,
+          parent: newParentId,
+          children: newChildren,
+        });
+      }
+    });
+
+    dispatchConversationChange(branchConvId);
+    return branchConv;
+  },
+
+  /**
    * Updates the name and lastModified timestamp of an existing conversation.
    * @param convId The ID of the conversation to update.
    * @param name The new name for the conversation.
