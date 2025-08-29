@@ -179,11 +179,20 @@ export const MessageContextProvider = ({
         abortController.signal
       );
       for await (const chunk of chunks) {
-        // const stop = chunk.stop;
         if (chunk.error) {
           throw new Error(chunk.error?.message || 'Unknown error');
         }
-        const addedContent = chunk.choices[0].delta.content;
+        if (!chunk.choices || !Array.isArray(chunk.choices)) {
+          console.warn('Invalid chunk format received:', chunk);
+          continue;
+        }
+        if (chunk.choices.length === 0) {
+          console.warn('Empty choices array in chunk:', chunk);
+          continue;
+        }
+
+        const choice = chunk.choices[0];
+        const addedContent = choice.delta.content;
         if (addedContent) {
           const lastContent = pendingMsg.content || '';
           pendingMsg = {
@@ -192,8 +201,7 @@ export const MessageContextProvider = ({
           };
         }
         const reasoningContent =
-          chunk.choices[0].delta.reasoning_content ||
-          chunk.choices[0].delta.reasoning;
+          choice.delta.reasoning_content || choice.delta.reasoning;
         if (reasoningContent) {
           const lastContent = pendingMsg.reasoning_content || '';
           pendingMsg = {
