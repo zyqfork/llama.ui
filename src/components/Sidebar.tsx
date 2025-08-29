@@ -224,6 +224,7 @@ function ConversationItem({
         key={conv.id}
         className="w-full overflow-hidden truncate text-start"
         onClick={onSelect}
+        title={conv.name}
         dir="auto"
         type="button"
         aria-label={`Select conversation: ${conv.name}`}
