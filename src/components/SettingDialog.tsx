@@ -22,7 +22,7 @@ import {
   TvIcon,
 } from '@heroicons/react/24/outline';
 import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
-import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
@@ -33,7 +33,13 @@ import {
   OpenInNewTab,
 } from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
-import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
+import {
+  classNames,
+  isBoolean,
+  isNumeric,
+  isString,
+  normalizeUrl,
+} from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
   Configuration,
@@ -845,7 +851,12 @@ const SettingsModalDropdown: React.FC<{
 }) => {
   const renderOption = (option: DropdownOption) => (
     <span>
-      {option.icon && <img src={option.icon} className="inline h-5 w-5 mr-2" />}
+      {option.icon && (
+        <img
+          src={normalizeUrl(option.icon, import.meta.env.BASE_URL)}
+          className="inline h-5 w-5 mr-2"
+        />
+      )}
       {option.label}
     </span>
   );
@@ -1074,7 +1085,9 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
   const debugImportDemoConv = async () => {
     try {
-      const res = await fetch(`${baseUrl}/demo-conversation.json`);
+      const res = await fetch(
+        normalizeUrl('/demo-conversation.json', import.meta.env.BASE_URL)
+      );
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const demoConv = await res.json();
       StorageUtils.importDB(demoConv);

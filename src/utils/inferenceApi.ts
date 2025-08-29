@@ -6,7 +6,7 @@ import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
 
 import { isDev } from '../config';
 import { Configuration, Message } from './types';
-import { splitMessageContent } from './misc';
+import { normalizeUrl, splitMessageContent } from './misc';
 
 // --- Type Definitions ---
 
@@ -212,24 +212,6 @@ async function* getSSEStreamAsync(fetchResponse: Response) {
       throw new Error(data.message || 'Unknown error');
     }
   }
-}
-
-/**
- * Normalizes a URL by combining a base URL with a path, ensuring proper slash handling.
- *
- * This function removes trailing slashes from the base URL, ensures the path starts with
- * a single slash, and removes any trailing slashes from the final path component.
- *
- * @param {string} path - The path to append (e.g., '/v1/models' or 'v1/models')
- * @param {string} base - The base URL (e.g., 'https://api.example.com' or 'https://api.example.com/')
- * @returns {string} The normalized URL with proper slash formatting
- *
- * @throws {TypeError} If baseUrl is not a string
- */
-function normalizeUrl(path: string, base: string) {
-  const cleanBase = base.replace(/\/+$/, '');
-  const cleanPath = '/' + path.replace(/^\/+|\/+$/g, '').replace(/^$/, '');
-  return cleanBase + (cleanPath === '/' ? '' : cleanPath);
 }
 
 const noResponse = new Response(null, { status: 444 });
