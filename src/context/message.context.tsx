@@ -191,8 +191,8 @@ export const MessageContextProvider = ({
           continue;
         }
 
-        const chunkChoice = chunk.choices[0];
-        const addedContent = chunkChoice.delta.content;
+        const choice = chunk.choices[0];
+        const addedContent = choice.delta.content;
         if (addedContent) {
           const lastContent = pendingMsg.content || '';
           pendingMsg = {
@@ -201,7 +201,7 @@ export const MessageContextProvider = ({
           };
         }
         const reasoningContent =
-          chunkChoice.delta.reasoning_content || chunkChoice.delta.reasoning;
+          choice.delta.reasoning_content || choice.delta.reasoning;
         if (reasoningContent) {
           const lastContent = pendingMsg.reasoning_content || '';
           pendingMsg = {
