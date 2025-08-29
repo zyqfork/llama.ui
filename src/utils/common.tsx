@@ -104,25 +104,23 @@ export interface DropdownOption {
   label: string;
 }
 /**
- * A customizable dropdown component that supports filtering, selection, and custom rendering of options.
+ * A customizable dropdown component that supports filtering and custom rendering of options.
  *
  * @template T - The type of option items. Must be an object with 'value' and 'label' properties.
  *
  * @param className - Optional CSS class names to apply to the dropdown container.
  * @param entity - The name of the entity the dropdown represents (used for labeling and accessibility).
  * @param options - An array of available options to display in the dropdown.
- * @param [isSearchEnabled=false] - Whether to enable search functionality within the dropdown.
  * @param currentValue - The JSX representation of the currently selected value to display in the dropdown trigger.
  * @param renderOption - A function that takes an option and returns a JSX element to render for that option.
  * @param isSelected - A function that takes a value and returns whether it is currently selected.
  * @param onFilter - A function that filters options based on the search term and option value.
  * @param onSelect - A callback function triggered when a new option is selected.
  */
-export function Dropdown<T extends DropdownOption>({
+export function FilterableDropdown<T extends DropdownOption>({
   className,
   entity,
   options,
-  isSearchEnabled = false,
   hideChevron = false,
   currentValue,
   renderOption,
@@ -132,7 +130,6 @@ export function Dropdown<T extends DropdownOption>({
   className?: string;
   entity: string;
   options: T[];
-  isSearchEnabled?: boolean;
   hideChevron?: boolean;
   currentValue: ReactNode;
   renderOption: (option: T) => ReactNode;
@@ -140,15 +137,14 @@ export function Dropdown<T extends DropdownOption>({
   onSelect: (option: T) => void;
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
-  const [search, setSearch] = useState<string>('');
+  const [filter, setFilter] = useState<string>('');
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
-  const filteredOptions = useMemo(
-    () =>
-      options.filter((option) =>
-        option.label.toLowerCase().includes(search.trim().toLowerCase())
-      ),
-    [options, search]
-  );
+  const filteredOptions = useMemo(() => {
+    if (filter.trim() === '') return options;
+    return options.filter((option) =>
+      option.label.toLowerCase().includes(filter.trim().toLowerCase())
+    );
+  }, [options, filter]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -203,17 +199,15 @@ export function Dropdown<T extends DropdownOption>({
           </summary>
 
           {/* dropdown content */}
-          <div className="dropdown-content bg-base-100 max-w-60 p-2 shadow-2xl">
-            {isSearchEnabled && (
-              <input
-                type="text"
-                placeholder={`Search ${entity}s...`}
-                className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                autoFocus
-              />
-            )}
+          <div className="dropdown-content rounded-box bg-base-100 max-w-60 p-2 shadow-2xl">
+            <input
+              type="text"
+              placeholder={`Search ${entity}s...`}
+              className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              autoFocus
+            />
 
             {filteredOptions.length === 0 && (
               <div className="p-2 text-sm">No options found</div>
@@ -241,6 +235,120 @@ export function Dropdown<T extends DropdownOption>({
               </ul>
             )}
           </div>
+        </details>
+      )}
+    </div>
+  );
+}
+/**
+ * A customizable dropdown component that supports custom rendering of options.
+ *
+ * @template T - The type of option items. Must be an object with 'value' and 'label' properties.
+ *
+ * @param className - Optional CSS class names to apply to the dropdown container.
+ * @param entity - The name of the entity the dropdown represents (used for labeling and accessibility).
+ * @param options - An array of available options to display in the dropdown.
+ * @param currentValue - The JSX representation of the currently selected value to display in the dropdown trigger.
+ * @param renderOption - A function that takes an option and returns a JSX element to render for that option.
+ * @param isSelected - A function that takes a value and returns whether it is currently selected.
+ * @param onFilter - A function that filters options based on the search term and option value.
+ * @param onSelect - A callback function triggered when a new option is selected.
+ */
+export function Dropdown<T extends DropdownOption>({
+  className,
+  entity,
+  options,
+  hideChevron = false,
+  currentValue,
+  renderOption,
+  isSelected,
+  onSelect,
+}: {
+  className?: string;
+  entity: string;
+  options: T[];
+  hideChevron?: boolean;
+  currentValue: ReactNode;
+  renderOption: (option: T) => ReactNode;
+  isSelected: (option: T) => boolean;
+  onSelect: (option: T) => void;
+}) {
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+  const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = dropdownRef.current;
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        dropdown.removeAttribute('open');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (option: T) => () => {
+    onSelect(option);
+    dropdownRef.current?.removeAttribute('open');
+  };
+
+  if (!Array.isArray(options)) {
+    if (isDev) console.warn(`${entity} options must be an array`);
+    return null;
+  }
+
+  return (
+    <div className={`${className ?? ''} flex`}>
+      {/* disabled dropdown */}
+      {isDisabled && (
+        <div
+          className="grow truncate"
+          title={entity}
+          aria-label={`Choose ${entity}`}
+        >
+          {currentValue}
+        </div>
+      )}
+
+      {/* dropdown */}
+      {!isDisabled && (
+        <details
+          ref={dropdownRef}
+          className="grow dropdown dropdown-end dropdown-bottom"
+        >
+          <summary
+            className="grow truncate flex justify-between items-center cursor-pointer"
+            title={entity}
+            aria-label={`Choose ${entity}`}
+            aria-haspopup="listbox"
+          >
+            {currentValue}
+            {!hideChevron && (
+              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+            )}
+          </summary>
+
+          {/* dropdown content */}
+          <ul className="dropdown-content rounded-box bg-base-100 max-w-60 max-h-80 p-2 shadow-2xl flex flex-col gap-1 overflow-y-auto">
+            {options.map((option) => (
+              <li key={option.value}>
+                <button
+                  className={classNames({
+                    'btn btn-sm btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                    'btn-active': isSelected(option),
+                  })}
+                  onClick={handleSelect(option)}
+                  aria-label={
+                    isSelected(option)
+                      ? `${option.label} selected`
+                      : `${option.label} option`
+                  }
+                >
+                  {renderOption(option)}
+                </button>
+              </li>
+            ))}
+          </ul>
         </details>
       )}
     </div>

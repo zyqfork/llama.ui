@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
-import { Dropdown, DropdownOption } from '../utils/common';
+import { FilterableDropdown, DropdownOption, Dropdown } from '../utils/common';
 
 export default function Header() {
   const { config, setShowSettings, saveConfig, currentTheme, switchTheme } =
@@ -27,14 +27,13 @@ export default function Header() {
 
       {/* model information*/}
       <div className="grow text-nowrap overflow-hidden truncate ml-2 px-1 sm:px-4 py-0">
-        <Dropdown
+        <FilterableDropdown
           className="max-w-56 truncate"
           entity="Model"
           options={models.map((model) => ({
             value: model.id,
             label: model.name,
           }))}
-          isSearchEnabled={true}
           currentValue={<strong>{selectedModel}</strong>}
           renderOption={(option: DropdownOption) => <span>{option.label}</span>}
           isSelected={(option: DropdownOption) => config.model === option.value}

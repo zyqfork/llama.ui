@@ -26,7 +26,12 @@ import { baseUrl, CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
-import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
+import {
+  dateFormatter,
+  Dropdown,
+  FilterableDropdown,
+  OpenInNewTab,
+} from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
 import { classNames, isBoolean, isNumeric, isString } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -873,16 +878,29 @@ const SettingsModalDropdown: React.FC<{
           {field.label || configKey}
         </div>
 
-        <Dropdown
-          className="grow"
-          entity={configKey}
-          options={options}
-          isSearchEnabled={isSearchEnabled}
-          currentValue={selectedValue}
-          renderOption={renderOption}
-          isSelected={(option) => value === option.value}
-          onSelect={(option) => onChange(option.value)}
-        />
+        {isSearchEnabled && (
+          <FilterableDropdown
+            className="grow"
+            entity={configKey}
+            options={options}
+            currentValue={selectedValue}
+            renderOption={renderOption}
+            isSelected={(option) => value === option.value}
+            onSelect={(option) => onChange(option.value)}
+          />
+        )}
+
+        {!isSearchEnabled && (
+          <Dropdown
+            className="grow"
+            entity={configKey}
+            options={options}
+            currentValue={selectedValue}
+            renderOption={renderOption}
+            isSelected={(option) => value === option.value}
+            onSelect={(option) => onChange(option.value)}
+          />
+        )}
       </label>
 
       {field.note && (
