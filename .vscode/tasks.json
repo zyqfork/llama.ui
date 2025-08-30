@@ -11,7 +11,6 @@
         "kind": "build",
         "isDefault": true
       },
-      "dependsOn": ["npm: format"],
       "isBackground": true,
       "problemMatcher": ["$eslint-stylish"]
     },
@@ -22,7 +21,6 @@
       "command": "npm",
       "args": ["run", "build", "--", "--base", "/llama.ui"],
       "group": "build",
-      "dependsOn": ["npm: format"],
       "problemMatcher": ["$eslint-stylish"]
     },
     {
