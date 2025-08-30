@@ -187,7 +187,7 @@ export function FilterableDropdown<T extends DropdownOption>({
           className="grow dropdown dropdown-end dropdown-bottom"
         >
           <summary
-            className="grow truncate flex justify-between items-center cursor-pointer"
+            className="grow flex justify-between items-center cursor-pointer"
             title={entity}
             aria-label={`Choose ${entity}`}
             aria-haspopup="listbox"

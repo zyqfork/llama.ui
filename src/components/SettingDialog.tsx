@@ -864,7 +864,13 @@ const SettingsModalDropdown: React.FC<{
   const disabled = useMemo(() => options.length < 2, [options]);
   const selectedValue = useMemo(() => {
     const selectedOption = options.find((option) => option.value === value);
-    return selectedOption ? selectedOption.label : '';
+    return selectedOption ? (
+      <span className="max-w-48 truncate text-nowrap">
+        {selectedOption.label}
+      </span>
+    ) : (
+      ''
+    );
   }, [options, value]);
 
   useEffect(() => {
