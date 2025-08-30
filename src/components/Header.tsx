@@ -27,13 +27,17 @@ export default function Header() {
 
       {/* model information */}
       <FilterableDropdown
-        className="max-w-56 text-nowrap ml-2 px-1 sm:px-4 py-0"
+        className="ml-2 px-1 sm:px-4 py-0"
         entity="Model"
         options={models.map((model) => ({
           value: model.id,
           label: model.name,
         }))}
-        currentValue={<strong>{selectedModel}</strong>}
+        currentValue={
+          <span className="max-w-56 sm:max-w-80 truncate text-nowrap font-semibold">
+            {selectedModel}
+          </span>
+        }
         renderOption={(option: DropdownOption) => <span>{option.label}</span>}
         isSelected={(option: DropdownOption) => config.model === option.value}
         onSelect={(option: DropdownOption) =>
