@@ -2,7 +2,7 @@
 #  Stage 1 – Build the React application
 # ------------------------------------------------------------------
 # Use the official Node image (alpine for a small footprint)
-FROM node:18-alpine AS build
+FROM node:lts-alpine AS build
 
 # Create /app directory in the container
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN npm ci --silent
 COPY . .
 
 # Build the React app – creates ./build directory
-RUN npm run build
+RUN npm run build:prod
 
 # ------------------------------------------------------------------
 # Stage 2 – Serve the build with nginx

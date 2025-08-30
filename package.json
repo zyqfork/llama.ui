@@ -7,8 +7,10 @@
     "prestart": "npm run format",
     "start": "vite",
     "build": "npm run format && tsc -b && vite build",
+    "build:prod": "tsc -b && vite build",
     "format": "eslint . && prettier --write .",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "preview": "npm run build && vite preview"
   },
   "dependencies": {
