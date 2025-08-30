@@ -347,7 +347,7 @@ const StorageUtils = {
           } else {
             if (table.name === 'conversations') {
               rows.push(await table.where('id').equals(convId).first());
-            } else {
+            } else if (table.name === 'messages') {
               rows.push(
                 ...(await table.where('convId').equals(convId).toArray())
               );
