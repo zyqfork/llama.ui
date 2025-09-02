@@ -70,24 +70,39 @@ export default function ChatScreen() {
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
   const { scrollToBottom } = useChatScroll(msgListRef);
-  const currConvId = useMemo(() => viewingChat?.conv.id ?? null, [viewingChat]);
-  const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
-  const messages: MessageDisplay[] = useMemo(() => {
-    if (!viewingChat) return [];
 
+  const { currConvId, messages, lastMsgNodeId } = useMemo(() => {
+    if (!viewingChat)
+      return {
+        currConvId: null,
+        messages: [],
+        lastMsgNodeId: null,
+      };
+    const currConvId = viewingChat.conv.id;
     const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
+    const lastMsgNodeId = messages.at(-1)?.msg.id ?? null; // get the last message node
+    return {
+      currConvId,
+      messages,
+      lastMsgNodeId,
+    };
+  }, [viewingChat, currNodeId]);
+
+  const pendingMsg = useMemo(() => {
     const pendingMsg = currConvId ? pendingMessages[currConvId] : null;
     // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
     if (pendingMsg && messages.at(-1)?.msg.id !== pendingMsg.id) {
-      messages.push({
+      return {
         msg: pendingMsg,
         siblingLeafNodeIds: [],
         siblingCurrIdx: 0,
         isPending: true,
-      });
+      };
     }
-    return messages;
-  }, [viewingChat, currConvId, currNodeId, pendingMessages]);
+    return null;
+  }, [currConvId, messages, pendingMessages]);
+
+  const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
 
   useEffect(() => {
     // reset to latest node when conversation changes
@@ -106,14 +121,12 @@ export default function ChatScreen() {
     []
   );
 
-  const handleSendNewMessage = (
+  const handleSendNewMessage = async (
     content: string,
     extra: MessageExtra[] | undefined
   ) => {
     scrollToBottom(true);
-    // get the last message node
-    const lastMsgNodeId = messages.at(-1)?.msg.id ?? null;
-    const isSent = sendMessage(
+    const isSent = await sendMessage(
       currConvId,
       lastMsgNodeId,
       content,
@@ -129,38 +142,26 @@ export default function ChatScreen() {
     content: string,
     extra: MessageExtra[]
   ) => {
-    if (!viewingChat) return;
+    if (!currConvId) return;
     setCurrNodeId(msg.id);
     scrollToBottom(true);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg,
-      content,
-      extra,
-      onChunk
-    );
+    await replaceMessageAndGenerate(currConvId, msg, content, extra, onChunk);
     scrollToBottom(false, 10);
   };
 
   const handleEditMessage = async (msg: Message, content: string) => {
-    if (!viewingChat) return;
+    if (!currConvId) return;
     setCurrNodeId(msg.id);
     scrollToBottom(true);
-    await replaceMessage(viewingChat.conv.id, msg, content, onChunk);
+    await replaceMessage(currConvId, msg, content, onChunk);
     scrollToBottom(false, 10);
   };
 
   const handleRegenerateMessage = async (msg: Message) => {
-    if (!viewingChat) return;
+    if (!currConvId) return;
     setCurrNodeId(msg.parent);
     scrollToBottom(true);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg,
-      null,
-      msg.extra,
-      onChunk
-    );
+    await replaceMessageAndGenerate(currConvId, msg, null, msg.extra, onChunk);
     scrollToBottom(false, 10);
   };
 
@@ -208,21 +209,23 @@ export default function ChatScreen() {
             )}
 
             {/* chat messages */}
-            {viewingChat && (
+            {currConvId && (
               <div id="messages-list" className="grow">
-                {messages.map((msg) => (
-                  <ChatMessage
-                    key={msg.msg.id}
-                    msg={msg.msg}
-                    siblingLeafNodeIds={msg.siblingLeafNodeIds}
-                    siblingCurrIdx={msg.siblingCurrIdx}
-                    onRegenerateMessage={handleRegenerateMessage}
-                    onEditUserMessage={handleEditUserMessage}
-                    onEditAssistantMessage={handleEditMessage}
-                    onChangeSibling={setCurrNodeId}
-                    isPending={msg.isPending}
-                  />
-                ))}
+                {(pendingMsg ? [...messages, pendingMsg] : messages).map(
+                  (msg) => (
+                    <ChatMessage
+                      key={msg.msg.id}
+                      msg={msg.msg}
+                      siblingLeafNodeIds={msg.siblingLeafNodeIds}
+                      siblingCurrIdx={msg.siblingCurrIdx}
+                      onRegenerateMessage={handleRegenerateMessage}
+                      onEditUserMessage={handleEditUserMessage}
+                      onEditAssistantMessage={handleEditMessage}
+                      onChangeSibling={setCurrNodeId}
+                      isPending={msg.isPending}
+                    />
+                  )
+                )}
               </div>
             )}
           </div>
