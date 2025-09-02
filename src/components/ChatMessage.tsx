@@ -13,7 +13,7 @@ import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';
-import { classNames, splitMessageContent } from '../utils/misc';
+import { classNames, copyStr, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
@@ -94,6 +94,10 @@ export default function ChatMessage({
     () => !isEditing && (isUser || (isAssistant && !isPending)),
     [isEditing, isPending, isUser, isAssistant]
   );
+
+  const handleCopy = () => {
+    copyStr(msg.content ?? '');
+  };
 
   return (
     <div
@@ -271,7 +275,7 @@ export default function ChatMessage({
 
           <CopyButton
             className="btn btn-ghost w-8 h-8 p-0"
-            content={msg.content}
+            onCopy={handleCopy}
           />
 
           <BranchButton
