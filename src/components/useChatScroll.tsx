@@ -32,7 +32,7 @@ export function useChatScroll(msgListRef: React.RefObject<HTMLDivElement>) {
     if (!element) return;
 
     const observer = new MutationObserver(() => {
-      scrollToBottom(false);
+      scrollToBottom(false, 0);
     });
 
     observer.observe(element, { childList: true, subtree: true });
