@@ -125,7 +125,7 @@ const AppLayout: FC = () => {
       <div className="drawer-content flex flex-col w-full h-screen px-2 bg-base-300">
         <Header />
         <main
-          className="grow flex flex-col p-2 overflow-auto bg-base-100 rounded-xl"
+          className="grow flex flex-col overflow-auto bg-base-100 rounded-xl"
           id="main-scroll"
         >
           <Outlet />
