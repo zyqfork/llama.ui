@@ -90,6 +90,10 @@ export default function ChatMessage({
     }
     return splitMessageContent(msg.content);
   }, [msg]);
+  const showActionButtons = useMemo(
+    () => !isEditing && (isUser || (isAssistant && !isPending)),
+    [isEditing, isPending, isUser, isAssistant]
+  );
 
   return (
     <div
@@ -165,7 +169,7 @@ export default function ChatMessage({
       </div>
 
       {/* actions for each message */}
-      {msg.content !== null && (
+      {msg.content !== null && showActionButtons && (
         <div
           className={classNames({
             'flex items-center gap-2 mx-4': true,
@@ -204,7 +208,7 @@ export default function ChatMessage({
           )}
 
           {/* re-generate assistant message */}
-          {isAssistant && !isPending && (
+          {isAssistant && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
               onClick={() => {
@@ -217,19 +221,6 @@ export default function ChatMessage({
               aria-label="Regenerate the response"
             >
               <ArrowPathIcon className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* edit message */}
-          {(isUser || (isAssistant && !isPending)) && (
-            <button
-              className="btn btn-ghost w-8 h-8 p-0"
-              onClick={() => setIsEditing(msg.content !== null)}
-              disabled={!msg.content}
-              title="Edit message"
-              aria-label="Edit the message"
-            >
-              <PencilSquareIcon className="h-4 w-4" />
             </button>
           )}
 
@@ -266,16 +257,27 @@ export default function ChatMessage({
               </div>
             </button>
           )}
+
+          {/* edit message */}
+          <button
+            className="btn btn-ghost w-8 h-8 p-0"
+            onClick={() => setIsEditing(msg.content !== null)}
+            disabled={!msg.content}
+            title="Edit message"
+            aria-label="Edit the message"
+          >
+            <PencilSquareIcon className="h-4 w-4" />
+          </button>
+
           <CopyButton
             className="btn btn-ghost w-8 h-8 p-0"
             content={msg.content}
           />
-          {!isPending && (
-            <BranchButton
-              className="btn btn-ghost w-8 h-8 p-0"
-              msg={msg as Message}
-            />
-          )}
+
+          <BranchButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            msg={msg as Message}
+          />
         </div>
       )}
     </div>
