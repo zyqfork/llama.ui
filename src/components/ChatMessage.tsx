@@ -47,7 +47,6 @@ export default function ChatMessage({
   isPending?: boolean;
 }) {
   const { config } = useAppContext();
-  const { viewingChat } = useMessageContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
@@ -62,8 +61,20 @@ export default function ChatMessage({
         : null,
     [msg.timings]
   );
-  const nextSibling = siblingLeafNodeIds[siblingCurrIdx + 1];
-  const prevSibling = siblingLeafNodeIds[siblingCurrIdx - 1];
+  const { nextSibling, prevSibling } = useMemo(
+    () => ({
+      nextSibling: siblingLeafNodeIds[siblingCurrIdx + 1],
+      prevSibling: siblingLeafNodeIds[siblingCurrIdx - 1],
+    }),
+    [siblingLeafNodeIds, siblingCurrIdx]
+  );
+  const { isUser, isAssistant } = useMemo(
+    () => ({
+      isUser: msg.role === 'user',
+      isAssistant: msg.role === 'assistant',
+    }),
+    [msg.role]
+  );
 
   // for reasoning model, we split the message into content and thought
   // TODO: implement this as remark/rehype plugin in the future
@@ -79,11 +90,6 @@ export default function ChatMessage({
     }
     return splitMessageContent(msg.content);
   }, [msg]);
-
-  if (!viewingChat) return null;
-
-  const isUser = msg.role === 'user';
-  const isAssistant = msg.role === 'assistant';
 
   return (
     <div
