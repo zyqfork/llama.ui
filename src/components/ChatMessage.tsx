@@ -68,13 +68,6 @@ export default function ChatMessage({
     }),
     [siblingLeafNodeIds, siblingCurrIdx]
   );
-  const { isUser, isAssistant } = useMemo(
-    () => ({
-      isUser: msg.role === 'user',
-      isAssistant: msg.role === 'assistant',
-    }),
-    [msg.role]
-  );
 
   // for reasoning model, we split the message into content and thought
   // TODO: implement this as remark/rehype plugin in the future
@@ -90,6 +83,13 @@ export default function ChatMessage({
     }
     return splitMessageContent(msg.content);
   }, [msg]);
+  const { isUser, isAssistant } = useMemo(
+    () => ({
+      isUser: msg.role === 'user',
+      isAssistant: msg.role === 'assistant',
+    }),
+    [msg.role]
+  );
   const showActionButtons = useMemo(
     () => !isEditing && (isUser || (isAssistant && !isPending)),
     [isEditing, isPending, isUser, isAssistant]

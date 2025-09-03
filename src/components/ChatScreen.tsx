@@ -211,20 +211,31 @@ export default function ChatScreen() {
             {/* chat messages */}
             {currConvId && (
               <div id="messages-list" className="grow">
-                {(pendingMsg ? [...messages, pendingMsg] : messages).map(
-                  (msg) => (
-                    <ChatMessage
-                      key={msg.msg.id}
-                      msg={msg.msg}
-                      siblingLeafNodeIds={msg.siblingLeafNodeIds}
-                      siblingCurrIdx={msg.siblingCurrIdx}
-                      onRegenerateMessage={handleRegenerateMessage}
-                      onEditUserMessage={handleEditUserMessage}
-                      onEditAssistantMessage={handleEditMessage}
-                      onChangeSibling={setCurrNodeId}
-                      isPending={msg.isPending}
-                    />
-                  )
+                {messages.map((msg) => (
+                  <ChatMessage
+                    key={msg.msg.id}
+                    msg={msg.msg}
+                    siblingLeafNodeIds={msg.siblingLeafNodeIds}
+                    siblingCurrIdx={msg.siblingCurrIdx}
+                    onRegenerateMessage={handleRegenerateMessage}
+                    onEditUserMessage={handleEditUserMessage}
+                    onEditAssistantMessage={handleEditMessage}
+                    onChangeSibling={setCurrNodeId}
+                    isPending={msg.isPending}
+                  />
+                ))}
+                {pendingMsg && (
+                  <ChatMessage
+                    key={pendingMsg.msg.id}
+                    msg={pendingMsg.msg}
+                    siblingLeafNodeIds={pendingMsg.siblingLeafNodeIds}
+                    siblingCurrIdx={pendingMsg.siblingCurrIdx}
+                    onRegenerateMessage={() => {}}
+                    onEditUserMessage={() => {}}
+                    onEditAssistantMessage={() => {}}
+                    onChangeSibling={setCurrNodeId}
+                    isPending={pendingMsg.isPending}
+                  />
                 )}
               </div>
             )}
