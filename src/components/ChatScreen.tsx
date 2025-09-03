@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   CallbackGeneratedChunk,
@@ -12,12 +12,11 @@ import {
   Message,
   MessageDisplay,
   MessageExtra,
-  PendingMessage,
 } from '../utils/types';
 import CanvasPyInterpreter from './CanvasPyInterpreter';
 import { ChatInput } from './ChatInput.tsx';
 import ChatMessage from './ChatMessage';
-import { scrollToBottom, useChatScroll } from './useChatScroll.tsx';
+import { useChatScroll } from './useChatScroll.tsx';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,
@@ -68,42 +67,61 @@ export default function ChatScreen() {
   } = useMessageContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
-  useChatScroll(msgListRef);
+  const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
-  // keep track of leaf node for rendering
-  const [currNodeId, setCurrNodeId] = useState<number>(-1);
+  const { scrollToBottom } = useChatScroll(msgListRef);
+  const currConvId = useMemo(() => viewingChat?.conv.id ?? null, [viewingChat]);
+  const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
   const messages: MessageDisplay[] = useMemo(() => {
     if (!viewingChat) return [];
-    else return getListMessageDisplay(viewingChat.messages, currNodeId);
-  }, [currNodeId, viewingChat]);
 
-  const currConvId = viewingChat?.conv.id ?? null;
-  const pendingMsg: PendingMessage | undefined =
-    pendingMessages[currConvId ?? ''];
+    const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
+    const pendingMsg = currConvId ? pendingMessages[currConvId] : null;
+    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
+    if (pendingMsg && messages.at(-1)?.msg.id !== pendingMsg.id) {
+      messages.push({
+        msg: pendingMsg,
+        siblingLeafNodeIds: [],
+        siblingCurrIdx: 0,
+        isPending: true,
+      });
+    }
+    return messages;
+  }, [viewingChat, currConvId, currNodeId, pendingMessages]);
 
   useEffect(() => {
     // reset to latest node when conversation changes
     setCurrNodeId(-1);
     // scroll to bottom when conversation changes
-    scrollToBottom(false, 1);
-  }, [currConvId]);
+    scrollToBottom(true);
+  }, [currConvId, scrollToBottom]);
 
-  const onChunk: CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => {
-    if (currLeafNodeId) {
-      setCurrNodeId(currLeafNodeId);
-    }
-    // useChatScroll will handle the auto scroll
-  };
+  const onChunk: CallbackGeneratedChunk = useCallback(
+    (currLeafNodeId?: Message['id']) => {
+      if (currLeafNodeId) {
+        setCurrNodeId(currLeafNodeId);
+      }
+      // useChatScroll will handle the auto scroll
+    },
+    []
+  );
 
   const handleSendNewMessage = (
     content: string,
     extra: MessageExtra[] | undefined
   ) => {
-    scrollToBottom(false);
-    setCurrNodeId(-1);
+    scrollToBottom(true);
     // get the last message node
     const lastMsgNodeId = messages.at(-1)?.msg.id ?? null;
-    return sendMessage(currConvId, lastMsgNodeId, content, extra, onChunk);
+    const isSent = sendMessage(
+      currConvId,
+      lastMsgNodeId,
+      content,
+      extra,
+      onChunk
+    );
+    scrollToBottom(false, 10);
+    return isSent;
   };
 
   const handleEditUserMessage = async (
@@ -113,7 +131,7 @@ export default function ChatScreen() {
   ) => {
     if (!viewingChat) return;
     setCurrNodeId(msg.id);
-    scrollToBottom(false);
+    scrollToBottom(true);
     await replaceMessageAndGenerate(
       viewingChat.conv.id,
       msg,
@@ -121,23 +139,21 @@ export default function ChatScreen() {
       extra,
       onChunk
     );
-    setCurrNodeId(-1);
-    scrollToBottom(false);
+    scrollToBottom(false, 10);
   };
 
   const handleEditMessage = async (msg: Message, content: string) => {
     if (!viewingChat) return;
     setCurrNodeId(msg.id);
-    scrollToBottom(false);
+    scrollToBottom(true);
     await replaceMessage(viewingChat.conv.id, msg, content, onChunk);
-    setCurrNodeId(-1);
-    scrollToBottom(false);
+    scrollToBottom(false, 10);
   };
 
   const handleRegenerateMessage = async (msg: Message) => {
     if (!viewingChat) return;
     setCurrNodeId(msg.parent);
-    scrollToBottom(false);
+    scrollToBottom(true);
     await replaceMessageAndGenerate(
       viewingChat.conv.id,
       msg,
@@ -145,100 +161,93 @@ export default function ChatScreen() {
       msg.extra,
       onChunk
     );
-    setCurrNodeId(-1);
-    scrollToBottom(false);
+    scrollToBottom(false, 10);
   };
 
-  const hasCanvas = !!canvasData;
-
-  // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
-  const pendingMsgDisplay: MessageDisplay[] =
-    pendingMsg && messages.at(-1)?.msg.id !== pendingMsg.id
-      ? [
-          {
-            msg: pendingMsg,
-            siblingLeafNodeIds: [],
-            siblingCurrIdx: 0,
-            isPending: true,
-          },
-        ]
-      : [];
-
   return (
-    <div
-      className={classNames({
-        'grid xl:gap-8 grow transition-[300ms]': true,
-        'grid-cols-[1fr_0fr] xl:grid-cols-[1fr_1fr]': hasCanvas, // adapted for mobile
-        'grid-cols-[1fr_0fr]': !hasCanvas,
-      })}
-    >
-      <div
-        className={classNames({
-          'flex flex-col w-full xl:max-w-[900px] mx-auto': true,
-          'hidden xl:flex': hasCanvas, // adapted for mobile
-          flex: !hasCanvas,
-        })}
-      >
-        {/* placeholder to shift the message to the bottom */}
-        {!viewingChat && (
-          <div className="grow flex flex-col items-center justify-center ">
-            <b className="text-4xl">{lang.chatScreen.welcome}</b>
-            <small>{lang.chatScreen.welcomeNote}</small>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">
-              {getUniqueRandomElements(lang.samplePrompts, 4).map((text) => (
-                <button
-                  key={text}
-                  className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
-                  onClick={() => {
-                    navigate(`/chat?q=${encodeURIComponent(text)}`, {});
-                  }}
-                >
-                  {text}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* chat messages */}
-        {viewingChat && (
-          <div id="messages-list" className="grow" ref={msgListRef}>
-            {[...messages, ...pendingMsgDisplay].map((msg) => (
-              <ChatMessage
-                key={msg.msg.id}
-                msg={msg.msg}
-                siblingLeafNodeIds={msg.siblingLeafNodeIds}
-                siblingCurrIdx={msg.siblingCurrIdx}
-                onRegenerateMessage={handleRegenerateMessage}
-                onEditUserMessage={handleEditUserMessage}
-                onEditAssistantMessage={handleEditMessage}
-                onChangeSibling={setCurrNodeId}
-                isPending={msg.isPending}
-              />
-            ))}
-          </div>
-        )}
-
+    <div className="flex flex-col h-full">
+      {/* main content area */}
+      <div ref={msgListRef} className="grow flex flex-col overflow-y-auto px-2">
         <div
-          role="group"
-          aria-label="Chat input"
           className={classNames({
-            'flex flex-col items-end pt-4 sticky bottom-0 bg-base-100': true,
+            'grid xl:gap-8 grow transition-[300ms]': true,
+            'grid-cols-1 xl:grid-cols-2': hasCanvas, // adapted for mobile
+            'grid-cols-1': !hasCanvas,
           })}
         >
-          {/* chat input */}
-          <ChatInput
-            onSend={handleSendNewMessage}
-            onStop={() => stopGenerating(currConvId ?? '')}
-            isGenerating={isGenerating(currConvId ?? '')}
-          />
+          {/* chat messages */}
+          <div
+            className={classNames({
+              'flex flex-col w-full xl:max-w-[900px] mx-auto': true,
+              'hidden xl:flex': hasCanvas, // adapted for mobile
+              flex: !hasCanvas,
+            })}
+          >
+            {/* placeholder to shift the message to the bottom */}
+            {!viewingChat && (
+              <div className="grow flex flex-col items-center justify-center">
+                <b className="text-4xl">{lang.chatScreen.welcome}</b>
+                <small>{lang.chatScreen.welcomeNote}</small>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">
+                  {getUniqueRandomElements(lang.samplePrompts, 4).map(
+                    (text) => (
+                      <button
+                        key={text}
+                        className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
+                        onClick={() => {
+                          navigate(`/chat?q=${encodeURIComponent(text)}`, {});
+                        }}
+                      >
+                        {text}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* chat messages */}
+            {viewingChat && (
+              <div id="messages-list" className="grow">
+                {messages.map((msg) => (
+                  <ChatMessage
+                    key={msg.msg.id}
+                    msg={msg.msg}
+                    siblingLeafNodeIds={msg.siblingLeafNodeIds}
+                    siblingCurrIdx={msg.siblingCurrIdx}
+                    onRegenerateMessage={handleRegenerateMessage}
+                    onEditUserMessage={handleEditUserMessage}
+                    onEditAssistantMessage={handleEditMessage}
+                    onChangeSibling={setCurrNodeId}
+                    isPending={msg.isPending}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* canvas area */}
+          {hasCanvas && (
+            <div className="w-full sticky top-[1em] h-[calc(100vh-14em)] xl:h-[calc(100vh-16em)]">
+              {canvasData?.type === CanvasType.PY_INTERPRETER && (
+                <CanvasPyInterpreter />
+              )}
+            </div>
+          )}
         </div>
       </div>
-      <div className="w-full sticky top-[1em] h-[calc(100vh-8em)]">
-        {canvasData?.type === CanvasType.PY_INTERPRETER && (
-          <CanvasPyInterpreter />
-        )}
+
+      {/* chat input */}
+      <div
+        className="shrink-0 w-full xl:max-w-[900px] bg-base-100 mx-auto p-2"
+        aria-label="Chat input"
+      >
+        <ChatInput
+          onSend={handleSendNewMessage}
+          onStop={() => stopGenerating(currConvId ?? '')}
+          isGenerating={isGenerating(currConvId ?? '')}
+        />
       </div>
     </div>
   );

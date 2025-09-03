@@ -1,34 +1,43 @@
-import React, { useEffect } from 'react';
-import { throttle } from '../utils/misc';
+import React, { useCallback, useEffect } from 'react';
 
-export const scrollToBottom = (requiresNearBottom: boolean, delay?: number) => {
-  const mainScrollElem = document.getElementById('main-scroll');
-  if (!mainScrollElem) return;
-  const spaceToBottom =
-    mainScrollElem.scrollHeight -
-    mainScrollElem.scrollTop -
-    mainScrollElem.clientHeight;
-  if (!requiresNearBottom || spaceToBottom < 100) {
-    setTimeout(
-      () => mainScrollElem.scrollTo({ top: mainScrollElem.scrollHeight }),
-      delay ?? 80
-    );
-  }
-};
-
-const scrollToBottomThrottled = throttle(scrollToBottom, 80);
+const TO_BOTTOM = 250;
+const DELAY = 50;
 
 export function useChatScroll(msgListRef: React.RefObject<HTMLDivElement>) {
-  useEffect(() => {
-    if (!msgListRef.current) return;
+  const scrollToBottom = useCallback(
+    (immediate: boolean = false, delay: number = DELAY) => {
+      const element = msgListRef?.current;
+      if (!element) return;
 
-    const resizeObserver = new ResizeObserver((_) => {
-      scrollToBottomThrottled(true, 10);
+      if (immediate) {
+        setTimeout(
+          () =>
+            element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' }),
+          delay
+        );
+        return;
+      }
+
+      const { scrollHeight, scrollTop, clientHeight } = element;
+      const spaceToBottom = scrollHeight - scrollTop - clientHeight;
+      if (spaceToBottom < TO_BOTTOM) {
+        element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
+      }
+    },
+    [msgListRef]
+  );
+
+  useEffect(() => {
+    const element = msgListRef?.current;
+    if (!element) return;
+
+    const observer = new MutationObserver(() => {
+      scrollToBottom(false, 0);
     });
 
-    resizeObserver.observe(msgListRef.current);
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [msgListRef]);
+    observer.observe(element, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [msgListRef, scrollToBottom]);
+
+  return { scrollToBottom };
 }

@@ -225,7 +225,6 @@ export const MessageContextProvider = ({
           };
         }
         setPending(convId, pendingMsg);
-        onChunk(); // don't need to switch node for pending message
       }
     } catch (err) {
       setPending(convId, null);
