@@ -7,9 +7,9 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
-import { FilterableDropdown } from '../utils/common';
 import { useMessageContext } from '../context/message.context';
 import lang from '../lang/en.json';
+import { FilterableDropdown } from '../utils/common';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function Header() {
   }, [models, model]);
 
   return (
-    <header className="flex flex-col gap-2 justify-center md:py-2 sticky top-0 z-10">
+    <header className="flex flex-col gap-2 justify-center max-md:pb-2 md:py-2 sticky top-0 z-10">
       <section className="flex flex-row items-center xl:hidden">
         {/* open sidebar button */}
         <label htmlFor="toggle-drawer" className="btn btn-ghost w-8 h-8 p-0">
@@ -67,14 +67,14 @@ export default function Header() {
       <section className="flex flex-row items-center">
         {/* model information */}
         <FilterableDropdown
-          className="ml-2 px-1 sm:px-4 py-0"
+          className="ml-2 px-1 xl:px-4 py-0"
           entity="Model"
           options={models.map((model) => ({
             value: model.id,
             label: model.name,
           }))}
           currentValue={
-            <span className="max-w-56 sm:max-w-80 truncate text-nowrap font-semibold">
+            <span className="max-w-64 sm:max-w-80 truncate text-nowrap font-semibold">
               {selectedModel}
             </span>
           }
@@ -94,7 +94,7 @@ export default function Header() {
         {/* action buttons (top right) */}
         <div className="flex items-center">
           <button
-            className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+            className="btn btn-ghost w-8 h-8 p-0 rounded-full max-xl:hidden"
             title="Settings"
             aria-label="Open settings menu"
             onClick={() => setShowSettings(true)}

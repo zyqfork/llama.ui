@@ -1,10 +1,12 @@
 import {
+  AdjustmentsHorizontalIcon,
   ArrowUpIcon,
   PaperClipIcon,
   StopIcon,
 } from '@heroicons/react/24/solid';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useAppContext } from '../context/app.context.tsx';
 import { useVSCodeContext } from '../utils/llama-vscode.ts';
 import { classNames, cleanCurrentUrl } from '../utils/misc';
 import { MessageExtra } from '../utils/types.ts';
@@ -40,6 +42,7 @@ export function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
+  const { setShowSettings } = useAppContext();
   const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
   useVSCodeContext(textarea, extraContext);
@@ -114,11 +117,11 @@ export function ChatInput({
 
           {/* buttons area */}
           <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center">
+            <div className="flex gap-2 items-center">
               <label
                 htmlFor="new-message-file-upload"
                 className={classNames({
-                  'btn w-8 h-8 p-0 rounded-full': true,
+                  'btn btn-ghost w-8 h-8 p-0 rounded-full': true,
                   'btn-disabled': isGenerating,
                 })}
                 aria-label="Upload file"
@@ -127,6 +130,15 @@ export function ChatInput({
               >
                 <PaperClipIcon className="h-5 w-5" />
               </label>
+
+              <button
+                className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
+                title="Settings"
+                aria-label="Open settings menu"
+                onClick={() => setShowSettings(true)}
+              >
+                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+              </button>
             </div>
 
             <div className="flex items-center">
