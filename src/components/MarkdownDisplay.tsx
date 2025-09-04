@@ -13,7 +13,7 @@ import { useMessageContext } from '../context/message.context';
 import { classNames, copyStr } from '../utils/misc';
 import { CanvasType } from '../utils/types';
 
-export default function MarkdownDisplay({
+export default memo(function MarkdownDisplay({
   content,
   isGenerating,
 }: {
@@ -42,7 +42,7 @@ export default function MarkdownDisplay({
       {preprocessedContent}
     </Markdown>
   );
-}
+});
 
 const CustomPre: React.ElementType<
   React.ClassAttributes<HTMLPreElement> &
