@@ -16,6 +16,7 @@ import {
   EyeIcon,
   FunnelIcon,
   HandRaisedIcon,
+  PencilIcon,
   RocketLaunchIcon,
   SquaresPlusIcon,
   TrashIcon,
@@ -1028,7 +1029,7 @@ const PresetManager: FC<{
 
   const handleSavePreset = async () => {
     const newPresetName = (
-      (await showPrompt('Enter the new preset name')) || ''
+      (await showPrompt('Enter a new preset name')) || ''
     ).trim();
     if (newPresetName === '') return;
 
@@ -1041,6 +1042,17 @@ const PresetManager: FC<{
     ) {
       await onSavePreset(newPresetName, config);
     }
+  };
+
+  const handleRenamePreset = async (preset: ConfigurationPreset) => {
+    const newPresetName = ((await showPrompt('Enter a new name')) || '').trim();
+    if (newPresetName === '') return;
+
+    await onRemovePreset(preset.name);
+    await onSavePreset(
+      newPresetName,
+      Object.assign(Object.assign({}, CONFIG_DEFAULT), preset.config)
+    );
   };
 
   const handleLoadPreset = async (preset: ConfigurationPreset) => {
@@ -1107,6 +1119,14 @@ const PresetManager: FC<{
                   </div>
 
                   <div className="flex gap-2">
+                    <button
+                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                      onClick={() => handleRenamePreset(preset)}
+                      title="Rename preset"
+                      aria-label="Rename preset"
+                    >
+                      <PencilIcon className="w-5 h-5" />
+                    </button>
                     <button
                       className="btn btn-ghost w-8 h-8 p-0 rounded-full"
                       onClick={() => handleLoadPreset(preset)}
