@@ -46,7 +46,9 @@ export default function ChatMessage({
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
-  const { config } = useAppContext();
+  const {
+    config: { initials, showTokensPerSecond },
+  } = useAppContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
@@ -128,7 +130,7 @@ export default function ChatMessage({
           <div className="mb-1 text-sm">
             {isUser && (
               <span className="font-bold mr-1">
-                {config.initials || lang.chatMessage.userLabel}
+                {initials || lang.chatMessage.userLabel}
               </span>
             )}
             {isAssistant && msg.model && (
@@ -229,7 +231,7 @@ export default function ChatMessage({
           )}
 
           {/* render timings if enabled */}
-          {isAssistant && timings && config.showTokensPerSecond && (
+          {isAssistant && timings && showTokensPerSecond && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
               title="Performance"
@@ -381,7 +383,9 @@ function ThoughtProcess({
   isThinking: boolean;
   content: string;
 }) {
-  const { config } = useAppContext();
+  const {
+    config: { showThoughtInProgress },
+  } = useAppContext();
   return (
     <div
       role="button"
@@ -389,7 +393,7 @@ function ThoughtProcess({
       tabIndex={0}
       className="collapse bg-none"
     >
-      <input type="checkbox" defaultChecked={config.showThoughtInProgress} />
+      <input type="checkbox" defaultChecked={showThoughtInProgress} />
       <div className="collapse-title px-0 py-2">
         <div className="btn border-0 rounded-xl">
           {isThinking && (

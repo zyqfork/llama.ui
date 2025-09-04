@@ -28,7 +28,9 @@ export interface ChatExtraContextApi {
 export function useChatExtraContext(
   initialItems: MessageExtra[] = []
 ): ChatExtraContextApi {
-  const { config } = useAppContext();
+  const {
+    config: { pdfAsImage },
+  } = useAppContext();
   const { serverProps } = useInferenceContext();
   const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
@@ -96,14 +98,14 @@ export function useChatExtraContext(
             },
           ]);
         } else if (mimeType.startsWith('application/pdf')) {
-          if (config.pdfAsImage && !isSupportVision) {
+          if (pdfAsImage && !isSupportVision) {
             toast(
               'Multimodal is not supported, PDF will be converted to text instead of image.'
             );
             break;
           }
 
-          if (config.pdfAsImage && isSupportVision) {
+          if (pdfAsImage && isSupportVision) {
             // Convert PDF to images
             const base64Urls = await convertPDFToImage(file);
             addItems(
