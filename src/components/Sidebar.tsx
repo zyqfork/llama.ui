@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useMessageContext } from '../context/message.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -16,18 +16,13 @@ import { Conversation } from '../utils/types';
 import { useModals } from './ModalProvider';
 
 export default function Sidebar() {
-  const params = useParams();
   const navigate = useNavigate();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { isGenerating } = useMessageContext();
+  const { viewingChat, isGenerating } = useMessageContext();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currConv, setCurrConv] = useState<Conversation | null>(null);
-
-  useEffect(() => {
-    StorageUtils.getOneConversation(params.convId ?? '').then(setCurrConv);
-  }, [params.convId]);
+  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
   useEffect(() => {
     const handleConversationChange = async () => {
