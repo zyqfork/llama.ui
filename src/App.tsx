@@ -1,6 +1,13 @@
 import { FC, useCallback, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+  useParams,
+} from 'react-router';
 import ChatScreen from './components/ChatScreen';
 import { Footer } from './components/Footer';
 import Header from './components/Header';
@@ -10,6 +17,7 @@ import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
 import { useDebouncedCallback } from './components/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './components/usePWAUpdatePrompt';
+import WelcomeScreen from './components/WelcomeScreen';
 import { AppContextProvider, useAppContext } from './context/app.context';
 import {
   InferenceContextProvider,
@@ -34,8 +42,8 @@ const App: FC = () => {
               <MessageContextProvider>
                 <Routes>
                   <Route element={<AppLayout />}>
-                    <Route path="/chat/:convId" element={<ChatScreen />} />
-                    <Route path="*" element={<ChatScreen />} />
+                    <Route path="/chat/:convId" element={<Chat />} />
+                    <Route path="*" element={<WelcomeScreen />} />
                   </Route>
                 </Routes>
               </MessageContextProvider>
@@ -141,6 +149,12 @@ const AppLayout: FC = () => {
       <Toaster />
     </>
   );
+};
+
+const Chat: FC = () => {
+  const { convId } = useParams();
+  if (!convId) return <Navigate to="/" replace />;
+  return <ChatScreen currConvId={convId} />;
 };
 
 export default App;

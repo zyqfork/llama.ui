@@ -50,51 +50,75 @@ const CustomPre: React.ElementType<
     ExtraProps & { origContent: string; isGenerating?: boolean }
 > = ({ children, node, origContent, isGenerating }) => {
   const { config } = useAppContext();
-  const startOffset = node?.position?.start.offset ?? 0;
-  const endOffset = node?.position?.end.offset ?? 0;
+  const { setCanvasData } = useMessageContext();
 
-  const copiedContent = useMemo(
-    () =>
+  const showActionButtons = useMemo(() => {
+    const startOffset = node?.position?.start.offset;
+    const endOffset = node?.position?.end.offset;
+    if (!startOffset || !endOffset) return false;
+    return true;
+  }, [node?.position]);
+
+  const codeLanguage = useMemo(() => {
+    const startOffset = node?.position?.start.offset;
+    const endOffset = node?.position?.end.offset;
+    if (!startOffset || !endOffset) return '';
+
+    return (
       origContent
         .substring(startOffset, endOffset)
-        .replace(/^```[^\n]+\n/g, '')
-        .replace(/```$/g, ''),
-    [origContent, startOffset, endOffset]
-  );
+        .match(/^```([^\n]+)\n/)?.[1] ?? ''
+    );
+  }, [node?.position, origContent]);
 
-  const codeLanguage = useMemo(
+  const canRunCode = useMemo(
     () =>
-      origContent
-        .substring(startOffset, endOffset)
-        .match(/^```([^\n]+)\n/)?.[1] ?? '',
-    [origContent, startOffset, endOffset]
+      !isGenerating &&
+      config.pyIntepreterEnabled &&
+      codeLanguage.toLowerCase() === 'python',
+    [isGenerating, config.pyIntepreterEnabled, codeLanguage]
   );
 
-  const canRunCode =
-    !isGenerating &&
-    config.pyIntepreterEnabled &&
-    codeLanguage.toLowerCase() === 'python';
+  const handleCopy = () => {
+    const startOffset = node?.position?.start.offset;
+    const endOffset = node?.position?.end.offset;
+    if (!startOffset || !endOffset) return;
+
+    copyStr(getCodeContent(origContent.substring(startOffset, endOffset)));
+  };
+  const handleRun = () => {
+    const startOffset = node?.position?.start.offset;
+    const endOffset = node?.position?.end.offset;
+    if (!startOffset || !endOffset) return;
+
+    setCanvasData({
+      type: CanvasType.PY_INTERPRETER,
+      content: getCodeContent(origContent.substring(startOffset, endOffset)),
+    });
+  };
 
   return (
     <div>
-      <div
-        className={classNames({
-          'sticky h-0 z-[1] text-right mr-1': true,
-          'display-none': !node?.position,
-        })}
-        aria-label="Button block"
-      >
-        {canRunCode && (
-          <RunCodeButton
+      {showActionButtons && (
+        <div
+          className={classNames({
+            'sticky h-0 z-[1] text-right mr-1': true,
+            'display-none': !node?.position,
+          })}
+          aria-label="Button block"
+        >
+          {canRunCode && (
+            <RunCodeButton
+              className="btn btn-ghost w-8 h-8 p-0"
+              onRun={handleRun}
+            />
+          )}
+          <CopyButton
             className="btn btn-ghost w-8 h-8 p-0"
-            content={copiedContent}
+            onCopy={handleCopy}
           />
-        )}
-        <CopyButton
-          className="btn btn-ghost w-8 h-8 p-0"
-          content={copiedContent}
-        />
-      </div>
+        </div>
+      )}
 
       <pre {...node?.properties}>
         {codeLanguage && (
@@ -110,18 +134,18 @@ const CustomPre: React.ElementType<
 };
 
 export const CopyButton = ({
-  content,
   className,
+  onCopy,
 }: {
-  content: string;
   className?: string;
+  onCopy: () => void;
 }) => {
   const [copied, setCopied] = useState(false);
   return (
     <button
       className={className}
       onClick={() => {
-        copyStr(content);
+        onCopy();
         setCopied(true);
       }}
       onMouseLeave={() => setCopied(false)}
@@ -134,29 +158,21 @@ export const CopyButton = ({
 };
 
 export const RunCodeButton = ({
-  content,
   className,
+  onRun,
 }: {
-  content: string;
   className?: string;
+  onRun: () => void;
 }) => {
-  const { setCanvasData } = useMessageContext();
   return (
-    <>
-      <button
-        className={className}
-        onClick={() =>
-          setCanvasData({
-            type: CanvasType.PY_INTERPRETER,
-            content,
-          })
-        }
-        title="Run code"
-        aria-label="Run the code"
-      >
-        <PlayIcon className="h-4 w-4" />
-      </button>
-    </>
+    <button
+      className={className}
+      onClick={onRun}
+      title="Run code"
+      aria-label="Run the code"
+    >
+      <PlayIcon className="h-4 w-4" />
+    </button>
   );
 };
 
@@ -300,4 +316,8 @@ export function escapeBrackets(text: string): string {
 
 export function escapeMhchem(text: string) {
   return text.replaceAll('$\\ce{', '$\\\\ce{').replaceAll('$\\pu{', '$\\\\pu{');
+}
+
+function getCodeContent(content: string) {
+  return content.replace(/^```[^\n]+\n/g, '').replace(/```$/g, '');
 }

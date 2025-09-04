@@ -13,7 +13,7 @@ import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';
-import { classNames, splitMessageContent } from '../utils/misc';
+import { classNames, copyStr, splitMessageContent } from '../utils/misc';
 import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
@@ -47,7 +47,6 @@ export default function ChatMessage({
   isPending?: boolean;
 }) {
   const { config } = useAppContext();
-  const { viewingChat } = useMessageContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
@@ -62,8 +61,13 @@ export default function ChatMessage({
         : null,
     [msg.timings]
   );
-  const nextSibling = siblingLeafNodeIds[siblingCurrIdx + 1];
-  const prevSibling = siblingLeafNodeIds[siblingCurrIdx - 1];
+  const { nextSibling, prevSibling } = useMemo(
+    () => ({
+      nextSibling: siblingLeafNodeIds[siblingCurrIdx + 1],
+      prevSibling: siblingLeafNodeIds[siblingCurrIdx - 1],
+    }),
+    [siblingLeafNodeIds, siblingCurrIdx]
+  );
 
   // for reasoning model, we split the message into content and thought
   // TODO: implement this as remark/rehype plugin in the future
@@ -79,11 +83,21 @@ export default function ChatMessage({
     }
     return splitMessageContent(msg.content);
   }, [msg]);
+  const { isUser, isAssistant } = useMemo(
+    () => ({
+      isUser: msg.role === 'user',
+      isAssistant: msg.role === 'assistant',
+    }),
+    [msg.role]
+  );
+  const showActionButtons = useMemo(
+    () => !isEditing && (isUser || (isAssistant && !isPending)),
+    [isEditing, isPending, isUser, isAssistant]
+  );
 
-  if (!viewingChat) return null;
-
-  const isUser = msg.role === 'user';
-  const isAssistant = msg.role === 'assistant';
+  const handleCopy = () => {
+    copyStr(msg.content ?? '');
+  };
 
   return (
     <div
@@ -159,7 +173,7 @@ export default function ChatMessage({
       </div>
 
       {/* actions for each message */}
-      {msg.content !== null && (
+      {msg.content !== null && showActionButtons && (
         <div
           className={classNames({
             'flex items-center gap-2 mx-4': true,
@@ -198,7 +212,7 @@ export default function ChatMessage({
           )}
 
           {/* re-generate assistant message */}
-          {isAssistant && !isPending && (
+          {isAssistant && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
               onClick={() => {
@@ -211,19 +225,6 @@ export default function ChatMessage({
               aria-label="Regenerate the response"
             >
               <ArrowPathIcon className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* edit message */}
-          {(isUser || (isAssistant && !isPending)) && (
-            <button
-              className="btn btn-ghost w-8 h-8 p-0"
-              onClick={() => setIsEditing(msg.content !== null)}
-              disabled={!msg.content}
-              title="Edit message"
-              aria-label="Edit the message"
-            >
-              <PencilSquareIcon className="h-4 w-4" />
             </button>
           )}
 
@@ -260,16 +261,27 @@ export default function ChatMessage({
               </div>
             </button>
           )}
+
+          {/* edit message */}
+          <button
+            className="btn btn-ghost w-8 h-8 p-0"
+            onClick={() => setIsEditing(msg.content !== null)}
+            disabled={!msg.content}
+            title="Edit message"
+            aria-label="Edit the message"
+          >
+            <PencilSquareIcon className="h-4 w-4" />
+          </button>
+
           <CopyButton
             className="btn btn-ghost w-8 h-8 p-0"
-            content={msg.content}
+            onCopy={handleCopy}
           />
-          {!isPending && (
-            <BranchButton
-              className="btn btn-ghost w-8 h-8 p-0"
-              msg={msg as Message}
-            />
-          )}
+
+          <BranchButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            msg={msg as Message}
+          />
         </div>
       )}
     </div>
@@ -375,9 +387,7 @@ function ThoughtProcess({
       role="button"
       aria-label="Toggle thought process display"
       tabIndex={0}
-      className={classNames({
-        'collapse bg-none': true,
-      })}
+      className="collapse bg-none"
     >
       <input type="checkbox" defaultChecked={config.showThoughtInProgress} />
       <div className="collapse-title px-0 py-2">

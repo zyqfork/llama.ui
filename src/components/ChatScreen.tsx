@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
 import {
   CallbackGeneratedChunk,
   useMessageContext,
 } from '../context/message.context';
-import * as lang from '../lang/en.json';
-import { classNames, getUniqueRandomElements } from '../utils/misc';
+import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
   CanvasType,
+  Conversation,
   Message,
   MessageDisplay,
   MessageExtra,
@@ -53,14 +52,16 @@ function getListMessageDisplay(
   return res;
 }
 
-export default function ChatScreen() {
-  const navigate = useNavigate();
+export default function ChatScreen({
+  currConvId,
+}: {
+  currConvId: Conversation['id'];
+}) {
   const {
     viewingChat,
     sendMessage,
     isGenerating,
     stopGenerating,
-    pendingMessages,
     canvasData,
     replaceMessage,
     replaceMessageAndGenerate,
@@ -70,24 +71,22 @@ export default function ChatScreen() {
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
   const { scrollToBottom } = useChatScroll(msgListRef);
-  const currConvId = useMemo(() => viewingChat?.conv.id ?? null, [viewingChat]);
   const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
-  const messages: MessageDisplay[] = useMemo(() => {
-    if (!viewingChat) return [];
 
-    const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
-    const pendingMsg = currConvId ? pendingMessages[currConvId] : null;
-    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
-    if (pendingMsg && messages.at(-1)?.msg.id !== pendingMsg.id) {
-      messages.push({
-        msg: pendingMsg,
-        siblingLeafNodeIds: [],
-        siblingCurrIdx: 0,
-        isPending: true,
-      });
+  const { messages, lastMsgNodeId } = useMemo(() => {
+    if (!viewingChat?.messages) {
+      return {
+        messages: [],
+        lastMsgNodeId: -1,
+      };
     }
-    return messages;
-  }, [viewingChat, currConvId, currNodeId, pendingMessages]);
+    const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
+    const lastMsgNodeId = messages.at(-1)?.msg.id ?? -1; // get the last message node
+    return {
+      messages,
+      lastMsgNodeId,
+    };
+  }, [viewingChat?.messages, currNodeId]);
 
   useEffect(() => {
     // reset to latest node when conversation changes
@@ -106,63 +105,60 @@ export default function ChatScreen() {
     []
   );
 
-  const handleSendNewMessage = (
-    content: string,
-    extra: MessageExtra[] | undefined
-  ) => {
-    scrollToBottom(true);
-    // get the last message node
-    const lastMsgNodeId = messages.at(-1)?.msg.id ?? null;
-    const isSent = sendMessage(
-      currConvId,
-      lastMsgNodeId,
-      content,
-      extra,
-      onChunk
-    );
-    scrollToBottom(false, 10);
-    return isSent;
-  };
+  const handleSendNewMessage = useCallback(
+    async (content: string, extra: MessageExtra[] | undefined) => {
+      scrollToBottom(true);
+      const isSent = await sendMessage(
+        currConvId,
+        lastMsgNodeId,
+        content,
+        extra,
+        onChunk
+      );
+      scrollToBottom(false, 10);
+      return isSent;
+    },
+    [sendMessage, scrollToBottom, currConvId, lastMsgNodeId, onChunk]
+  );
 
-  const handleEditUserMessage = async (
-    msg: Message,
-    content: string,
-    extra: MessageExtra[]
-  ) => {
-    if (!viewingChat) return;
-    setCurrNodeId(msg.id);
-    scrollToBottom(true);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg,
-      content,
-      extra,
-      onChunk
-    );
-    scrollToBottom(false, 10);
-  };
+  const handleEditUserMessage = useCallback(
+    async (msg: Message, content: string, extra: MessageExtra[]) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.id);
+      scrollToBottom(true);
+      await replaceMessageAndGenerate(currConvId, msg, content, extra, onChunk);
+      scrollToBottom(false, 10);
+    },
+    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+  );
 
-  const handleEditMessage = async (msg: Message, content: string) => {
-    if (!viewingChat) return;
-    setCurrNodeId(msg.id);
-    scrollToBottom(true);
-    await replaceMessage(viewingChat.conv.id, msg, content, onChunk);
-    scrollToBottom(false, 10);
-  };
+  const handleEditMessage = useCallback(
+    async (msg: Message, content: string) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.id);
+      scrollToBottom(true);
+      await replaceMessage(currConvId, msg, content, onChunk);
+      scrollToBottom(false, 10);
+    },
+    [replaceMessage, scrollToBottom, currConvId, onChunk]
+  );
 
-  const handleRegenerateMessage = async (msg: Message) => {
-    if (!viewingChat) return;
-    setCurrNodeId(msg.parent);
-    scrollToBottom(true);
-    await replaceMessageAndGenerate(
-      viewingChat.conv.id,
-      msg,
-      null,
-      msg.extra,
-      onChunk
-    );
-    scrollToBottom(false, 10);
-  };
+  const handleRegenerateMessage = useCallback(
+    async (msg: Message) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.parent);
+      scrollToBottom(true);
+      await replaceMessageAndGenerate(
+        currConvId,
+        msg,
+        null,
+        msg.extra,
+        onChunk
+      );
+      scrollToBottom(false, 10);
+    },
+    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -183,32 +179,8 @@ export default function ChatScreen() {
               flex: !hasCanvas,
             })}
           >
-            {/* placeholder to shift the message to the bottom */}
-            {!viewingChat && (
-              <div className="grow flex flex-col items-center justify-center">
-                <b className="text-4xl">{lang.chatScreen.welcome}</b>
-                <small>{lang.chatScreen.welcomeNote}</small>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">
-                  {getUniqueRandomElements(lang.samplePrompts, 4).map(
-                    (text) => (
-                      <button
-                        key={text}
-                        className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
-                        onClick={() => {
-                          navigate(`/chat?q=${encodeURIComponent(text)}`, {});
-                        }}
-                      >
-                        {text}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* chat messages */}
-            {viewingChat && (
+            {currConvId && (
               <div id="messages-list" className="grow">
                 {messages.map((msg) => (
                   <ChatMessage
@@ -223,6 +195,7 @@ export default function ChatScreen() {
                     isPending={msg.isPending}
                   />
                 ))}
+                <PendingMessage currConvId={currConvId} messages={messages} />
               </div>
             )}
           </div>
@@ -250,5 +223,43 @@ export default function ChatScreen() {
         />
       </div>
     </div>
+  );
+}
+
+function PendingMessage({
+  currConvId,
+  messages,
+}: {
+  currConvId: Conversation['id'];
+  messages: MessageDisplay[];
+}) {
+  const { pendingMessages } = useMessageContext();
+
+  const msg = useMemo(() => {
+    if (!currConvId) {
+      return null;
+    }
+    const pendingMsg = pendingMessages[currConvId];
+    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
+    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
+      return null;
+    }
+    return pendingMsg;
+  }, [currConvId, messages, pendingMessages]);
+
+  if (!msg) return null;
+
+  return (
+    <ChatMessage
+      key={msg.id}
+      msg={msg}
+      siblingLeafNodeIds={[]}
+      siblingCurrIdx={0}
+      onRegenerateMessage={() => {}}
+      onEditUserMessage={() => {}}
+      onEditAssistantMessage={() => {}}
+      onChangeSibling={() => {}}
+      isPending={true}
+    />
   );
 }
