@@ -1,20 +1,32 @@
-import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
+import {
+  Bars3Icon,
+  Cog8ToothIcon,
+  PencilSquareIcon,
+} from '@heroicons/react/24/outline';
 import { useMemo } from 'react';
-import { THEMES } from '../config';
+import { useNavigate } from 'react-router';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
-import { FilterableDropdown, DropdownOption, Dropdown } from '../utils/common';
+import { FilterableDropdown } from '../utils/common';
+import { useMessageContext } from '../context/message.context';
+import lang from '../lang/en.json';
 
 export default function Header() {
+  const navigate = useNavigate();
   const {
     config,
     config: { model },
     setShowSettings,
     saveConfig,
-    currentTheme,
-    switchTheme,
   } = useAppContext();
   const { models } = useInferenceContext();
+  const { viewingChat } = useMessageContext();
+
+  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
+  const title = useMemo(
+    () => (currConv ? currConv.name : lang['header.title.noChat']),
+    [currConv]
+  );
 
   const selectedModel = useMemo(() => {
     const selectedModel = models.find((m) => m.id === model);
@@ -22,89 +34,76 @@ export default function Header() {
   }, [models, model]);
 
   return (
-    <header className="flex flex-row items-center xl:py-2 sticky top-0 z-10">
-      {/* open sidebar button */}
-      <label
-        htmlFor="toggle-drawer"
-        className="btn btn-ghost w-8 h-8 p-0 xl:hidden"
-      >
-        <Bars3Icon className="h-5 w-5" />
-      </label>
+    <header className="flex flex-col gap-2 justify-center xl:py-2 sticky top-0 z-10">
+      <section className="flex flex-row items-center xl:hidden">
+        {/* open sidebar button */}
+        <label htmlFor="toggle-drawer" className="btn btn-ghost w-8 h-8 p-0">
+          <Bars3Icon className="h-5 w-5" />
+        </label>
 
-      {/* model information */}
-      <FilterableDropdown
-        className="ml-2 px-1 sm:px-4 py-0"
-        entity="Model"
-        options={models.map((model) => ({
-          value: model.id,
-          label: model.name,
-        }))}
-        currentValue={
-          <span className="max-w-56 sm:max-w-80 truncate text-nowrap font-semibold">
-            {selectedModel}
-          </span>
-        }
-        renderOption={(option: DropdownOption) => <span>{option.label}</span>}
-        isSelected={(option: DropdownOption) => model === option.value}
-        onSelect={(option: DropdownOption) =>
-          saveConfig({
-            ...config,
-            model: option.value,
-          })
-        }
-      />
+        {/* spacer */}
+        <label
+          className="grow font-medium truncate text-center cursor-pointer px-4"
+          aria-label={title}
+          role="button"
+          onClick={() => {
+            if (currConv) navigate(`/chat/${currConv.id}`);
+            else navigate('/');
+          }}
+        >
+          {title}
+        </label>
 
-      {/* spacer */}
-      <div className="grow"></div>
-
-      {/* action buttons (top right) */}
-      <div className="flex items-center">
+        {/* new conversation button */}
         <button
           className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-          title="Settings"
-          aria-label="Open settings menu"
-          onClick={() => setShowSettings(true)}
+          onClick={() => navigate('/')}
+          aria-label="New conversation"
         >
-          {/* settings button */}
-          <Cog8ToothIcon className="w-5 h-5" />
+          <PencilSquareIcon className="w-5 h-5" />
         </button>
+      </section>
 
-        {/* theme controller is copied from https://daisyui.com/components/theme-controller/ */}
-        <Dropdown
-          entity="Theme"
-          options={['auto', ...THEMES].map((theme) => ({
-            value: theme,
-            label: theme,
+      <section className="flex flex-row items-center">
+        {/* model information */}
+        <FilterableDropdown
+          className="ml-2 px-1 sm:px-4 py-0"
+          entity="Model"
+          options={models.map((model) => ({
+            value: model.id,
+            label: model.name,
           }))}
-          hideChevron={true}
           currentValue={
-            <div className="btn btn-ghost m-1 w-8 h-8 p-0 rounded-full">
-              <div className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm">
-                <div className="bg-base-content size-1 rounded-full"></div>{' '}
-                <div className="bg-primary size-1 rounded-full"></div>{' '}
-                <div className="bg-secondary size-1 rounded-full"></div>{' '}
-                <div className="bg-accent size-1 rounded-full"></div>
-              </div>
-            </div>
+            <span className="max-w-56 sm:max-w-80 truncate text-nowrap font-semibold">
+              {selectedModel}
+            </span>
           }
-          renderOption={(option: DropdownOption) => (
-            <>
-              <div
-                data-theme={option.value}
-                className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
-              >
-                <div className="bg-base-content size-1 rounded-full"></div>{' '}
-                <div className="bg-primary size-1 rounded-full"></div>{' '}
-                <div className="bg-secondary size-1 rounded-full"></div>{' '}
-                <div className="bg-accent size-1 rounded-full"></div>
-              </div>
-              <div className="w-32 truncate text-left">{option.label}</div>
-            </>
-          )}
-          isSelected={(option: DropdownOption) => currentTheme === option.value}
-          onSelect={(option) => switchTheme(option.value)}
+          renderOption={(option) => <span>{option.label}</span>}
+          isSelected={(option) => model === option.value}
+          onSelect={(option) =>
+            saveConfig({
+              ...config,
+              model: option.value,
+            })
+          }
         />
-      </div>
+
+        {/* spacer */}
+        <div className="grow"></div>
+
+        {/* action buttons (top right) */}
+        <div className="flex items-center">
+          <button
+            className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+            title="Settings"
+            aria-label="Open settings menu"
+            onClick={() => setShowSettings(true)}
+          >
+            {/* settings button */}
+            <Cog8ToothIcon className="w-5 h-5" />
+          </button>
+        </div>
+      </section>
     </header>
   );
 }

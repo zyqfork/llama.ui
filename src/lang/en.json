@@ -1,4 +1,5 @@
 {
+  "header.title.noChat": "New Chat",
   "chatScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
@@ -159,6 +160,9 @@
         "title": "Existing presets",
         "noPresetFound": "No presets yet."
       }
+    },
+    "themeManager": {
+      "label": "Theme"
     }
   },
   "newVersion": {

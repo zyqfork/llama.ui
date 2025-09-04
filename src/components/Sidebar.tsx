@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useMessageContext } from '../context/message.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -16,18 +16,13 @@ import { Conversation } from '../utils/types';
 import { useModals } from './ModalProvider';
 
 export default function Sidebar() {
-  const params = useParams();
   const navigate = useNavigate();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { isGenerating } = useMessageContext();
+  const { viewingChat, isGenerating } = useMessageContext();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currConv, setCurrConv] = useState<Conversation | null>(null);
-
-  useEffect(() => {
-    StorageUtils.getOneConversation(params.convId ?? '').then(setCurrConv);
-  }, [params.convId]);
+  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
   useEffect(() => {
     const handleConversationChange = async () => {
@@ -63,7 +58,7 @@ export default function Sidebar() {
         tabIndex={0}
       >
         <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0">
-          <div className="flex flex-row items-center justify-between leading-10 xl:py-2">
+          <div className="flex flex-row items-center justify-between xl:py-2">
             {/* close sidebar button */}
             <label className="w-8 h-8 p-0 max-xl:hidden"></label>
             <label
@@ -77,12 +72,12 @@ export default function Sidebar() {
             </label>
 
             <label
-              className="font-bold tracking-wider text-center cursor-pointer"
-              aria-label="llama.ui"
+              className="font-bold tracking-wider leading-8 text-center cursor-pointer"
+              aria-label={import.meta.env.VITE_APP_NAME}
               role="button"
               onClick={() => navigate('/')}
             >
-              llama.ui
+              {import.meta.env.VITE_APP_NAME}
             </label>
 
             {/* new conversation button */}
