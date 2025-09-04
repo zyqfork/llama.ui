@@ -23,8 +23,8 @@ interface MessageContextValue {
   pendingMessages: Record<Conversation['id'], PendingMessage>;
   isGenerating: (convId: string) => boolean;
   sendMessage: (
-    convId: string | null,
-    leafNodeId: Message['id'] | null,
+    convId: string,
+    leafNodeId: Message['id'],
     content: string,
     extra: Message['extra'],
     onChunk: CallbackGeneratedChunk
@@ -249,23 +249,13 @@ export const MessageContextProvider = ({
   };
 
   const sendMessage = async (
-    convId: string | null,
-    leafNodeId: Message['id'] | null,
+    convId: string,
+    leafNodeId: Message['id'],
     content: string,
     extra: Message['extra'],
     onChunk: CallbackGeneratedChunk
   ): Promise<boolean> => {
     if (isGenerating(convId ?? '') || content.trim().length === 0) return false;
-
-    if (convId === null || convId.length === 0 || leafNodeId === null) {
-      const conv = await StorageUtils.createConversation(
-        content.substring(0, 256)
-      );
-      convId = conv.id;
-      leafNodeId = conv.currNode;
-      // if user is creating a new conversation, redirect to the new conversation
-      navigate(`/chat/${convId}`);
-    }
 
     let currMsgId;
     try {

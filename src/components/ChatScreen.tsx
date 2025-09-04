@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
 import {
   CallbackGeneratedChunk,
   useMessageContext,
 } from '../context/message.context';
-import * as lang from '../lang/en.json';
-import { classNames, getUniqueRandomElements } from '../utils/misc';
+import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
   CanvasType,
+  Conversation,
   Message,
   MessageDisplay,
   MessageExtra,
@@ -53,8 +52,11 @@ function getListMessageDisplay(
   return res;
 }
 
-export default function ChatScreen() {
-  const navigate = useNavigate();
+export default function ChatScreen({
+  currConvId,
+}: {
+  currConvId: Conversation['id'];
+}) {
   const {
     viewingChat,
     sendMessage,
@@ -70,21 +72,17 @@ export default function ChatScreen() {
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
   const { scrollToBottom } = useChatScroll(msgListRef);
-
-  const currConvId = useMemo(
-    () => viewingChat?.conv.id ?? null,
-    [viewingChat?.conv]
-  );
   const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
 
   const { messages, lastMsgNodeId } = useMemo(() => {
-    if (!viewingChat?.messages)
+    if (!viewingChat?.messages) {
       return {
         messages: [],
-        lastMsgNodeId: null,
+        lastMsgNodeId: -1,
       };
+    }
     const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
-    const lastMsgNodeId = messages.at(-1)?.msg.id ?? null; // get the last message node
+    const lastMsgNodeId = messages.at(-1)?.msg.id ?? -1; // get the last message node
     return {
       messages,
       lastMsgNodeId,
@@ -199,30 +197,6 @@ export default function ChatScreen() {
               flex: !hasCanvas,
             })}
           >
-            {/* placeholder to shift the message to the bottom */}
-            {!viewingChat && (
-              <div className="grow flex flex-col items-center justify-center">
-                <b className="text-4xl">{lang.chatScreen.welcome}</b>
-                <small>{lang.chatScreen.welcomeNote}</small>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">
-                  {getUniqueRandomElements(lang.samplePrompts, 4).map(
-                    (text) => (
-                      <button
-                        key={text}
-                        className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
-                        onClick={() => {
-                          navigate(`/chat?q=${encodeURIComponent(text)}`, {});
-                        }}
-                      >
-                        {text}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* chat messages */}
             {currConvId && (
               <div id="messages-list" className="grow">
