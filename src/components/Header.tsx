@@ -6,14 +6,20 @@ import { useInferenceContext } from '../context/inference.context';
 import { FilterableDropdown, DropdownOption, Dropdown } from '../utils/common';
 
 export default function Header() {
-  const { config, setShowSettings, saveConfig, currentTheme, switchTheme } =
-    useAppContext();
+  const {
+    config,
+    config: { model },
+    setShowSettings,
+    saveConfig,
+    currentTheme,
+    switchTheme,
+  } = useAppContext();
   const { models } = useInferenceContext();
 
   const selectedModel = useMemo(() => {
-    const selectedModel = models.find((model) => model.id === config.model);
+    const selectedModel = models.find((m) => m.id === model);
     return selectedModel ? selectedModel.name : '';
-  }, [models, config.model]);
+  }, [models, model]);
 
   return (
     <header className="flex flex-row items-center xl:py-2 sticky top-0 z-10">
@@ -39,7 +45,7 @@ export default function Header() {
           </span>
         }
         renderOption={(option: DropdownOption) => <span>{option.label}</span>}
-        isSelected={(option: DropdownOption) => config.model === option.value}
+        isSelected={(option: DropdownOption) => model === option.value}
         onSelect={(option: DropdownOption) =>
           saveConfig({
             ...config,

@@ -16,7 +16,9 @@ export function DropzoneArea({
   extraContext: ChatExtraContextApi;
   disabled: boolean;
 }) {
-  const { config } = useAppContext();
+  const {
+    config: { pasteLongTextToFileLen },
+  } = useAppContext();
   const [isDrag, setIsDrag] = useState(false);
 
   return (
@@ -43,8 +45,8 @@ export function DropzoneArea({
             const text = e.clipboardData.getData('text/plain');
             if (
               text.length > 0 &&
-              config.pasteLongTextToFileLen > 0 &&
-              text.length > config.pasteLongTextToFileLen
+              pasteLongTextToFileLen > 0 &&
+              text.length > pasteLongTextToFileLen
             ) {
               // if the text is too long, we will convert it to a file
               extraContext.addItems([

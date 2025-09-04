@@ -1,7 +1,7 @@
 import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
-import React, { useMemo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import Markdown, { ExtraProps } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -13,7 +13,7 @@ import { useMessageContext } from '../context/message.context';
 import { classNames, copyStr } from '../utils/misc';
 import { CanvasType } from '../utils/types';
 
-export default function MarkdownDisplay({
+export default memo(function MarkdownDisplay({
   content,
   isGenerating,
 }: {
@@ -42,14 +42,16 @@ export default function MarkdownDisplay({
       {preprocessedContent}
     </Markdown>
   );
-}
+});
 
 const CustomPre: React.ElementType<
   React.ClassAttributes<HTMLPreElement> &
     React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
 > = ({ children, node, origContent, isGenerating }) => {
-  const { config } = useAppContext();
+  const {
+    config: { pyIntepreterEnabled },
+  } = useAppContext();
   const { setCanvasData } = useMessageContext();
 
   const showActionButtons = useMemo(() => {
@@ -74,9 +76,9 @@ const CustomPre: React.ElementType<
   const canRunCode = useMemo(
     () =>
       !isGenerating &&
-      config.pyIntepreterEnabled &&
+      pyIntepreterEnabled &&
       codeLanguage.toLowerCase() === 'python',
-    [isGenerating, config.pyIntepreterEnabled, codeLanguage]
+    [isGenerating, pyIntepreterEnabled, codeLanguage]
   );
 
   const handleCopy = () => {
