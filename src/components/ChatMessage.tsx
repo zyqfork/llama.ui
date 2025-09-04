@@ -387,9 +387,7 @@ function ThoughtProcess({
       role="button"
       aria-label="Toggle thought process display"
       tabIndex={0}
-      className={classNames({
-        'collapse bg-none': true,
-      })}
+      className="collapse bg-none"
     >
       <input type="checkbox" defaultChecked={config.showThoughtInProgress} />
       <div className="collapse-title px-0 py-2">
