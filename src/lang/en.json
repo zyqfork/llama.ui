@@ -159,6 +159,9 @@
         "title": "Existing presets",
         "noPresetFound": "No presets yet."
       }
+    },
+    "themeManager": {
+      "label": "Theme"
     }
   },
   "newVersion": {
