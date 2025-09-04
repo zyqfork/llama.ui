@@ -556,8 +556,8 @@ export default function SettingDialog({
       className={classNames({ modal: true, 'modal-open': show })}
       aria-label="Settings dialog"
     >
-      <div className="modal-box w-11/12 max-w-4xl">
-        <h3 className="text-lg font-bold mb-6">Settings</h3>
+      <div className="modal-box w-11/12 max-w-4xl max-sm:px-4">
+        <h3 className="text-lg font-bold mb-6 max-sm:mx-2">Settings</h3>
         <div className="flex flex-col md:flex-row h-[calc(90vh-12rem)]">
           {/* Left panel, showing sections - Desktop version */}
           <div
@@ -588,7 +588,7 @@ export default function SettingDialog({
             aria-disabled={true}
           >
             <Dropdown
-              className="bg-base-300 w-full rounded-lg cursor-pointer p-2"
+              className="bg-base-200 w-full border-1 border-base-content/10 rounded-lg shadow-xs cursor-pointer p-2"
               entity="tab"
               options={settingTabs.map((tab, idx) => ({
                 label: tab.title,
@@ -603,7 +603,7 @@ export default function SettingDialog({
           </div>
 
           {/* Right panel, showing setting fields */}
-          <div className="grow overflow-y-auto px-4">
+          <div className="grow overflow-y-auto px-2 sm:px-4">
             {settingTabs[tabIdx].fields.map((field, idx) => {
               const key = `${tabIdx}-${idx}`;
               switch (field.type) {
