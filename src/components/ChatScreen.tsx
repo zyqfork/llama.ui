@@ -212,16 +212,11 @@ export default function ChatScreen({
       </div>
 
       {/* chat input */}
-      <div
-        className="shrink-0 w-full xl:max-w-[900px] bg-base-100 mx-auto p-2"
-        aria-label="Chat input"
-      >
-        <ChatInput
-          onSend={handleSendNewMessage}
-          onStop={() => stopGenerating(currConvId ?? '')}
-          isGenerating={isGenerating(currConvId ?? '')}
-        />
-      </div>
+      <ChatInput
+        onSend={handleSendNewMessage}
+        onStop={() => stopGenerating(currConvId ?? '')}
+        isGenerating={isGenerating(currConvId ?? '')}
+      />
     </div>
   );
 }

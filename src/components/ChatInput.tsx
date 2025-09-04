@@ -81,72 +81,77 @@ export function ChatInput({
   }, [window.location.href]);
 
   return (
-    <DropzoneArea
-      inputId="new-message-file-upload"
-      extraContext={extraContext}
-      disabled={isGenerating}
+    <div
+      className="shrink-0 w-full lg:max-w-[900px] bg-base-100 mx-auto p-2"
+      aria-label="Chat input"
     >
-      <div className="bg-base-200 border-1 border-base-content/30 rounded-lg p-2 flex flex-col">
-        <textarea
-          // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
-          // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
-          className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
-          placeholder="Type a message (Shift+Enter to add a new line)"
-          ref={textarea.ref}
-          onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
-          onKeyDown={(e) => {
-            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              sendNewMessage();
-            }
-          }}
-          id="msg-input"
-          dir="auto"
-          // Set a base height of 2 rows for mobile views
-          // On lg+ screens, the hook will calculate and set the initial height anyway
-          rows={2}
-        ></textarea>
+      <DropzoneArea
+        inputId="new-message-file-upload"
+        extraContext={extraContext}
+        disabled={isGenerating}
+      >
+        <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-md p-2">
+          <textarea
+            // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
+            // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
+            className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
+            placeholder="Type a message (Shift+Enter to add a new line)"
+            ref={textarea.ref}
+            onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
+            onKeyDown={(e) => {
+              if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendNewMessage();
+              }
+            }}
+            id="msg-input"
+            dir="auto"
+            // Set a base height of 2 rows for mobile views
+            // On lg+ screens, the hook will calculate and set the initial height anyway
+            rows={2}
+          ></textarea>
 
-        {/* buttons area */}
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center">
-            <label
-              htmlFor="new-message-file-upload"
-              className={classNames({
-                'btn w-8 h-8 p-0 rounded-full': true,
-                'btn-disabled': isGenerating,
-              })}
-              aria-label="Upload file"
-              tabIndex={0}
-              role="button"
-            >
-              <PaperClipIcon className="h-5 w-5" />
-            </label>
-          </div>
-
-          <div className="flex items-center">
-            {isGenerating && (
-              <button
-                className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                onClick={onStop}
+          {/* buttons area */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center">
+              <label
+                htmlFor="new-message-file-upload"
+                className={classNames({
+                  'btn w-8 h-8 p-0 rounded-full': true,
+                  'btn-disabled': isGenerating,
+                })}
+                aria-label="Upload file"
+                tabIndex={0}
+                role="button"
               >
-                <StopIcon className="h-5 w-5" />
-              </button>
-            )}
+                <PaperClipIcon className="h-5 w-5" />
+              </label>
+            </div>
 
-            {!isGenerating && (
-              <button
-                className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                onClick={sendNewMessage}
-                aria-label="Send message"
-              >
-                <ArrowUpIcon className="h-5 w-5" />
-              </button>
-            )}
+            <div className="flex items-center">
+              {isGenerating && (
+                <button
+                  className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  onClick={onStop}
+                >
+                  <StopIcon className="h-5 w-5" />
+                </button>
+              )}
+
+              {!isGenerating && (
+                <button
+                  className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  onClick={sendNewMessage}
+                  aria-label="Send message"
+                >
+                  <ArrowUpIcon className="h-5 w-5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </DropzoneArea>
+      </DropzoneArea>
+    </div>
   );
 }

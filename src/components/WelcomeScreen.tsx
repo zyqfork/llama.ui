@@ -55,12 +55,7 @@ export default function WelcomeScreen() {
       </div>
 
       {/* chat input */}
-      <div
-        className="shrink-0 w-full xl:max-w-[900px] bg-base-100 mx-auto p-2"
-        aria-label="Chat input"
-      >
-        <ChatInput onSend={handleSend} onStop={() => {}} isGenerating={false} />
-      </div>
+      <ChatInput onSend={handleSend} onStop={() => {}} isGenerating={false} />
     </div>
   );
 }
