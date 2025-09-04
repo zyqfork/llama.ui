@@ -71,22 +71,25 @@ export default function ChatScreen() {
 
   const { scrollToBottom } = useChatScroll(msgListRef);
 
-  const { currConvId, messages, lastMsgNodeId } = useMemo(() => {
-    if (!viewingChat)
+  const currConvId = useMemo(
+    () => viewingChat?.conv.id ?? null,
+    [viewingChat?.conv]
+  );
+  const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
+
+  const { messages, lastMsgNodeId } = useMemo(() => {
+    if (!viewingChat?.messages)
       return {
-        currConvId: null,
         messages: [],
         lastMsgNodeId: null,
       };
-    const currConvId = viewingChat.conv.id;
     const messages = getListMessageDisplay(viewingChat.messages, currNodeId);
     const lastMsgNodeId = messages.at(-1)?.msg.id ?? null; // get the last message node
     return {
-      currConvId,
       messages,
       lastMsgNodeId,
     };
-  }, [viewingChat, currNodeId]);
+  }, [viewingChat?.messages, currNodeId]);
 
   const pendingMsg = useMemo(() => {
     const pendingMsg = currConvId ? pendingMessages[currConvId] : null;
@@ -101,8 +104,6 @@ export default function ChatScreen() {
     }
     return null;
   }, [currConvId, messages, pendingMessages]);
-
-  const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
 
   useEffect(() => {
     // reset to latest node when conversation changes
@@ -121,49 +122,60 @@ export default function ChatScreen() {
     []
   );
 
-  const handleSendNewMessage = async (
-    content: string,
-    extra: MessageExtra[] | undefined
-  ) => {
-    scrollToBottom(true);
-    const isSent = await sendMessage(
-      currConvId,
-      lastMsgNodeId,
-      content,
-      extra,
-      onChunk
-    );
-    scrollToBottom(false, 10);
-    return isSent;
-  };
+  const handleSendNewMessage = useCallback(
+    async (content: string, extra: MessageExtra[] | undefined) => {
+      scrollToBottom(true);
+      const isSent = await sendMessage(
+        currConvId,
+        lastMsgNodeId,
+        content,
+        extra,
+        onChunk
+      );
+      scrollToBottom(false, 10);
+      return isSent;
+    },
+    [sendMessage, scrollToBottom, currConvId, lastMsgNodeId, onChunk]
+  );
 
-  const handleEditUserMessage = async (
-    msg: Message,
-    content: string,
-    extra: MessageExtra[]
-  ) => {
-    if (!currConvId) return;
-    setCurrNodeId(msg.id);
-    scrollToBottom(true);
-    await replaceMessageAndGenerate(currConvId, msg, content, extra, onChunk);
-    scrollToBottom(false, 10);
-  };
+  const handleEditUserMessage = useCallback(
+    async (msg: Message, content: string, extra: MessageExtra[]) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.id);
+      scrollToBottom(true);
+      await replaceMessageAndGenerate(currConvId, msg, content, extra, onChunk);
+      scrollToBottom(false, 10);
+    },
+    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+  );
 
-  const handleEditMessage = async (msg: Message, content: string) => {
-    if (!currConvId) return;
-    setCurrNodeId(msg.id);
-    scrollToBottom(true);
-    await replaceMessage(currConvId, msg, content, onChunk);
-    scrollToBottom(false, 10);
-  };
+  const handleEditMessage = useCallback(
+    async (msg: Message, content: string) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.id);
+      scrollToBottom(true);
+      await replaceMessage(currConvId, msg, content, onChunk);
+      scrollToBottom(false, 10);
+    },
+    [replaceMessage, scrollToBottom, currConvId, onChunk]
+  );
 
-  const handleRegenerateMessage = async (msg: Message) => {
-    if (!currConvId) return;
-    setCurrNodeId(msg.parent);
-    scrollToBottom(true);
-    await replaceMessageAndGenerate(currConvId, msg, null, msg.extra, onChunk);
-    scrollToBottom(false, 10);
-  };
+  const handleRegenerateMessage = useCallback(
+    async (msg: Message) => {
+      if (!currConvId) return;
+      setCurrNodeId(msg.parent);
+      scrollToBottom(true);
+      await replaceMessageAndGenerate(
+        currConvId,
+        msg,
+        null,
+        msg.extra,
+        onChunk
+      );
+      scrollToBottom(false, 10);
+    },
+    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+  );
 
   return (
     <div className="flex flex-col h-full">
