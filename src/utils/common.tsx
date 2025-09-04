@@ -100,8 +100,8 @@ export function BtnWithTooltips({
 }
 
 export interface DropdownOption {
-  value: string;
-  label: string;
+  value: string | number;
+  label: string | React.ReactElement;
 }
 /**
  * A customizable dropdown component that supports filtering and custom rendering of options.
@@ -122,6 +122,7 @@ export function FilterableDropdown<T extends DropdownOption>({
   entity,
   options,
   hideChevron = false,
+  smallOptions = false,
   currentValue,
   renderOption,
   isSelected,
@@ -131,6 +132,7 @@ export function FilterableDropdown<T extends DropdownOption>({
   entity: string;
   options: T[];
   hideChevron?: boolean;
+  smallOptions?: boolean;
   currentValue: ReactNode;
   renderOption: (option: T) => ReactNode;
   isSelected: (option: T) => boolean;
@@ -141,9 +143,13 @@ export function FilterableDropdown<T extends DropdownOption>({
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
   const filteredOptions = useMemo(() => {
     if (filter.trim() === '') return options;
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(filter.trim().toLowerCase())
-    );
+    return options.filter((option) => {
+      if (typeof option.label === 'string') {
+        return option.label.toLowerCase().includes(filter.trim().toLowerCase());
+      } else {
+        return true;
+      }
+    });
   }, [options, filter]);
 
   useEffect(() => {
@@ -218,7 +224,8 @@ export function FilterableDropdown<T extends DropdownOption>({
                   <li key={option.value}>
                     <button
                       className={classNames({
-                        'btn btn-sm btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                        'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                        'btn-sm': smallOptions,
                         'btn-active': isSelected(option),
                       })}
                       onClick={handleSelect(option)}
@@ -259,6 +266,7 @@ export function Dropdown<T extends DropdownOption>({
   entity,
   options,
   hideChevron = false,
+  smallOptions = false,
   currentValue,
   renderOption,
   isSelected,
@@ -268,6 +276,7 @@ export function Dropdown<T extends DropdownOption>({
   entity: string;
   options: T[];
   hideChevron?: boolean;
+  smallOptions?: boolean;
   currentValue: ReactNode;
   renderOption: (option: T) => ReactNode;
   isSelected: (option: T) => boolean;
@@ -334,7 +343,8 @@ export function Dropdown<T extends DropdownOption>({
               <li key={option.value}>
                 <button
                   className={classNames({
-                    'btn btn-sm btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                    'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                    'btn-sm': smallOptions,
                     'btn-active': isSelected(option),
                   })}
                   onClick={handleSelect(option)}

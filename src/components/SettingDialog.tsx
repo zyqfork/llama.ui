@@ -583,30 +583,22 @@ export default function SettingDialog({
           {/* Left panel, showing sections - Mobile version */}
           {/* This menu is skipped on a11y, otherwise it's repeated the desktop version */}
           <div
-            className="md:hidden flex flex-row gap-2 mb-4"
+            className="md:hidden flex flex-row gap-2 mb-4 px-4"
             aria-disabled={true}
           >
-            <details className="dropdown">
-              <summary className="btn bt-sm w-full m-1">
-                {settingTabs[tabIdx].title}
-              </summary>
-              <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                {settingTabs.map((tab, idx) => (
-                  <li key={idx}>
-                    <button
-                      className={classNames({
-                        'btn btn-ghost justify-start font-normal': true,
-                        'btn-active': tabIdx === idx,
-                      })}
-                      onClick={() => setTabIdx(idx)}
-                      dir="auto"
-                    >
-                      {tab.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </details>
+            <Dropdown
+              className="bg-base-300 w-full rounded-lg cursor-pointer p-2"
+              entity="tab"
+              options={settingTabs.map((tab, idx) => ({
+                label: tab.title,
+                value: idx,
+              }))}
+              smallOptions={false}
+              currentValue={settingTabs[tabIdx].title}
+              renderOption={(option) => <span>{option.label}</span>}
+              isSelected={(option) => tabIdx === option.value}
+              onSelect={(option) => setTabIdx(option.value as number)}
+            />
           </div>
 
           {/* Right panel, showing setting fields */}
@@ -916,6 +908,7 @@ const SettingsModalDropdown: React.FC<{
             className="grow"
             entity={configKey}
             options={options}
+            smallOptions={true}
             currentValue={selectedValue}
             renderOption={renderOption}
             isSelected={(option) => value === option.value}
@@ -928,6 +921,7 @@ const SettingsModalDropdown: React.FC<{
             className="grow"
             entity={configKey}
             options={options}
+            smallOptions={false}
             currentValue={selectedValue}
             renderOption={renderOption}
             isSelected={(option) => value === option.value}
