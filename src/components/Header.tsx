@@ -34,7 +34,7 @@ export default function Header() {
   }, [models, model]);
 
   return (
-    <header className="flex flex-col gap-2 justify-center xl:py-2 sticky top-0 z-10">
+    <header className="flex flex-col gap-2 justify-center md:py-2 sticky top-0 z-10">
       <section className="flex flex-row items-center xl:hidden">
         {/* open sidebar button */}
         <label htmlFor="toggle-drawer" className="btn btn-ghost w-8 h-8 p-0">
