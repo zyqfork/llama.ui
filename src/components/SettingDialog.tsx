@@ -23,8 +23,8 @@ import {
 } from '@heroicons/react/24/outline';
 import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppStore } from '../context/app.context';
+import { useInferenceStore } from '../context/inference.context';
 import * as lang from '../lang/en.json';
 import {
   dateFormatter,
@@ -437,9 +437,10 @@ export default function SettingDialog({
   show: boolean;
   onClose: () => void;
 }) {
-  const { config, saveConfig, presets, savePreset, removePreset } =
-    useAppContext();
-  const { models, fetchModels } = useInferenceContext();
+  const config = useAppStore((state) => state.config);
+  const presets = useAppStore((state) => state.presets);
+  const models = useInferenceStore((state) => state.models);
+
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
@@ -453,6 +454,11 @@ export default function SettingDialog({
     () => getSettingTabsConfiguration(localConfig, localModels),
     [localConfig, localModels]
   );
+
+  const saveConfig = useAppStore((state) => state.saveConfig);
+  const savePreset = useAppStore((state) => state.savePreset);
+  const removePreset = useAppStore((state) => state.removePreset);
+  const fetchModels = useInferenceStore((state) => state.fetchModels);
 
   const { showConfirm, showAlert } = useModals();
 

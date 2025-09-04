@@ -3,8 +3,8 @@ import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppStore } from '../context/app.context';
+import { useInferenceStore } from '../context/inference.context';
 import { MessageExtra } from '../utils/types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
@@ -28,8 +28,10 @@ export interface ChatExtraContextApi {
 export function useChatExtraContext(
   initialItems: MessageExtra[] = []
 ): ChatExtraContextApi {
-  const { config } = useAppContext();
-  const { serverProps } = useInferenceContext();
+  const pdfAsImage = useAppStore((state) => state.config.pdfAsImage);
+  const modalities = useInferenceStore(
+    (state) => state.serverProps?.modalities
+  );
   const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
   const addItems = (newItems: MessageExtra[]) => {
@@ -44,7 +46,7 @@ export function useChatExtraContext(
     setItems([]);
   };
 
-  const isSupportVision = serverProps?.modalities?.vision;
+  const isSupportVision = modalities?.vision;
 
   const onFileAdded = async (files: File[]) => {
     try {
@@ -96,14 +98,14 @@ export function useChatExtraContext(
             },
           ]);
         } else if (mimeType.startsWith('application/pdf')) {
-          if (config.pdfAsImage && !isSupportVision) {
+          if (pdfAsImage && !isSupportVision) {
             toast(
               'Multimodal is not supported, PDF will be converted to text instead of image.'
             );
             break;
           }
 
-          if (config.pdfAsImage && isSupportVision) {
+          if (pdfAsImage && isSupportVision) {
             // Convert PDF to images
             const base64Urls = await convertPDFToImage(file);
             addItems(

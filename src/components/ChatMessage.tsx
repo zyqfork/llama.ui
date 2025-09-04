@@ -9,8 +9,9 @@ import {
   ShareIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
-import { useAppContext } from '../context/app.context';
-import { useMessageContext } from '../context/message.context';
+import { useNavigate } from 'react-router';
+import { useAppStore } from '../context/app.context';
+import { useMessageStore } from '../context/message.context';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';
 import { classNames, copyStr, splitMessageContent } from '../utils/misc';
@@ -46,7 +47,10 @@ export default function ChatMessage({
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
-  const { config } = useAppContext();
+  const initials = useAppStore((state) => state.config.initials);
+  const showTokensPerSecond = useAppStore(
+    (state) => state.config.showTokensPerSecond
+  );
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
@@ -128,7 +132,7 @@ export default function ChatMessage({
           <div className="mb-1 text-sm">
             {isUser && (
               <span className="font-bold mr-1">
-                {config.initials || lang.chatMessage.userLabel}
+                {initials || lang.chatMessage.userLabel}
               </span>
             )}
             {isAssistant && msg.model && (
@@ -229,7 +233,7 @@ export default function ChatMessage({
           )}
 
           {/* render timings if enabled */}
-          {isAssistant && timings && config.showTokensPerSecond && (
+          {isAssistant && timings && showTokensPerSecond && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
               title="Performance"
@@ -381,7 +385,9 @@ function ThoughtProcess({
   isThinking: boolean;
   content: string;
 }) {
-  const { config } = useAppContext();
+  const showThoughtInProgress = useAppStore(
+    (state) => state.config.showThoughtInProgress
+  );
   return (
     <div
       role="button"
@@ -391,7 +397,7 @@ function ThoughtProcess({
         'collapse bg-none': true,
       })}
     >
-      <input type="checkbox" defaultChecked={config.showThoughtInProgress} />
+      <input type="checkbox" defaultChecked={showThoughtInProgress} />
       <div className="collapse-title px-0 py-2">
         <div className="btn border-0 rounded-xl">
           {isThinking && (
@@ -428,11 +434,15 @@ const BranchButton = ({
   className?: string;
   msg: Message;
 }) => {
-  const { branchMessage } = useMessageContext();
+  const navigate = useNavigate();
+  const branchMessage = useMessageStore((state) => state.branchMessage);
   return (
     <button
       className={className}
-      onClick={async () => await branchMessage(msg)}
+      onClick={async () => {
+        const conv = await branchMessage(msg);
+        if (conv) navigate(`/chat/${conv.id}`);
+      }}
       disabled={!msg.content}
       title="Branch chat after this message"
       aria-label="Branch chat after this message"

@@ -1,19 +1,19 @@
 import { useNavigate } from 'react-router';
 import {
   CallbackGeneratedChunk,
-  useMessageContext,
+  useMessageStore,
 } from '../context/message.context';
 import * as lang from '../lang/en.json';
 import { getUniqueRandomElements } from '../utils/misc';
+import StorageUtils from '../utils/storage.ts';
 import { MessageExtra } from '../utils/types';
 import { ChatInput } from './ChatInput.tsx';
-import StorageUtils from '../utils/storage.ts';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 
 export default function WelcomeScreen() {
   const navigate = useNavigate();
-  const { sendMessage } = useMessageContext();
+  const sendMessage = useMessageStore((state) => state.sendMessage);
 
   const handleSend = async (
     content: string,

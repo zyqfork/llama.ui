@@ -1,14 +1,18 @@
 import { Bars3Icon, Cog8ToothIcon } from '@heroicons/react/24/outline';
 import { useMemo } from 'react';
 import { THEMES } from '../config';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
-import { FilterableDropdown, DropdownOption, Dropdown } from '../utils/common';
+import { useAppStore } from '../context/app.context';
+import { useInferenceStore } from '../context/inference.context';
+import { Dropdown, DropdownOption, FilterableDropdown } from '../utils/common';
 
 export default function Header() {
-  const { config, setShowSettings, saveConfig, currentTheme, switchTheme } =
-    useAppContext();
-  const { models } = useInferenceContext();
+  const config = useAppStore((state) => state.config);
+  const currentTheme = useAppStore((state) => state.currentTheme);
+  const models = useInferenceStore((state) => state.models);
+
+  const setShowSettings = useAppStore((state) => state.setShowSettings);
+  const saveConfig = useAppStore((state) => state.saveConfig);
+  const switchTheme = useAppStore((state) => state.switchTheme);
 
   const selectedModel = useMemo(() => {
     const selectedModel = models.find((model) => model.id === config.model);

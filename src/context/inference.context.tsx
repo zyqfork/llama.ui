@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
 import InferenceApi, {
@@ -6,15 +6,14 @@ import InferenceApi, {
   LlamaCppServerProps,
 } from '../utils/inferenceApi';
 import { Configuration } from '../utils/types';
-import { useAppContext } from './app.context';
 
 // --- Type Definitions ---
 
 type FetchOptions = {
-  silent: boolean;
+  silent?: boolean;
 };
 
-interface InferenceContextValue {
+interface InferenceState {
   api: InferenceApi;
   models: InferenceApiModel[];
   serverProps: LlamaCppServerProps;
@@ -23,6 +22,17 @@ interface InferenceContextValue {
     config: Configuration,
     options?: FetchOptions
   ) => Promise<InferenceApiModel[]>;
+
+  fetchServerProperties: (
+    config: Configuration,
+    options?: FetchOptions
+  ) => Promise<LlamaCppServerProps>;
+
+  syncServer: (config: Configuration, options?: FetchOptions) => Promise<void>;
+
+  updateApi: (config: Configuration) => void;
+  setModels: (models: InferenceApiModel[]) => void;
+  setServerProps: (props: LlamaCppServerProps) => void;
 }
 
 // --- Constants ---
@@ -38,16 +48,9 @@ const noServerProps: LlamaCppServerProps = {
   },
 };
 
-const InferenceContext = createContext<InferenceContextValue>({
-  api: InferenceApi.new(CONFIG_DEFAULT),
-  models: noModels,
-  serverProps: noServerProps,
-  fetchModels: () => new Promise(() => noModels),
-});
-
 // --- Helper Functions ---
 
-function isProviderReady(config: Configuration) {
+function isProviderReady(config: Configuration): boolean {
   if (!config.provider) return false;
 
   const providerInfo = INFERENCE_PROVIDERS[config.provider];
@@ -58,51 +61,29 @@ function isProviderReady(config: Configuration) {
   );
 }
 
-export const InferenceContextProvider = ({
-  children,
-}: {
-  children: React.ReactElement;
-}) => {
-  const { config } = useAppContext();
-  const [api, setApi] = useState<InferenceApi>(InferenceApi.new(config));
-  const [models, setModels] = useState<InferenceApiModel[]>(noModels);
-  const [serverProps, setServerProps] =
-    useState<LlamaCppServerProps>(noServerProps);
+export const useInferenceStore = create<InferenceState>((set, get) => ({
+  api: InferenceApi.new(CONFIG_DEFAULT),
+  models: noModels,
+  serverProps: noServerProps,
 
-  useEffect(() => {
-    if (!config) return;
+  updateApi: (config: Configuration) => {
     if (isDev) console.debug('Update Inference API');
     const newApi = InferenceApi.new(config);
-    setApi(newApi);
-  }, [config]);
+    set({ api: newApi });
+  },
 
-  const { baseUrl, apiKey } = config;
-  useEffect(() => {
-    if (!baseUrl) return;
-    if (isDev) console.debug('Update inference model list');
-    const syncServer = async (config: Configuration) => {
-      setModels(await fetchModels(config));
-      setServerProps(await fetchServerProperties(config));
-    };
-    syncServer(config);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseUrl, apiKey]);
+  setModels: (models) => set({ models }),
+  setServerProps: (props) => set({ serverProps: props }),
 
-  // --- Main Functions ---
-
-  const fetchModels = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<InferenceApiModel[]> => {
-    if (!isProviderReady(config)) {
-      return noModels;
-    }
+  fetchModels: async (config, options = {}) => {
+    if (!isProviderReady(config)) return noModels;
 
     if (isDev) console.debug('Fetch models');
     const newApi = InferenceApi.new(config);
     let newModels = noModels;
     try {
       newModels = await newApi.v1Models();
+      set({ models: newModels, api: newApi });
     } catch (err) {
       if (!options.silent) {
         console.error('fetch models failed: ', err);
@@ -110,12 +91,9 @@ export const InferenceContextProvider = ({
       }
     }
     return newModels;
-  };
+  },
 
-  const fetchServerProperties = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<LlamaCppServerProps> => {
+  fetchServerProperties: async (config, options = {}) => {
     if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
       return noServerProps;
     }
@@ -125,29 +103,22 @@ export const InferenceContextProvider = ({
     let newProps = noServerProps;
     try {
       newProps = await newApi.getServerProps();
+      set({ serverProps: newProps });
     } catch (err) {
       if (!options.silent) {
         console.error('fetch llama.cpp props failed: ', err);
       }
     }
     return newProps;
-  };
+  },
 
-  return (
-    <InferenceContext.Provider
-      value={{ api, models, serverProps, fetchModels }}
-    >
-      {children}
-    </InferenceContext.Provider>
-  );
-};
+  syncServer: async (config, options = {}) => {
+    const { fetchModels, fetchServerProperties } = get();
 
-export const useInferenceContext = () => {
-  const context = useContext(InferenceContext);
-  if (!context) {
-    throw new Error(
-      'useInferenceContext must be used within an InferenceContextProvider'
-    );
-  }
-  return context;
-};
+    if (!config.baseUrl) return;
+    if (isDev) console.debug('Update inference model list');
+
+    await fetchModels(config, options);
+    await fetchServerProperties(config, options);
+  },
+}));

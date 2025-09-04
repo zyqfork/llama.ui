@@ -1,66 +1,51 @@
-import daisyuiThemes from 'daisyui/theme/object';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { create } from 'zustand';
 import toast from 'react-hot-toast';
+import daisyuiThemes from 'daisyui/theme/object';
 import { CONFIG_DEFAULT, isDev } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration, ConfigurationPreset } from '../utils/types';
-import usePrefersColorScheme from '../components/usePrefersColorScheme';
+import { useInferenceStore } from './inference.context';
 
-interface AppContextValue {
+interface AppStore {
   config: Configuration;
-  saveConfig: (config: Configuration) => void;
   presets: ConfigurationPreset[];
+  showSettings: boolean;
+  currentTheme: string;
+
+  saveConfig: (config: Configuration) => void;
   savePreset: (name: string, config: Configuration) => Promise<void>;
   removePreset: (name: string) => Promise<void>;
-  showSettings: boolean;
   setShowSettings: (show: boolean) => void;
-  currentTheme: string;
   switchTheme: (theme: string) => void;
-  colorScheme: string;
+  init: () => Promise<void>;
 }
 
-const AppContext = createContext<AppContextValue>({
-  config: {} as Configuration,
-  saveConfig: () => {},
+export const useAppStore = create<AppStore>((set, get) => ({
+  config: CONFIG_DEFAULT,
   presets: [],
-  savePreset: () => new Promise(() => {}),
-  removePreset: () => new Promise(() => {}),
   showSettings: false,
-  setShowSettings: () => {},
-  currentTheme: 'auto',
-  switchTheme: () => {},
-  colorScheme: 'light',
-});
+  currentTheme: StorageUtils.getTheme(),
 
-export const AppContextProvider = ({
-  children,
-}: {
-  children: React.ReactElement;
-}) => {
-  const [config, setConfig] = useState<Configuration>(CONFIG_DEFAULT);
-  const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
-  const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [currentTheme, setCurrentTheme] = useState<string>(
-    StorageUtils.getTheme()
-  );
-  const { colorScheme } = usePrefersColorScheme();
+  setShowSettings: (show: boolean) => {
+    set({ showSettings: show });
+  },
 
   // --- Initialization ---
 
-  useEffect(() => {
-    const init = async () => {
-      if (isDev) console.debug('Load config');
-      setConfig(StorageUtils.getConfig());
-
-      if (isDev) console.debug('Load presets');
-      setPresets(await StorageUtils.getPresets());
-    };
-    init();
-  }, []);
+  init: async () => {
+    if (isDev) console.debug('Load config & presets');
+    const config = StorageUtils.getConfig();
+    const presets = await StorageUtils.getPresets();
+    set({ config, presets });
+  },
 
   // --- DaisyUI Theme ---
 
-  useEffect(() => {
+  switchTheme: (currentTheme: string) => {
+    if (isDev) console.debug('Switch theme', currentTheme);
+    StorageUtils.setTheme(currentTheme);
+    set({ currentTheme });
+
     // Update body color scheme
     document.body.setAttribute('data-theme', currentTheme);
     document.body.setAttribute(
@@ -77,58 +62,38 @@ export const AppContextProvider = ({
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute('content', color);
     }
-  }, [currentTheme]);
+  },
 
-  const saveConfig = (config: Configuration) => {
+  saveConfig: (config: Configuration) => {
+    const { config: prevConfig } = get();
+
     if (isDev) console.debug('Save config', config);
-    StorageUtils.setConfig(config);
-    setConfig(config);
-  };
 
-  const savePreset = async (name: string, config: Configuration) => {
+    useInferenceStore.getState().updateApi(config);
+    if (
+      config.baseUrl !== prevConfig.baseUrl ||
+      config.apiKey !== prevConfig.apiKey
+    ) {
+      useInferenceStore.getState().syncServer(config);
+    }
+
+    StorageUtils.setConfig(config);
+    set({ config });
+  },
+
+  savePreset: async (name: string, config: Configuration) => {
     if (isDev) console.debug('Save preset', { name, config });
     await StorageUtils.savePreset(name, config);
-    setPresets(await StorageUtils.getPresets());
+    const presets = await StorageUtils.getPresets();
+    set({ presets });
     toast.success('Preset is saved successfully');
-  };
+  },
 
-  const removePreset = async (name: string) => {
+  removePreset: async (name: string) => {
     if (isDev) console.debug('Remove preset', name);
     await StorageUtils.removePreset(name);
-    setPresets(await StorageUtils.getPresets());
+    const presets = await StorageUtils.getPresets();
+    set({ presets });
     toast.success('Preset is removed successfully');
-  };
-
-  const switchTheme = (theme: string) => {
-    if (isDev) console.debug('Switch theme', theme);
-    StorageUtils.setTheme(theme);
-    setCurrentTheme(theme);
-  };
-
-  return (
-    <AppContext.Provider
-      value={{
-        config,
-        saveConfig,
-        presets,
-        savePreset,
-        removePreset,
-        showSettings,
-        setShowSettings,
-        currentTheme,
-        switchTheme,
-        colorScheme,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
-  );
-};
-
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppContextProvider');
-  }
-  return context;
-};
+  },
+}));

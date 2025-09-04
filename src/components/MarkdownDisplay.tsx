@@ -8,8 +8,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { useAppContext } from '../context/app.context';
-import { useMessageContext } from '../context/message.context';
+import { useAppStore } from '../context/app.context';
+import { useMessageStore } from '../context/message.context';
 import { classNames, copyStr } from '../utils/misc';
 import { CanvasType } from '../utils/types';
 
@@ -49,8 +49,10 @@ const CustomPre: React.ElementType<
     React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
 > = ({ children, node, origContent, isGenerating }) => {
-  const { config } = useAppContext();
-  const { setCanvasData } = useMessageContext();
+  const pyIntepreterEnabled = useAppStore(
+    (state) => state.config.pyIntepreterEnabled
+  );
+  const setCanvasData = useMessageStore((state) => state.setCanvasData);
 
   const showActionButtons = useMemo(() => {
     const startOffset = node?.position?.start.offset;
@@ -74,9 +76,9 @@ const CustomPre: React.ElementType<
   const canRunCode = useMemo(
     () =>
       !isGenerating &&
-      config.pyIntepreterEnabled &&
+      pyIntepreterEnabled &&
       codeLanguage.toLowerCase() === 'python',
-    [isGenerating, config.pyIntepreterEnabled, codeLanguage]
+    [isGenerating, pyIntepreterEnabled, codeLanguage]
   );
 
   const handleCopy = () => {

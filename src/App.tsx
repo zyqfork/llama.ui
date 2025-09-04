@@ -1,14 +1,7 @@
 import { FC, useCallback, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import {
-  BrowserRouter,
-  Navigate,
-  Outlet,
-  Route,
-  Routes,
-  useParams,
-} from 'react-router';
-import ChatScreen from './components/ChatScreen';
+import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
+import ChatView from './components/ChatView';
 import { Footer } from './components/Footer';
 import Header from './components/Header';
 import { ModalProvider } from './components/ModalProvider';
@@ -18,12 +11,8 @@ import { ToastPopup } from './components/ToastPopup';
 import { useDebouncedCallback } from './components/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './components/usePWAUpdatePrompt';
 import WelcomeScreen from './components/WelcomeScreen';
-import { AppContextProvider, useAppContext } from './context/app.context';
-import {
-  InferenceContextProvider,
-  useInferenceContext,
-} from './context/inference.context';
-import { MessageContextProvider } from './context/message.context';
+import { useAppStore } from './context/app.context';
+import { useInferenceStore } from './context/inference.context';
 import * as lang from './lang/en.json';
 
 const DEBOUNCE_DELAY = 1000;
@@ -33,22 +22,21 @@ const TOAST_IDS = {
 };
 
 const App: FC = () => {
+  const init = useAppStore((state) => state.init);
+  useEffect(() => {
+    init();
+  }, [init]);
+
   return (
     <ModalProvider>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <div className="flex flex-row drawer xl:drawer-open">
-          <AppContextProvider>
-            <InferenceContextProvider>
-              <MessageContextProvider>
-                <Routes>
-                  <Route element={<AppLayout />}>
-                    <Route path="/chat/:convId" element={<Chat />} />
-                    <Route path="*" element={<WelcomeScreen />} />
-                  </Route>
-                </Routes>
-              </MessageContextProvider>
-            </InferenceContextProvider>
-          </AppContextProvider>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/chat/:convId" element={<ChatView />} />
+              <Route path="*" element={<WelcomeScreen />} />
+            </Route>
+          </Routes>
         </div>
       </BrowserRouter>
     </ModalProvider>
@@ -56,8 +44,10 @@ const App: FC = () => {
 };
 
 const AppLayout: FC = () => {
-  const { config, showSettings, setShowSettings } = useAppContext();
-  const { models } = useInferenceContext();
+  const config = useAppStore((state) => state.config);
+  const showSettings = useAppStore((state) => state.showSettings);
+  const setShowSettings = useAppStore((state) => state.setShowSettings);
+  const models = useInferenceStore((state) => state.models);
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
   const checkModelsAndShowToast = useCallback(
@@ -149,12 +139,6 @@ const AppLayout: FC = () => {
       <Toaster />
     </>
   );
-};
-
-const Chat: FC = () => {
-  const { convId } = useParams();
-  if (!convId) return <Navigate to="/" replace />;
-  return <ChatScreen currConvId={convId} />;
 };
 
 export default App;

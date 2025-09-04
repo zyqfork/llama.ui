@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router';
-import { useMessageContext } from '../context/message.context';
+import { useMessageStore } from '../context/message.context';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import { Conversation } from '../utils/types';
@@ -20,7 +20,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { isGenerating } = useMessageContext();
+  const isGenerating = useMessageStore((state) => state.isGenerating);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currConv, setCurrConv] = useState<Conversation | null>(null);
