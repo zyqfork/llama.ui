@@ -92,17 +92,20 @@ export default function ChatScreen() {
   }, [viewingChat?.messages, currNodeId]);
 
   const pendingMsg = useMemo(() => {
-    const pendingMsg = currConvId ? pendingMessages[currConvId] : null;
-    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
-    if (pendingMsg && messages.at(-1)?.msg.id !== pendingMsg.id) {
-      return {
-        msg: pendingMsg,
-        siblingLeafNodeIds: [],
-        siblingCurrIdx: 0,
-        isPending: true,
-      };
+    if (!currConvId) {
+      return null;
     }
-    return null;
+    const pendingMsg = pendingMessages[currConvId];
+    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
+    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
+      return null;
+    }
+    return {
+      msg: pendingMsg,
+      siblingLeafNodeIds: [],
+      siblingCurrIdx: 0,
+      isPending: true,
+    };
   }, [currConvId, messages, pendingMessages]);
 
   useEffect(() => {
