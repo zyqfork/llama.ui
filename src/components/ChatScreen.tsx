@@ -62,7 +62,6 @@ export default function ChatScreen({
     sendMessage,
     isGenerating,
     stopGenerating,
-    pendingMessages,
     canvasData,
     replaceMessage,
     replaceMessageAndGenerate,
@@ -88,23 +87,6 @@ export default function ChatScreen({
       lastMsgNodeId,
     };
   }, [viewingChat?.messages, currNodeId]);
-
-  const pendingMsg = useMemo(() => {
-    if (!currConvId) {
-      return null;
-    }
-    const pendingMsg = pendingMessages[currConvId];
-    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
-    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
-      return null;
-    }
-    return {
-      msg: pendingMsg,
-      siblingLeafNodeIds: [],
-      siblingCurrIdx: 0,
-      isPending: true,
-    };
-  }, [currConvId, messages, pendingMessages]);
 
   useEffect(() => {
     // reset to latest node when conversation changes
@@ -213,19 +195,7 @@ export default function ChatScreen({
                     isPending={msg.isPending}
                   />
                 ))}
-                {pendingMsg && (
-                  <ChatMessage
-                    key={pendingMsg.msg.id}
-                    msg={pendingMsg.msg}
-                    siblingLeafNodeIds={pendingMsg.siblingLeafNodeIds}
-                    siblingCurrIdx={pendingMsg.siblingCurrIdx}
-                    onRegenerateMessage={() => {}}
-                    onEditUserMessage={() => {}}
-                    onEditAssistantMessage={() => {}}
-                    onChangeSibling={setCurrNodeId}
-                    isPending={pendingMsg.isPending}
-                  />
-                )}
+                <PendingMessage currConvId={currConvId} messages={messages} />
               </div>
             )}
           </div>
@@ -253,5 +223,43 @@ export default function ChatScreen({
         />
       </div>
     </div>
+  );
+}
+
+function PendingMessage({
+  currConvId,
+  messages,
+}: {
+  currConvId: Conversation['id'];
+  messages: MessageDisplay[];
+}) {
+  const { pendingMessages } = useMessageContext();
+
+  const msg = useMemo(() => {
+    if (!currConvId) {
+      return null;
+    }
+    const pendingMsg = pendingMessages[currConvId];
+    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
+    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
+      return null;
+    }
+    return pendingMsg;
+  }, [currConvId, messages, pendingMessages]);
+
+  if (!msg) return null;
+
+  return (
+    <ChatMessage
+      key={msg.id}
+      msg={msg}
+      siblingLeafNodeIds={[]}
+      siblingCurrIdx={0}
+      onRegenerateMessage={() => {}}
+      onEditUserMessage={() => {}}
+      onEditAssistantMessage={() => {}}
+      onChangeSibling={() => {}}
+      isPending={true}
+    />
   );
 }
