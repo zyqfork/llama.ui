@@ -9,11 +9,47 @@ import {
   useState,
 } from 'react';
 
+// Define language popularity order (you can customize this)
+const popularLanguages = [
+  'en',
+  'zh',
+  'hi',
+  'es',
+  'fr',
+  'ru',
+  'pt',
+  'de',
+  'ja',
+  'ko',
+  'it',
+  'ar',
+];
+
 export const IS_SPEECH_SYNTHESIS_SUPPORTED = !!speechSynthesis || false;
 export const getSpeechSynthesisVoices = () =>
-  speechSynthesis?.getVoices() || [];
+  speechSynthesis
+    ?.getVoices()
+    .filter((voice) => voice.localService)
+    .sort((a, b) => {
+      // Default voice first
+      if (a.default !== b.default) return a.default ? -1 : 1;
+
+      // Popular languages on top
+      const aRank = popularLanguages.indexOf(a.lang.substring(0, 2));
+      const bRank = popularLanguages.indexOf(b.lang.substring(0, 2));
+      if (aRank !== bRank) {
+        const aEffectiveRank = aRank === -1 ? Infinity : aRank;
+        const bEffectiveRank = bRank === -1 ? Infinity : bRank;
+        return aEffectiveRank - bEffectiveRank;
+      }
+
+      // Sort by language and name (alphabetically)
+      return a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name);
+    }) || [];
 export function getSpeechSynthesisVoiceByName(name: string) {
-  return getSpeechSynthesisVoices().find((voice) => voice.name === name);
+  return getSpeechSynthesisVoices().find(
+    (voice) => `${voice.name} (${voice.lang})` === name
+  );
 }
 
 interface TextToSpeechProps {

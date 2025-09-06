@@ -272,9 +272,10 @@ const getSettingTabsConfiguration = (
         !IS_SPEECH_SYNTHESIS_SUPPORTED
           ? []
           : getSpeechSynthesisVoices().map((voice) => ({
-              value: voice.name,
+              value: `${voice.name} (${voice.lang})`,
               label: `${voice.name} (${voice.lang})`,
-            }))
+            })),
+        true
       ),
       toInput(
         SettingInputType.RANGE_INPUT,
