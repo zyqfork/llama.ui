@@ -18,6 +18,9 @@ import {
   HandRaisedIcon,
   PencilIcon,
   RocketLaunchIcon,
+  SignalIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
   SquaresPlusIcon,
   TrashIcon,
   TvIcon,
@@ -26,7 +29,7 @@ import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev, THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
-import * as lang from '../lang/en.json';
+import lang from '../lang/en.json';
 import {
   dateFormatter,
   Dropdown,
@@ -50,12 +53,18 @@ import {
   ProviderOption,
 } from '../utils/types';
 import { useModals } from './ModalProvider';
+import TextToSpeech, {
+  getSpeechSynthesisVoiceByName,
+  getSpeechSynthesisVoices,
+  IS_SPEECH_SYNTHESIS_SUPPORTED,
+} from './TextToSpeech';
 import { useDebouncedCallback } from './useDebouncedCallback';
 
 // --- Type Definitions ---
 enum SettingInputType {
   SHORT_INPUT,
   LONG_INPUT,
+  RANGE_INPUT,
   CHECKBOX,
   DROPDOWN,
   CUSTOM,
@@ -73,6 +82,7 @@ interface SettingFieldInput {
   note?: string | TrustedHTML;
   key: ConfigurationKey;
   disabled?: boolean;
+  [key: string]: unknown; // Allow additional properties
 }
 
 interface SettingFieldCustom {
@@ -94,15 +104,12 @@ interface SettingFieldCustom {
 }
 
 interface DropdownOption {
-  value: string;
+  value: string | number;
   label: string;
   icon?: string;
 }
-interface SettingFieldDropdown {
+interface SettingFieldDropdown extends SettingFieldInput {
   type: SettingInputType.DROPDOWN;
-  label: string | React.ReactElement;
-  note?: string | TrustedHTML;
-  key: ConfigurationKey;
   options: DropdownOption[];
   isSearchEnabled: boolean;
 }
@@ -145,7 +152,8 @@ const toSection = (
 const toInput = (
   type: SettingFieldInputType,
   key: ConfigurationKey,
-  disabled?: boolean
+  disabled: boolean = false,
+  additional?: Record<string, unknown>
 ): SettingFieldInput => {
   return {
     type,
@@ -153,16 +161,19 @@ const toInput = (
     note: lang.settings.parameters[key].note,
     disabled,
     key,
+    ...additional,
   };
 };
 const toDropdown = (
   key: ConfigurationKey,
   options: DropdownOption[],
-  isSearchEnabled: boolean = false
+  isSearchEnabled: boolean = false,
+  disabled: boolean = false
 ): SettingFieldDropdown => {
   return {
     type: SettingInputType.DROPDOWN,
     key,
+    disabled,
     label: lang.settings.parameters[key].label,
     note: lang.settings.parameters[key].note,
     options,
@@ -243,6 +254,89 @@ const getSettingTabsConfiguration = (
         type: SettingInputType.CUSTOM,
         key: 'theme-manager',
         component: UnusedCustomField,
+      },
+    ],
+  },
+
+  /* UI */
+  {
+    title: (
+      <>
+        <SignalIcon className={ICON_CLASSNAME} />
+        Voice
+      </>
+    ),
+    fields: [
+      /* Text to Speech */
+      toSection(
+        'Text to Speech',
+        <SpeakerWaveIcon className={ICON_CLASSNAME} />
+      ),
+      toDropdown(
+        'ttsVoice',
+        !IS_SPEECH_SYNTHESIS_SUPPORTED
+          ? []
+          : getSpeechSynthesisVoices().map((voice) => ({
+              value: voice.name,
+              label: `${voice.name} (${voice.lang})`,
+            }))
+      ),
+      toInput(
+        SettingInputType.RANGE_INPUT,
+        'ttsPitch',
+        !IS_SPEECH_SYNTHESIS_SUPPORTED,
+        {
+          min: 0,
+          max: 2,
+          step: 0.5,
+        }
+      ),
+      toInput(
+        SettingInputType.RANGE_INPUT,
+        'ttsRate',
+        !IS_SPEECH_SYNTHESIS_SUPPORTED,
+        {
+          min: 0.5,
+          max: 2,
+          step: 0.5,
+        }
+      ),
+      toInput(
+        SettingInputType.RANGE_INPUT,
+        'ttsVolume',
+        !IS_SPEECH_SYNTHESIS_SUPPORTED,
+        {
+          min: 0,
+          max: 1,
+          step: 0.25,
+        }
+      ),
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'custom', // dummy key, won't be used
+        component: () => (
+          <TextToSpeech
+            text={lang.settings.textToSpeech.check.text}
+            voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
+            pitch={config.ttsPitch}
+            rate={config.ttsRate}
+            volume={config.ttsVolume}
+          >
+            {({ isPlaying, play }) => (
+              <button
+                className="btn"
+                onClick={() => (!isPlaying ? play() : stop())}
+                disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED}
+                title="Play test message"
+                aria-label="Play test message"
+              >
+                {!isPlaying && <SpeakerWaveIcon className={ICON_CLASSNAME} />}
+                {isPlaying && <SpeakerXMarkIcon className={ICON_CLASSNAME} />}
+                {lang.settings.textToSpeech.check.label}
+              </button>
+            )}
+          </TextToSpeech>
+        ),
       },
     ],
   },
@@ -524,32 +618,33 @@ export default function SettingDialog({
     1000
   );
 
-  const onChange = (key: ConfigurationKey) => (value: string | boolean) => {
-    // note: we do not perform validation here, because we may get incomplete value as user is still typing it
-    setLocalConfig((prevConfig) => {
-      let newConfig = {
-        ...prevConfig,
-        [key]: value,
-      };
+  const onChange =
+    (key: ConfigurationKey) => (value: string | number | boolean) => {
+      // note: we do not perform validation here, because we may get incomplete value as user is still typing it
+      setLocalConfig((prevConfig) => {
+        let newConfig = {
+          ...prevConfig,
+          [key]: value,
+        };
 
-      if (key === 'provider') {
-        const typedKey = value as InferenceProvidersKey;
-        const providerInfo = INFERENCE_PROVIDERS[typedKey];
-        if (providerInfo?.baseUrl) {
-          newConfig = {
-            ...newConfig,
-            baseUrl: providerInfo.baseUrl,
-          };
+        if (key === 'provider') {
+          const typedKey = value as InferenceProvidersKey;
+          const providerInfo = INFERENCE_PROVIDERS[typedKey];
+          if (providerInfo?.baseUrl) {
+            newConfig = {
+              ...newConfig,
+              baseUrl: providerInfo.baseUrl,
+            };
+          }
         }
-      }
 
-      if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
-        debouncedFetchModels(newConfig);
-      }
+        if (['provider', 'baseUrl', 'apiKey'].includes(key)) {
+          debouncedFetchModels(newConfig);
+        }
 
-      return newConfig;
-    });
-  };
+        return newConfig;
+      });
+    };
 
   return (
     <dialog
@@ -617,6 +712,19 @@ export default function SettingDialog({
                       onChange={onChange(field.key)}
                     />
                   );
+                case SettingInputType.RANGE_INPUT:
+                  return (
+                    <SettingsModalRangeInput
+                      key={key}
+                      configKey={field.key}
+                      field={field}
+                      min={field.min as number}
+                      max={field.max as number}
+                      step={field.step as number}
+                      value={localConfig[field.key] as number}
+                      onChange={onChange(field.key)}
+                    />
+                  );
                 case SettingInputType.LONG_INPUT:
                   return (
                     <SettingsModalLongInput
@@ -642,7 +750,7 @@ export default function SettingDialog({
                     <SettingsModalDropdown
                       key={key}
                       configKey={field.key}
-                      field={field}
+                      field={field as SettingFieldInput}
                       options={(field as SettingFieldDropdown).options}
                       isSearchEnabled={
                         (field as SettingFieldDropdown).isSearchEnabled
@@ -755,7 +863,7 @@ export default function SettingDialog({
 interface BaseInputProps {
   configKey: ConfigurationKey | 'custom';
   field: SettingFieldInput;
-  onChange: (value: string | boolean) => void;
+  onChange: (value: string | number | boolean) => void;
 }
 
 const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
@@ -815,6 +923,60 @@ const SettingsModalShortInput: React.FC<
   );
 };
 
+const SettingsModalRangeInput: React.FC<
+  BaseInputProps & {
+    value: number;
+    min: number;
+    max: number;
+    step: number;
+  }
+> = ({ configKey, field, value, min, max, step, onChange }) => {
+  const values = useMemo(() => {
+    const fractionDigits =
+      Math.floor(step) === step ? 0 : step.toString().split('.')[1].length || 0;
+
+    const length = Math.floor((max - min) / step) + 1;
+    return Array.from({ length }, (_, i) =>
+      Number(min + i * step).toFixed(fractionDigits)
+    );
+  }, [max, min, step]);
+  return (
+    <label className="form-control flex flex-col justify-center mb-3">
+      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+        {field.label || configKey}
+      </div>
+      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+        <div tabIndex={0} role="button" className="font-bold hidden md:block">
+          {field.label || configKey}
+        </div>
+        <div className="grow px-2">
+          <input
+            type="range"
+            className="range range-xs [--range-fill:0]"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={field.disabled}
+          />
+          <div className="flex justify-between text-xs">
+            {values.map((v) => (
+              <span key={v}>{v}</span>
+            ))}
+          </div>
+        </div>
+      </label>
+      {field.note && (
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{ __html: field.note }}
+        />
+      )}
+    </label>
+  );
+};
+
 const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   configKey,
   field,
@@ -843,14 +1005,13 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   );
 };
 
-const SettingsModalDropdown: React.FC<{
-  configKey: ConfigurationKey;
-  field: SettingFieldInput;
-  options: DropdownOption[];
-  isSearchEnabled?: boolean;
-  value: string;
-  onChange: (value: string) => void;
-}> = ({
+const SettingsModalDropdown: React.FC<
+  BaseInputProps & {
+    options: DropdownOption[];
+    isSearchEnabled?: boolean;
+    value: string;
+  }
+> = ({
   configKey,
   field,
   options,

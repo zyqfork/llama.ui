@@ -62,6 +62,12 @@ export interface Configuration {
 
   /* experimental */
   pyIntepreterEnabled: boolean;
+
+  /* text to speech */
+  ttsVoice: string;
+  ttsPitch: number;
+  ttsRate: number;
+  ttsVolume: number;
 }
 export type ConfigurationKey = keyof Configuration;
 
