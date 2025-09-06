@@ -1,3 +1,13 @@
+## [2.13.1] - 2025-09-06
+
+### 🛠 Fixes
+
+- TextToSpeech - work incorrectly with same name but different lang code (#120)
+
+### 🎨 Styling
+
+- TextToSpeech - order voices by language popularity
+
 ## [2.13.0] - 2025-09-06
 
 ### 🚀 Enhancements
