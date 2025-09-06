@@ -27,12 +27,7 @@ import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev, THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import * as lang from '../lang/en.json';
-import {
-  dateFormatter,
-  Dropdown,
-  FilterableDropdown,
-  OpenInNewTab,
-} from '../utils/common';
+import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
 import {
   classNames,
@@ -104,7 +99,7 @@ interface SettingFieldDropdown {
   note?: string | TrustedHTML;
   key: ConfigurationKey;
   options: DropdownOption[];
-  isSearchEnabled: boolean;
+  filterable: boolean;
 }
 
 interface SettingSection {
@@ -158,7 +153,7 @@ const toInput = (
 const toDropdown = (
   key: ConfigurationKey,
   options: DropdownOption[],
-  isSearchEnabled: boolean = false
+  filterable: boolean = false
 ): SettingFieldDropdown => {
   return {
     type: SettingInputType.DROPDOWN,
@@ -166,7 +161,7 @@ const toDropdown = (
     label: lang.settings.parameters[key].label,
     note: lang.settings.parameters[key].note,
     options,
-    isSearchEnabled,
+    filterable,
   };
 };
 
@@ -594,7 +589,6 @@ export default function SettingDialog({
                 label: tab.title,
                 value: idx,
               }))}
-              smallOptions={false}
               currentValue={settingTabs[tabIdx].title}
               renderOption={(option) => <span>{option.label}</span>}
               isSelected={(option) => tabIdx === option.value}
@@ -644,9 +638,7 @@ export default function SettingDialog({
                       configKey={field.key}
                       field={field}
                       options={(field as SettingFieldDropdown).options}
-                      isSearchEnabled={
-                        (field as SettingFieldDropdown).isSearchEnabled
-                      }
+                      filterable={(field as SettingFieldDropdown).filterable}
                       value={String(localConfig[field.key])}
                       onChange={onChange(field.key)}
                     />
@@ -847,17 +839,10 @@ const SettingsModalDropdown: React.FC<{
   configKey: ConfigurationKey;
   field: SettingFieldInput;
   options: DropdownOption[];
-  isSearchEnabled?: boolean;
+  filterable?: boolean;
   value: string;
   onChange: (value: string) => void;
-}> = ({
-  configKey,
-  field,
-  options,
-  isSearchEnabled = false,
-  value,
-  onChange,
-}) => {
+}> = ({ configKey, field, options, filterable = false, value, onChange }) => {
   const renderOption = (option: DropdownOption) => (
     <span>
       {option.icon && (
@@ -904,31 +889,17 @@ const SettingsModalDropdown: React.FC<{
           {field.label || configKey}
         </div>
 
-        {isSearchEnabled && (
-          <FilterableDropdown
-            className="grow"
-            entity={configKey}
-            options={options}
-            smallOptions={true}
-            currentValue={selectedValue}
-            renderOption={renderOption}
-            isSelected={(option) => value === option.value}
-            onSelect={(option) => onChange(option.value)}
-          />
-        )}
-
-        {!isSearchEnabled && (
-          <Dropdown
-            className="grow"
-            entity={configKey}
-            options={options}
-            smallOptions={false}
-            currentValue={selectedValue}
-            renderOption={renderOption}
-            isSelected={(option) => value === option.value}
-            onSelect={(option) => onChange(option.value)}
-          />
-        )}
+        <Dropdown
+          className="grow"
+          entity={configKey}
+          options={options}
+          filterable={filterable}
+          optionsSize={filterable ? 'small' : 'medium'}
+          currentValue={selectedValue}
+          renderOption={renderOption}
+          isSelected={(option) => value === option.value}
+          onSelect={(option) => onChange(option.value)}
+        />
       </label>
 
       {field.note && (
@@ -1004,7 +975,7 @@ const ThemeController: FC = () => {
           {lang.settings.themeManager.label}
         </div>
 
-        <FilterableDropdown
+        <Dropdown
           className="grow"
           entity="theme"
           options={options}
