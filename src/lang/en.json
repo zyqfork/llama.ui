@@ -149,6 +149,28 @@
       "pyIntepreterEnabled": {
         "label": "",
         "note": ""
+      },
+      "ttsPitch": {
+        "label": "Pitch",
+        "note": "The pitch at which the utterance will be spoken at."
+      },
+      "ttsRate": {
+        "label": "Rate",
+        "note": "The speed at which the utterance will be spoken at."
+      },
+      "ttsVoice": {
+        "label": "Voice",
+        "note": "The voice that will be used to speak the utterance."
+      },
+      "ttsVolume": {
+        "label": "Volume",
+        "note": "The volume that the utterance will be spoken at."
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Check",
+        "text": "Hello, world!"
       }
     },
     "presetManager": {

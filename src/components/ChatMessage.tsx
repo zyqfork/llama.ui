@@ -7,6 +7,8 @@ import {
   PaperClipIcon,
   PencilSquareIcon,
   ShareIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
@@ -18,6 +20,10 @@ import { Message, MessageExtra, PendingMessage } from '../utils/types';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
+import TextToSpeech, {
+  getSpeechSynthesisVoiceByName,
+  IS_SPEECH_SYNTHESIS_SUPPORTED,
+} from './TextToSpeech';
 import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
@@ -280,6 +286,11 @@ export default function ChatMessage({
             onCopy={handleCopy}
           />
 
+          <PlayButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            text={content ?? ''}
+          />
+
           <BranchButton
             className="btn btn-ghost w-8 h-8 p-0"
             msg={msg as Message}
@@ -422,6 +433,40 @@ function ThoughtProcess({
     </div>
   );
 }
+
+const PlayButton = ({
+  className,
+  text,
+}: {
+  className?: string;
+  text: string;
+}) => {
+  const {
+    config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
+  } = useAppContext();
+  return (
+    <TextToSpeech
+      text={text}
+      voice={getSpeechSynthesisVoiceByName(ttsVoice)}
+      pitch={ttsPitch}
+      rate={ttsRate}
+      volume={ttsVolume}
+    >
+      {({ isPlaying, play, stop }) => (
+        <button
+          className={className}
+          onClick={() => (!isPlaying ? play() : stop())}
+          disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || text === ''}
+          title={!isPlaying ? 'Play' : 'Stop'}
+          aria-label="Play message"
+        >
+          {!isPlaying && <SpeakerWaveIcon className="h-4 w-4" />}
+          {isPlaying && <SpeakerXMarkIcon className="h-4 w-4" />}
+        </button>
+      )}
+    </TextToSpeech>
+  );
+};
 
 const BranchButton = ({
   className,

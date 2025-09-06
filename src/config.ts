@@ -62,6 +62,12 @@ export const CONFIG_DEFAULT: Readonly<Configuration> = Object.freeze({
 
   /* experimental */
   pyIntepreterEnabled: false,
+
+  /* text to speech */
+  ttsVoice: '',
+  ttsPitch: 1,
+  ttsRate: 1,
+  ttsVolume: 1,
 });
 
 // list of themes supported by daisyui
