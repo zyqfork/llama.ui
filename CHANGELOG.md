@@ -1,3 +1,127 @@
+## [2.12.3] - 2025-09-06
+
+### 🛠 Fixes
+
+- Header - model dropdown styles (#118)
+
+### 🎨 Styling
+
+- Settings - Mobile padding (#115)
+
+## [2.12.2] - 2025-09-05
+
+- Testing Github rules
+
+## [2.12.1] - 2025-09-04
+
+### 🎨 Styling
+
+- Sidebar - fix desktop padding (#114)
+
+## [2.12.0] - 2025-09-04
+
+### 🚀 Enhancements
+
+- Preset renaming #99 (#112)
+
+### 🎨 Styling
+
+- Setting button mobile (#113)
+
+## [2.11.0] - 2025-09-04
+
+### 🛠 Fixes
+
+- Setting - fix Mobile tab dropdown (#110)
+
+### 🎨 Styling
+
+- Move ThemeController to Settings (#110)
+- Header - Add new conversation button (#110)
+- Header - Show conversation title (#110)
+- ChatInput styling (#111)
+
+## [2.10.1] - 2025-09-04
+
+### ⚡️ Performance
+
+- Optimize long conversation render performance (#109)
+
+## [2.10.0] - 2025-09-04
+
+### 🛠 Fixes
+
+- ChatMessage - show action buttons condition (#107)
+
+### ⚡️ Performance
+
+- Optimize render performance (#107)
+
+## [2.9.3] - 2025-09-04
+
+### 🛠 Fixes
+
+- ChatScreen scroll issue (#106)
+
+## [2.9.2] - 2025-08-30
+
+### 🛠 Fixes
+
+- Conversation export fails #104 (#105)
+
+## [2.9.1] - 2025-08-30
+
+### 🛠 Fixes
+
+- Model dropdown overlapping UI on mobile #101 (#102)
+
+## [2.9.0] - 2025-08-29
+
+### 🚀 Enhancements
+
+- Display code language #56 (#98)
+
+## [2.8.0] - 2025-08-29
+
+### 🚀 Enhancements
+
+- Conversation branch-off #68 (#96)
+
+### 🛠 Fixes
+
+- Sidebar - show long conversation name on hover
+
+## [2.7.2] - 2025-08-29
+
+### 🛠 Fixes
+
+- Message disappears on invalid choices in chat completion response #92 (#95)
+
+## [2.7.1] - 2025-08-29
+
+### 🛠 Fixes
+
+- Settings - icons not displayed (#94)
+
+## [2.7.0] - 2025-08-29
+
+### 🚀 Enhancements
+
+- Settings - Dropdown add search (#91)
+- Reusable customizable dropdown component (#93)
+
+## [2.6.6] - 2025-08-28
+
+### 🛠 Fixes
+
+- Settings - Preset list display issues (#90)
+
+## [2.6.5] - 2025-08-28
+
+### 🛠 Fixes
+
+- Settings - fetch models button not working (#89)
+
 ## [2.6.4] - 2025-08-27
 
 ### 🛠 Fixes

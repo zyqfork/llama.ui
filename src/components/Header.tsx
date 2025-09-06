@@ -9,7 +9,7 @@ import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import { useMessageContext } from '../context/message.context';
 import lang from '../lang/en.json';
-import { FilterableDropdown } from '../utils/common';
+import { Dropdown } from '../utils/common';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -66,19 +66,25 @@ export default function Header() {
 
       <section className="flex flex-row items-center">
         {/* model information */}
-        <FilterableDropdown
+        <Dropdown
           className="ml-2 px-1 xl:px-4 py-0"
           entity="Model"
           options={models.map((model) => ({
             value: model.id,
             label: model.name,
           }))}
+          filterable={true}
+          align="start"
           currentValue={
             <span className="max-w-64 sm:max-w-80 truncate text-nowrap font-semibold">
               {selectedModel}
             </span>
           }
-          renderOption={(option) => <span>{option.label}</span>}
+          renderOption={(option) => (
+            <span className="max-w-64 sm:max-w-80 truncate text-nowrap">
+              {option.label}
+            </span>
+          )}
           isSelected={(option) => model === option.value}
           onSelect={(option) =>
             saveConfig({

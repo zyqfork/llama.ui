@@ -31,6 +31,14 @@
       "args": ["run", "format"],
       "group": "build",
       "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "changelog: generate",
+      "detail": "git cliff -o CHANGELOG.md",
+      "type": "shell",
+      "command": "git",
+      "args": ["cliff", "-o", "CHANGELOG.md"],
+      "problemMatcher": []
     }
   ]
 }
