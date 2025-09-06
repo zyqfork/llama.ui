@@ -13,7 +13,9 @@ export const IS_SPEECH_SYNTHESIS_SUPPORTED = !!speechSynthesis || false;
 export const getSpeechSynthesisVoices = () =>
   speechSynthesis?.getVoices() || [];
 export function getSpeechSynthesisVoiceByName(name: string) {
-  return getSpeechSynthesisVoices().find((voice) => voice.name === name);
+  return getSpeechSynthesisVoices().find(
+    (voice) => `${voice.name} (${voice.lang})` === name
+  );
 }
 
 interface TextToSpeechProps {
