@@ -1,4 +1,3 @@
-import daisyuiThemes from 'daisyui/theme/object';
 import React, {
   createContext,
   useCallback,
@@ -8,7 +7,7 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 import usePrefersColorScheme from '../components/usePrefersColorScheme';
-import { CONFIG_DEFAULT } from '../config';
+import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration, ConfigurationPreset } from '../utils/types';
 
@@ -22,6 +21,8 @@ interface AppContextValue {
   setShowSettings: (show: boolean) => void;
   currentTheme: string;
   switchTheme: (theme: string) => void;
+  currentSyntaxTheme: string;
+  switchSyntaxTheme: (theme: string) => void;
   colorScheme: string;
 }
 
@@ -35,6 +36,8 @@ const AppContext = createContext<AppContextValue>({
   setShowSettings: () => {},
   currentTheme: 'auto',
   switchTheme: () => {},
+  currentSyntaxTheme: 'auto',
+  switchSyntaxTheme: () => {},
   colorScheme: 'light',
 });
 
@@ -48,6 +51,9 @@ export const AppContextProvider = ({
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [currentTheme, setCurrentTheme] = useState<string>(
     StorageUtils.getTheme()
+  );
+  const [currentSyntaxTheme, setCurrentSyntaxTheme] = useState<string>(
+    StorageUtils.getSyntaxTheme()
   );
 
   // --- Main Functions ---
@@ -86,17 +92,13 @@ export const AppContextProvider = ({
 
   // --- DaisyUI Theme ---
 
-  const switchTheme = (theme: string) => {
+  const switchTheme = useCallback((theme: string) => {
     console.debug('Switch theme', theme);
     StorageUtils.setTheme(theme);
     setCurrentTheme(theme);
 
     // Update body color scheme
     document.body.setAttribute('data-theme', theme);
-    document.body.setAttribute(
-      'data-color-scheme',
-      daisyuiThemes[theme]?.['color-scheme'] ?? 'auto'
-    );
 
     // Update <meta name="theme-color" />
     if (document.getElementsByClassName('bg-base-300').length > 0) {
@@ -107,13 +109,29 @@ export const AppContextProvider = ({
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute('content', color);
     }
-  };
+  }, []);
+
+  // --- Highlight.js Theme ---
+
+  const switchSyntaxTheme = useCallback((theme: string) => {
+    console.debug('Switch syntax theme', theme);
+    StorageUtils.setSyntaxTheme(theme);
+    setCurrentSyntaxTheme(theme);
+
+    // Update body color scheme
+    document.body.setAttribute(
+      'data-hljs-theme',
+      SYNTAX_THEMES.includes(theme) ? theme : 'auto'
+    );
+  }, []);
 
   // --- Initialization ---
 
   useEffect(() => {
     init();
-  }, [init]);
+    switchTheme(StorageUtils.getTheme());
+    switchSyntaxTheme(StorageUtils.getSyntaxTheme());
+  }, [init, switchSyntaxTheme, switchTheme]);
 
   const { colorScheme } = usePrefersColorScheme();
 
@@ -129,6 +147,8 @@ export const AppContextProvider = ({
         setShowSettings,
         currentTheme,
         switchTheme,
+        currentSyntaxTheme,
+        switchSyntaxTheme,
         colorScheme,
       }}
     >

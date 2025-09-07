@@ -184,7 +184,14 @@
       }
     },
     "themeManager": {
-      "label": "Theme"
+      "dataTheme": {
+        "label": "Theme",
+        "note": "Choose the color theme for application."
+      },
+      "syntaxTheme": {
+        "label": "Syntax Theme",
+        "note": "Choose the color theme for code blocks."
+      }
     }
   },
   "newVersion": {

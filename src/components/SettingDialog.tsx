@@ -26,7 +26,12 @@ import {
   TvIcon,
 } from '@heroicons/react/24/outline';
 import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
-import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, THEMES } from '../config';
+import {
+  CONFIG_DEFAULT,
+  INFERENCE_PROVIDERS,
+  SYNTAX_THEMES,
+  THEMES,
+} from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import lang from '../lang/en.json';
@@ -253,7 +258,7 @@ const getSettingTabsConfiguration = (
     ],
   },
 
-  /* UI */
+  /* Voice */
   {
     title: (
       <>
@@ -1086,14 +1091,19 @@ const DelimeterComponent: React.FC = () => (
 );
 
 const ThemeController: FC = () => {
-  const options = ['auto', ...THEMES].map((theme) => ({
+  const dataThemes = ['auto', ...THEMES].map((theme) => ({
+    value: theme,
+    label: theme,
+  }));
+  const syntaxThemes = ['auto', ...SYNTAX_THEMES].map((theme) => ({
     value: theme,
     label: theme,
   }));
 
-  const { currentTheme, switchTheme } = useAppContext();
+  const { currentTheme, switchTheme, currentSyntaxTheme, switchSyntaxTheme } =
+    useAppContext();
 
-  const selectedValue = useMemo(
+  const selectedThemeValue = useMemo(
     () => (
       <div className="flex gap-2 items-center ml-2">
         <span
@@ -1110,7 +1120,7 @@ const ThemeController: FC = () => {
     ),
     [currentTheme]
   );
-  const renderOption = (option: DropdownOption) => (
+  const renderThemeOption = (option: DropdownOption) => (
     <div className="flex gap-2 items-center">
       <span
         data-theme={option.value}
@@ -1127,26 +1137,63 @@ const ThemeController: FC = () => {
 
   /* theme controller is copied from https://daisyui.com/components/theme-controller/ */
   return (
-    <div className="form-control flex flex-col justify-center mb-3">
-      <div className="font-bold mb-1 md:hidden">
-        {lang.settings.themeManager.label}
-      </div>
-      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div className="font-bold hidden md:block">
-          {lang.settings.themeManager.label}
+    <>
+      {/* UI theme */}
+      <div className="form-control flex flex-col justify-center mb-3">
+        <div className="font-bold mb-1 md:hidden">
+          {lang.settings.themeManager.dataTheme.label}
         </div>
+        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+          <div className="font-bold hidden md:block">
+            {lang.settings.themeManager.dataTheme.label}
+          </div>
 
-        <Dropdown
-          className="grow"
-          entity="theme"
-          options={options}
-          currentValue={selectedValue}
-          renderOption={renderOption}
-          isSelected={(option) => currentTheme === option.value}
-          onSelect={(option) => switchTheme(option.value)}
+          <Dropdown
+            className="grow"
+            entity="theme"
+            options={dataThemes}
+            currentValue={selectedThemeValue}
+            renderOption={renderThemeOption}
+            isSelected={(option) => currentTheme === option.value}
+            onSelect={(option) => switchTheme(option.value)}
+          />
+        </label>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{
+            __html: lang.settings.themeManager.dataTheme.note,
+          }}
         />
-      </label>
-    </div>
+      </div>
+
+      {/* Code blocks theme */}
+      <div className="form-control flex flex-col justify-center mb-3">
+        <div className="font-bold mb-1 md:hidden">
+          {lang.settings.themeManager.syntaxTheme.label}
+        </div>
+        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+          <div className="font-bold hidden md:block">
+            {lang.settings.themeManager.syntaxTheme.label}
+          </div>
+
+          <Dropdown
+            className="grow"
+            entity="theme"
+            options={syntaxThemes}
+            currentValue={<span>{currentSyntaxTheme}</span>}
+            renderOption={(option) => <span>{option.label}</span>}
+            isSelected={(option) => currentSyntaxTheme === option.value}
+            onSelect={(option) => switchSyntaxTheme(option.value)}
+          />
+        </label>
+        <div
+          className="text-xs opacity-75 max-w-80"
+          dangerouslySetInnerHTML={{
+            __html: lang.settings.themeManager.syntaxTheme.note,
+          }}
+        />
+      </div>
+    </>
   );
 };
 

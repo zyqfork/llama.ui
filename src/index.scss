@@ -1,9 +1,11 @@
-@use 'sass:meta';
 @use 'tailwindcss';
 
 @plugin 'daisyui' {
   themes: all;
 }
+
+/* Highlight.js */
+@import url(highlight.js.scss);
 
 html {
   scrollbar-gutter: auto;
@@ -65,32 +67,6 @@ html {
 
 .markdown pre {
   @apply bg-base-300  border-0;
-}
-
-/* Highlight.js */
-[data-color-scheme='light'] {
-  @include meta.load-css('highlight.js/styles/stackoverflow-light');
-  .dark-color {
-    @apply bg-base-content text-base-100;
-  }
-}
-[data-color-scheme='dark'] {
-  @include meta.load-css('highlight.js/styles/stackoverflow-dark');
-}
-[data-color-scheme='auto'] {
-  @media (prefers-color-scheme: light) {
-    @include meta.load-css('highlight.js/styles/stackoverflow-light');
-    .dark-color {
-      @apply bg-base-content text-base-100;
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    @include meta.load-css('highlight.js/styles/stackoverflow-dark');
-  }
-}
-.hljs {
-  background: transparent !important;
-  padding: 0.5em !important;
 }
 
 .katex-display {

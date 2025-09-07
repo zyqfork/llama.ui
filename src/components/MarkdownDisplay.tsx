@@ -100,11 +100,11 @@ const CustomPre: React.ElementType<
   };
 
   return (
-    <div>
+    <div aria-label="Code block">
       {showActionButtons && (
         <div
           className={classNames({
-            'sticky h-0 z-[1] text-right mr-1': true,
+            'hljs sticky h-0 z-[1] text-right p-0': true,
             'display-none': !node?.position,
           })}
           aria-label="Button block"
@@ -122,9 +122,9 @@ const CustomPre: React.ElementType<
         </div>
       )}
 
-      <pre {...node?.properties}>
+      <pre className="hljs" {...node?.properties}>
         {codeLanguage && (
-          <div className="text-sm opacity-75 ml-2" aria-label="Code language">
+          <div className="text-sm ml-2" aria-label="Code language">
             {codeLanguage}
           </div>
         )}
