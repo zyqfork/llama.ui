@@ -1,3 +1,15 @@
+## [2.13.3] - 2025-09-07
+
+### 🛠 Fixes
+
+- Inference context initialization (#122)
+
+## [2.13.2] - 2025-09-07
+
+### 🎨 Styling
+
+- NewVersion popup - Add a note (#121)
+
 ## [2.13.1] - 2025-09-06
 
 ### 🛠 Fixes
@@ -6,7 +18,7 @@
 
 ### 🎨 Styling
 
-- TextToSpeech - order voices by language popularity
+- TextToSpeech - order voices by language popularity (#120)
 
 ## [2.13.0] - 2025-09-06
 
