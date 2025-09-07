@@ -1,3 +1,9 @@
+## [2.14.0] - 2025-09-07
+
+### 🚀 Enhancements
+
+- Change syntax highlighting theme #123 (#124)
+
 ## [2.13.3] - 2025-09-07
 
 ### 🛠 Fixes
