@@ -506,6 +506,27 @@ const StorageUtils = {
   },
 
   /**
+   * Retrieves the currently selected syntax theme.
+   * @returns The theme string ('auto', etc.) or 'auto' if not set.
+   */
+  getSyntaxTheme(): string {
+    return localStorage.getItem('syntaxTheme') || 'auto';
+  },
+
+  /**
+   * Saves the selected syntax theme to localStorage.
+   * If 'auto' is selected, the theme item is removed.
+   * @param theme The theme string to save.
+   */
+  setSyntaxTheme(theme: string) {
+    if (theme === 'auto') {
+      localStorage.removeItem('syntaxTheme');
+    } else {
+      localStorage.setItem('syntaxTheme', theme);
+    }
+  },
+
+  /**
    * Retrieves the user's configuration presets.
    * @returns The array of configuration preset.
    */
