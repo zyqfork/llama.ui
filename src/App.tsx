@@ -108,6 +108,7 @@ const AppLayout: FC = () => {
             onSubmit={handleUpdate}
             title={lang.newVersion.title}
             description={lang.newVersion.description}
+            note={lang.newVersion.note}
             submitBtn={lang.newVersion.submitBtnLabel}
             cancelBtn={lang.newVersion.cancelBtnLabel}
           />
