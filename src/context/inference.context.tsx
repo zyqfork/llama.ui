@@ -1,17 +1,25 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import toast from 'react-hot-toast';
-import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev } from '../config';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import InferenceApi, {
   InferenceApiModel,
   LlamaCppServerProps,
 } from '../utils/inferenceApi';
+import { deepEqual } from '../utils/misc';
 import { Configuration } from '../utils/types';
 import { useAppContext } from './app.context';
 
 // --- Type Definitions ---
 
 type FetchOptions = {
-  silent: boolean;
+  silent?: boolean;
 };
 
 interface InferenceContextValue {
@@ -63,32 +71,32 @@ export const InferenceContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const { config } = useAppContext();
-  const [api, setApi] = useState<InferenceApi>(InferenceApi.new(config));
+  const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
+  const [api, setApi] = useState<InferenceApi>(
+    InferenceApi.new(CONFIG_DEFAULT)
+  );
   const [models, setModels] = useState<InferenceApiModel[]>(noModels);
   const [serverProps, setServerProps] =
     useState<LlamaCppServerProps>(noServerProps);
 
-  useEffect(() => {
-    if (!config) return;
-    if (isDev) console.debug('Update Inference API');
+  // --- Main Functions ---
+
+  const updateApi = useCallback((config: Configuration) => {
+    if (Object.is(CONFIG_DEFAULT, config)) return;
+    console.debug('Update Inference API');
     const newApi = InferenceApi.new(config);
     setApi(newApi);
-  }, [config]);
+  }, []);
 
-  const { baseUrl, apiKey } = config;
-  useEffect(() => {
-    if (!baseUrl) return;
-    if (isDev) console.debug('Update inference model list');
-    const syncServer = async (config: Configuration) => {
-      setModels(await fetchModels(config));
-      setServerProps(await fetchServerProperties(config));
-    };
-    syncServer(config);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseUrl, apiKey]);
-
-  // --- Main Functions ---
+  const syncServer = useCallback(
+    async (config: Configuration, options: FetchOptions = {}) => {
+      if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
+      console.debug('Synchronize models & props with server');
+      setModels(await fetchModels(config, options));
+      setServerProps(await fetchServerProperties(config, options));
+    },
+    []
+  );
 
   const fetchModels = async (
     config: Configuration,
@@ -98,7 +106,7 @@ export const InferenceContextProvider = ({
       return noModels;
     }
 
-    if (isDev) console.debug('Fetch models');
+    console.debug('Fetch models');
     const newApi = InferenceApi.new(config);
     let newModels = noModels;
     try {
@@ -120,7 +128,7 @@ export const InferenceContextProvider = ({
       return noServerProps;
     }
 
-    if (isDev) console.debug('Fetch server properties');
+    console.debug('Fetch server properties');
     const newApi = InferenceApi.new(config);
     let newProps = noServerProps;
     try {
@@ -132,6 +140,23 @@ export const InferenceContextProvider = ({
     }
     return newProps;
   };
+
+  // --- Initialization ---
+
+  const { config } = useAppContext();
+  useEffect(() => {
+    const prevConfig = currentConfigRef.current;
+    if (!deepEqual(currentConfigRef.current, config)) {
+      updateApi(config);
+    }
+    if (
+      prevConfig.baseUrl !== config.baseUrl ||
+      prevConfig.apiKey !== config.apiKey
+    ) {
+      syncServer(config);
+    }
+    currentConfigRef.current = config;
+  }, [syncServer, updateApi, config]);
 
   return (
     <InferenceContext.Provider

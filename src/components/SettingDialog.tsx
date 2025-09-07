@@ -26,7 +26,7 @@ import {
   TvIcon,
 } from '@heroicons/react/24/outline';
 import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
-import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, isDev, THEMES } from '../config';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS, THEMES } from '../config';
 import { useAppContext } from '../context/app.context';
 import { useInferenceContext } from '../context/inference.context';
 import lang from '../lang/en.json';
@@ -601,7 +601,6 @@ export default function SettingDialog({
         console.error(`Unknown default type for key ${key}`);
       }
     }
-    if (isDev) console.debug('Saving config', newConfig);
     saveConfig(newConfig);
     onClose();
   };

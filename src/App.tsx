@@ -26,7 +26,7 @@ import {
 import { MessageContextProvider } from './context/message.context';
 import * as lang from './lang/en.json';
 
-const DEBOUNCE_DELAY = 1000;
+const DEBOUNCE_DELAY = 5000;
 const TOAST_IDS = {
   PROVIDER_SETUP: 'provider-setup',
   PWA_UPDATE: 'pwa-update',
