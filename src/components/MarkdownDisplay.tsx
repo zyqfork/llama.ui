@@ -29,6 +29,7 @@ export default memo(function MarkdownDisplay({
       remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
       rehypePlugins={[[rehypeHighlight, { languages }], rehypeKatex]}
       components={{
+        table: (props) => <CustomTable {...props} />,
         pre: (props) => (
           <CustomPre
             {...props}
@@ -44,11 +45,23 @@ export default memo(function MarkdownDisplay({
   );
 });
 
+const CustomTable: React.ElementType<
+  React.ClassAttributes<HTMLTableElement> &
+    React.HTMLAttributes<HTMLTableElement> &
+    ExtraProps
+> = ({ className, children, node }) => (
+  <div className="overflow-x-auto">
+    <table className={className} {...node?.properties}>
+      {children}
+    </table>
+  </div>
+);
+
 const CustomPre: React.ElementType<
   React.ClassAttributes<HTMLPreElement> &
     React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
-> = ({ children, node, origContent, isGenerating }) => {
+> = ({ className, children, node, origContent, isGenerating }) => {
   const {
     config: { pyIntepreterEnabled },
   } = useAppContext();
@@ -100,7 +113,7 @@ const CustomPre: React.ElementType<
   };
 
   return (
-    <div aria-label="Code block">
+    <div className="hljs" aria-label="Code block">
       {showActionButtons && (
         <div
           className={classNames({
@@ -122,7 +135,7 @@ const CustomPre: React.ElementType<
         </div>
       )}
 
-      <pre className="hljs" {...node?.properties}>
+      <pre className={className} {...node?.properties}>
         {codeLanguage && (
           <div className="text-sm ml-2" aria-label="Code language">
             {codeLanguage}
