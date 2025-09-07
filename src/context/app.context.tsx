@@ -1,10 +1,16 @@
 import daisyuiThemes from 'daisyui/theme/object';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import toast from 'react-hot-toast';
-import { CONFIG_DEFAULT, isDev } from '../config';
+import usePrefersColorScheme from '../components/usePrefersColorScheme';
+import { CONFIG_DEFAULT } from '../config';
 import StorageUtils from '../utils/storage';
 import { Configuration, ConfigurationPreset } from '../utils/types';
-import usePrefersColorScheme from '../components/usePrefersColorScheme';
 
 interface AppContextValue {
   config: Configuration;
@@ -43,29 +49,53 @@ export const AppContextProvider = ({
   const [currentTheme, setCurrentTheme] = useState<string>(
     StorageUtils.getTheme()
   );
-  const { colorScheme } = usePrefersColorScheme();
 
-  // --- Initialization ---
+  // --- Main Functions ---
 
-  useEffect(() => {
-    const init = async () => {
-      if (isDev) console.debug('Load config');
-      setConfig(StorageUtils.getConfig());
+  const init = useCallback(async (): Promise<boolean> => {
+    console.debug('Load config & presets');
+    const config = StorageUtils.getConfig();
+    setConfig(config);
 
-      if (isDev) console.debug('Load presets');
-      setPresets(await StorageUtils.getPresets());
-    };
-    init();
+    const presets = await StorageUtils.getPresets();
+    setPresets(presets);
+    return !!config;
   }, []);
+
+  const saveConfig = (config: Configuration) => {
+    console.debug('Save config', config);
+    setConfig(() => {
+      StorageUtils.setConfig(config);
+      return config;
+    });
+  };
+
+  const savePreset = async (name: string, config: Configuration) => {
+    console.debug('Save preset', { name, config });
+    await StorageUtils.savePreset(name, config);
+    setPresets(await StorageUtils.getPresets());
+    toast.success('Preset is saved successfully');
+  };
+
+  const removePreset = async (name: string) => {
+    console.debug('Remove preset', name);
+    await StorageUtils.removePreset(name);
+    setPresets(await StorageUtils.getPresets());
+    toast.success('Preset is removed successfully');
+  };
 
   // --- DaisyUI Theme ---
 
-  useEffect(() => {
+  const switchTheme = (theme: string) => {
+    console.debug('Switch theme', theme);
+    StorageUtils.setTheme(theme);
+    setCurrentTheme(theme);
+
     // Update body color scheme
-    document.body.setAttribute('data-theme', currentTheme);
+    document.body.setAttribute('data-theme', theme);
     document.body.setAttribute(
       'data-color-scheme',
-      daisyuiThemes[currentTheme]?.['color-scheme'] ?? 'auto'
+      daisyuiThemes[theme]?.['color-scheme'] ?? 'auto'
     );
 
     // Update <meta name="theme-color" />
@@ -77,33 +107,15 @@ export const AppContextProvider = ({
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute('content', color);
     }
-  }, [currentTheme]);
-
-  const saveConfig = (config: Configuration) => {
-    if (isDev) console.debug('Save config', config);
-    StorageUtils.setConfig(config);
-    setConfig(config);
   };
 
-  const savePreset = async (name: string, config: Configuration) => {
-    if (isDev) console.debug('Save preset', { name, config });
-    await StorageUtils.savePreset(name, config);
-    setPresets(await StorageUtils.getPresets());
-    toast.success('Preset is saved successfully');
-  };
+  // --- Initialization ---
 
-  const removePreset = async (name: string) => {
-    if (isDev) console.debug('Remove preset', name);
-    await StorageUtils.removePreset(name);
-    setPresets(await StorageUtils.getPresets());
-    toast.success('Preset is removed successfully');
-  };
+  useEffect(() => {
+    init();
+  }, [init]);
 
-  const switchTheme = (theme: string) => {
-    if (isDev) console.debug('Switch theme', theme);
-    StorageUtils.setTheme(theme);
-    setCurrentTheme(theme);
-  };
+  const { colorScheme } = usePrefersColorScheme();
 
   return (
     <AppContext.Provider

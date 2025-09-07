@@ -30,7 +30,7 @@ export default function Header() {
 
   const selectedModel = useMemo(() => {
     const selectedModel = models.find((m) => m.id === model);
-    return selectedModel ? selectedModel.name : '';
+    return selectedModel ? selectedModel.name : <s>{model}</s>;
   }, [models, model]);
 
   return (
@@ -74,6 +74,7 @@ export default function Header() {
             label: model.name,
           }))}
           filterable={true}
+          hideChevron={models.length < 2}
           align="start"
           currentValue={
             <span className="max-w-64 sm:max-w-80 truncate text-nowrap font-semibold">
