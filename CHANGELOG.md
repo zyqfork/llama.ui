@@ -1,3 +1,15 @@
+## [2.15.0] - 2025-09-08
+
+### 🚜 Refactor
+
+- Extract default configuration values #81 (#128)
+
+## [2.14.1] - 2025-09-07
+
+### 🛠 Fixes
+
+- Markdown - show horizontal scroll on mobile (#125)
+
 ## [2.14.0] - 2025-09-07
 
 ### 🚀 Enhancements
