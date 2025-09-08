@@ -25,7 +25,7 @@ const popularLanguages = [
   'ar',
 ];
 
-export const IS_SPEECH_SYNTHESIS_SUPPORTED = !!speechSynthesis || false;
+export const IS_SPEECH_SYNTHESIS_SUPPORTED = !!window.speechSynthesis;
 export const getSpeechSynthesisVoices = () =>
   speechSynthesis
     ?.getVoices()
@@ -110,7 +110,7 @@ const useTextToSpeech = ({
     };
 
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error', event.error);
+      console.error('Speech synthesis error: ', event.error);
       setIsPlaying(false);
     };
 

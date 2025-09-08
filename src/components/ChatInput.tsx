@@ -6,14 +6,14 @@ import {
   StopCircleIcon,
   StopIcon,
 } from '@heroicons/react/24/solid';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAppContext } from '../context/app.context';
 import { useVSCodeContext } from '../utils/llama-vscode';
 import { classNames, cleanCurrentUrl } from '../utils/misc';
 import { MessageExtra } from '../utils/types';
 import { DropzoneArea } from './DropzoneArea';
-import SpeechToText from './SpeechToText';
+import SpeechToText, { SpeechRecordCallback } from './SpeechToText';
 import { useChatExtraContext } from './useChatExtraContext';
 import { useChatTextarea } from './useChatTextarea';
 
@@ -49,6 +49,11 @@ export function ChatInput({
   const textarea = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
   useVSCodeContext(textarea, extraContext);
+
+  const handleRecord: SpeechRecordCallback = useCallback(
+    (text: string) => textarea.setValue(text),
+    [textarea]
+  );
 
   const sendNewMessage = async () => {
     const lastInpMsg = textarea.value();
@@ -155,13 +160,8 @@ export function ChatInput({
               )}
 
               {!isGenerating && (
-                <SpeechToText>
-                  {({
-                    isRecording,
-                    transcript,
-                    startRecording,
-                    stopRecording,
-                  }) => (
+                <SpeechToText onRecord={handleRecord}>
+                  {({ isRecording, startRecording, stopRecording }) => (
                     <>
                       {!isRecording && (
                         <button
@@ -176,10 +176,7 @@ export function ChatInput({
                       {isRecording && (
                         <button
                           className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                          onClick={() => {
-                            stopRecording();
-                            textarea.setValue(transcript);
-                          }}
+                          onClick={stopRecording}
                           title="Stop"
                           aria-label="Stop Recording"
                         >

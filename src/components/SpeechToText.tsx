@@ -8,6 +8,8 @@ import {
   useState,
 } from 'react';
 
+export type SpeechRecordCallback = (text: string) => void;
+
 const userLanguage =
   navigator.languages && navigator.languages.length > 0
     ? navigator.languages[0]
@@ -20,12 +22,13 @@ const BrowserSpeechRecognition =
   (window.SpeechRecognition || window.webkitSpeechRecognition);
 
 export const IS_SPEECH_RECOGNITION_SUPPORTED =
-  !!BrowserSpeechRecognition || false;
+  (window.SpeechRecognition || window.webkitSpeechRecognition) !== undefined;
 
 interface SpeechToTextProps {
   lang?: string;
   continuous?: boolean;
   interimResults?: boolean;
+  onRecord?: SpeechRecordCallback;
 }
 
 interface SpeechToTextState {
@@ -39,6 +42,7 @@ const useSpeechToText = ({
   lang = userLanguage,
   continuous = true,
   interimResults = true,
+  onRecord,
 }: SpeechToTextProps = {}): SpeechToTextState => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>('');
@@ -64,21 +68,29 @@ const useSpeechToText = ({
     recognition.lang = lang;
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
-      console.log('recognition.onresult', event);
+      if (!event?.results) return;
+
+      let final = '';
+      let interim = '';
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          setTranscript(transcript);
+        const result = event.results[i];
+        const transcript = Array.from(result)
+          .map((alt) => alt.transcript)
+          .join(' ');
+
+        if (result.isFinal) {
+          final += transcript + ' ';
         } else {
-          interimTranscript += transcript;
+          interim += transcript;
         }
       }
-      setTranscript(interimTranscript);
+      setTranscript(final + interim);
+      onRecord?.(final + interim);
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error', event.error);
+      console.error('Speech recognition error: ', event.error);
       setIsRecording(false);
     };
 
@@ -97,7 +109,7 @@ const useSpeechToText = ({
         recognitionRef.current = null;
       }
     };
-  }, [lang, continuous, interimResults]);
+  }, [lang, continuous, interimResults, onRecord]);
 
   const startRecording = () => {
     if (recognitionRef.current && !isRecording) {
