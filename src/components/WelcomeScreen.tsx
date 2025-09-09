@@ -22,12 +22,20 @@ export default function WelcomeScreen() {
     const conv = await StorageUtils.createConversation(
       content.substring(0, 256)
     );
-    const convId = conv.id;
-    const leafNodeId = conv.currNode;
     // if user is creating a new conversation, redirect to the new conversation
-    await navigate(`/chat/${convId}`);
+    await navigate(`/chat/${conv.id}`);
     const onChunk: CallbackGeneratedChunk = (_) => {};
-    return sendMessage(convId, leafNodeId, content, extra, onChunk);
+    return sendMessage(
+      {
+        convId: conv.id,
+        type: 'text',
+        role: 'user',
+        parent: conv.currNode,
+        content,
+        extra,
+      },
+      onChunk
+    );
   };
 
   return (

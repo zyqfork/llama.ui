@@ -64,7 +64,6 @@ export default function ChatScreen({
     stopGenerating,
     canvasData,
     replaceMessage,
-    replaceMessageAndGenerate,
   } = useMessageContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
@@ -109,16 +108,20 @@ export default function ChatScreen({
     async (content: string, extra: MessageExtra[] | undefined) => {
       scrollToBottom(true);
       const isSent = await sendMessage(
-        currConvId,
-        lastMsgNodeId,
-        content,
-        extra,
+        {
+          convId: currConvId,
+          type: 'text',
+          role: 'user',
+          parent: lastMsgNodeId,
+          content,
+          extra,
+        },
         onChunk
       );
       scrollToBottom(false, 10);
       return isSent;
     },
-    [sendMessage, scrollToBottom, currConvId, lastMsgNodeId, onChunk]
+    [currConvId, lastMsgNodeId, onChunk, scrollToBottom, sendMessage]
   );
 
   const handleEditUserMessage = useCallback(
@@ -126,10 +129,18 @@ export default function ChatScreen({
       if (!currConvId) return;
       setCurrNodeId(msg.id);
       scrollToBottom(true);
-      await replaceMessageAndGenerate(currConvId, msg, content, extra, onChunk);
+      await sendMessage(
+        {
+          ...msg,
+          convId: currConvId,
+          content,
+          extra,
+        },
+        onChunk
+      );
       scrollToBottom(false, 10);
     },
-    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+    [currConvId, onChunk, scrollToBottom, sendMessage]
   );
 
   const handleEditMessage = useCallback(
@@ -148,16 +159,19 @@ export default function ChatScreen({
       if (!currConvId) return;
       setCurrNodeId(msg.parent);
       scrollToBottom(true);
-      await replaceMessageAndGenerate(
-        currConvId,
-        msg,
-        null,
-        msg.extra,
+
+      await sendMessage(
+        {
+          ...msg,
+          convId: currConvId,
+          content: null,
+          extra: [],
+        },
         onChunk
       );
       scrollToBottom(false, 10);
     },
-    [replaceMessageAndGenerate, scrollToBottom, currConvId, onChunk]
+    [currConvId, onChunk, scrollToBottom, sendMessage]
   );
 
   return (

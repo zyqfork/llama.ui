@@ -8,10 +8,16 @@ import {
   CanvasData,
   Conversation,
   Message,
-  MessageExtra,
   PendingMessage,
   ViewingChat,
 } from '../utils/types';
+
+type NewMessage = Pick<
+  Message,
+  'convId' | 'type' | 'role' | 'parent' | 'extra'
+> & {
+  content: string | null;
+};
 
 interface MessageContextValue {
   // canvas
@@ -23,10 +29,7 @@ interface MessageContextValue {
   pendingMessages: Record<Conversation['id'], PendingMessage>;
   isGenerating: (convId: string) => boolean;
   sendMessage: (
-    convId: string,
-    leafNodeId: Message['id'],
-    content: string,
-    extra: Message['extra'],
+    msg: NewMessage,
     onChunk: CallbackGeneratedChunk
   ) => Promise<boolean>;
   stopGenerating: (convId: string) => void;
@@ -34,13 +37,6 @@ interface MessageContextValue {
     convId: string,
     msg: Message,
     content: string | null,
-    onChunk: CallbackGeneratedChunk
-  ) => Promise<void>;
-  replaceMessageAndGenerate: (
-    convId: string,
-    msg: Message, // the parent node of the message to be replaced
-    content: string | null,
-    extra: MessageExtra[] | undefined,
     onChunk: CallbackGeneratedChunk
   ) => Promise<void>;
   branchMessage: (msg: Message) => Promise<void>;
@@ -56,7 +52,6 @@ const MessageContext = createContext<MessageContextValue>({
   sendMessage: async () => false,
   stopGenerating: () => {},
   replaceMessage: async () => {},
-  replaceMessageAndGenerate: async () => {},
   branchMessage: async () => {},
   canvasData: null,
   setCanvasData: () => {},
@@ -249,36 +244,42 @@ export const MessageContextProvider = ({
   };
 
   const sendMessage = async (
-    convId: string,
-    leafNodeId: Message['id'],
-    content: string,
-    extra: Message['extra'],
+    msg: NewMessage,
     onChunk: CallbackGeneratedChunk
   ): Promise<boolean> => {
-    if (isGenerating(convId ?? '') || content.trim().length === 0) return false;
+    const { convId: convId, type, role, content, extra } = msg;
+    const { parent } = msg;
 
-    let currMsgId;
-    try {
-      // save user message
-      currMsgId = Date.now();
-      await StorageUtils.appendMsg(
-        {
-          id: currMsgId,
-          convId,
-          type: 'text',
-          role: 'user',
-          content,
-          extra,
-          parent: leafNodeId,
-          children: [],
-          timestamp: currMsgId,
-        },
-        leafNodeId
-      );
-    } catch (err) {
-      toast.error('Cannot save message.');
+    if (isGenerating(convId ?? '') || !convId || !type || !role || !parent)
       return false;
+
+    let currMsgId = Date.now();
+    if (content === null) {
+      // re-generate last assistant message
+      currMsgId = parent;
+    } else {
+      try {
+        // save user message
+        await StorageUtils.appendMsg(
+          {
+            id: currMsgId,
+            convId,
+            type,
+            role,
+            content,
+            extra,
+            parent,
+            children: [],
+            timestamp: currMsgId,
+          },
+          parent
+        );
+      } catch (err) {
+        toast.error('Cannot save message.');
+        return false;
+      }
     }
+
     onChunk(currMsgId);
 
     try {
@@ -329,41 +330,6 @@ export const MessageContextProvider = ({
     onChunk(currMsgId);
   };
 
-  // if content is null, we remove last assistant message
-  const replaceMessageAndGenerate = async (
-    convId: string,
-    msg: Message,
-    content: string | null,
-    extra: MessageExtra[] | undefined,
-    onChunk: CallbackGeneratedChunk
-  ) => {
-    if (isGenerating(convId)) return;
-
-    let parentNodeId = msg.parent;
-    if (content !== null) {
-      const now = Date.now();
-      const currMsgId = now;
-      await StorageUtils.appendMsg(
-        {
-          id: currMsgId,
-          convId,
-          type: msg.type,
-          role: msg.role,
-          content,
-          extra,
-          parent: parentNodeId,
-          children: [],
-          timestamp: now,
-        },
-        parentNodeId
-      );
-      parentNodeId = currMsgId;
-    }
-    onChunk(parentNodeId);
-
-    await generateMessage(convId, parentNodeId, onChunk);
-  };
-
   const branchMessage = async (msg: Message) => {
     if (isGenerating(msg.convId)) return;
 
@@ -385,7 +351,6 @@ export const MessageContextProvider = ({
         sendMessage,
         stopGenerating,
         replaceMessage,
-        replaceMessageAndGenerate,
         branchMessage,
         canvasData,
         setCanvasData,
