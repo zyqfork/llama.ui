@@ -1,42 +1,46 @@
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
   useMessageContext,
 } from '../context/message.context';
 import * as lang from '../lang/en.json';
 import { getUniqueRandomElements } from '../utils/misc';
+import StorageUtils from '../utils/storage.ts';
 import { MessageExtra } from '../utils/types';
 import { ChatInput } from './ChatInput.tsx';
-import StorageUtils from '../utils/storage.ts';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 
 export default function WelcomeScreen() {
   const navigate = useNavigate();
+  const {
+    config: { systemMessage },
+  } = useAppContext();
   const { sendMessage } = useMessageContext();
 
-  const handleSend = async (
-    content: string,
-    extra: MessageExtra[] | undefined
-  ) => {
-    const conv = await StorageUtils.createConversation(
-      content.substring(0, 256)
-    );
-    // if user is creating a new conversation, redirect to the new conversation
-    await navigate(`/chat/${conv.id}`);
-    const onChunk: CallbackGeneratedChunk = (_) => {};
-    return sendMessage(
-      {
+  const handleSend = useCallback(
+    async (content: string, extra: MessageExtra[] | undefined) => {
+      const conv = await StorageUtils.createConversation(
+        content.substring(0, 256)
+      );
+      // if user is creating a new conversation, redirect to the new conversation
+      await navigate(`/chat/${conv.id}`);
+      const onChunk: CallbackGeneratedChunk = (_) => {};
+      return sendMessage({
         convId: conv.id,
         type: 'text',
         role: 'user',
         parent: conv.currNode,
         content,
         extra,
-      },
-      onChunk
-    );
-  };
+        system: systemMessage,
+        onChunk,
+      });
+    },
+    [systemMessage, navigate, sendMessage]
+  );
 
   return (
     <div className="flex flex-col h-full w-full xl:max-w-[900px] mx-auto">

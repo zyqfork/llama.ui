@@ -11,13 +11,21 @@ import {
   PendingMessage,
   ViewingChat,
 } from '../utils/types';
+import {
+  InferenceApiMessage,
+  normalizeMsgsForAPI,
+} from '../utils/inferenceApi';
 
-type NewMessage = Pick<
-  Message,
-  'convId' | 'type' | 'role' | 'parent' | 'extra'
-> & {
+interface SendMessageProps {
+  convId: Message['convId'];
+  type: Message['type'];
+  role: Message['role'];
+  parent: Message['parent'];
   content: string | null;
-};
+  extra: Message['extra'];
+  system?: string;
+  onChunk: CallbackGeneratedChunk;
+}
 
 interface MessageContextValue {
   // canvas
@@ -28,10 +36,7 @@ interface MessageContextValue {
   viewingChat: ViewingChat | null;
   pendingMessages: Record<Conversation['id'], PendingMessage>;
   isGenerating: (convId: string) => boolean;
-  sendMessage: (
-    msg: NewMessage,
-    onChunk: CallbackGeneratedChunk
-  ) => Promise<boolean>;
+  sendMessage: (props: SendMessageProps) => Promise<boolean>;
   stopGenerating: (convId: string) => void;
   replaceMessage: (
     convId: string,
@@ -132,11 +137,17 @@ export const MessageContextProvider = ({
 
   const isGenerating = (convId: string) => !!pendingMessages[convId];
 
-  const generateMessage = async (
-    convId: string,
-    leafNodeId: Message['id'],
-    onChunk: CallbackGeneratedChunk
-  ) => {
+  const generateMessage = async ({
+    convId,
+    leafNodeId,
+    systemMessage,
+    onChunk,
+  }: {
+    convId: string;
+    leafNodeId: Message['id'];
+    systemMessage?: string;
+    onChunk: CallbackGeneratedChunk;
+  }) => {
     if (isGenerating(convId)) return;
 
     const currConversation = await StorageUtils.getOneConversation(convId);
@@ -156,6 +167,11 @@ export const MessageContextProvider = ({
       throw new Error('Current messages are not found');
     }
 
+    const messages: InferenceApiMessage[] = normalizeMsgsForAPI(currMessages);
+    if (systemMessage) {
+      messages.unshift({ role: 'system', content: systemMessage });
+    }
+
     const pendingId = Date.now() + 1;
     let pendingMsg: PendingMessage = {
       id: pendingId,
@@ -172,7 +188,7 @@ export const MessageContextProvider = ({
 
     try {
       const chunks = await api.v1ChatCompletions(
-        currMessages,
+        messages,
         abortController.signal
       );
       for await (const chunk of chunks) {
@@ -243,21 +259,25 @@ export const MessageContextProvider = ({
     onChunk(pendingId); // trigger scroll to bottom and switch to the last node
   };
 
-  const sendMessage = async (
-    msg: NewMessage,
-    onChunk: CallbackGeneratedChunk
-  ): Promise<boolean> => {
-    const { convId: convId, type, role, content, extra } = msg;
-    const { parent } = msg;
-
+  const sendMessage = async ({
+    convId,
+    type,
+    role,
+    parent,
+    content,
+    extra,
+    system,
+    onChunk,
+  }: SendMessageProps): Promise<boolean> => {
     if (isGenerating(convId ?? '') || !convId || !type || !role || !parent)
       return false;
 
-    let currMsgId = Date.now();
+    let currMsgId;
     if (content === null) {
       // re-generate last assistant message
       currMsgId = parent;
     } else {
+      currMsgId = Date.now();
       try {
         // save user message
         await StorageUtils.appendMsg(
@@ -283,7 +303,12 @@ export const MessageContextProvider = ({
     onChunk(currMsgId);
 
     try {
-      await generateMessage(convId, currMsgId, onChunk);
+      await generateMessage({
+        convId,
+        leafNodeId: currMsgId,
+        systemMessage: system,
+        onChunk,
+      });
       return true;
     } catch (error) {
       console.error('Message sending failed, consider rollback:', error);

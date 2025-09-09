@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
   useMessageContext,
@@ -58,6 +59,9 @@ export default function ChatScreen({
   currConvId: Conversation['id'];
 }) {
   const {
+    config: { systemMessage },
+  } = useAppContext();
+  const {
     viewingChat,
     sendMessage,
     isGenerating,
@@ -107,21 +111,27 @@ export default function ChatScreen({
   const handleSendNewMessage = useCallback(
     async (content: string, extra: MessageExtra[] | undefined) => {
       scrollToBottom(true);
-      const isSent = await sendMessage(
-        {
-          convId: currConvId,
-          type: 'text',
-          role: 'user',
-          parent: lastMsgNodeId,
-          content,
-          extra,
-        },
-        onChunk
-      );
+      const isSent = await sendMessage({
+        convId: currConvId,
+        type: 'text',
+        role: 'user',
+        parent: lastMsgNodeId,
+        content,
+        extra,
+        system: systemMessage,
+        onChunk,
+      });
       scrollToBottom(false, 10);
       return isSent;
     },
-    [currConvId, lastMsgNodeId, onChunk, scrollToBottom, sendMessage]
+    [
+      currConvId,
+      lastMsgNodeId,
+      systemMessage,
+      onChunk,
+      scrollToBottom,
+      sendMessage,
+    ]
   );
 
   const handleEditUserMessage = useCallback(
@@ -129,18 +139,17 @@ export default function ChatScreen({
       if (!currConvId) return;
       setCurrNodeId(msg.id);
       scrollToBottom(true);
-      await sendMessage(
-        {
-          ...msg,
-          convId: currConvId,
-          content,
-          extra,
-        },
-        onChunk
-      );
+      await sendMessage({
+        ...msg,
+        convId: currConvId,
+        content,
+        extra,
+        system: systemMessage,
+        onChunk,
+      });
       scrollToBottom(false, 10);
     },
-    [currConvId, onChunk, scrollToBottom, sendMessage]
+    [currConvId, systemMessage, onChunk, scrollToBottom, sendMessage]
   );
 
   const handleEditMessage = useCallback(
@@ -160,18 +169,17 @@ export default function ChatScreen({
       setCurrNodeId(msg.parent);
       scrollToBottom(true);
 
-      await sendMessage(
-        {
-          ...msg,
-          convId: currConvId,
-          content: null,
-          extra: [],
-        },
-        onChunk
-      );
+      await sendMessage({
+        ...msg,
+        convId: currConvId,
+        content: null,
+        extra: [],
+        system: systemMessage,
+        onChunk,
+      });
       scrollToBottom(false, 10);
     },
-    [currConvId, onChunk, scrollToBottom, sendMessage]
+    [currConvId, systemMessage, onChunk, scrollToBottom, sendMessage]
   );
 
   return (
