@@ -94,7 +94,7 @@ export interface LlamaCppServerProps {
  * This function processes extra content first, followed by the user message,
  * which allows for better cache prefix utilization with long context windows. [[3]]
  */
-function normalizeMsgsForAPI(
+export function normalizeMsgsForAPI(
   messages: Readonly<Message[]>
 ): InferenceApiMessage[] {
   return messages.map((msg) => {
@@ -293,19 +293,11 @@ class InferenceApiProvider {
    * configuration object, including generation parameters and custom options. [[6]]
    */
   async v1ChatCompletions(
-    messages: readonly Message[],
+    messages: readonly InferenceApiMessage[],
     abortSignal: AbortSignal
   ) {
     // prepare messages for API
-    let apiMessages: InferenceApiMessage[] = [];
-    if (this.config.systemMessage?.trim()) {
-      apiMessages.push({
-        role: 'system',
-        content: this.config.systemMessage,
-      });
-    }
-    apiMessages.push(...normalizeMsgsForAPI(messages));
-
+    let apiMessages = [...messages];
     if (this.config.excludeThoughtOnReq) {
       apiMessages = filterThoughtFromMsgs(apiMessages);
     }
