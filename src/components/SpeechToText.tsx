@@ -2,6 +2,7 @@ import {
   forwardRef,
   Fragment,
   ReactNode,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -48,21 +49,25 @@ const useSpeechToText = ({
   const [transcript, setTranscript] = useState<string>('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  const cleanupPreviousRecognition = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current.onresult = null;
+      recognitionRef.current.onend = null;
+      recognitionRef.current.onerror = null;
+      recognitionRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     if (!BrowserSpeechRecognition) {
       console.error('Speech Recognition not supported');
       return;
     }
 
-    // Clean up previous recognition
-    if (recognitionRef.current) {
-      recognitionRef.current.onresult = null;
-      recognitionRef.current.onend = null;
-      recognitionRef.current.onerror = null;
-    }
+    cleanupPreviousRecognition();
 
     const recognition = new BrowserSpeechRecognition();
-
     recognition.continuous = continuous;
     recognition.interimResults = interimResults;
     recognition.lang = lang;
@@ -90,8 +95,12 @@ const useSpeechToText = ({
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error: ', event.error);
+      console.error('Speech recognition error: ', event.error, event.message);
       setIsRecording(false);
+    };
+
+    recognition.onstart = () => {
+      setIsRecording(true);
     };
 
     recognition.onend = () => {
@@ -100,31 +109,33 @@ const useSpeechToText = ({
 
     recognitionRef.current = recognition;
 
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onend = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current = null;
-      }
-    };
-  }, [lang, continuous, interimResults, onRecord]);
+    return cleanupPreviousRecognition;
+  }, [lang, continuous, interimResults, onRecord, cleanupPreviousRecognition]);
 
-  const startRecording = () => {
-    if (recognitionRef.current && !isRecording) {
+  const startRecording = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (recognition && !isRecording) {
       setTranscript('');
-      recognitionRef.current.start();
-      setIsRecording(true);
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+        setIsRecording(false);
+      }
     }
-  };
+  }, [isRecording]);
 
-  const stopRecording = () => {
-    if (recognitionRef.current && isRecording) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
+  const stopRecording = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (recognition && isRecording) {
+      try {
+        recognition.stop();
+      } catch (error) {
+        console.error('Failed to stop recording:', error);
+        setIsRecording(false);
+      }
     }
-  };
+  }, [isRecording]);
 
   return {
     isRecording,
@@ -137,30 +148,17 @@ const useSpeechToText = ({
 const SpeechToText = forwardRef<
   SpeechToTextState,
   SpeechToTextProps & { children: (props: SpeechToTextState) => ReactNode }
->(({ children, lang, continuous, interimResults }, ref) => {
-  const { isRecording, transcript, startRecording, stopRecording } =
-    useSpeechToText({
-      lang,
-      continuous,
-      interimResults,
-    });
+>(({ children, lang, continuous, interimResults, onRecord }, ref) => {
+  const speechToText = useSpeechToText({
+    lang,
+    continuous,
+    interimResults,
+    onRecord,
+  });
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      isRecording,
-      transcript,
-      startRecording,
-      stopRecording,
-    }),
-    [isRecording, startRecording, stopRecording, transcript]
-  );
+  useImperativeHandle(ref, () => speechToText, [speechToText]);
 
-  return (
-    <Fragment>
-      {children({ isRecording, transcript, startRecording, stopRecording })}
-    </Fragment>
-  );
+  return <Fragment>{children(speechToText)}</Fragment>;
 });
 
 export default SpeechToText;
