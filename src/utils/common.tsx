@@ -196,7 +196,7 @@ export function Dropdown<T extends DropdownOption>({
       {!isDisabled && (
         <details
           ref={dropdownRef}
-          className={`grow dropdown dropdown-${align} dropdown=${placement}`}
+          className={`grow dropdown dropdown-${align} dropdown-${placement}`}
         >
           <summary
             className="grow truncate flex justify-between items-center cursor-pointer"
