@@ -1010,7 +1010,7 @@ const SettingsModalDropdown: React.FC<
   }
 > = ({ configKey, field, options, filterable = false, value, onChange }) => {
   const renderOption = (option: DropdownOption) => (
-    <span>
+    <span className="truncate">
       {option.icon && (
         <img
           src={normalizeUrl(option.icon, import.meta.env.BASE_URL)}
