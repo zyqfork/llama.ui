@@ -251,7 +251,7 @@ const StorageUtils = {
   },
 
   /**
-   * Updates the name and lastModified timestamp of an existing conversation.
+   * Updates the name of an existing conversation.
    * @param convId The ID of the conversation to update.
    * @param name The new name for the conversation.
    * @returns A promise that resolves when the update is complete.
@@ -259,7 +259,6 @@ const StorageUtils = {
   async updateConversationName(convId: string, name: string): Promise<void> {
     await db.conversations.update(convId, {
       name,
-      lastModified: Date.now(),
     });
     dispatchConversationChange(convId);
   },
