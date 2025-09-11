@@ -26,6 +26,11 @@ interface SendMessageProps {
   system?: string;
   onChunk: CallbackGeneratedChunk;
 }
+interface ReplaceMessageProps {
+  msg: Message;
+  newContent: string;
+  onChunk: CallbackGeneratedChunk;
+}
 
 interface MessageContextValue {
   // canvas
@@ -38,12 +43,7 @@ interface MessageContextValue {
   isGenerating: (convId: string) => boolean;
   sendMessage: (props: SendMessageProps) => Promise<boolean>;
   stopGenerating: (convId: string) => void;
-  replaceMessage: (
-    convId: string,
-    msg: Message,
-    content: string | null,
-    onChunk: CallbackGeneratedChunk
-  ) => Promise<void>;
+  replaceMessage: (props: ReplaceMessageProps) => Promise<void>;
   branchMessage: (msg: Message) => Promise<void>;
 }
 
@@ -323,32 +323,21 @@ export const MessageContextProvider = ({
     aborts[convId]?.abort();
   };
 
-  const replaceMessage = async (
-    convId: string,
-    msg: Message,
-    content: string | null,
-    onChunk: CallbackGeneratedChunk
-  ) => {
-    if (isGenerating(convId)) return;
-
-    if (content == null) {
-      onChunk(msg.parent);
-      return;
-    }
+  const replaceMessage = async ({
+    msg,
+    newContent,
+    onChunk,
+  }: ReplaceMessageProps) => {
+    if (isGenerating(msg.convId)) return;
 
     const now = Date.now();
     const currMsgId = now;
     await StorageUtils.appendMsg(
       {
+        ...msg,
         id: currMsgId,
-        convId,
-        type: msg.type,
-        role: msg.role,
-        content,
-        extra: msg.extra,
-        parent: msg.parent,
-        children: [],
         timestamp: now,
+        content: newContent,
       },
       msg.parent
     );

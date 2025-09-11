@@ -157,7 +157,7 @@ export default function ChatScreen({
       if (!currConvId) return;
       setCurrNodeId(msg.id);
       scrollToBottom(true);
-      await replaceMessage(currConvId, msg, content, onChunk);
+      await replaceMessage({ msg, newContent: content, onChunk });
       scrollToBottom(false, 10);
     },
     [replaceMessage, scrollToBottom, currConvId, onChunk]
