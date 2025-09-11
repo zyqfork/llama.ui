@@ -1285,7 +1285,7 @@ const PresetManager: FC<{
       )}
 
       {presets.length > 0 && (
-        <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+        <div className="grid grid-cols-1 gap-2">
           {presets
             .sort((a, b) => b.createdAt - a.createdAt)
             .map((preset) => (
