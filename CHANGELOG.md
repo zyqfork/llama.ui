@@ -1,3 +1,20 @@
+## [2.15.2] - 2025-09-11
+
+### 🛠 Fixes
+
+- Dropdown - placement misprint (#133)
+
+### 🎨 Styling
+
+- Settings dropdown - truncate option text to prevent horizontal scroll (#133)
+- Settings - Preset manager - move additional actions to dropdown (#133)
+
+## [2.15.1] - 2025-09-09
+
+### 🛠 Fixes
+
+- Code - keep text wrapped (#129)
+
 ## [2.15.0] - 2025-09-08
 
 ### 🚜 Refactor
