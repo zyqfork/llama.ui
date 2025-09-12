@@ -8,8 +8,8 @@ import React, {
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
 import usePrefersColorScheme from '../hooks/usePrefersColorScheme';
+import { Configuration, ConfigurationPreset } from '../types';
 import StorageUtils from '../utils/storage';
-import { Configuration, ConfigurationPreset } from '../utils/types';
 
 interface AppContextValue {
   config: Configuration;

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppContext } from '../context/app';
 import { useInferenceContext } from '../context/inference';
-import { MessageExtra } from '../utils/types';
+import { MessageExtra } from '../types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
 

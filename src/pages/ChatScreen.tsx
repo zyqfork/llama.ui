@@ -5,15 +5,15 @@ import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import { useChatScroll } from '../hooks/useChatScroll';
-import { classNames } from '../utils/misc';
-import StorageUtils from '../utils/storage';
 import {
   CanvasType,
   Conversation,
   Message,
   MessageDisplay,
   MessageExtra,
-} from '../utils/types';
+} from '../types';
+import { classNames } from '../utils/misc';
+import StorageUtils from '../utils/storage';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,

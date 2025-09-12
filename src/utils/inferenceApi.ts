@@ -5,7 +5,7 @@ import TextLineStream from 'textlinestream';
 import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
 
 import { isDev } from '../config';
-import { Configuration, Message } from './types';
+import { Configuration, Message } from '../types';
 import { normalizeUrl, splitMessageContent } from './misc';
 
 // --- Type Definitions ---

@@ -4,9 +4,9 @@ import { ChatInput } from '../components/ChatInput';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import * as lang from '../lang/en.json';
+import { MessageExtra } from '../types';
 import { getUniqueRandomElements } from '../utils/misc';
 import StorageUtils from '../utils/storage';
-import { MessageExtra } from '../utils/types';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 

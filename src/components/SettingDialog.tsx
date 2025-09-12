@@ -37,6 +37,13 @@ import { useAppContext } from '../context/app';
 import { useInferenceContext } from '../context/inference';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import lang from '../lang/en.json';
+import {
+  Configuration,
+  ConfigurationKey,
+  ConfigurationPreset,
+  InferenceProvidersKey,
+  ProviderOption,
+} from '../types';
 import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
 import { InferenceApiModel } from '../utils/inferenceApi';
 import {
@@ -47,13 +54,6 @@ import {
   normalizeUrl,
 } from '../utils/misc';
 import StorageUtils from '../utils/storage';
-import {
-  Configuration,
-  ConfigurationKey,
-  ConfigurationPreset,
-  InferenceProvidersKey,
-  ProviderOption,
-} from '../utils/types';
 import { useModals } from './ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,

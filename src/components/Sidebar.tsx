@@ -10,9 +10,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
+import { Conversation } from '../types';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
-import { Conversation } from '../utils/types';
 import { useModals } from './ModalProvider';
 
 export default function Sidebar() {

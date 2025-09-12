@@ -10,8 +10,8 @@ import { useAppContext } from '../context/app';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useVSCodeContext } from '../hooks/useVSCode';
+import { MessageExtra } from '../types';
 import { classNames, cleanCurrentUrl } from '../utils/misc';
-import { MessageExtra } from '../utils/types';
 import { DropzoneArea } from './DropzoneArea';
 
 /**

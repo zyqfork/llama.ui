@@ -8,12 +8,12 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
+import { Configuration } from '../types';
 import InferenceApi, {
   InferenceApiModel,
   LlamaCppServerProps,
 } from '../utils/inferenceApi';
 import { deepEqual } from '../utils/misc';
-import { Configuration } from '../utils/types';
 import { useAppContext } from './app';
 
 // --- Type Definitions ---

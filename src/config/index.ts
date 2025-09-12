@@ -1,5 +1,5 @@
 import daisyuiThemes from 'daisyui/theme/object';
-import { Configuration, InferenceProviders } from '../utils/types';
+import { Configuration, InferenceProviders } from '../types';
 import baseUrl from './baseUrl';
 import defaultConfig from './config-default.json';
 import highlightThemes from './highlight.js-themes.json';
