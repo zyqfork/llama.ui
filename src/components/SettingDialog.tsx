@@ -33,33 +33,34 @@ import {
   SYNTAX_THEMES,
   THEMES,
 } from '../config';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppContext } from '../context/app';
+import { useInferenceContext } from '../context/inference';
+import StorageUtils from '../database';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import lang from '../lang/en.json';
-import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
-import { InferenceApiModel } from '../utils/inferenceApi';
-import {
-  classNames,
-  isBoolean,
-  isNumeric,
-  isString,
-  normalizeUrl,
-} from '../utils/misc';
-import StorageUtils from '../utils/storage';
 import {
   Configuration,
   ConfigurationKey,
   ConfigurationPreset,
+  InferenceApiModel,
   InferenceProvidersKey,
   ProviderOption,
-} from '../utils/types';
+} from '../types';
+import {
+  classNames,
+  dateFormatter,
+  isBoolean,
+  isNumeric,
+  isString,
+  normalizeUrl,
+} from '../utils';
+import { Dropdown, OpenInNewTab } from './common';
 import { useModals } from './ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
 } from './TextToSpeech';
-import { useDebouncedCallback } from './useDebouncedCallback';
 
 // --- Type Definitions ---
 enum SettingInputType {

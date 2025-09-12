@@ -11,7 +11,7 @@ import {
   ExportJsonStructure,
   Message,
   TimingReport,
-} from './types';
+} from '../types';
 
 // --- Event Handling ---
 

@@ -6,13 +6,13 @@ import {
 } from '@heroicons/react/24/solid';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useAppContext } from '../context/app.context.tsx';
-import { useVSCodeContext } from '../utils/llama-vscode.ts';
-import { classNames, cleanCurrentUrl } from '../utils/misc';
-import { MessageExtra } from '../utils/types.ts';
-import { DropzoneArea } from './DropzoneArea.tsx';
-import { useChatExtraContext } from './useChatExtraContext.tsx';
-import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
+import { useAppContext } from '../context/app';
+import { useChatExtraContext } from '../hooks/useChatExtraContext';
+import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
+import { useVSCodeContext } from '../hooks/useVSCode';
+import { MessageExtra } from '../types';
+import { classNames, cleanCurrentUrl } from '../utils';
+import { DropzoneArea } from './DropzoneArea';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.

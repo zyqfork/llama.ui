@@ -11,12 +11,17 @@ import {
   SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
-import { useAppContext } from '../context/app.context';
-import { useMessageContext } from '../context/message.context';
+import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
+import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import * as lang from '../lang/en.json';
-import { timeFormatter } from '../utils/common';
-import { classNames, copyStr, splitMessageContent } from '../utils/misc';
-import { Message, MessageExtra, PendingMessage } from '../utils/types';
+import { Message, MessageExtra, PendingMessage } from '../types';
+import {
+  classNames,
+  copyStr,
+  splitMessageContent,
+  timeFormatter,
+} from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
@@ -24,7 +29,6 @@ import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
 } from './TextToSpeech';
-import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
   content: PendingMessage['content'];
@@ -475,7 +479,7 @@ const BranchButton = ({
   className?: string;
   msg: Message;
 }) => {
-  const { branchMessage } = useMessageContext();
+  const { branchMessage } = useChatContext();
   return (
     <button
       className={className}

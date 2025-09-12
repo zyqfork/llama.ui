@@ -1,15 +1,12 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { useAppContext } from '../context/app.context.tsx';
-import {
-  CallbackGeneratedChunk,
-  useMessageContext,
-} from '../context/message.context';
+import { ChatInput } from '../components/ChatInput';
+import { useAppContext } from '../context/app';
+import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
+import StorageUtils from '../database';
 import * as lang from '../lang/en.json';
-import { getUniqueRandomElements } from '../utils/misc';
-import StorageUtils from '../utils/storage.ts';
-import { MessageExtra } from '../utils/types';
-import { ChatInput } from './ChatInput.tsx';
+import { MessageExtra } from '../types';
+import { getUniqueRandomElements } from '../utils';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 
@@ -18,7 +15,7 @@ export default function WelcomeScreen() {
   const {
     config: { systemMessage },
   } = useAppContext();
-  const { sendMessage } = useMessageContext();
+  const { sendMessage } = useChatContext();
 
   const handleSend = useCallback(
     async (content: string, extra: MessageExtra[] | undefined) => {

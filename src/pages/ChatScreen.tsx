@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAppContext } from '../context/app.context.tsx';
-import {
-  CallbackGeneratedChunk,
-  useMessageContext,
-} from '../context/message.context';
-import { classNames } from '../utils/misc';
-import StorageUtils from '../utils/storage';
+import CanvasPyInterpreter from '../components/CanvasPyInterpreter';
+import { ChatInput } from '../components/ChatInput';
+import ChatMessage from '../components/ChatMessage';
+import { useAppContext } from '../context/app';
+import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
+import StorageUtils from '../database';
+import { useChatScroll } from '../hooks/useChatScroll';
 import {
   CanvasType,
   Conversation,
   Message,
   MessageDisplay,
   MessageExtra,
-} from '../utils/types';
-import CanvasPyInterpreter from './CanvasPyInterpreter';
-import { ChatInput } from './ChatInput.tsx';
-import ChatMessage from './ChatMessage';
-import { useChatScroll } from './useChatScroll.tsx';
+} from '../types';
+import { classNames } from '../utils';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,
@@ -68,7 +65,7 @@ export default function ChatScreen({
     stopGenerating,
     canvasData,
     replaceMessage,
-  } = useMessageContext();
+  } = useChatContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
@@ -250,7 +247,7 @@ function PendingMessage({
   currConvId: Conversation['id'];
   messages: MessageDisplay[];
 }) {
-  const { pendingMessages } = useMessageContext();
+  const { pendingMessages } = useChatContext();
 
   const msg = useMemo(() => {
     if (!currConvId) {

@@ -8,10 +8,10 @@ import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { useAppContext } from '../context/app.context';
-import { useMessageContext } from '../context/message.context';
-import { classNames, copyStr } from '../utils/misc';
-import { CanvasType } from '../utils/types';
+import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
+import { CanvasType } from '../types';
+import { classNames, copyStr } from '../utils';
 
 export default memo(function MarkdownDisplay({
   content,
@@ -65,7 +65,7 @@ const CustomPre: React.ElementType<
   const {
     config: { pyIntepreterEnabled },
   } = useAppContext();
-  const { setCanvasData } = useMessageContext();
+  const { setCanvasData } = useChatContext();
 
   const showActionButtons = useMemo(() => {
     const startOffset = node?.position?.start.offset;
