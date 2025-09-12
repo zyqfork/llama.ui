@@ -98,7 +98,7 @@ export function ChatInput({
             // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
             // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
             className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
-            placeholder="Type a message (Shift+Enter to add a new line)"
+            placeholder="Type your message... (Shift+Enter to add a new line)"
             ref={textarea.ref}
             onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
             onKeyDown={(e) => {
