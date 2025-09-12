@@ -46,9 +46,10 @@ import {
   ProviderOption,
 } from '../types';
 import { InferenceApiModel } from '../types/inference';
-import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
+import { Dropdown, OpenInNewTab } from '../utils/common';
 import {
   classNames,
+  dateFormatter,
   isBoolean,
   isNumeric,
   isString,

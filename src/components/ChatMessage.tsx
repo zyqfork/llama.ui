@@ -16,8 +16,12 @@ import { useChatContext } from '../context/chat';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import * as lang from '../lang/en.json';
 import { Message, MessageExtra, PendingMessage } from '../types';
-import { timeFormatter } from '../utils/common';
-import { classNames, copyStr, splitMessageContent } from '../utils/misc';
+import {
+  classNames,
+  copyStr,
+  splitMessageContent,
+  timeFormatter,
+} from '../utils/misc';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
