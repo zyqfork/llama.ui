@@ -134,7 +134,7 @@ export default function Sidebar() {
                         )
                       ) {
                         toast.success('Conversation deleted');
-                        StorageUtils.remove(conv.id);
+                        StorageUtils.deleteConversation(conv.id);
                         navigate('/');
                       }
                     }}
