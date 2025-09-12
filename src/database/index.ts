@@ -344,7 +344,7 @@ const StorageUtils = {
 
     // Get the list of messages to delete
     const toDelete = new Set<number>();
-    const queue: number[] = [msg.id];
+    const queue = [msg.id];
     while (queue.length > 0) {
       const id = queue.shift()!;
       if (toDelete.has(id)) continue;
@@ -356,6 +356,7 @@ const StorageUtils = {
       }
     }
 
+    // Get the list of messages to update children
     const isValidChild = (id: number) =>
       !toDelete.has(id) && searchCache.has(id);
     const toUpdateChildren: { key: number; changes: { children: number[] } }[] =
