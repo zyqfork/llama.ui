@@ -6,7 +6,7 @@ import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import * as lang from '../lang/en.json';
 import { MessageExtra } from '../types';
-import { getUniqueRandomElements } from '../utils/misc';
+import { getUniqueRandomElements } from '../utils';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 

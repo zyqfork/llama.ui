@@ -11,7 +11,7 @@ import InferenceApi from '../api/inference';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { Configuration } from '../types';
 import { InferenceApiModel, LlamaCppServerProps } from '../types/inference';
-import { deepEqual } from '../utils/misc';
+import { deepEqual } from '../utils';
 import { useAppContext } from './app';
 
 // --- Type Definitions ---

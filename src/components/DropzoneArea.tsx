@@ -2,7 +2,7 @@ import { ClipboardEvent, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { useAppContext } from '../context/app';
 import { ChatExtraContextApi } from '../hooks/useChatExtraContext';
-import { classNames } from '../utils/misc';
+import { classNames } from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 
 export function DropzoneArea({

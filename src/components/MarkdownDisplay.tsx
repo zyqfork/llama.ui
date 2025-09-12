@@ -11,7 +11,7 @@ import remarkMath from 'remark-math';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { CanvasType } from '../types';
-import { classNames, copyStr } from '../utils/misc';
+import { classNames, copyStr } from '../utils';
 
 export default memo(function MarkdownDisplay({
   content,

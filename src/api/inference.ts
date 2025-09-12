@@ -12,7 +12,7 @@ import {
   InferenceApiModel,
   LlamaCppServerProps,
 } from '../types/inference';
-import { normalizeUrl, splitMessageContent } from '../utils/misc';
+import { normalizeUrl, splitMessageContent } from '../utils';
 
 // --- Helper Functions ---
 

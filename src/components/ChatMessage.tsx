@@ -21,7 +21,7 @@ import {
   copyStr,
   splitMessageContent,
   timeFormatter,
-} from '../utils/misc';
+} from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';

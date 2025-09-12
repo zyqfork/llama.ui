@@ -13,7 +13,7 @@ import {
   MessageDisplay,
   MessageExtra,
 } from '../types';
-import { classNames } from '../utils/misc';
+import { classNames } from '../utils';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,
