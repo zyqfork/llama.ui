@@ -7,12 +7,12 @@ import {
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAppContext } from '../context/app.context.tsx';
-import { useVSCodeContext } from '../utils/llama-vscode.ts';
+import { useChatExtraContext } from '../hooks/useChatExtraContext.tsx';
+import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea.ts';
+import { useVSCodeContext } from '../hooks/useVSCode.ts';
 import { classNames, cleanCurrentUrl } from '../utils/misc';
 import { MessageExtra } from '../utils/types.ts';
 import { DropzoneArea } from './DropzoneArea.tsx';
-import { useChatExtraContext } from './useChatExtraContext.tsx';
-import { ChatTextareaApi, useChatTextarea } from './useChatTextarea.ts';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.

@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
 import { useMessageContext } from '../context/message.context';
+import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';
 import { classNames, copyStr, splitMessageContent } from '../utils/misc';
@@ -24,7 +25,6 @@ import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
 } from './TextToSpeech';
-import { useChatExtraContext } from './useChatExtraContext';
 
 interface SplitMessage {
   content: PendingMessage['content'];

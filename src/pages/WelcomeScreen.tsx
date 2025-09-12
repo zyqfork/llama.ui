@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { ChatInput } from '../components/ChatInput.tsx';
 import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
@@ -9,7 +10,6 @@ import * as lang from '../lang/en.json';
 import { getUniqueRandomElements } from '../utils/misc';
 import StorageUtils from '../utils/storage.ts';
 import { MessageExtra } from '../utils/types';
-import { ChatInput } from './ChatInput.tsx';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 

@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import CanvasPyInterpreter from '../components/CanvasPyInterpreter';
+import { ChatInput } from '../components/ChatInput.tsx';
+import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
   useMessageContext,
 } from '../context/message.context';
+import { useChatScroll } from '../hooks/useChatScroll.tsx';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {
@@ -13,10 +17,6 @@ import {
   MessageDisplay,
   MessageExtra,
 } from '../utils/types';
-import CanvasPyInterpreter from './CanvasPyInterpreter';
-import { ChatInput } from './ChatInput.tsx';
-import ChatMessage from './ChatMessage';
-import { useChatScroll } from './useChatScroll.tsx';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,
