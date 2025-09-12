@@ -11,8 +11,8 @@ import {
   SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
-import { useAppContext } from '../context/app.context';
-import { useChatContext } from '../context/chat.context';
+import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';

@@ -14,7 +14,7 @@ import InferenceApi, {
 } from '../utils/inferenceApi';
 import { deepEqual } from '../utils/misc';
 import { Configuration } from '../utils/types';
-import { useAppContext } from './app.context';
+import { useAppContext } from './app';
 
 // --- Type Definitions ---
 

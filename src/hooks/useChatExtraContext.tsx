@@ -3,8 +3,8 @@ import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppContext } from '../context/app';
+import { useInferenceContext } from '../context/inference';
 import { MessageExtra } from '../utils/types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;

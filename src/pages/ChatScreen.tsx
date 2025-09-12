@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasPyInterpreter from '../components/CanvasPyInterpreter';
-import { ChatInput } from '../components/ChatInput.tsx';
+import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
-import { useAppContext } from '../context/app.context.tsx';
-import {
-  CallbackGeneratedChunk,
-  useChatContext,
-} from '../context/chat.context';
-import { useChatScroll } from '../hooks/useChatScroll.tsx';
+import { useAppContext } from '../context/app';
+import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
+import { useChatScroll } from '../hooks/useChatScroll';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
 import {

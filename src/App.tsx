@@ -14,12 +14,12 @@ import { ModalProvider } from './components/ModalProvider';
 import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
-import { AppContextProvider, useAppContext } from './context/app.context';
-import { ChatContextProvider } from './context/chat.context';
+import { AppContextProvider, useAppContext } from './context/app';
+import { ChatContextProvider } from './context/chat';
 import {
   InferenceContextProvider,
   useInferenceContext,
-} from './context/inference.context';
+} from './context/inference';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import * as lang from './lang/en.json';

@@ -8,7 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { isDev } from '../config';
-import { useInferenceContext } from '../context/inference.context';
+import { useInferenceContext } from '../context/inference';
 import {
   InferenceApiMessage,
   normalizeMsgsForAPI,

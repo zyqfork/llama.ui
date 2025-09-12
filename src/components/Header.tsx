@@ -5,9 +5,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { useAppContext } from '../context/app.context';
-import { useChatContext } from '../context/chat.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
+import { useInferenceContext } from '../context/inference';
 import lang from '../lang/en.json';
 import { Dropdown } from '../utils/common';
 

@@ -8,8 +8,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { useAppContext } from '../context/app.context';
-import { useChatContext } from '../context/chat.context';
+import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
 import { classNames, copyStr } from '../utils/misc';
 import { CanvasType } from '../utils/types';
 

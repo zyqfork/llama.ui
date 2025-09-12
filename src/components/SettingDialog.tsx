@@ -33,8 +33,8 @@ import {
   SYNTAX_THEMES,
   THEMES,
 } from '../config';
-import { useAppContext } from '../context/app.context';
-import { useInferenceContext } from '../context/inference.context';
+import { useAppContext } from '../context/app';
+import { useInferenceContext } from '../context/inference';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import lang from '../lang/en.json';
 import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';

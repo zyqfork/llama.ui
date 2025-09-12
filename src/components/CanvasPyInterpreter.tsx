@@ -1,6 +1,6 @@
 import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { useChatContext } from '../context/chat.context';
+import { useChatContext } from '../context/chat';
 import { OpenInNewTab, XCloseButton } from '../utils/common';
 import StorageUtils from '../utils/storage';
 import { CanvasType } from '../utils/types';

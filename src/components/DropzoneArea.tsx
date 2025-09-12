@@ -1,6 +1,6 @@
 import { ClipboardEvent, useState } from 'react';
 import Dropzone from 'react-dropzone';
-import { useAppContext } from '../context/app.context';
+import { useAppContext } from '../context/app';
 import { ChatExtraContextApi } from '../hooks/useChatExtraContext';
 import { classNames } from '../utils/misc';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
