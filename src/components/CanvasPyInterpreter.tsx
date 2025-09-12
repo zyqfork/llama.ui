@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import { CanvasType } from '../types';
-import { OpenInNewTab, XCloseButton } from '../utils/common';
+import { OpenInNewTab, XCloseButton } from './common';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 

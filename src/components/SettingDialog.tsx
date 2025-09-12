@@ -46,7 +46,6 @@ import {
   ProviderOption,
 } from '../types';
 import { InferenceApiModel } from '../types/inference';
-import { Dropdown, OpenInNewTab } from '../utils/common';
 import {
   classNames,
   dateFormatter,
@@ -55,6 +54,7 @@ import {
   isString,
   normalizeUrl,
 } from '../utils/misc';
+import { Dropdown, OpenInNewTab } from './common';
 import { useModals } from './ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,

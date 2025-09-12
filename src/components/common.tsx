@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { isDev } from '../config';
-import { classNames } from './misc';
+import { classNames } from '../utils/misc';
 
 /**
  * A close button (X icon) with a default Tailwind CSS styling.
