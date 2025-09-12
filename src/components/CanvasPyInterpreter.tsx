@@ -1,9 +1,9 @@
 import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { useChatContext } from '../context/chat';
+import StorageUtils from '../database';
 import { CanvasType } from '../types';
 import { OpenInNewTab, XCloseButton } from '../utils/common';
-import StorageUtils from '../utils/storage';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 

@@ -4,6 +4,7 @@ import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
+import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
 import {
   CanvasType,
@@ -13,7 +14,6 @@ import {
   MessageExtra,
 } from '../types';
 import { classNames } from '../utils/misc';
-import StorageUtils from '../utils/storage';
 
 function getListMessageDisplay(
   msgs: Readonly<Message[]>,

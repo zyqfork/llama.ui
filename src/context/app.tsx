@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
+import StorageUtils from '../database';
 import usePrefersColorScheme from '../hooks/usePrefersColorScheme';
 import { Configuration, ConfigurationPreset } from '../types';
-import StorageUtils from '../utils/storage';
 
 interface AppContextValue {
   config: Configuration;

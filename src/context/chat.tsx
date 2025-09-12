@@ -10,6 +10,7 @@ import { matchPath, useLocation, useNavigate } from 'react-router';
 import { normalizeMsgsForAPI } from '../api/inference';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference';
+import StorageUtils from '../database';
 import {
   CanvasData,
   Conversation,
@@ -18,7 +19,6 @@ import {
   ViewingChat,
 } from '../types';
 import { InferenceApiMessage } from '../types/inference';
-import StorageUtils from '../utils/storage';
 
 interface SendMessageProps {
   convId: Message['convId'];

@@ -35,6 +35,7 @@ import {
 } from '../config';
 import { useAppContext } from '../context/app';
 import { useInferenceContext } from '../context/inference';
+import StorageUtils from '../database';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import lang from '../lang/en.json';
 import {
@@ -53,7 +54,6 @@ import {
   isString,
   normalizeUrl,
 } from '../utils/misc';
-import StorageUtils from '../utils/storage';
 import { useModals } from './ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
