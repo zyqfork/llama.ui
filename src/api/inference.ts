@@ -5,13 +5,14 @@ import TextLineStream from 'textlinestream';
 import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
 
 import { isDev } from '../config';
-import { Configuration, Message } from '../types';
 import {
+  Configuration,
   InferenceApiMessage,
   InferenceApiMessageContentPart,
   InferenceApiModel,
   LlamaCppServerProps,
-} from '../types/inference';
+  Message,
+} from '../types';
 import { normalizeUrl, splitMessageContent } from '../utils';
 
 // --- Helper Functions ---

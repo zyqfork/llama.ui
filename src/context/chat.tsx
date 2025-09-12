@@ -14,11 +14,11 @@ import StorageUtils from '../database';
 import {
   CanvasData,
   Conversation,
+  InferenceApiMessage,
   Message,
   PendingMessage,
   ViewingChat,
 } from '../types';
-import { InferenceApiMessage } from '../types/inference';
 
 interface SendMessageProps {
   convId: Message['convId'];

@@ -1,4 +1,4 @@
-import { Message } from '.';
+import { Message } from './chat';
 
 /**
  * Represents a single content part in an API message, supporting multiple content types

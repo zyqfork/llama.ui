@@ -42,10 +42,10 @@ import {
   Configuration,
   ConfigurationKey,
   ConfigurationPreset,
+  InferenceApiModel,
   InferenceProvidersKey,
   ProviderOption,
 } from '../types';
-import { InferenceApiModel } from '../types/inference';
 import {
   classNames,
   dateFormatter,

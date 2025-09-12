@@ -9,8 +9,11 @@ import React, {
 import toast from 'react-hot-toast';
 import InferenceApi from '../api/inference';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
-import { Configuration } from '../types';
-import { InferenceApiModel, LlamaCppServerProps } from '../types/inference';
+import {
+  Configuration,
+  InferenceApiModel,
+  LlamaCppServerProps,
+} from '../types';
 import { deepEqual } from '../utils';
 import { useAppContext } from './app';
 
