@@ -7,6 +7,7 @@ import {
 } from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
+import { normalizeMsgsForAPI } from '../api/inference';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference';
 import {
@@ -16,10 +17,7 @@ import {
   PendingMessage,
   ViewingChat,
 } from '../types';
-import {
-  InferenceApiMessage,
-  normalizeMsgsForAPI,
-} from '../utils/inferenceApi';
+import { InferenceApiMessage } from '../types/inference';
 import StorageUtils from '../utils/storage';
 
 interface SendMessageProps {

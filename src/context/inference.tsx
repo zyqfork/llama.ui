@@ -7,12 +7,10 @@ import React, {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
+import InferenceApi from '../api/inference';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { Configuration } from '../types';
-import InferenceApi, {
-  InferenceApiModel,
-  LlamaCppServerProps,
-} from '../utils/inferenceApi';
+import { InferenceApiModel, LlamaCppServerProps } from '../types/inference';
 import { deepEqual } from '../utils/misc';
 import { useAppContext } from './app';
 

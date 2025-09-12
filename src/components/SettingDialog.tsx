@@ -44,8 +44,8 @@ import {
   InferenceProvidersKey,
   ProviderOption,
 } from '../types';
+import { InferenceApiModel } from '../types/inference';
 import { dateFormatter, Dropdown, OpenInNewTab } from '../utils/common';
-import { InferenceApiModel } from '../utils/inferenceApi';
 import {
   classNames,
   isBoolean,
