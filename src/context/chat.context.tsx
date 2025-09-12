@@ -1,8 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import toast from 'react-hot-toast';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference.context';
+import {
+  InferenceApiMessage,
+  normalizeMsgsForAPI,
+} from '../utils/inferenceApi';
 import StorageUtils from '../utils/storage';
 import {
   CanvasData,
@@ -11,10 +21,6 @@ import {
   PendingMessage,
   ViewingChat,
 } from '../utils/types';
-import {
-  InferenceApiMessage,
-  normalizeMsgsForAPI,
-} from '../utils/inferenceApi';
 
 interface SendMessageProps {
   convId: Message['convId'];
@@ -32,7 +38,7 @@ interface ReplaceMessageProps {
   onChunk: CallbackGeneratedChunk;
 }
 
-interface MessageContextValue {
+interface ChatContextValue {
   // canvas
   canvasData: CanvasData | null;
   setCanvasData: (data: CanvasData | null) => void;
@@ -50,7 +56,7 @@ interface MessageContextValue {
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-const MessageContext = createContext<MessageContextValue>({
+const ChatContext = createContext<ChatContextValue>({
   viewingChat: null,
   pendingMessages: {},
   isGenerating: () => false,
@@ -72,11 +78,7 @@ const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   };
 };
 
-export const MessageContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const params = matchPath('/chat/:convId', pathname);
@@ -357,7 +359,7 @@ export const MessageContextProvider = ({
   };
 
   return (
-    <MessageContext.Provider
+    <ChatContext.Provider
       value={{
         viewingChat,
         pendingMessages,
@@ -371,16 +373,14 @@ export const MessageContextProvider = ({
       }}
     >
       {children}
-    </MessageContext.Provider>
+    </ChatContext.Provider>
   );
 };
 
-export const useMessageContext = () => {
-  const context = useContext(MessageContext);
+export const useChatContext = () => {
+  const context = useContext(ChatContext);
   if (!context) {
-    throw new Error(
-      'useMessageContext must be used within a MessageContextProvider'
-    );
+    throw new Error('useChatContext must be used within a ChatContextProvider');
   }
   return context;
 };

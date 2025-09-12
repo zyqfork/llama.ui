@@ -1,6 +1,6 @@
 import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { useMessageContext } from '../context/message.context';
+import { useChatContext } from '../context/chat.context';
 import { OpenInNewTab, XCloseButton } from '../utils/common';
 import StorageUtils from '../utils/storage';
 import { CanvasType } from '../utils/types';
@@ -109,7 +109,7 @@ const runCodeInWorker = (
 };
 
 export default function CanvasPyInterpreter() {
-  const { canvasData, setCanvasData } = useMessageContext();
+  const { canvasData, setCanvasData } = useChatContext();
 
   const [code, setCode] = useState(canvasData?.content ?? ''); // copy to avoid direct mutation
   const [running, setRunning] = useState(false);

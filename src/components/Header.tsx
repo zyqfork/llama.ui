@@ -6,8 +6,8 @@ import {
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppContext } from '../context/app.context';
+import { useChatContext } from '../context/chat.context';
 import { useInferenceContext } from '../context/inference.context';
-import { useMessageContext } from '../context/message.context';
 import lang from '../lang/en.json';
 import { Dropdown } from '../utils/common';
 
@@ -20,7 +20,7 @@ export default function Header() {
     saveConfig,
   } = useAppContext();
   const { models } = useInferenceContext();
-  const { viewingChat } = useMessageContext();
+  const { viewingChat } = useChatContext();
 
   const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
   const title = useMemo(

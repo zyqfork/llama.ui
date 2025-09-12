@@ -15,11 +15,11 @@ import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
 import { AppContextProvider, useAppContext } from './context/app.context';
+import { ChatContextProvider } from './context/chat.context';
 import {
   InferenceContextProvider,
   useInferenceContext,
 } from './context/inference.context';
-import { MessageContextProvider } from './context/message.context';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import * as lang from './lang/en.json';
@@ -39,14 +39,14 @@ const App: FC = () => {
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
             <InferenceContextProvider>
-              <MessageContextProvider>
+              <ChatContextProvider>
                 <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/chat/:convId" element={<Chat />} />
                     <Route path="*" element={<WelcomeScreen />} />
                   </Route>
                 </Routes>
-              </MessageContextProvider>
+              </ChatContextProvider>
             </InferenceContextProvider>
           </AppContextProvider>
         </div>

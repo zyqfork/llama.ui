@@ -5,8 +5,8 @@ import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
-  useMessageContext,
-} from '../context/message.context';
+  useChatContext,
+} from '../context/chat.context';
 import { useChatScroll } from '../hooks/useChatScroll.tsx';
 import { classNames } from '../utils/misc';
 import StorageUtils from '../utils/storage';
@@ -68,7 +68,7 @@ export default function ChatScreen({
     stopGenerating,
     canvasData,
     replaceMessage,
-  } = useMessageContext();
+  } = useChatContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
@@ -250,7 +250,7 @@ function PendingMessage({
   currConvId: Conversation['id'];
   messages: MessageDisplay[];
 }) {
-  const { pendingMessages } = useMessageContext();
+  const { pendingMessages } = useChatContext();
 
   const msg = useMemo(() => {
     if (!currConvId) {

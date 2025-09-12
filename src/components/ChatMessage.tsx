@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 import { useAppContext } from '../context/app.context';
-import { useMessageContext } from '../context/message.context';
+import { useChatContext } from '../context/chat.context';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import * as lang from '../lang/en.json';
 import { timeFormatter } from '../utils/common';
@@ -475,7 +475,7 @@ const BranchButton = ({
   className?: string;
   msg: Message;
 }) => {
-  const { branchMessage } = useMessageContext();
+  const { branchMessage } = useChatContext();
   return (
     <button
       className={className}

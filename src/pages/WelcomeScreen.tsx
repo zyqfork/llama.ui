@@ -4,8 +4,8 @@ import { ChatInput } from '../components/ChatInput.tsx';
 import { useAppContext } from '../context/app.context.tsx';
 import {
   CallbackGeneratedChunk,
-  useMessageContext,
-} from '../context/message.context';
+  useChatContext,
+} from '../context/chat.context';
 import * as lang from '../lang/en.json';
 import { getUniqueRandomElements } from '../utils/misc';
 import StorageUtils from '../utils/storage.ts';
@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
   const {
     config: { systemMessage },
   } = useAppContext();
-  const { sendMessage } = useMessageContext();
+  const { sendMessage } = useChatContext();
 
   const handleSend = useCallback(
     async (content: string, extra: MessageExtra[] | undefined) => {
