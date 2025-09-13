@@ -40,7 +40,7 @@ jobs:
         run: echo "basePath=${{ github.event.repository.name }}" >> $GITHUB_ENV
 
       - name: Build
-        run: npm run build:prod -- --base=/${{ env.basePath }}
+        run: npm run build:prod
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
