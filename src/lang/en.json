@@ -1,5 +1,6 @@
 {
   "header.title.noChat": "New Chat",
+  "header.title.settings": "Settings",
   "chatScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"

@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useAppContext } from '../context/app';
+import { useNavigate } from 'react-router';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useVSCodeContext } from '../hooks/useVSCode';
@@ -42,7 +42,7 @@ export function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
-  const { setShowSettings } = useAppContext();
+  const navigate = useNavigate();
   const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
   useVSCodeContext(textarea, extraContext);
@@ -135,7 +135,7 @@ export function ChatInput({
                 className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
                 title="Settings"
                 aria-label="Open settings menu"
-                onClick={() => setShowSettings(true)}
+                onClick={() => navigate('/settings')}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
               </button>

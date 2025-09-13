@@ -43,6 +43,7 @@ const App: FC = () => {
                 <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/chat/:convId" element={<Chat />} />
+                    <Route path="/settings" element={<SettingDialog />} />
                     <Route path="*" element={<WelcomeScreen />} />
                   </Route>
                 </Routes>
@@ -141,12 +142,6 @@ const AppLayout: FC = () => {
         </main>
         <Footer />
       </div>
-      {showSettings && (
-        <SettingDialog
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
       <Toaster />
     </>
   );

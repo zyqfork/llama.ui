@@ -26,7 +26,15 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import React, { FC, ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useNavigate } from 'react-router';
 import {
   CONFIG_DEFAULT,
   INFERENCE_PROVIDERS,
@@ -34,6 +42,7 @@ import {
   THEMES,
 } from '../config';
 import { useAppContext } from '../context/app';
+import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
 import StorageUtils from '../database';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
@@ -542,16 +551,18 @@ const getSettingTabsConfiguration = (
   },
 ];
 
-export default function SettingDialog({
-  show,
-  onClose,
-}: {
-  show: boolean;
-  onClose: () => void;
-}) {
-  const { config, saveConfig, presets, savePreset, removePreset } =
-    useAppContext();
+export default function SettingDialog() {
+  const navigate = useNavigate();
+  const {
+    config,
+    saveConfig,
+    presets,
+    savePreset,
+    removePreset,
+    setShowSettings,
+  } = useAppContext();
   const { models, fetchModels } = useInferenceContext();
+  const { viewingChat } = useChatContext();
   const [tabIdx, setTabIdx] = useState(0);
 
   // clone the config object to prevent direct mutation
@@ -565,8 +576,17 @@ export default function SettingDialog({
     () => getSettingTabsConfiguration(localConfig, localModels),
     [localConfig, localModels]
   );
+  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
+
+  useEffect(() => setShowSettings(true), [setShowSettings]);
 
   const { showConfirm, showAlert } = useModals();
+
+  const onClose = useCallback(() => {
+    setShowSettings(false);
+    if (currConv) navigate(`/chat/${currConv.id}`);
+    else navigate('/');
+  }, [currConv, navigate, setShowSettings]);
 
   const resetConfig = async () => {
     if (await showConfirm('Are you sure you want to reset all settings?')) {
@@ -649,211 +669,204 @@ export default function SettingDialog({
     };
 
   return (
-    <dialog
-      className={classNames({ modal: true, 'modal-open': show })}
-      aria-label="Settings dialog"
-    >
-      <div className="modal-box w-11/12 max-w-4xl max-sm:px-4">
-        <h3 className="text-lg font-bold mb-6 max-sm:mx-2">Settings</h3>
-        <div className="flex flex-col md:flex-row h-[calc(90vh-12rem)]">
-          {/* Left panel, showing sections - Desktop version */}
-          <div
-            className="hidden md:flex flex-col items-stretch pr-4 mr-4 border-r-2 border-base-200"
-            role="complementary"
-            aria-description="Settings sections"
-            tabIndex={0}
-          >
-            {settingTabs.map((tab, idx) => (
-              <button
-                key={idx}
-                className={classNames({
-                  'btn btn-ghost justify-start font-normal w-44 mb-1': true,
-                  'btn-active': tabIdx === idx,
-                })}
-                onClick={() => setTabIdx(idx)}
-                dir="auto"
-              >
-                {tab.title}
-              </button>
-            ))}
-          </div>
-
-          {/* Left panel, showing sections - Mobile version */}
-          {/* This menu is skipped on a11y, otherwise it's repeated the desktop version */}
-          <div
-            className="md:hidden flex flex-row gap-2 mb-4 px-4"
-            aria-disabled={true}
-          >
-            <Dropdown
-              className="bg-base-200 w-full border-1 border-base-content/10 rounded-lg shadow-xs cursor-pointer p-2"
-              entity="tab"
-              options={settingTabs.map((tab, idx) => ({
-                label: tab.title,
-                value: idx,
-              }))}
-              currentValue={settingTabs[tabIdx].title}
-              renderOption={(option) => <span>{option.label}</span>}
-              isSelected={(option) => tabIdx === option.value}
-              onSelect={(option) => setTabIdx(option.value as number)}
-            />
-          </div>
-
-          {/* Right panel, showing setting fields */}
-          <div className="grow overflow-y-auto px-2 sm:px-4">
-            {settingTabs[tabIdx].fields.map((field, idx) => {
-              const key = `${tabIdx}-${idx}`;
-              switch (field.type) {
-                case SettingInputType.SHORT_INPUT:
-                  return (
-                    <SettingsModalShortInput
-                      key={key}
-                      configKey={field.key}
-                      field={field}
-                      value={localConfig[field.key] as string | number}
-                      onChange={onChange(field.key)}
-                    />
-                  );
-                case SettingInputType.RANGE_INPUT:
-                  return (
-                    <SettingsModalRangeInput
-                      key={key}
-                      configKey={field.key}
-                      field={field}
-                      min={field.min as number}
-                      max={field.max as number}
-                      step={field.step as number}
-                      value={localConfig[field.key] as number}
-                      onChange={onChange(field.key)}
-                    />
-                  );
-                case SettingInputType.LONG_INPUT:
-                  return (
-                    <SettingsModalLongInput
-                      key={key}
-                      configKey={field.key}
-                      field={field}
-                      value={String(localConfig[field.key])}
-                      onChange={onChange(field.key)}
-                    />
-                  );
-                case SettingInputType.CHECKBOX:
-                  return (
-                    <SettingsModalCheckbox
-                      key={key}
-                      configKey={field.key}
-                      field={field}
-                      value={!!localConfig[field.key]}
-                      onChange={onChange(field.key)}
-                    />
-                  );
-                case SettingInputType.DROPDOWN:
-                  return (
-                    <SettingsModalDropdown
-                      key={key}
-                      configKey={field.key}
-                      field={field as SettingFieldInput}
-                      options={(field as SettingFieldDropdown).options}
-                      filterable={(field as SettingFieldDropdown).filterable}
-                      value={String(localConfig[field.key])}
-                      onChange={onChange(field.key)}
-                    />
-                  );
-                case SettingInputType.CUSTOM:
-                  switch (field.key) {
-                    case 'import-export':
-                      return (
-                        <ImportExportComponent key={key} onClose={onClose} />
-                      );
-                    case 'preset-manager':
-                      return (
-                        <PresetManager
-                          key={key}
-                          config={localConfig}
-                          onLoadConfig={setLocalConfig}
-                          presets={presets}
-                          onSavePreset={savePreset}
-                          onRemovePreset={removePreset}
-                        />
-                      );
-                    case 'theme-manager':
-                      return <ThemeController key={key} />;
-                    case 'fetch-models':
-                      return (
-                        <button
-                          key={key}
-                          className="btn"
-                          onClick={() =>
-                            fetchModels(localConfig).then((models) =>
-                              setLocalModels(models)
-                            )
-                          }
-                        >
-                          <ArrowPathIcon className={ICON_CLASSNAME} />
-                          Fetch Models
-                        </button>
-                      );
-                    default:
-                      if (field.component === 'delimeter') {
-                        return <DelimeterComponent key={key} />;
-                      }
-
-                      switch (typeof field.component) {
-                        case 'string':
-                        case 'number':
-                        case 'bigint':
-                        case 'boolean':
-                        case 'symbol':
-                          return (
-                            <div key={key} className="mb-2">
-                              {field.component}
-                            </div>
-                          );
-                        default:
-                          return (
-                            <div key={key} className="mb-2">
-                              {React.createElement(field.component, {
-                                value: localConfig[field.key],
-                                onChange: (value: string | boolean) =>
-                                  onChange(field.key as ConfigurationKey)(
-                                    value
-                                  ),
-                              })}
-                            </div>
-                          );
-                      }
-                  }
-                case SettingInputType.SECTION:
-                  return (
-                    <SettingsSectionLabel key={key}>
-                      {field.label}
-                    </SettingsSectionLabel>
-                  );
-                default:
-                  return null;
-              }
-            })}
-
-            <p className="opacity-40 mb-6 text-sm mt-8">
-              App Version: {import.meta.env.PACKAGE_VERSION}
-              <br />
-              Settings are saved in browser's localStorage
-            </p>
-          </div>
+    <div className="flex flex-col h-full p-4">
+      <div className="grow flex flex-col md:flex-row max-w-210 overflow-y-auto">
+        {/* Left panel, showing sections - Desktop version */}
+        <div
+          className="hidden md:flex flex-col items-stretch pr-4 mr-4 border-r-2 border-base-200"
+          role="complementary"
+          aria-description="Settings sections"
+          tabIndex={0}
+        >
+          {settingTabs.map((tab, idx) => (
+            <button
+              key={idx}
+              className={classNames({
+                'btn btn-ghost justify-start font-normal w-44 mb-1': true,
+                'btn-active': tabIdx === idx,
+              })}
+              onClick={() => setTabIdx(idx)}
+              dir="auto"
+            >
+              {tab.title}
+            </button>
+          ))}
         </div>
 
-        <div className="modal-action">
-          <button className="btn" onClick={resetConfig}>
-            Reset to default
-          </button>
-          <button className="btn" onClick={onClose}>
-            Close
-          </button>
-          <button className="btn btn-neutral" onClick={handleSave}>
-            Save
-          </button>
+        {/* Left panel, showing sections - Mobile version */}
+        {/* This menu is skipped on a11y, otherwise it's repeated the desktop version */}
+        <div
+          className="md:hidden flex flex-row gap-2 mb-4 px-4"
+          aria-disabled={true}
+        >
+          <Dropdown
+            className="bg-base-200 w-full border-1 border-base-content/10 rounded-lg shadow-xs cursor-pointer p-2"
+            entity="tab"
+            options={settingTabs.map((tab, idx) => ({
+              label: tab.title,
+              value: idx,
+            }))}
+            currentValue={settingTabs[tabIdx].title}
+            renderOption={(option) => <span>{option.label}</span>}
+            isSelected={(option) => tabIdx === option.value}
+            onSelect={(option) => setTabIdx(option.value as number)}
+          />
+        </div>
+
+        {/* Right panel, showing setting fields */}
+        <div className="grow overflow-y-auto px-2 sm:px-4">
+          {settingTabs[tabIdx].fields.map((field, idx) => {
+            const key = `${tabIdx}-${idx}`;
+            switch (field.type) {
+              case SettingInputType.SHORT_INPUT:
+                return (
+                  <SettingsModalShortInput
+                    key={key}
+                    configKey={field.key}
+                    field={field}
+                    value={localConfig[field.key] as string | number}
+                    onChange={onChange(field.key)}
+                  />
+                );
+              case SettingInputType.RANGE_INPUT:
+                return (
+                  <SettingsModalRangeInput
+                    key={key}
+                    configKey={field.key}
+                    field={field}
+                    min={field.min as number}
+                    max={field.max as number}
+                    step={field.step as number}
+                    value={localConfig[field.key] as number}
+                    onChange={onChange(field.key)}
+                  />
+                );
+              case SettingInputType.LONG_INPUT:
+                return (
+                  <SettingsModalLongInput
+                    key={key}
+                    configKey={field.key}
+                    field={field}
+                    value={String(localConfig[field.key])}
+                    onChange={onChange(field.key)}
+                  />
+                );
+              case SettingInputType.CHECKBOX:
+                return (
+                  <SettingsModalCheckbox
+                    key={key}
+                    configKey={field.key}
+                    field={field}
+                    value={!!localConfig[field.key]}
+                    onChange={onChange(field.key)}
+                  />
+                );
+              case SettingInputType.DROPDOWN:
+                return (
+                  <SettingsModalDropdown
+                    key={key}
+                    configKey={field.key}
+                    field={field as SettingFieldInput}
+                    options={(field as SettingFieldDropdown).options}
+                    filterable={(field as SettingFieldDropdown).filterable}
+                    value={String(localConfig[field.key])}
+                    onChange={onChange(field.key)}
+                  />
+                );
+              case SettingInputType.CUSTOM:
+                switch (field.key) {
+                  case 'import-export':
+                    return (
+                      <ImportExportComponent key={key} onClose={onClose} />
+                    );
+                  case 'preset-manager':
+                    return (
+                      <PresetManager
+                        key={key}
+                        config={localConfig}
+                        onLoadConfig={setLocalConfig}
+                        presets={presets}
+                        onSavePreset={savePreset}
+                        onRemovePreset={removePreset}
+                      />
+                    );
+                  case 'theme-manager':
+                    return <ThemeController key={key} />;
+                  case 'fetch-models':
+                    return (
+                      <button
+                        key={key}
+                        className="btn"
+                        onClick={() =>
+                          fetchModels(localConfig).then((models) =>
+                            setLocalModels(models)
+                          )
+                        }
+                      >
+                        <ArrowPathIcon className={ICON_CLASSNAME} />
+                        Fetch Models
+                      </button>
+                    );
+                  default:
+                    if (field.component === 'delimeter') {
+                      return <DelimeterComponent key={key} />;
+                    }
+
+                    switch (typeof field.component) {
+                      case 'string':
+                      case 'number':
+                      case 'bigint':
+                      case 'boolean':
+                      case 'symbol':
+                        return (
+                          <div key={key} className="mb-2">
+                            {field.component}
+                          </div>
+                        );
+                      default:
+                        return (
+                          <div key={key} className="mb-2">
+                            {React.createElement(field.component, {
+                              value: localConfig[field.key],
+                              onChange: (value: string | boolean) =>
+                                onChange(field.key as ConfigurationKey)(value),
+                            })}
+                          </div>
+                        );
+                    }
+                }
+              case SettingInputType.SECTION:
+                return (
+                  <SettingsSectionLabel key={key}>
+                    {field.label}
+                  </SettingsSectionLabel>
+                );
+              default:
+                return null;
+            }
+          })}
+
+          <p className="opacity-40 mb-6 text-sm mt-8">
+            App Version: {import.meta.env.PACKAGE_VERSION}
+            <br />
+            Settings are saved in browser's localStorage
+          </p>
         </div>
       </div>
-    </dialog>
+
+      <div className="sticky bottom-0 flex gap-0.5 max-sm:justify-center mt-4">
+        <div className="hidden md:block w-52 h-10" />
+        <button className="btn" onClick={resetConfig}>
+          Reset to default
+        </button>
+        <button className="btn" onClick={onClose}>
+          Close
+        </button>
+        <button className="btn btn-neutral" onClick={handleSave}>
+          Save
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -872,8 +885,8 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
   onChange,
 }) => {
   return (
-    <label className="form-control mb-3">
-      <div className="label inline text-sm">{field.label || configKey}</div>
+    <label className="form-control flex flex-col justify-center max-w-80 mb-3">
+      <div className="text-sm opacity-60 mb-1">{field.label || configKey}</div>
       <textarea
         className="textarea textarea-bordered h-24"
         placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
@@ -883,7 +896,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
       />
       {field.note && (
         <div
-          className="text-xs opacity-75 max-w-80 mt-1"
+          className="text-xs opacity-75 mt-1"
           dangerouslySetInnerHTML={{ __html: field.note }}
         />
       )}
