@@ -668,6 +668,134 @@ export default function Settings() {
       });
     };
 
+  const mapFieldToElement = (field: SettingField, idx: number) => {
+    const key = `${tabIdx}-${idx}`;
+
+    switch (field.type) {
+      case SettingInputType.SHORT_INPUT:
+        return (
+          <SettingsModalShortInput
+            key={key}
+            configKey={field.key}
+            field={field}
+            value={localConfig[field.key] as string | number}
+            onChange={onChange(field.key)}
+          />
+        );
+      case SettingInputType.RANGE_INPUT:
+        return (
+          <SettingsModalRangeInput
+            key={key}
+            configKey={field.key}
+            field={field}
+            min={field.min as number}
+            max={field.max as number}
+            step={field.step as number}
+            value={localConfig[field.key] as number}
+            onChange={onChange(field.key)}
+          />
+        );
+      case SettingInputType.LONG_INPUT:
+        return (
+          <SettingsModalLongInput
+            key={key}
+            configKey={field.key}
+            field={field}
+            value={String(localConfig[field.key])}
+            onChange={onChange(field.key)}
+          />
+        );
+      case SettingInputType.CHECKBOX:
+        return (
+          <SettingsModalCheckbox
+            key={key}
+            configKey={field.key}
+            field={field}
+            value={!!localConfig[field.key]}
+            onChange={onChange(field.key)}
+          />
+        );
+      case SettingInputType.DROPDOWN:
+        return (
+          <SettingsModalDropdown
+            key={key}
+            configKey={field.key}
+            field={field as SettingFieldInput}
+            options={(field as SettingFieldDropdown).options}
+            filterable={(field as SettingFieldDropdown).filterable}
+            value={String(localConfig[field.key])}
+            onChange={onChange(field.key)}
+          />
+        );
+      case SettingInputType.CUSTOM:
+        switch (field.key) {
+          case 'import-export':
+            return <ImportExportComponent key={key} onClose={onClose} />;
+          case 'preset-manager':
+            return (
+              <PresetManager
+                key={key}
+                config={localConfig}
+                onLoadConfig={setLocalConfig}
+                presets={presets}
+                onSavePreset={savePreset}
+                onRemovePreset={removePreset}
+              />
+            );
+          case 'theme-manager':
+            return <ThemeController key={key} />;
+          case 'fetch-models':
+            return (
+              <button
+                key={key}
+                className="btn"
+                onClick={() =>
+                  fetchModels(localConfig).then((models) =>
+                    setLocalModels(models)
+                  )
+                }
+              >
+                <ArrowPathIcon className={ICON_CLASSNAME} />
+                Fetch Models
+              </button>
+            );
+          default:
+            if (field.component === 'delimeter') {
+              return <DelimeterComponent key={key} />;
+            }
+
+            switch (typeof field.component) {
+              case 'string':
+              case 'number':
+              case 'bigint':
+              case 'boolean':
+              case 'symbol':
+                return (
+                  <div key={key} className="mb-2">
+                    {field.component}
+                  </div>
+                );
+              default:
+                return (
+                  <div key={key} className="mb-2">
+                    {React.createElement(field.component, {
+                      value: localConfig[field.key],
+                      onChange: (value: string | boolean) =>
+                        onChange(field.key as ConfigurationKey)(value),
+                    })}
+                  </div>
+                );
+            }
+        }
+      case SettingInputType.SECTION:
+        return (
+          <SettingsSectionLabel key={key}>{field.label}</SettingsSectionLabel>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full p-4">
       <div className="grow flex flex-col md:flex-row max-w-210 overflow-y-auto">
@@ -715,136 +843,7 @@ export default function Settings() {
 
         {/* Right panel, showing setting fields */}
         <div className="grow overflow-y-auto px-2 sm:px-4">
-          {settingTabs[tabIdx].fields.map((field, idx) => {
-            const key = `${tabIdx}-${idx}`;
-            switch (field.type) {
-              case SettingInputType.SHORT_INPUT:
-                return (
-                  <SettingsModalShortInput
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={localConfig[field.key] as string | number}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              case SettingInputType.RANGE_INPUT:
-                return (
-                  <SettingsModalRangeInput
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    min={field.min as number}
-                    max={field.max as number}
-                    step={field.step as number}
-                    value={localConfig[field.key] as number}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              case SettingInputType.LONG_INPUT:
-                return (
-                  <SettingsModalLongInput
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={String(localConfig[field.key])}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              case SettingInputType.CHECKBOX:
-                return (
-                  <SettingsModalCheckbox
-                    key={key}
-                    configKey={field.key}
-                    field={field}
-                    value={!!localConfig[field.key]}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              case SettingInputType.DROPDOWN:
-                return (
-                  <SettingsModalDropdown
-                    key={key}
-                    configKey={field.key}
-                    field={field as SettingFieldInput}
-                    options={(field as SettingFieldDropdown).options}
-                    filterable={(field as SettingFieldDropdown).filterable}
-                    value={String(localConfig[field.key])}
-                    onChange={onChange(field.key)}
-                  />
-                );
-              case SettingInputType.CUSTOM:
-                switch (field.key) {
-                  case 'import-export':
-                    return (
-                      <ImportExportComponent key={key} onClose={onClose} />
-                    );
-                  case 'preset-manager':
-                    return (
-                      <PresetManager
-                        key={key}
-                        config={localConfig}
-                        onLoadConfig={setLocalConfig}
-                        presets={presets}
-                        onSavePreset={savePreset}
-                        onRemovePreset={removePreset}
-                      />
-                    );
-                  case 'theme-manager':
-                    return <ThemeController key={key} />;
-                  case 'fetch-models':
-                    return (
-                      <button
-                        key={key}
-                        className="btn"
-                        onClick={() =>
-                          fetchModels(localConfig).then((models) =>
-                            setLocalModels(models)
-                          )
-                        }
-                      >
-                        <ArrowPathIcon className={ICON_CLASSNAME} />
-                        Fetch Models
-                      </button>
-                    );
-                  default:
-                    if (field.component === 'delimeter') {
-                      return <DelimeterComponent key={key} />;
-                    }
-
-                    switch (typeof field.component) {
-                      case 'string':
-                      case 'number':
-                      case 'bigint':
-                      case 'boolean':
-                      case 'symbol':
-                        return (
-                          <div key={key} className="mb-2">
-                            {field.component}
-                          </div>
-                        );
-                      default:
-                        return (
-                          <div key={key} className="mb-2">
-                            {React.createElement(field.component, {
-                              value: localConfig[field.key],
-                              onChange: (value: string | boolean) =>
-                                onChange(field.key as ConfigurationKey)(value),
-                            })}
-                          </div>
-                        );
-                    }
-                }
-              case SettingInputType.SECTION:
-                return (
-                  <SettingsSectionLabel key={key}>
-                    {field.label}
-                  </SettingsSectionLabel>
-                );
-              default:
-                return null;
-            }
-          })}
+          {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
           <p className="opacity-40 mb-6 text-sm mt-8">
             App Version: {import.meta.env.PACKAGE_VERSION}
