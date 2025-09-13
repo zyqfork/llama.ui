@@ -39,6 +39,16 @@
       "command": "git",
       "args": ["cliff", "-o", "CHANGELOG.md"],
       "problemMatcher": []
+    },
+    {
+      "label": "npm: preview",
+      "detail": "vite",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "preview", "--", "--host"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": ["$eslint-stylish"]
     }
   ]
 }
