@@ -35,7 +35,7 @@ import React, {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router';
-import { Dropdown, OpenInNewTab } from '../components/common';
+import { Dropdown } from '../components/common';
 import { useModals } from '../components/ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
@@ -482,19 +482,7 @@ const getSettingTabsConfiguration = (
       /* Custom */
       DELIMETER,
       toSection('Custom', <CpuChipIcon className={ICON_CLASSNAME} />),
-      {
-        type: SettingInputType.LONG_INPUT,
-        label: (
-          <>
-            Custom JSON config (For more info, refer to{' '}
-            <OpenInNewTab href="https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md">
-              server documentation
-            </OpenInNewTab>
-            )
-          </>
-        ),
-        key: 'custom',
-      },
+      toInput(SettingInputType.LONG_INPUT, 'custom'),
     ],
   },
 
@@ -511,42 +499,29 @@ const getSettingTabsConfiguration = (
         type: SettingInputType.CUSTOM,
         key: 'custom', // dummy key, won't be used
         component: () => (
-          <>
-            <p className="mb-8">
-              Experimental features are not guaranteed to work correctly.
-              <br />
-              <br />
+          <div className="flex flex-col gap-2 mb-8">
+            <p>Experimental features are not guaranteed to work correctly.</p>
+            <p>
               If you encounter any problems, create a{' '}
-              <OpenInNewTab href="https://github.com/ggerganov/llama.cpp/issues/new?template=019-bug-misc.yml">
+              <a
+                className="underline"
+                href="https://github.com/ggerganov/llama.cpp/issues/new?template=019-bug-misc.yml"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Bug (misc.)
-              </OpenInNewTab>{' '}
+              </a>{' '}
               report on Github. Please also specify <b>webui/experimental</b> on
               the report title and include screenshots.
-              <br />
-              <br />
+            </p>
+            <p>
               Some features may require packages downloaded from CDN, so they
               need internet connection.
             </p>
-          </>
+          </div>
         ),
       },
-      {
-        type: SettingInputType.CHECKBOX,
-        label: (
-          <>
-            <b>Enable Python interpreter</b>
-            <br />
-            <small className="text-xs">
-              This feature uses{' '}
-              <OpenInNewTab href="https://pyodide.org">pyodide</OpenInNewTab>,
-              downloaded from CDN. To use this feature, ask the LLM to generate
-              Python code inside a Markdown code block. You will see a "Run"
-              button on the code block, near the "Copy" button.
-            </small>
-          </>
-        ),
-        key: 'pyIntepreterEnabled',
-      },
+      toInput(SettingInputType.CHECKBOX, 'pyIntepreterEnabled'),
     ],
   },
 ];
@@ -798,7 +773,7 @@ export default function Settings() {
 
   return (
     <div className="flex flex-col h-full p-4">
-      <div className="grow flex flex-col md:flex-row max-w-210 overflow-y-auto">
+      <div className="grow flex flex-col md:flex-row overflow-y-auto">
         {/* Left panel, showing sections - Desktop version */}
         <div
           className="hidden md:flex flex-col items-stretch pr-4 mr-4 border-r-2 border-base-200"

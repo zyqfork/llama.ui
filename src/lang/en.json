@@ -144,12 +144,12 @@
         "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets DRY penalty for the last n tokens."
       },
       "custom": {
-        "label": "",
-        "note": ""
+        "label": "Custom JSON config",
+        "note": "For more info, refer to <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">server documentation</a>"
       },
       "pyIntepreterEnabled": {
-        "label": "",
-        "note": ""
+        "label": "Enable Python interpreter",
+        "note": "This feature uses <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, downloaded from CDN. To use this feature, ask the LLM to generate Python code inside a Markdown code block. You will see a \"Run\" button on the code block, near the \"Copy\" button."
       },
       "ttsPitch": {
         "label": "Pitch",
