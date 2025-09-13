@@ -10,10 +10,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       manifest: {
-        name: 'llama.ui',
+        name: 'llama.ui - Minimal AI chat interface',
         short_name: 'llama.ui',
         description:
-          'Minimal Interface for AI Companion that runs entirely in your browser.',
+          'A minimal Interface for AI Companion that runs entirely in your browser.',
         display: 'standalone',
         theme_color: '#EEEEEE',
         background_color: '#EEEEEE',
@@ -31,11 +31,11 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'assets/favicon.ico',
-            sizes: '48x48',
-            type: 'image/x-icon',
+            purpose: 'any',
+            sizes: '96x96',
+            src: 'assets/favicon-96x96.png',
+            type: 'image/png',
           },
-          { src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
         screenshots: [
           {
@@ -57,12 +57,16 @@ export default defineConfig({
         lang: 'en',
       },
       workbox: {
+        globPatterns: ['**/*.{js,mjs,css,html,woff2,woff}'],
         runtimeCaching: [
           {
-            urlPattern: '\\.(?:html|css|js|mjs)$',
+            urlPattern: ({ request }) =>
+              request.destination === 'document' ||
+              request.destination === 'script' ||
+              request.destination === 'style',
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'static-resources',
+              cacheName: 'static-cache',
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
@@ -70,24 +74,40 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: '\\.(?:jpg|jpeg|png|svg|ico)$',
+            urlPattern: ({ request }) => request.destination === 'image',
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 50,
+                maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
           {
-            urlPattern: '\\.(?:woff2?|ttf|otf)$',
+            urlPattern: ({ request }) => request.destination === 'font',
             handler: 'CacheFirst',
             options: {
               cacheName: 'font-cache',
               expiration: {
                 maxEntries: 20,
                 maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) =>
+              request.url.endsWith('/v1/models') &&
+              !request.url.includes('localhost') &&
+              !/(127\.\d{1,3}\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3})/.test(
+                request.url
+              ),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'api-models',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 15, // 15 minutes
               },
             },
           },
