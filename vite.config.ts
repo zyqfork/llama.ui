@@ -57,6 +57,7 @@ export default defineConfig({
         lang: 'en',
       },
       workbox: {
+        globPatterns: ['**/*.{js,mjs,css,html,woff2,woff}'],
         runtimeCaching: [
           {
             urlPattern: ({ request }) =>
