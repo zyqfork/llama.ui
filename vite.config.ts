@@ -10,10 +10,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       manifest: {
-        name: 'llama.ui',
+        name: 'llama.ui - Minimal AI chat interface',
         short_name: 'llama.ui',
         description:
-          'Minimal Interface for AI Companion that runs entirely in your browser.',
+          'A minimal Interface for AI Companion that runs entirely in your browser.',
         display: 'standalone',
         theme_color: '#EEEEEE',
         background_color: '#EEEEEE',
