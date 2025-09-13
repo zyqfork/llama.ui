@@ -772,8 +772,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex flex-col h-full p-4">
-      <div className="grow flex flex-col md:flex-row overflow-y-auto">
+    <div className="flex flex-col h-full py-4 max-xl:px-4">
+      <div className="grow flex flex-col md:flex-row">
         {/* Left panel, showing sections - Desktop version */}
         <div
           className="hidden md:flex flex-col items-stretch pr-4 mr-4 border-r-2 border-base-200"
@@ -817,10 +817,10 @@ export default function Settings() {
         </div>
 
         {/* Right panel, showing setting fields */}
-        <div className="grow overflow-y-auto px-2 sm:px-4">
+        <div className="grow max-h-[calc(100vh-13rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto px-2 sm:px-4">
           {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
-          <p className="opacity-40 mb-6 text-sm mt-8">
+          <p className="opacity-40 text-sm mt-8">
             App Version: {import.meta.env.PACKAGE_VERSION}
             <br />
             Settings are saved in browser's localStorage
@@ -828,8 +828,8 @@ export default function Settings() {
         </div>
       </div>
 
-      <div className="sticky bottom-0 flex gap-0.5 max-sm:justify-center mt-4">
-        <div className="hidden md:block w-52 h-10" />
+      <div className="sticky bottom-4 flex gap-2 max-sm:justify-center mt-4">
+        <div className="hidden md:block w-48 h-10" />
         <button className="btn" onClick={resetConfig}>
           Reset to default
         </button>
