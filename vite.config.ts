@@ -31,11 +31,11 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'assets/favicon.ico',
-            sizes: '48x48',
-            type: 'image/x-icon',
+            purpose: 'any',
+            sizes: '96x96',
+            src: 'assets/favicon-96x96.png',
+            type: 'image/png',
           },
-          { src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
         screenshots: [
           {
