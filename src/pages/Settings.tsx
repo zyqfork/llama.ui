@@ -35,6 +35,13 @@ import React, {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router';
+import { Dropdown, OpenInNewTab } from '../components/common';
+import { useModals } from '../components/ModalProvider';
+import TextToSpeech, {
+  getSpeechSynthesisVoiceByName,
+  getSpeechSynthesisVoices,
+  IS_SPEECH_SYNTHESIS_SUPPORTED,
+} from '../components/TextToSpeech';
 import {
   CONFIG_DEFAULT,
   INFERENCE_PROVIDERS,
@@ -63,13 +70,6 @@ import {
   isString,
   normalizeUrl,
 } from '../utils';
-import { Dropdown, OpenInNewTab } from './common';
-import { useModals } from './ModalProvider';
-import TextToSpeech, {
-  getSpeechSynthesisVoiceByName,
-  getSpeechSynthesisVoices,
-  IS_SPEECH_SYNTHESIS_SUPPORTED,
-} from './TextToSpeech';
 
 // --- Type Definitions ---
 enum SettingInputType {
@@ -551,7 +551,7 @@ const getSettingTabsConfiguration = (
   },
 ];
 
-export default function SettingDialog() {
+export default function Settings() {
   const navigate = useNavigate();
   const {
     config,

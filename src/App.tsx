@@ -11,7 +11,6 @@ import {
 import { Footer } from './components/Footer';
 import Header from './components/Header';
 import { ModalProvider } from './components/ModalProvider';
-import SettingDialog from './components/SettingDialog';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
 import { AppContextProvider, useAppContext } from './context/app';
@@ -24,6 +23,7 @@ import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import * as lang from './lang/en.json';
 import ChatScreen from './pages/ChatScreen';
+import Settings from './pages/Settings';
 import WelcomeScreen from './pages/WelcomeScreen';
 
 const DEBOUNCE_DELAY = 5000;
@@ -43,7 +43,7 @@ const App: FC = () => {
                 <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/chat/:convId" element={<Chat />} />
-                    <Route path="/settings" element={<SettingDialog />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<WelcomeScreen />} />
                   </Route>
                 </Routes>
