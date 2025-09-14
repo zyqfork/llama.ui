@@ -10,6 +10,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       manifest: {
+        id: 'llama.ui',
         name: 'llama.ui - Minimal AI chat interface',
         short_name: 'llama.ui',
         description:
@@ -17,6 +18,10 @@ export default defineConfig({
         display: 'standalone',
         theme_color: '#EEEEEE',
         background_color: '#EEEEEE',
+        start_url: 'https://llama-ui.js.org',
+        scope: 'https://llama-ui.js.org',
+        orientation: 'any',
+        lang: 'en',
         icons: [
           {
             purpose: 'maskable',
@@ -51,10 +56,17 @@ export default defineConfig({
             form_factor: 'narrow',
           },
         ],
-        start_url: './',
-        scope: '.',
-        orientation: 'any',
-        lang: 'en',
+        shortcuts: [
+          {
+            name: 'New Chat',
+            url: '/',
+            description: 'Start a new chat.',
+          },
+        ],
+        categories: ['ai', 'llm', 'webui', 'llm-ui', 'llm-webui'],
+        launch_handler: {
+          client_mode: ['navigate-existing', 'auto'],
+        },
       },
       workbox: {
         globPatterns: ['**/*.{js,mjs,css,html,woff2,woff}'],
