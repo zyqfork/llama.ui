@@ -54,17 +54,7 @@ interface ChatContextValue {
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-const ChatContext = createContext<ChatContextValue>({
-  viewingChat: null,
-  pendingMessages: {},
-  isGenerating: () => false,
-  sendMessage: async () => false,
-  stopGenerating: () => {},
-  replaceMessage: async () => {},
-  branchMessage: async () => {},
-  canvasData: null,
-  setCanvasData: () => {},
-});
+const ChatContext = createContext<ChatContextValue | null>(null);
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   const conv = await StorageUtils.getOneConversation(convId);

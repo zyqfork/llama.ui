@@ -26,20 +26,7 @@ interface AppContextValue {
   colorScheme: string;
 }
 
-const AppContext = createContext<AppContextValue>({
-  config: {} as Configuration,
-  saveConfig: () => {},
-  presets: [],
-  savePreset: () => new Promise(() => {}),
-  removePreset: () => new Promise(() => {}),
-  showSettings: false,
-  setShowSettings: () => {},
-  currentTheme: 'auto',
-  switchTheme: () => {},
-  currentSyntaxTheme: 'auto',
-  switchSyntaxTheme: () => {},
-  colorScheme: 'light',
-});
+const AppContext = createContext<AppContextValue | null>(null);
 
 export const AppContextProvider = ({
   children,
