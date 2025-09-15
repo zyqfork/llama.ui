@@ -1,3 +1,65 @@
+## [2.20.0] - 2025-09-15
+
+### 🚀 Enhancements
+
+- Settings screen (#142)
+
+## [2.19.3] - 2025-09-14
+
+### 🚀 Enhancements
+
+- Database Export page (#147)
+
+## [2.19.2] - 2025-09-14
+
+### 🛠 Fixes
+
+- PWA - manifest updates (#145)
+
+## [2.19.0] - 2025-09-13
+
+### 🚀 Enhancements
+
+- Llama-ui.js.org (#143)
+
+> [!CAUTION]
+> Export the database as backup (Settings -> Import/Export -> Export), before this update!
+> New version is available at https://llama-ui.js.org/
+
+## [2.18.0] - 2025-09-13
+
+### 🛠 Fixes
+
+- PWA - cache models (fix 429 Too Many Requests) (#141)
+
+## [2.17.0] - 2025-09-12
+
+### 🚀 Enhancements
+
+- Delete conversation message (#140)
+
+## [2.16.0] - 2025-09-12
+
+### 🎨 Styling
+
+- ChatInput - placeholder update (#138)
+
+### 🚜 Refactor
+
+- Project structure review (#139)
+
+## [2.15.4] - 2025-09-11
+
+### 🛠 Fixes
+
+- Chat message model name is removed on edit #135 (#137)
+
+## [2.15.3] - 2025-09-11
+
+### 🛠 Fixes
+
+- Conversation changes time group on rename #134 (#136)
+
 ## [2.15.2] - 2025-09-11
 
 ### 🛠 Fixes
