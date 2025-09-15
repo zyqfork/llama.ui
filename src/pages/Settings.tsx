@@ -817,7 +817,7 @@ export default function Settings() {
         </div>
 
         {/* Right panel, showing setting fields */}
-        <div className="grow max-h-[calc(100vh-13rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto px-6 sm:px-4">
+        <div className="grow max-h-[calc(100vh-13rem)] md:max-h-[calc(100vh-10rem)] overflow-y-auto px-6 sm:px-4">
           {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
           <p className="opacity-40 text-sm mt-8">
@@ -828,7 +828,7 @@ export default function Settings() {
         </div>
       </div>
 
-      <div className="sticky bottom-4 flex gap-2 max-sm:justify-center mt-4">
+      <div className="sticky bottom-4 flex gap-2 max-md:justify-center mt-4">
         <div className="hidden md:block w-54 h-10" />
         <button className="btn btn-neutral" onClick={handleSave}>
           {lang.settings.actionButtons.saveBtnLabel}
