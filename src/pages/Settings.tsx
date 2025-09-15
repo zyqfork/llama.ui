@@ -772,11 +772,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex flex-col h-full py-4 max-xl:px-4">
+    <div className="flex flex-col h-full py-4">
       <div className="grow flex flex-col md:flex-row">
         {/* Left panel, showing sections - Desktop version */}
         <div
-          className="hidden md:flex flex-col items-stretch pr-4 mr-4 border-r-2 border-base-200"
+          className="hidden md:flex flex-col items-stretch px-4 border-r-2 border-base-200"
           role="complementary"
           aria-description="Settings sections"
           tabIndex={0}
@@ -817,7 +817,7 @@ export default function Settings() {
         </div>
 
         {/* Right panel, showing setting fields */}
-        <div className="grow max-h-[calc(100vh-13rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto px-2 sm:px-4">
+        <div className="grow max-h-[calc(100vh-13rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto px-6 sm:px-4">
           {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
           <p className="opacity-40 text-sm mt-8">
