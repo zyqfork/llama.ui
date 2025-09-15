@@ -47,12 +47,7 @@ const noServerProps: LlamaCppServerProps = {
   },
 };
 
-const InferenceContext = createContext<InferenceContextValue>({
-  api: InferenceApi.new(CONFIG_DEFAULT),
-  models: noModels,
-  serverProps: noServerProps,
-  fetchModels: () => new Promise(() => noModels),
-});
+const InferenceContext = createContext<InferenceContextValue | null>(null);
 
 // --- Helper Functions ---
 
