@@ -829,15 +829,15 @@ export default function Settings() {
       </div>
 
       <div className="sticky bottom-4 flex gap-2 max-sm:justify-center mt-4">
-        <div className="hidden md:block w-48 h-10" />
-        <button className="btn" onClick={resetConfig}>
-          Reset to default
+        <div className="hidden md:block w-54 h-10" />
+        <button className="btn btn-neutral" onClick={handleSave}>
+          {lang.settings.actionButtons.saveBtnLabel}
         </button>
         <button className="btn" onClick={onClose}>
-          Close
+          {lang.settings.actionButtons.cancelBtnLabel}
         </button>
-        <button className="btn btn-neutral" onClick={handleSave}>
-          Save
+        <button className="btn" onClick={resetConfig}>
+          {lang.settings.actionButtons.resetBtnLabel}
         </button>
       </div>
     </div>

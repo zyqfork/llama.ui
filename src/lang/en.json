@@ -193,6 +193,11 @@
         "label": "Syntax Theme",
         "note": "Choose the color theme for code blocks."
       }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "Save",
+      "cancelBtnLabel": "Close",
+      "resetBtnLabel": "Reset"
     }
   },
   "newVersion": {
