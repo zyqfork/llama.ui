@@ -413,44 +413,29 @@ const StorageUtils = {
    * @returns A promise resolving to a database records.
    */
   async exportDB(convId?: string): Promise<ExportJsonStructure> {
-    try {
-      const exportData = await db.transaction('r', db.tables, async () => {
-        const data: ExportJsonStructure = [];
-        for (const table of db.tables) {
-          const rows = [];
-          if (!convId) {
-            rows.push(...(await table.toArray()));
-          } else {
-            if (table.name === 'conversations') {
-              rows.push(await table.where('id').equals(convId).first());
-            } else if (table.name === 'messages') {
-              rows.push(
-                ...(await table.where('convId').equals(convId).toArray())
-              );
-            }
-          }
-          if (isDev)
-            console.debug(
-              `Export - Fetched ${rows.length} rows from table '${table.name}'.`
+    return await db.transaction('r', db.tables, async () => {
+      const data: ExportJsonStructure = [];
+      for (const table of db.tables) {
+        const rows = [];
+        if (!convId) {
+          rows.push(...(await table.toArray()));
+        } else {
+          if (table.name === 'conversations') {
+            rows.push(await table.where('id').equals(convId).first());
+          } else if (table.name === 'messages') {
+            rows.push(
+              ...(await table.where('convId').equals(convId).toArray())
             );
-          data.push({ table: table.name, rows: rows });
+          }
         }
-        return data;
-      });
-      console.info('Database export completed successfully.');
-      toast.success('Database export completed.');
-      if (isDev)
-        exportData.forEach((tableData) => {
+        if (isDev)
           console.debug(
-            `Exported table '${tableData.table}' with ${tableData.rows.length} rows.`
+            `Export - Fetched ${rows.length} rows from table '${table.name}'.`
           );
-        });
-      return exportData;
-    } catch (error) {
-      console.error('Error during database export:', error);
-      toast.success('Database export failed.');
-      throw error; // Re-throw to allow caller to handle
-    }
+        data.push({ table: table.name, rows: rows });
+      }
+      return data;
+    });
   },
 
   /**
@@ -458,43 +443,33 @@ const StorageUtils = {
    * @returns A promise that resolves when import is complete.
    */
   async importDB(data: ExportJsonStructure) {
-    try {
-      await db.transaction('rw', db.tables, async () => {
-        for (const record of data) {
-          console.debug(`Import - Processing table '${record.table}'...`);
-          if (db.tables.some((t) => t.name === record.table)) {
-            // Override existing rows if key exists.
-            await db.table(record.table).bulkPut(record.rows);
-            console.debug(
-              `Import - Imported ${record.rows.length} rows into table '${record.table}'.`
-            );
-          } else {
-            console.warn(`Import - Skipping unknown table '${record.table}'.`);
-          }
+    return await db.transaction('rw', db.tables, async () => {
+      for (const record of data) {
+        console.debug(`Import - Processing table '${record.table}'...`);
+        if (db.tables.some((t) => t.name === record.table)) {
+          // Override existing rows if key exists.
+          await db.table(record.table).bulkPut(record.rows);
+          console.debug(
+            `Import - Imported ${record.rows.length} rows into table '${record.table}'.`
+          );
+        } else {
+          console.warn(`Import - Skipping unknown table '${record.table}'.`);
         }
+      }
 
-        // Dispatch change events for conversations that were imported/updated.
-        const convRecords = data.filter(
-          (r) => r.table === db.conversations.name
-        );
-        for (const record of convRecords) {
-          for (const row of record.rows) {
-            const convRow = row as Partial<Conversation>;
-            if (convRow.id !== undefined) {
-              dispatchConversationChange(convRow.id);
-            } else {
-              console.warn("Imported conversation row missing 'id':", row);
-            }
+      // Dispatch change events for conversations that were imported/updated.
+      const convRecords = data.filter((r) => r.table === db.conversations.name);
+      for (const record of convRecords) {
+        for (const row of record.rows) {
+          const convRow = row as Partial<Conversation>;
+          if (convRow.id !== undefined) {
+            dispatchConversationChange(convRow.id);
+          } else {
+            console.warn("Imported conversation row missing 'id':", row);
           }
         }
-      });
-      console.info('Database import completed successfully.');
-      toast.success('Database import completed.');
-    } catch (error) {
-      console.error('Error during database import:', error);
-      toast.success('Database import failed.');
-      throw error; // Re-throw to allow caller to handle
-    }
+      }
+    });
   },
 
   // --- Event Listeners ---
