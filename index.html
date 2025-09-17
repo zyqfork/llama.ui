@@ -15,7 +15,6 @@
       content="A minimal Interface for AI Companion that runs entirely in your browser."
     />
     <meta name="author" content="olegshulyakov" />
-    <meta name="apple-mobile-web-app-title" content="%VITE_APP_NAME%" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#000000" />
@@ -51,11 +50,6 @@
     />
 
     <!-- Favicon -->
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="public/assets/favicon-180x180.png"
-    />
     <link
       rel="icon"
       type="image/png"
@@ -100,6 +94,18 @@
     />
     <link rel="shortcut icon" href="public/assets/favicon.ico" />
     <link rel="mask-icon" href="public/assets/favicon.svg" />
+
+    <!-- iOS -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="%VITE_APP_NAME%" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="public/assets/favicon-180x180.png"
+    />
   </head>
   <body>
     <div id="root"></div>
