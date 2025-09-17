@@ -51,7 +51,6 @@ import {
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
-import StorageUtils from '../database';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import lang from '../lang/en.json';
 import {
@@ -1355,8 +1354,10 @@ const PresetManager: FC<{
 const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
+  const { importDB, exportDB } = useAppContext();
+
   const onExport = async () => {
-    const data = await StorageUtils.exportDB();
+    const data = await exportDB();
     const conversationJson = JSON.stringify(data, null, 2);
     const blob = new Blob([conversationJson], {
       type: 'application/json',
@@ -1372,29 +1373,21 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   };
 
   const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const files = e.target.files;
-      if (!files || files.length != 1) return false;
-      const data = await files[0].text();
-      await StorageUtils.importDB(JSON.parse(data));
-      onClose();
-    } catch (error) {
-      console.error('Failed to import file:', error);
-    }
+    const files = e.target.files;
+    if (!files || files.length != 1) return false;
+    const data = await files[0].text();
+    await importDB(data);
+    onClose();
   };
 
   const debugImportDemoConv = async () => {
-    try {
-      const res = await fetch(
-        normalizeUrl('/demo-conversation.json', import.meta.env.BASE_URL)
-      );
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const demoConv = await res.json();
-      StorageUtils.importDB(demoConv);
-      onClose();
-    } catch (error) {
-      console.error('Failed to import demo conversation:', error);
-    }
+    const res = await fetch(
+      normalizeUrl('/demo-conversation.json', import.meta.env.BASE_URL)
+    );
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.text();
+    await importDB(data);
+    onClose();
   };
 
   return (
