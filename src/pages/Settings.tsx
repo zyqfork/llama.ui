@@ -553,15 +553,20 @@ export default function Settings() {
   );
   const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
-  useEffect(() => setShowSettings(true), [setShowSettings]);
+  useEffect(() => {
+    setShowSettings(true);
+
+    return () => {
+      setShowSettings(false);
+    };
+  }, [setShowSettings]);
 
   const { showConfirm, showAlert } = useModals();
 
   const onClose = useCallback(() => {
-    setShowSettings(false);
     if (currConv) navigate(`/chat/${currConv.id}`);
     else navigate('/');
-  }, [currConv, navigate, setShowSettings]);
+  }, [currConv, navigate]);
 
   const resetConfig = async () => {
     if (await showConfirm('Are you sure you want to reset all settings?')) {
