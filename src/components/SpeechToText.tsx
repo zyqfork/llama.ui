@@ -11,19 +11,12 @@ import {
 
 export type SpeechRecordCallback = (text: string) => void;
 
-const userLanguage =
-  navigator.languages && navigator.languages.length > 0
-    ? navigator.languages[0]
-    : navigator.language
-      ? navigator.language
-      : 'en-US';
+const SpeechRecognition =
+  typeof window === 'undefined'
+    ? undefined
+    : window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const BrowserSpeechRecognition =
-  typeof window !== 'undefined' &&
-  (window.SpeechRecognition || window.webkitSpeechRecognition);
-
-export const IS_SPEECH_RECOGNITION_SUPPORTED =
-  (window.SpeechRecognition || window.webkitSpeechRecognition) !== undefined;
+export const IS_SPEECH_RECOGNITION_SUPPORTED = !!SpeechRecognition;
 
 interface SpeechToTextProps {
   lang?: string;
@@ -40,37 +33,46 @@ interface SpeechToTextState {
 }
 
 const useSpeechToText = ({
-  lang = userLanguage,
+  lang,
   continuous = true,
   interimResults = true,
   onRecord,
-}: SpeechToTextProps = {}): SpeechToTextState => {
+}: SpeechToTextProps): SpeechToTextState => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const onRecordRef = useRef<SpeechRecordCallback | undefined>(onRecord);
 
-  const cleanupPreviousRecognition = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current.onresult = null;
-      recognitionRef.current.onend = null;
-      recognitionRef.current.onerror = null;
-      recognitionRef.current = null;
-    }
+  useEffect(() => {
+    onRecordRef.current = onRecord;
+  }, [onRecord]);
+
+  const cleanRecognition = useCallback(() => {
+    if (!recognitionRef.current) return;
+
+    recognitionRef.current.onresult = null;
+    recognitionRef.current.onend = null;
+    recognitionRef.current.onerror = null;
+    recognitionRef.current.onstart = null;
+    recognitionRef.current.stop();
+    recognitionRef.current = null;
   }, []);
 
   useEffect(() => {
-    if (!BrowserSpeechRecognition) {
-      console.error('Speech Recognition not supported');
+    if (!IS_SPEECH_RECOGNITION_SUPPORTED) {
+      console.error('Speech Recognition is not supported in this browser.');
       return;
     }
 
-    cleanupPreviousRecognition();
-
-    const recognition = new BrowserSpeechRecognition();
+    const recognition = new SpeechRecognition!();
     recognition.continuous = continuous;
     recognition.interimResults = interimResults;
-    recognition.lang = lang;
+    recognition.lang =
+      lang || navigator.languages?.[0] || navigator.language || 'en-US';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+    };
 
     recognition.onresult = (event) => {
       if (!event?.results) return;
@@ -80,9 +82,8 @@ const useSpeechToText = ({
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const transcript = Array.from(result)
-          .map((alt) => alt.transcript)
-          .join(' ');
+        const transcript =
+          result && result.length > 0 ? result[0].transcript : '';
 
         if (result.isFinal) {
           final += transcript + ' ';
@@ -90,17 +91,14 @@ const useSpeechToText = ({
           interim += transcript;
         }
       }
-      setTranscript(final + interim);
-      onRecord?.(final + interim);
+      const fullTranscript = final + interim;
+      setTranscript(fullTranscript);
+      onRecordRef.current?.(fullTranscript);
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error: ', event.error, event.message);
+      console.error('Speech recognition error:', event);
       setIsRecording(false);
-    };
-
-    recognition.onstart = () => {
-      setIsRecording(true);
     };
 
     recognition.onend = () => {
@@ -109,8 +107,8 @@ const useSpeechToText = ({
 
     recognitionRef.current = recognition;
 
-    return cleanupPreviousRecognition;
-  }, [lang, continuous, interimResults, onRecord, cleanupPreviousRecognition]);
+    return cleanRecognition;
+  }, [lang, continuous, interimResults, cleanRecognition]);
 
   const startRecording = useCallback(() => {
     const recognition = recognitionRef.current;
