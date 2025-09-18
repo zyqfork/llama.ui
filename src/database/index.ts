@@ -11,7 +11,7 @@ import {
   ExportJsonStructure,
   Message,
   TimingReport,
-} from './types';
+} from '../types';
 
 // --- Event Handling ---
 
@@ -251,7 +251,7 @@ const StorageUtils = {
   },
 
   /**
-   * Updates the name and lastModified timestamp of an existing conversation.
+   * Updates the name of an existing conversation.
    * @param convId The ID of the conversation to update.
    * @param name The new name for the conversation.
    * @returns A promise that resolves when the update is complete.
@@ -259,7 +259,6 @@ const StorageUtils = {
   async updateConversationName(convId: string, name: string): Promise<void> {
     await db.conversations.update(convId, {
       name,
-      lastModified: Date.now(),
     });
     dispatchConversationChange(convId);
   },
@@ -318,11 +317,88 @@ const StorageUtils = {
   },
 
   /**
+   * Removes a message and all its siblings.
+   * @param msg The message to remove.
+   * @returns A promise that resolves when the message is removed.
+   */
+  async deleteMessage(
+    msg: Pick<Message, 'id' | 'convId' | 'parent' | 'children'>
+  ) {
+    const { convId, id: msgId, parent: parentId } = msg;
+
+    // Check if conversation exists
+    const conv = await this.getOneConversation(msg.convId);
+    if (!conv) {
+      throw new Error(`Conversation is not found`);
+    }
+
+    // Check if message exists
+    const convMsgs = await this.getMessages(msg.convId);
+    if (!convMsgs.some((msg) => msg.id === msgId)) {
+      throw new Error(`Remove message is not found in conversation`);
+    }
+
+    // Create cache for quick lookup
+    const searchCache = new Map<number, Message>();
+    convMsgs.forEach((m) => searchCache.set(m.id, m));
+
+    // Get the list of messages to delete
+    const toDelete = new Set<number>();
+    const queue = [msg.id];
+    while (queue.length > 0) {
+      const id = queue.shift()!;
+      if (toDelete.has(id)) continue;
+
+      toDelete.add(id);
+      const msg = searchCache.get(id);
+      if (msg && msg.children.length > 0) {
+        queue.push(...msg.children);
+      }
+    }
+
+    // Get the list of messages to update children
+    const isValidChild = (id: number) =>
+      !toDelete.has(id) && searchCache.has(id);
+    const toUpdateChildren: { key: number; changes: { children: number[] } }[] =
+      [];
+    convMsgs.forEach((m) => {
+      if (toDelete.has(m.id)) return;
+      if (m.children.some((id) => !isValidChild(id))) {
+        toUpdateChildren.push({
+          key: m.id,
+          changes: {
+            children: m.children.filter(isValidChild),
+          },
+        });
+      }
+    });
+
+    await db.transaction('rw', db.conversations, db.messages, async () => {
+      // Update orphaned children array
+      if (toUpdateChildren.length > 0) {
+        await db.messages.bulkUpdate(toUpdateChildren);
+      }
+
+      // Delete messages
+      await db.messages.bulkDelete(Array.from(toDelete));
+
+      // Update conversation currNode
+      if (toDelete.has(conv.currNode)) {
+        await db.conversations.update(msg.convId, {
+          lastModified: Date.now(),
+          currNode: parentId,
+        });
+      }
+    });
+    dispatchConversationChange(convId);
+  },
+
+  /**
    * Removes a conversation and all its associated messages.
    * @param convId The ID of the conversation to remove.
    * @returns A promise that resolves when the conversation is removed.
    */
-  async remove(convId: string): Promise<void> {
+  async deleteConversation(convId: string): Promise<void> {
     await db.transaction('rw', db.conversations, db.messages, async () => {
       await db.conversations.delete(convId);
       await db.messages.where('convId').equals(convId).delete();
@@ -337,44 +413,29 @@ const StorageUtils = {
    * @returns A promise resolving to a database records.
    */
   async exportDB(convId?: string): Promise<ExportJsonStructure> {
-    try {
-      const exportData = await db.transaction('r', db.tables, async () => {
-        const data: ExportJsonStructure = [];
-        for (const table of db.tables) {
-          const rows = [];
-          if (!convId) {
-            rows.push(...(await table.toArray()));
-          } else {
-            if (table.name === 'conversations') {
-              rows.push(await table.where('id').equals(convId).first());
-            } else if (table.name === 'messages') {
-              rows.push(
-                ...(await table.where('convId').equals(convId).toArray())
-              );
-            }
-          }
-          if (isDev)
-            console.debug(
-              `Export - Fetched ${rows.length} rows from table '${table.name}'.`
+    return await db.transaction('r', db.tables, async () => {
+      const data: ExportJsonStructure = [];
+      for (const table of db.tables) {
+        const rows = [];
+        if (!convId) {
+          rows.push(...(await table.toArray()));
+        } else {
+          if (table.name === 'conversations') {
+            rows.push(await table.where('id').equals(convId).first());
+          } else if (table.name === 'messages') {
+            rows.push(
+              ...(await table.where('convId').equals(convId).toArray())
             );
-          data.push({ table: table.name, rows: rows });
+          }
         }
-        return data;
-      });
-      console.info('Database export completed successfully.');
-      toast.success('Database export completed.');
-      if (isDev)
-        exportData.forEach((tableData) => {
+        if (isDev)
           console.debug(
-            `Exported table '${tableData.table}' with ${tableData.rows.length} rows.`
+            `Export - Fetched ${rows.length} rows from table '${table.name}'.`
           );
-        });
-      return exportData;
-    } catch (error) {
-      console.error('Error during database export:', error);
-      toast.success('Database export failed.');
-      throw error; // Re-throw to allow caller to handle
-    }
+        data.push({ table: table.name, rows: rows });
+      }
+      return data;
+    });
   },
 
   /**
@@ -382,43 +443,33 @@ const StorageUtils = {
    * @returns A promise that resolves when import is complete.
    */
   async importDB(data: ExportJsonStructure) {
-    try {
-      await db.transaction('rw', db.tables, async () => {
-        for (const record of data) {
-          console.debug(`Import - Processing table '${record.table}'...`);
-          if (db.tables.some((t) => t.name === record.table)) {
-            // Override existing rows if key exists.
-            await db.table(record.table).bulkPut(record.rows);
-            console.debug(
-              `Import - Imported ${record.rows.length} rows into table '${record.table}'.`
-            );
-          } else {
-            console.warn(`Import - Skipping unknown table '${record.table}'.`);
-          }
+    return await db.transaction('rw', db.tables, async () => {
+      for (const record of data) {
+        console.debug(`Import - Processing table '${record.table}'...`);
+        if (db.tables.some((t) => t.name === record.table)) {
+          // Override existing rows if key exists.
+          await db.table(record.table).bulkPut(record.rows);
+          console.debug(
+            `Import - Imported ${record.rows.length} rows into table '${record.table}'.`
+          );
+        } else {
+          console.warn(`Import - Skipping unknown table '${record.table}'.`);
         }
+      }
 
-        // Dispatch change events for conversations that were imported/updated.
-        const convRecords = data.filter(
-          (r) => r.table === db.conversations.name
-        );
-        for (const record of convRecords) {
-          for (const row of record.rows) {
-            const convRow = row as Partial<Conversation>;
-            if (convRow.id !== undefined) {
-              dispatchConversationChange(convRow.id);
-            } else {
-              console.warn("Imported conversation row missing 'id':", row);
-            }
+      // Dispatch change events for conversations that were imported/updated.
+      const convRecords = data.filter((r) => r.table === db.conversations.name);
+      for (const record of convRecords) {
+        for (const row of record.rows) {
+          const convRow = row as Partial<Conversation>;
+          if (convRow.id !== undefined) {
+            dispatchConversationChange(convRow.id);
+          } else {
+            console.warn("Imported conversation row missing 'id':", row);
           }
         }
-      });
-      console.info('Database import completed successfully.');
-      toast.success('Database import completed.');
-    } catch (error) {
-      console.error('Error during database import:', error);
-      toast.success('Database import failed.');
-      throw error; // Re-throw to allow caller to handle
-    }
+      }
+    });
   },
 
   // --- Event Listeners ---

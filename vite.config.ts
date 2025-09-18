@@ -10,32 +10,43 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       manifest: {
-        name: 'llama.ui',
+        id: 'llama.ui',
+        name: 'llama.ui - Minimal AI chat interface',
         short_name: 'llama.ui',
         description:
-          'Minimal Interface for AI Companion that runs entirely in your browser.',
+          'A minimal Interface for AI Companion that runs entirely in your browser.',
         display: 'standalone',
         theme_color: '#EEEEEE',
         background_color: '#EEEEEE',
+        start_url: 'https://llama-ui.js.org',
+        scope: 'https://llama-ui.js.org',
+        orientation: 'any',
+        lang: 'en',
         icons: [
           {
             purpose: 'maskable',
             sizes: '512x512',
-            src: 'assets/icon512_maskable.png',
+            src: 'assets/manifest-icon-512.maskable.png',
             type: 'image/png',
           },
           {
             purpose: 'any',
             sizes: '512x512',
-            src: 'assets/icon512_rounded.png',
+            src: 'assets/manifest-icon-512.maskable.png',
             type: 'image/png',
           },
           {
-            src: 'assets/favicon.ico',
-            sizes: '48x48',
-            type: 'image/x-icon',
+            purpose: 'any',
+            sizes: '192x192',
+            src: 'assets/manifest-icon-192.maskable.png',
+            type: 'image/png',
           },
-          { src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+          {
+            purpose: 'maskable',
+            sizes: '192x192',
+            src: 'assets/manifest-icon-192.maskable.png',
+            type: 'image/png',
+          },
         ],
         screenshots: [
           {
@@ -51,18 +62,29 @@ export default defineConfig({
             form_factor: 'narrow',
           },
         ],
-        start_url: './',
-        scope: '.',
-        orientation: 'any',
-        lang: 'en',
+        shortcuts: [
+          {
+            name: 'New Chat',
+            url: '/',
+            description: 'Start a new chat.',
+          },
+        ],
+        categories: ['ai', 'llm', 'webui', 'llm-ui', 'llm-webui'],
+        launch_handler: {
+          client_mode: ['navigate-existing', 'auto'],
+        },
       },
       workbox: {
+        globPatterns: ['**/*.{js,mjs,css,html,woff2,woff}'],
         runtimeCaching: [
           {
-            urlPattern: '\\.(?:html|css|js|mjs)$',
+            urlPattern: ({ request }) =>
+              request.destination === 'document' ||
+              request.destination === 'script' ||
+              request.destination === 'style',
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'static-resources',
+              cacheName: 'static-cache',
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
@@ -70,24 +92,40 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: '\\.(?:jpg|jpeg|png|svg|ico)$',
+            urlPattern: ({ request }) => request.destination === 'image',
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 50,
+                maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
           {
-            urlPattern: '\\.(?:woff2?|ttf|otf)$',
+            urlPattern: ({ request }) => request.destination === 'font',
             handler: 'CacheFirst',
             options: {
               cacheName: 'font-cache',
               expiration: {
                 maxEntries: 20,
                 maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) =>
+              request.url.endsWith('/v1/models') &&
+              !request.url.includes('localhost') &&
+              !/(127\.\d{1,3}\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3})/.test(
+                request.url
+              ),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'api-models',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 15, // 15 minutes
               },
             },
           },

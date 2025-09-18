@@ -1,10 +1,9 @@
 name: Deploy
 
 on:
-  push:
-    tags:
-      - '**'
-
+#  push:
+#    tags:
+#      - '**'
   workflow_dispatch:
 
 jobs:
@@ -40,7 +39,10 @@ jobs:
         run: echo "basePath=${{ github.event.repository.name }}" >> $GITHUB_ENV
 
       - name: Build
-        run: npm run build:prod -- --base=/${{ env.basePath }}
+        run: npm run build:prod
+
+      - name: Set custom domain
+        run: echo "llama-ui.js.org" >> ./dist/CNAME
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4

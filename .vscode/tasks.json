@@ -19,7 +19,7 @@
       "detail": "tsc -b && vite build",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "build", "--", "--base", "/llama.ui"],
+      "args": ["run", "build"],
       "group": "build",
       "problemMatcher": ["$eslint-stylish"]
     },
@@ -39,6 +39,16 @@
       "command": "git",
       "args": ["cliff", "-o", "CHANGELOG.md"],
       "problemMatcher": []
+    },
+    {
+      "label": "npm: preview",
+      "detail": "vite",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "preview", "--", "--host"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": ["$eslint-stylish"]
     }
   ]
 }

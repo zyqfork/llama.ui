@@ -8,14 +8,13 @@ import {
 } from '@heroicons/react/24/solid';
 import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useAppContext } from '../context/app.context';
-import { useVSCodeContext } from '../utils/llama-vscode';
-import { classNames, cleanCurrentUrl } from '../utils/misc';
-import { MessageExtra } from '../utils/types';
+import { useNavigate } from 'react-router';
+import { useChatExtraContext } from '../hooks/useChatExtraContext';
+import { useChatTextarea } from '../hooks/useChatTextarea';
+import { MessageExtra } from '../types';
+import { classNames, cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
 import SpeechToText, { SpeechRecordCallback } from './SpeechToText';
-import { useChatExtraContext } from './useChatExtraContext';
-import { useChatTextarea } from './useChatTextarea';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.
@@ -45,10 +44,9 @@ export function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
-  const { setShowSettings } = useAppContext();
+  const navigate = useNavigate();
   const textarea = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
-  useVSCodeContext(textarea, extraContext);
 
   const handleRecord: SpeechRecordCallback = useCallback(
     (text: string) => textarea.setValue(text),
@@ -106,7 +104,7 @@ export function ChatInput({
             // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
             // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
             className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
-            placeholder="Type a message (Shift+Enter to add a new line)"
+            placeholder="Type your message... (Shift+Enter to add a new line)"
             ref={textarea.ref}
             onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
             onKeyDown={(e) => {
@@ -143,7 +141,7 @@ export function ChatInput({
                 className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
                 title="Settings"
                 aria-label="Open settings menu"
-                onClick={() => setShowSettings(true)}
+                onClick={() => navigate('/settings')}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
               </button>

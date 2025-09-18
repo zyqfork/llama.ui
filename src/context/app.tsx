@@ -6,10 +6,14 @@ import React, {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
-import usePrefersColorScheme from '../components/usePrefersColorScheme';
 import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
-import StorageUtils from '../utils/storage';
-import { Configuration, ConfigurationPreset } from '../utils/types';
+import StorageUtils from '../database';
+import usePrefersColorScheme from '../hooks/usePrefersColorScheme';
+import {
+  Configuration,
+  ConfigurationPreset,
+  ExportJsonStructure,
+} from '../types';
 
 interface AppContextValue {
   config: Configuration;
@@ -24,22 +28,11 @@ interface AppContextValue {
   currentSyntaxTheme: string;
   switchSyntaxTheme: (theme: string) => void;
   colorScheme: string;
+  importDB: (data: string) => Promise<void>;
+  exportDB(convId?: string): Promise<ExportJsonStructure>;
 }
 
-const AppContext = createContext<AppContextValue>({
-  config: {} as Configuration,
-  saveConfig: () => {},
-  presets: [],
-  savePreset: () => new Promise(() => {}),
-  removePreset: () => new Promise(() => {}),
-  showSettings: false,
-  setShowSettings: () => {},
-  currentTheme: 'auto',
-  switchTheme: () => {},
-  currentSyntaxTheme: 'auto',
-  switchSyntaxTheme: () => {},
-  colorScheme: 'light',
-});
+const AppContext = createContext<AppContextValue | null>(null);
 
 export const AppContextProvider = ({
   children,
@@ -88,6 +81,38 @@ export const AppContextProvider = ({
     await StorageUtils.removePreset(name);
     setPresets(await StorageUtils.getPresets());
     toast.success('Preset is removed successfully');
+  };
+
+  // --- Import/Export ---
+
+  const importDB = async (data: string) => {
+    try {
+      await StorageUtils.importDB(JSON.parse(data));
+
+      const presets = await StorageUtils.getPresets();
+      setPresets(presets);
+    } catch (error) {
+      console.error('Error during database import:', error);
+      toast.success('Database import failed.');
+      throw error; // Re-throw to allow caller to handle
+    }
+    console.info('Database import completed successfully.');
+    toast.success('Database import completed.');
+  };
+
+  const exportDB = async (convId?: string): Promise<ExportJsonStructure> => {
+    let data: ExportJsonStructure;
+    try {
+      data = await StorageUtils.exportDB(convId);
+    } catch (error) {
+      console.error('Error during database export:', error);
+      toast.success('Database export failed.');
+      throw error; // Re-throw to allow caller to handle
+    }
+    console.info('Database export completed successfully.');
+    toast.success('Database export completed.');
+
+    return data;
   };
 
   // --- DaisyUI Theme ---
@@ -150,6 +175,8 @@ export const AppContextProvider = ({
         currentSyntaxTheme,
         switchSyntaxTheme,
         colorScheme,
+        importDB,
+        exportDB,
       }}
     >
       {children}

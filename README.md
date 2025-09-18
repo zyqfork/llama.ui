@@ -40,7 +40,7 @@ This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) 
 
 ### 💻 Standalone Mode (Zero Installation)
 
-1. ✨ Open our [hosted UI instance](https://olegshulyakov.github.io/llama.ui/)
+1. ✨ Open our [hosted UI instance](https://llama-ui.js.org/)
 2. ⚙️ Click the gear icon → General settings
 3. 🌐 Set "Base URL" to your local llama.cpp server (e.g. `http://localhost:8080`)
 4. 🎉 Start chatting with your AI!
