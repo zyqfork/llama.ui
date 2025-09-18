@@ -6,6 +6,7 @@ import {
   Outlet,
   Route,
   Routes,
+  useNavigate,
   useParams,
 } from 'react-router';
 import { Footer } from './components/Footer';
@@ -57,7 +58,8 @@ const App: FC = () => {
 };
 
 const AppLayout: FC = () => {
-  const { config, showSettings, setShowSettings } = useAppContext();
+  const navigate = useNavigate();
+  const { config, showSettings } = useAppContext();
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
@@ -76,7 +78,7 @@ const AppLayout: FC = () => {
           return (
             <ToastPopup
               t={t}
-              onSubmit={() => setShowSettings(true)}
+              onSubmit={() => navigate('/settings')}
               title={popupConfig.title}
               description={popupConfig.description}
               submitBtn={popupConfig.submitBtnLabel}
@@ -91,7 +93,7 @@ const AppLayout: FC = () => {
         }
       );
     },
-    [config.baseUrl, setShowSettings]
+    [config.baseUrl, navigate]
   );
 
   const delayedNoModels = useDebouncedCallback(
