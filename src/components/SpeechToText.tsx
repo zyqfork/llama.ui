@@ -122,7 +122,9 @@ const useSpeechToText = ({
   const startRecording = useCallback(() => {
     const recognition = recognitionRef.current;
     if (recognition && !isRecording) {
-      setTranscript('');
+      if (!stoppedManuallyRef.current) {
+        setTranscript('');
+      }
       stoppedManuallyRef.current = false;
       try {
         recognition.start();
