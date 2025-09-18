@@ -43,21 +43,11 @@ const useSpeechToText = ({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const stoppedManuallyRef = useRef<boolean>(false);
   const onRecordRef = useRef<SpeechRecordCallback | undefined>(onRecord);
+  const finalTranscriptRef = useRef<string>('');
 
   useEffect(() => {
     onRecordRef.current = onRecord;
   }, [onRecord]);
-
-  const cleanRecognition = useCallback(() => {
-    if (!recognitionRef.current) return;
-
-    recognitionRef.current.onresult = null;
-    recognitionRef.current.onend = null;
-    recognitionRef.current.onerror = null;
-    recognitionRef.current.onstart = null;
-    recognitionRef.current.stop();
-    recognitionRef.current = null;
-  }, []);
 
   useEffect(() => {
     if (!IS_SPEECH_RECOGNITION_SUPPORTED) {
@@ -74,34 +64,28 @@ const useSpeechToText = ({
     recognition.onstart = () => {
       setIsRecording(true);
     };
-
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       if (!event?.results) return;
-
-      let final = '';
-      let interim = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        if (!result || result.length <= 0) continue;
-
+        const { isFinal, length } = result;
+        if (length <= 0) continue;
         const { transcript, confidence } = result[0];
-        if (result.isFinal && confidence > 0) {
-          final = transcript;
-        } else {
-          interim += transcript;
+        const fullTranscript = [finalTranscriptRef.current, transcript].join(
+          ' '
+        );
+        setTranscript(fullTranscript);
+        onRecordRef.current?.(fullTranscript);
+        if (isFinal && confidence > 0) {
+          finalTranscriptRef.current += transcript;
         }
       }
-      const fullTranscript = final.length > 0 ? final : interim;
-      setTranscript(fullTranscript);
-      onRecordRef.current?.(fullTranscript);
     };
-
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event);
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.warn('Speech recognition error:', event);
       setIsRecording(false);
     };
-
     recognition.onend = () => {
       setIsRecording(false);
       // Automatically restart if not stopped manually
@@ -116,15 +100,23 @@ const useSpeechToText = ({
 
     recognitionRef.current = recognition;
 
-    return cleanRecognition;
-  }, [lang, continuous, interimResults, cleanRecognition]);
+    return () => {
+      if (!recognitionRef.current) return;
+
+      recognitionRef.current.onresult = null;
+      recognitionRef.current.onend = null;
+      recognitionRef.current.onerror = null;
+      recognitionRef.current.onstart = null;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    };
+  }, [lang, continuous, interimResults]);
 
   const startRecording = useCallback(() => {
     const recognition = recognitionRef.current;
     if (recognition && !isRecording) {
-      if (!stoppedManuallyRef.current) {
-        setTranscript('');
-      }
+      setTranscript('');
+      finalTranscriptRef.current = '';
       stoppedManuallyRef.current = false;
       try {
         recognition.start();
