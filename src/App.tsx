@@ -132,7 +132,7 @@ const AppLayout: FC = () => {
   return (
     <>
       <Sidebar />
-      <div className="drawer-content flex flex-col w-full h-screen px-2 bg-base-300">
+      <div className="drawer-content flex flex-col w-full h-screen px-1 md:px-2 bg-base-300">
         <Header />
         <main
           className="grow flex flex-col overflow-auto bg-base-100 rounded-xl"
