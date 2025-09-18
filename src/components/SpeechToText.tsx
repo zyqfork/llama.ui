@@ -41,6 +41,7 @@ const useSpeechToText = ({
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const stoppedManuallyRef = useRef<boolean>(false);
   const onRecordRef = useRef<SpeechRecordCallback | undefined>(onRecord);
 
   useEffect(() => {
@@ -103,6 +104,14 @@ const useSpeechToText = ({
 
     recognition.onend = () => {
       setIsRecording(false);
+      // Automatically restart if not stopped manually
+      if (continuous && !stoppedManuallyRef.current) {
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error('Error restarting speech recognition:', error);
+        }
+      }
     };
 
     recognitionRef.current = recognition;
@@ -114,6 +123,7 @@ const useSpeechToText = ({
     const recognition = recognitionRef.current;
     if (recognition && !isRecording) {
       setTranscript('');
+      stoppedManuallyRef.current = false;
       try {
         recognition.start();
       } catch (error) {
@@ -126,6 +136,7 @@ const useSpeechToText = ({
   const stopRecording = useCallback(() => {
     const recognition = recognitionRef.current;
     if (recognition && isRecording) {
+      stoppedManuallyRef.current = true;
       try {
         recognition.stop();
       } catch (error) {
