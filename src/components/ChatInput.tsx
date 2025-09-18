@@ -83,7 +83,7 @@ export function ChatInput({
 
   return (
     <div
-      className="shrink-0 w-full lg:max-w-[900px] bg-base-100 mx-auto p-2"
+      className="shrink-0 w-full lg:max-w-[900px] bg-base-100 mx-auto p-1 md:p-2"
       aria-label="Chat input"
     >
       <DropzoneArea
@@ -91,7 +91,7 @@ export function ChatInput({
         extraContext={extraContext}
         disabled={isGenerating}
       >
-        <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-md p-2">
+        <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-sm md:shadow-md p-2">
           <textarea
             // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
             // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
