@@ -83,16 +83,16 @@ const useSpeechToText = ({
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const transcript =
-          result && result.length > 0 ? result[0].transcript : '';
+        if (!result || result.length <= 0) continue;
 
-        if (result.isFinal) {
-          final += transcript + ' ';
+        const { transcript, confidence } = result[0];
+        if (result.isFinal && confidence > 0) {
+          final = transcript;
         } else {
           interim += transcript;
         }
       }
-      const fullTranscript = final + interim;
+      const fullTranscript = final.length > 0 ? final : interim;
       setTranscript(fullTranscript);
       onRecordRef.current?.(fullTranscript);
     };
