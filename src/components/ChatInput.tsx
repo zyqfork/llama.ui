@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
-import { useVSCodeContext } from '../hooks/useVSCode';
 import { MessageExtra } from '../types';
 import { classNames, cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
@@ -45,7 +44,6 @@ export function ChatInput({
   const navigate = useNavigate();
   const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
   const extraContext = useChatExtraContext();
-  useVSCodeContext(textarea, extraContext);
 
   const sendNewMessage = async () => {
     const lastInpMsg = textarea.value();
