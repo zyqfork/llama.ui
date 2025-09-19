@@ -573,9 +573,9 @@ export default function Settings() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (config: Configuration) => {
     // copy the local config to prevent direct mutation
-    const newConfig: Configuration = JSON.parse(JSON.stringify(localConfig));
+    const newConfig: Configuration = JSON.parse(JSON.stringify(config));
     // validate the config
     for (const key in newConfig) {
       if (!(key in CONFIG_DEFAULT)) continue;
@@ -715,7 +715,7 @@ export default function Settings() {
               <PresetManager
                 key={key}
                 config={localConfig}
-                onLoadConfig={setLocalConfig}
+                onLoadConfig={handleSave}
                 presets={presets}
                 onSavePreset={savePreset}
                 onRemovePreset={removePreset}
@@ -834,7 +834,10 @@ export default function Settings() {
 
       <div className="sticky bottom-4 flex gap-2 max-md:justify-center mt-4">
         <div className="hidden md:block w-54 h-10" />
-        <button className="btn btn-neutral" onClick={handleSave}>
+        <button
+          className="btn btn-neutral"
+          onClick={() => handleSave(localConfig)}
+        >
           {lang.settings.actionButtons.saveBtnLabel}
         </button>
         <button className="btn" onClick={onClose}>
@@ -1192,7 +1195,7 @@ const ThemeController: FC = () => {
 
 const PresetManager: FC<{
   config: Configuration;
-  onLoadConfig: (config: Configuration) => void;
+  onLoadConfig: (config: Configuration) => Promise<void>;
   presets: ConfigurationPreset[];
   onSavePreset: (name: string, config: Configuration) => Promise<void>;
   onRemovePreset: (name: string) => Promise<void>;
@@ -1223,7 +1226,7 @@ const PresetManager: FC<{
     await onRemovePreset(preset.name);
     await onSavePreset(
       newPresetName,
-      Object.assign(Object.assign({}, CONFIG_DEFAULT), preset.config)
+      Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
     );
   };
 
@@ -1233,8 +1236,8 @@ const PresetManager: FC<{
         `Load preset "${preset.name}"? Current settings will be replaced.`
       )
     ) {
-      onLoadConfig(
-        Object.assign(Object.assign({}, CONFIG_DEFAULT), preset.config)
+      await onLoadConfig(
+        Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
       );
     }
   };
