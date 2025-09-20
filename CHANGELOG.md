@@ -1,3 +1,45 @@
+## [2.21.4] - 2025-09-19
+
+### 🛠 Fixes
+
+- Settings - Load Preset on click without click Save (#158)
+
+## [2.21.3] - 2025-09-18
+
+### 🛠 Fixes
+
+- Toast does not open settings (#157)
+
+## [2.21.2] - 2025-09-18
+
+### 🎨 Styling
+
+- Fix mobile padding (#156)
+
+## [2.21.1] - 2025-09-18
+
+### 🛠 Fixes
+
+- Remove vscode logic (#155)
+
+## [2.20.3] - 2025-09-17
+
+### 🛠 Fixes
+
+- Imported Presets are not shown #146 (#153)
+
+## [2.20.2] - 2025-09-17
+
+### 🛠 Fixes
+
+- Cannot reopen Settings after switching from Settings to Chat #150 (#152)
+
+## [2.20.1] - 2025-09-17
+
+### 🚀 Enhancements
+
+- Favicon update (#151)
+
 ## [2.20.0] - 2025-09-15
 
 ### 🚀 Enhancements
