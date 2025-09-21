@@ -108,7 +108,7 @@ jobs:
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v5
         with:
-          mode: 'COMMIT'
+          mode: 'PR'
           ignorePreReleases: 'false'
           fromTag: 'v${{ env.PREV_VERSION }}'
           toTag: 'v${{ env.VERSION }}'
