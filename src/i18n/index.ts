@@ -18,7 +18,7 @@ import ar from './ar.json';
 
 export const SUPPORTED_LANGUAGES = [
   { key: 'en', name: 'English', label: 'English' },
-  { key: 'zh', name: 'Chinese', label: '中文' },
+  { key: 'zh-CN', name: 'Chinese Simplified', label: '汉语' },
   { key: 'hi', name: 'Hindi', label: 'हिन्दी' },
   { key: 'es', name: 'Spanish', label: 'Español' },
   { key: 'fr', name: 'French', label: 'Français' },
