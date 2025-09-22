@@ -4,15 +4,16 @@ import {
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
-import lang from '../lang/en.json';
 import { Dropdown } from './common';
 
 export default function Header() {
   const navigate = useNavigate();
+  const { t: trans } = useTranslation();
   const {
     config,
     config: { model },
@@ -26,11 +27,11 @@ export default function Header() {
   const title = useMemo(
     () =>
       showSettings
-        ? lang['header.title.settings']
+        ? trans('header.title.settings')
         : currConv
           ? currConv.name
-          : lang['header.title.noChat'],
-    [currConv, showSettings]
+          : trans('header.title.noChat'),
+    [trans, currConv, showSettings]
   );
 
   const selectedModel = useMemo(() => {

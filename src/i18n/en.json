@@ -1,6 +1,10 @@
 {
-  "header.title.noChat": "New Chat",
-  "header.title.settings": "Settings",
+  "header": {
+    "title": {
+      "noChat": "New Chat",
+      "settings": "Settings"
+    }
+  },
   "chatScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
@@ -200,27 +204,31 @@
       "resetBtnLabel": "Reset"
     }
   },
-  "newVersion": {
-    "icon": null,
-    "title": "🎉 New version available",
-    "description": "Update for the latest features & fixes.",
-    "note": "Your conversations will be saved, but don't forget to make a backup before update.",
-    "submitBtnLabel": "Update",
-    "cancelBtnLabel": "Later"
-  },
-  "welcomePopup": {
-    "icon": null,
-    "title": "👋 Welcome",
-    "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
-    "submitBtnLabel": "Open Settings",
-    "cancelBtnLabel": "Skip"
-  },
-  "noModelsPopup": {
-    "icon": null,
-    "title": "😔 No Models Found",
-    "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
-    "submitBtnLabel": "Open Settings",
-    "cancelBtnLabel": "Skip"
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 New version available",
+      "description": "Update for the latest features & fixes.",
+      "note": "Your conversations will be saved, but don't forget to make a backup before update.",
+      "submitBtnLabel": "Update",
+      "cancelBtnLabel": "Later"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Welcome",
+      "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
+      "note": "",
+      "submitBtnLabel": "Open Settings",
+      "cancelBtnLabel": "Skip"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 No Models Found",
+      "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
+      "note": "",
+      "submitBtnLabel": "Open Settings",
+      "cancelBtnLabel": "Skip"
+    }
   },
   "samplePrompts": [
     "Tell me a fun fact for today.",

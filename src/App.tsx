@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import {
   BrowserRouter,
   Navigate,
@@ -22,7 +23,6 @@ import {
 } from './context/inference';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
-import * as lang from './lang/en.json';
 import ChatScreen from './pages/ChatScreen';
 import Settings from './pages/Settings';
 import WelcomeScreen from './pages/WelcomeScreen';
@@ -59,6 +59,7 @@ const App: FC = () => {
 
 const AppLayout: FC = () => {
   const navigate = useNavigate();
+  const { t: trans } = useTranslation();
   const { config, showSettings } = useAppContext();
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
@@ -71,18 +72,17 @@ const AppLayout: FC = () => {
       toast(
         (t) => {
           const isInitialSetup = config.baseUrl === '';
-          const popupConfig = isInitialSetup
-            ? lang.welcomePopup
-            : lang.noModelsPopup;
+          const popupConfig = isInitialSetup ? 'welcomePopup' : 'noModelsPopup';
 
           return (
             <ToastPopup
               t={t}
               onSubmit={() => navigate('/settings')}
-              title={popupConfig.title}
-              description={popupConfig.description}
-              submitBtn={popupConfig.submitBtnLabel}
-              cancelBtn={popupConfig.cancelBtnLabel}
+              title={trans(`toast.${popupConfig}.title`)}
+              description={trans(`toast.${popupConfig}.description`)}
+              note={trans(`toast.${popupConfig}.note`)}
+              submitBtn={trans(`toast.${popupConfig}.submitBtnLabel`)}
+              cancelBtn={trans(`toast.${popupConfig}.cancelBtnLabel`)}
             />
           );
         },
@@ -93,7 +93,7 @@ const AppLayout: FC = () => {
         }
       );
     },
-    [config.baseUrl, navigate]
+    [trans, config.baseUrl, navigate]
   );
 
   const delayedNoModels = useDebouncedCallback(
@@ -109,22 +109,22 @@ const AppLayout: FC = () => {
           <ToastPopup
             t={t}
             onSubmit={handleUpdate}
-            title={lang.newVersion.title}
-            description={lang.newVersion.description}
-            note={lang.newVersion.note}
-            submitBtn={lang.newVersion.submitBtnLabel}
-            cancelBtn={lang.newVersion.cancelBtnLabel}
+            title={trans('toast.newVersion.title')}
+            description={trans('toast.newVersion.description')}
+            note={trans('toast.newVersion.note')}
+            submitBtn={trans('toast.newVersion.submitBtnLabel')}
+            cancelBtn={trans('toast.newVersion.cancelBtnLabel')}
           />
         ),
         {
           id: TOAST_IDS.PWA_UPDATE,
           duration: Infinity,
           position: 'top-center',
-          icon: lang.newVersion.icon,
+          icon: trans('toast.newVersion.icon'),
         }
       );
     }
-  }, [isNewVersion, handleUpdate]);
+  }, [trans, isNewVersion, handleUpdate]);
 
   // Handle model checking
   useEffect(() => {
