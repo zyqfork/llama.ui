@@ -35,6 +35,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useState,
 } from 'react';
@@ -863,7 +864,7 @@ interface LabeledFieldState {
 const LabeledField = forwardRef<
   LabeledFieldState,
   LabeledFieldProps & { children: (props: LabeledFieldState) => ReactNode }
->(({ children, configKey }) => {
+>(({ children, configKey }, ref) => {
   const { t: trans } = useTranslation();
   const { label, note } = useMemo(() => {
     if (!configKey) return { label: '' };
@@ -877,6 +878,15 @@ const LabeledField = forwardRef<
       }),
     };
   }, [trans, configKey]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      label,
+      note,
+    }),
+    [label, note]
+  );
 
   return <Fragment>{children({ label, note })}</Fragment>;
 });
