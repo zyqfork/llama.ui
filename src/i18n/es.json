@@ -2,12 +2,12 @@
   "header": {
     "title": {
       "noChat": "Nuevo chat",
-      "settings": "Ajustes"
+      "settings": "Configuración"
     }
   },
   "chatScreen": {
     "welcome": "Hola,",
-    "welcomeNote": "¿Le puedo ayudar en algo?"
+    "welcomeNote": "¿Cómo puedo ayudarte?"
   },
   "chatMessage": {
     "systemLabel": "Sistema",
@@ -16,164 +16,164 @@
   "settings": {
     "parameters": {
       "language": {
-        "label": "Idioma",
-        "note": "Idioma de visualización de interfaz de usuario."
+        "label": "Lenguaje",
+        "note": "Idioma de visualización de la interfaz de usuario."
       },
       "provider": {
         "label": "Proveedor",
-        "note": "El proveedor puede cobrar por su uso."
+        "note": "El proveedor puede cobrar por el uso."
       },
       "baseUrl": {
         "label": "URL base",
-        "note": "Establezca la URL base si está utilizando servidor independiente."
+        "note": "Establece la URL base si estás utilizando un servidor independiente."
       },
       "apiKey": {
-        "label": "Llave de API",
-        "note": "Establezca la tecla API si está utilizando la opción de KeyPi-Key para el servidor."
+        "label": "Clave de API",
+        "note": "Establece la Clave de API si estás utilizando la opción --api-key para el servidor."
       },
       "model": {
         "label": "Modelo",
-        "note": "Establezca el modelo de inferencia."
+        "note": "Establece el modelo de inferencia."
       },
       "systemMessage": {
-        "label": "Mensaje del sistema (se deshabilitará si se deja vacío)",
-        "note": "El mensaje inicial que define cómo debe comportarse el modelo. Puede obtener ejemplos de <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+        "label": "Mensaje del sistema (se desactivará si se deja vacío)",
+        "note": "El mensaje inicial que define cómo debe comportarse el modelo. Puedes obtener ejemplos de <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
       },
       "initials": {
         "label": "Nombre de usuario",
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Paste: Convierta si longitud>",
-        "note": "Al pegar un texto largo, se convertirá en un archivo. Puede controlar la longitud del archivo configurando el valor de este parámetro. Establecido en 0 para deshabilitar."
+        "label": "Pegar: convertir si la longitud es mayor que>",
+        "note": "Al pegar un texto largo, se convertirá en un archivo. Puede controlar la longitud del archivo configurando el valor de este parámetro. Establezca en 0 para desactivar."
       },
       "pdfAsImage": {
-        "label": "Use PDF como imagen en lugar de texto",
-        "note": "Adjunte el PDF como una imagen en lugar de texto. Compatible solo con modelos multimodales con soporte de visión."
+        "label": "Usar PDF como imagen en lugar de texto.",
+        "note": "Adjunta el PDF como una imagen en lugar de texto. Solo se admite con modelos multimodales con soporte visual."
       },
       "showTokensPerSecond": {
         "label": "Mostrar métricas de rendimiento",
-        "note": "Activarse para ver la velocidad de procesamiento, los tiempos, etc."
+        "note": "Activar para ver la velocidad de procesamiento, tiempos, etc."
       },
       "showThoughtInProgress": {
-        "label": "Expandir la sección de pensamiento",
-        "note": "Expandir el mensaje de pensamiento al generar mensajes"
+        "label": "Ampliar sección de pensamiento",
+        "note": "Ampliar el mensaje de pensamiento al generar mensajes"
       },
       "excludeThoughtOnReq": {
-        "label": "Excluir mensajes de pensamiento en enviar",
-        "note": "Excluir mensajes de pensamiento al enviar solicitudes a API (recomendado)"
+        "label": "Excluir los mensajes de reflexión al enviar.",
+        "note": "Excluir los mensajes de pensamiento al enviar solicitudes a la API (recomendado)"
       },
       "overrideGenerationOptions": {
-        "label": "Anular las opciones de generación",
+        "label": "Opciones de anulación de generación",
         "note": ""
       },
       "temperature": {
         "label": "",
-        "note": "Controla la aleatoriedad del texto generado afectando la distribución de probabilidad de los tokens de salida. Más alto = más aleatorio, más bajo = más enfocado."
+        "note": "Controla la aleatoriedad del texto generado al afectar la distribución de probabilidad de los tokens de salida. Mayor = más aleatorio, menor = más enfocado."
       },
       "top_k": {
         "label": "",
-        "note": "Mantiene solo k tokens top."
+        "note": "Mantiene solo los k tokens principales."
       },
       "top_p": {
         "label": "",
-        "note": "Limita las fichas a las que juntos tienen una probabilidad acumulativa de al menos P"
+        "note": "Limita los tokens a aquellos que, en conjunto, tengan una probabilidad acumulativa de al menos p."
       },
       "min_p": {
         "label": "",
-        "note": "Limita los tokens basados ​​en la probabilidad mínima de que se considere un token, en relación con la probabilidad del token más probable."
+        "note": "Limita los tokens basándose en la probabilidad mínima para que un token se considere, en relación con la probabilidad del token más probable."
       },
       "max_tokens": {
         "label": "",
         "note": "El número máximo de tokens por salida."
       },
       "overrideSamplersOptions": {
-        "label": "Reemplace las opciones de muestras",
+        "label": "Reemplazar Opciones de Muestreo",
         "note": ""
       },
       "samplers": {
         "label": "Cola de muestras",
-        "note": "El orden en que se aplican los muestreadores, de manera simplificada. El valor predeterminado es \"dkypmxt\": seca-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatura"
+        "note": "El orden en el que se aplican los muestreadores, de manera simplificada. Por defecto es \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
       },
       "dynatemp_range": {
         "label": "",
-        "note": "Complemento para la muestra de temperatura. El valor agregado al rango de temperatura dinámica, que ajusta las probabilidades por entropía de tokens."
+        "note": "Complemento para el muestreador de temperatura. El valor añadido al rango de temperatura dinámica, que ajusta las probabilidades por entropía de los tokens."
       },
       "dynatemp_exponent": {
         "label": "",
-        "note": "Complemento para la muestra de temperatura. Suaviza la redistribución de probabilidad en función del token más probable."
+        "note": "Complemento para el muestreador de temperatura. Suaviza la redistribución de probabilidad basándose en el token más probable."
       },
       "typical_p": {
         "label": "",
-        "note": "Clasifica y limita los tokens en función de la diferencia entre la probabilidad de registro y la entropía."
+        "note": "Clasifica y limita los tokens basándose en la diferencia entre la probabilidad logarítmica y la entropía."
       },
       "xtc_probability": {
         "label": "",
-        "note": "XTC Sampler corta las tokens superiores; Este parámetro controla la posibilidad de cortar tokens en absoluto. 0 Desactiva XTC."
+        "note": "El muestreador XTC corta los tokens superiores; este parámetro controla la probabilidad de cortar tokens por completo. 0 deshabilita XTC."
       },
       "xtc_threshold": {
         "label": "",
-        "note": "XTC Sampler corta las tokens superiores; Este parámetro controla la probabilidad de token que se requiere para cortar ese token."
+        "note": "El muestreador XTC corta los tokens superiores; este parámetro controla la probabilidad del token que se requiere para cortar ese token."
       },
       "overridePenaltyOptions": {
-        "label": "Reemplazar opciones de penalización",
+        "label": "Reemplazar Opciones de Pena",
         "note": ""
       },
       "repeat_last_n": {
         "label": "",
-        "note": "Último n tokens para considerar para penalizar la repetición"
+        "note": "Últimos n tokens a considerar para penalizar la repetición."
       },
       "repeat_penalty": {
         "label": "",
-        "note": "Controla la repetición de secuencias de token en el texto generado"
+        "note": "Controla la repetición de secuencias de tokens en el texto generado."
       },
       "presence_penalty": {
         "label": "",
-        "note": "Limita los tokens en función de si aparecen en la salida o no."
+        "note": "Limita los tokens según si aparecen en la salida o no."
       },
       "frequency_penalty": {
         "label": "",
-        "note": "Limita los tokens en función de la frecuencia con la que aparecen en la salida."
+        "note": "Limita los tokens basándose en la frecuencia con que aparecen en la salida."
       },
       "dry_multiplier": {
         "label": "",
-        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece el multiplicador de muestreo seco."
+        "note": "Muestreo DRY reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece el multiplicador de muestreo DRY."
       },
       "dry_base": {
         "label": "",
-        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece el valor base de muestreo en seco."
+        "note": "El muestreo DRY reduce la repetición en el texto generado, incluso en contextos largos. Este parámetro establece el valor base del muestreo DRY."
       },
       "dry_allowed_length": {
         "label": "",
-        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece la longitud permitida para el muestreo seco."
+        "note": "El muestreo DRY reduce la repetición en el texto generado, incluso en contextos extensos. Este parámetro establece la longitud permitida para el muestreo DRY."
       },
       "dry_penalty_last_n": {
         "label": "",
-        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece una penalización seca para los últimos n tokens."
+        "note": "El muestreo DRY reduce la repetición en el texto generado, incluso en contextos largos. Este parámetro establece una penalización DRY para los últimos n tokens."
       },
       "custom": {
         "label": "Configuración JSON personalizada",
-        "note": "Para obtener más información, consulte <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> Documentación del servidor </a>"
+        "note": "Para más información, consulte la <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">documentación del servidor</a>."
       },
       "pyIntepreterEnabled": {
-        "label": "Habilitar el intérprete de Python",
-        "note": "Esta característica usa <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, descargado de CDN. Para usar esta función, solicite al LLM que genere código Python dentro de un bloque de código de Markdown. Verá un botón \"Ejecutar\" en el bloque de código, cerca del botón \"Copiar\"."
+        "label": "Habilitar intérprete de Python",
+        "note": "Esta función utiliza <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, descargado desde un CDN. Para usar esta función, pide al LLM que genere código Python dentro de un bloque de código Markdown. Verás un botón \"Ejecutar\" en el bloque de código, cerca del botón \"Copiar\"."
       },
       "ttsPitch": {
-        "label": "Paso",
-        "note": "El tono en el que se hablará el enunciado."
+        "label": "tono, lanzamiento, inclinación, brea",
+        "note": "El tono en el que se pronunciará la expresión."
       },
       "ttsRate": {
         "label": "Tasa",
-        "note": "La velocidad a la que se hablará el enunciado."
+        "note": "La velocidad a la que se pronunciará el enunciado."
       },
       "ttsVoice": {
         "label": "Voz",
-        "note": "La voz que se usará para hablar el enunciado."
+        "note": "La voz que se utilizará para pronunciar el enunciado."
       },
       "ttsVolume": {
         "label": "Volumen",
-        "note": "El volumen al que se hablará el enunciado."
+        "note": "El volumen al que se pronunciará el enunciado."
       }
     },
     "textToSpeech": {
@@ -184,76 +184,76 @@
     },
     "presetManager": {
       "newPreset": {
-        "title": "Guardar la configuración actual como preajuste",
-        "saveBtnLabel": "Guardar nuevo preajuste"
+        "title": "Guarda la configuración actual como preajuste",
+        "saveBtnLabel": "Guardar Nuevo Presetting"
       },
       "savedPresets": {
         "title": "Preajustes existentes",
-        "noPresetFound": "No hay preajustes todavía."
+        "noPresetFound": "Aún no hay preajustes."
       }
     },
     "themeManager": {
       "dataTheme": {
         "label": "Tema",
-        "note": "Elija el tema de color de la aplicación."
+        "note": "Elige el tema de color de la aplicación."
       },
       "syntaxTheme": {
         "label": "Tema de sintaxis",
-        "note": "Elija el tema de color para los bloques de código."
+        "note": "Elige el tema de color para los bloques de código."
       }
     },
     "actionButtons": {
-      "saveBtnLabel": "Ahorrar",
-      "cancelBtnLabel": "Cerca",
-      "resetBtnLabel": "Reiniciar"
+      "saveBtnLabel": "Guardar",
+      "cancelBtnLabel": "Cerrar",
+      "resetBtnLabel": "Restablecer"
     }
   },
   "toast": {
     "newVersion": {
       "icon": null,
-      "title": "🎉 nueva versión disponible",
-      "description": "Actualizar para las últimas funciones y soluciones.",
-      "note": "Sus conversaciones se guardarán, pero no olvide hacer una copia de seguridad antes de la actualización.",
-      "submitBtnLabel": "Actualizar",
+      "title": "🎉 ¡Nueva versión disponible!",
+      "description": "Actualización para las últimas funciones y correcciones.",
+      "note": "Tus conversaciones se guardarán, pero no olvides hacer una copia de seguridad antes de la actualización.",
+      "submitBtnLabel": "Actualización",
       "cancelBtnLabel": "Más tarde"
     },
     "welcomePopup": {
       "icon": null,
-      "title": "👋 Bienvenido",
-      "description": "Parece que aún no tienes los modelos configurados. Vayamos a la configuración para configurar su proveedor de inferencia.",
+      "title": "👋 Bienvenido/Bienvenida",
+      "description": "Parece que aún no tienes los modelos configurados. Vamos a la Configuración para configurar tu proveedor de Inferencia.",
       "note": "",
-      "submitBtnLabel": "Abrir configuración",
+      "submitBtnLabel": "Abrir ajustes",
       "cancelBtnLabel": "Saltar"
     },
     "noModelsPopup": {
       "icon": null,
-      "title": "😔 No se encuentran modelos",
-      "description": "Parece que aún no tiene los modelos configurados o hay un problema con su proveedor. Vamos a la configuración para verificar.",
+      "title": "😔 No se encontraron modelos.",
+      "description": "Parece que aún no has configurado los modelos o hay un problema con tu Proveedor. Vamos a la Configuración para verificarlo.",
       "note": "",
-      "submitBtnLabel": "Abrir configuración",
+      "submitBtnLabel": "Abrir ajustes",
       "cancelBtnLabel": "Saltar"
     }
   },
   "samplePrompts": [
-    "Dime un hecho divertido para hoy.",
-    "Cuéntame una broma.",
-    "Dame tres hechos científicos interesantes.",
-    "Enumere los planetas en nuestro sistema solar.",
+    "Dime un dato curioso de hoy.",
+    "Dime un chiste.",
+    "Dame tres datos científicos interesantes.",
+    "Enumera los planetas en nuestro sistema solar.",
     "Explica las reglas del ajedrez.",
-    "¿Cuáles son algunos buenos iniciadores de conversación?",
-    "Dé 10 ideas de regalos para el mejor amigo.",
-    "Escribe un mensaje de cumpleaños para mi amigo.",
-    "Sugerir temas para una fiesta de cumpleaños.",
-    "Dame ideas para una noche de juego.",
+    "¿Cuáles son algunas buenas frases para iniciar una conversación?",
+    "Da 10 ideas de regalos para el mejor amigo/la mejor amiga.",
+    "Escribe un mensaje de cumpleaños para mi amigo/a.",
+    "Sugiere temas para una fiesta de cumpleaños.",
+    "Dame ideas para una noche de juegos.",
     "Dame ideas para una escapada de fin de semana.",
     "Consejos para mi primer viaje en solitario.",
-    "Explica un concepto complejo simplemente.",
-    "Arregle la gramática en este texto.",
+    "Explica un concepto complejo de forma sencilla.",
+    "Corrige la gramática en este texto.",
     "Resume el siguiente texto.",
     "Reescribe esto para que sea más formal/informal.",
     "Ayúdame a escribir un correo electrónico profesional.",
-    "Crea un horario para mi jornada laboral.",
-    "Resume estas notas de la reunión.",
-    "Dame ideas para una actividad de construcción de equipos."
+    "Crea un horario para mi día laboral.",
+    "Resuma estas notas de la reunión.",
+    "Dame ideas para una actividad de creación de equipos."
   ]
 }

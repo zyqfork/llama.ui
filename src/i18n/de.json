@@ -7,7 +7,7 @@
   },
   "chatScreen": {
     "welcome": "Hallo,",
-    "welcomeNote": "wie kann ich dir helfen?"
+    "welcomeNote": "Wie kann ich Ihnen helfen?"
   },
   "chatMessage": {
     "systemLabel": "System",
@@ -17,151 +17,151 @@
     "parameters": {
       "language": {
         "label": "Sprache",
-        "note": "Benutzeroberfläche Anzeigesprache."
+        "note": "Benutzeroberflächen-Sprache."
       },
       "provider": {
         "label": "Anbieter",
-        "note": "Der Anbieter kann für die Verwendung in Rechnung gestellt werden."
+        "note": "Der Anbieter kann die Nutzung in Rechnung stellen."
       },
       "baseUrl": {
-        "label": "Basis -URL",
-        "note": "Stellen Sie die Basis -URL fest, wenn Sie den Standalone -Server verwenden."
+        "label": "Basis-URL",
+        "note": "Legen Sie die Basis-URL fest, wenn Sie einen eigenständigen Server verwenden."
       },
       "apiKey": {
-        "label": "API -Schlüssel",
-        "note": "Legen Sie die API-Taste fest, wenn Sie die Option-API-Key-Option für den Server verwenden."
+        "label": "API-Schlüssel",
+        "note": "Legen Sie den API-Schlüssel fest, wenn Sie die Option --api-key für den Server verwenden."
       },
       "model": {
         "label": "Modell",
-        "note": "Stellen Sie das Inferenzmodell ein."
+        "note": "Das Inferenzmodell festlegen."
       },
       "systemMessage": {
-        "label": "Systemmeldung (wird deaktiviert, wenn sie leer gelassen wird)",
-        "note": "Die Startnachricht, die definiert, wie sich das Modell verhalten sollte. Sie können Beispiele von <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+        "label": "Systemnachricht (wird deaktiviert, wenn leer gelassen)",
+        "note": "Die Startnachricht, die definiert, wie sich das Modell verhalten soll. Sie können Beispiele von <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a> erhalten."
       },
       "initials": {
         "label": "Benutzername",
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Paste: Konvertieren Sie, wenn Länge>",
-        "note": "Beim Einfügen eines langen Textes wird er in eine Datei konvertiert. Sie können die Dateilänge steuern, indem Sie den Wert dieses Parameters festlegen. Auf 0 einstellen, um zu deaktivieren."
+        "label": "Einfügen: konvertieren, wenn Länge >",
+        "note": "Beim Einfügen eines langen Textes wird dieser in eine Datei umgewandelt. Sie können die Dateilänge steuern, indem Sie den Wert dieses Parameters festlegen. Setzen Sie ihn auf 0, um diese Funktion zu deaktivieren."
       },
       "pdfAsImage": {
-        "label": "Verwenden Sie PDF als Bild anstelle von Text",
-        "note": "Fügen Sie das PDF als Bild anstelle von Text bei. Nur mit multimodalen Modellen mit Visionsunterstützung unterstützt."
+        "label": "PDF als Bild statt Text verwenden",
+        "note": "Hänge die PDF als Bild an, nicht als Text. Nur unterstützt mit multimodalen Modellen mit Vision-Unterstützung."
       },
       "showTokensPerSecond": {
-        "label": "Performance -Metriken zeigen",
-        "note": "Aktivieren Sie, um die Verarbeitungsgeschwindigkeit, die Zeiten usw. zu sehen."
+        "label": "Leistungsmetriken anzeigen",
+        "note": "Aktivieren Sie, um die Verarbeitungsgeschwindigkeit, Zeiten usw. anzuzeigen."
       },
       "showThoughtInProgress": {
-        "label": "Erweitern Sie den Denkabschnitt",
-        "note": "Erweitern Sie die Denknachricht beim Generieren von Nachrichten"
+        "label": "Denkbereich erweitern",
+        "note": "Erweitern Sie die Denkweise bei der Erstellung von Nachrichten."
       },
       "excludeThoughtOnReq": {
-        "label": "Denknachrichten zum Senden ausschließen",
-        "note": "Denknachrichten ausschließen, wenn Sie Anfragen an API senden (empfohlen)"
+        "label": "Denken Sie beim Absenden keine Nachrichten ausblenden.",
+        "note": "Denken Sie beim Senden von Anfragen an die API daran, Denk-Nachrichten auszuschließen (empfohlen)"
       },
       "overrideGenerationOptions": {
-        "label": "Überschreiben von Erzeugungsoptionen",
+        "label": "Überschreiben von Generatoroptionen",
         "note": ""
       },
       "temperature": {
         "label": "",
-        "note": "Steuert die Zufälligkeit des generierten Textes, indem die Wahrscheinlichkeitsverteilung der Ausgangs -Token beeinflusst wird. Höher = zufälliger, niedriger = fokussierter."
+        "note": "Steuert die Zufälligkeit des generierten Textes, indem es die Wahrscheinlichkeitsverteilung der Ausgabetoken beeinflusst. Höher = zufälliger, niedriger = fokussierter."
       },
       "top_k": {
         "label": "",
-        "note": "Hält nur K -Top -Token."
+        "note": "Behält nur die besten k Tokens bei."
       },
       "top_p": {
         "label": "",
-        "note": "Grenzen Token für diejenigen, die zusammen eine kumulative Wahrscheinlichkeit von mindestens P haben"
+        "note": "Die Anzahl der Token wird auf diejenigen beschränkt, deren kumulative Wahrscheinlichkeit zusammen mindestens p beträgt."
       },
       "min_p": {
         "label": "",
-        "note": "Begrenzt Token, die auf der Mindestwahrscheinlichkeit für ein Token beruhen, im Vergleich zur Wahrscheinlichkeit des wahrscheinlichsten Tokens."
+        "note": "Tokens werden anhand der minimalen Wahrscheinlichkeit für ein Token begrenzt, relativ zur Wahrscheinlichkeit des wahrscheinlichsten Tokens."
       },
       "max_tokens": {
         "label": "",
-        "note": "Die maximale Anzahl von Token pro Ausgang."
+        "note": "Die maximale Anzahl der Token pro Ausgabe."
       },
       "overrideSamplersOptions": {
-        "label": "Ersetzen Sie die Optionen der Samplers",
+        "label": "Sampler-Optionen ersetzen",
         "note": ""
       },
       "samplers": {
-        "label": "Sampler -Warteschlange",
-        "note": "Die Reihenfolge, in der Probenehmer auf vereinfachte Weise angewendet werden. Standard ist \"dkypmxt\": trocken-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatur"
+        "label": "Probenwarteschlange",
+        "note": "Die Reihenfolge, in der Sampler angewendet werden, in vereinfachter Form. Standardmäßig ist dies \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
       },
       "dynatemp_range": {
         "label": "",
-        "note": "Addon für den Temperaturabtaster. Der Mehrwert für den Bereich der dynamischen Temperatur, der die Wahrscheinlichkeiten durch Entropie von Token anpasst."
+        "note": "Erweiterung für den Temperatur-Sampler. Der Mehrwert für den dynamischen Temperaturbereich, der Wahrscheinlichkeiten anhand der Entropie von Token anpasst."
       },
       "dynatemp_exponent": {
         "label": "",
-        "note": "Addon für den Temperaturabtaster. Glättet die Wahrscheinlichkeitsumverteilung auf der Grundlage des wahrscheinlichsten Tokens."
+        "note": "Erweiterung für den Temperatur-Sampler. Glättet die Wahrscheinlichkeitsverteilung basierend auf dem wahrscheinlichsten Token."
       },
       "typical_p": {
         "label": "",
-        "note": "Sortiert und begrenzt Token basierend auf dem Unterschied zwischen Protokollverbesserbarkeit und Entropie."
+        "note": "Sortiert und begrenzt Token basierend auf der Differenz zwischen Log-Wahrscheinlichkeit und Entropie."
       },
       "xtc_probability": {
         "label": "",
-        "note": "XTC Sampler schneidet Top -Token aus; Dieser Parameter steuert die Wahrscheinlichkeit, Token überhaupt zu schneiden. 0 deaktiviert XTC."
+        "note": "Der XTC-Sampler schneidet die oberen Tokens ab; dieser Parameter steuert die Wahrscheinlichkeit, Tokens überhaupt zu schneiden. 0 deaktiviert XTC."
       },
       "xtc_threshold": {
         "label": "",
-        "note": "XTC Sampler schneidet Top -Token aus; Dieser Parameter steuert die Token -Wahrscheinlichkeit, die erforderlich ist, um dieses Token zu schneiden."
+        "note": "Der XTC-Sampler schneidet die besten Tokens ab; dieser Parameter steuert die Tokenwahrscheinlichkeit, die erforderlich ist, um diesen Token abzuschneiden."
       },
       "overridePenaltyOptions": {
-        "label": "Strafe ersetzen",
+        "label": "Strafoptionen ersetzen",
         "note": ""
       },
       "repeat_last_n": {
         "label": "",
-        "note": "Letzte N -Token, die für die Bestrafung der Wiederholung in Betracht gezogen werden sollten"
+        "note": "Die letzten n Token, die bei der Bestrafung von Wiederholungen berücksichtigt werden sollen."
       },
       "repeat_penalty": {
         "label": "",
-        "note": "Steuert die Wiederholung von Token -Sequenzen im generierten Text"
+        "note": "Steuert die Wiederholung von Token-Sequenzen im generierten Text."
       },
       "presence_penalty": {
         "label": "",
-        "note": "Begrenzt die Token basierend darauf, ob sie in der Ausgabe erscheinen oder nicht."
+        "note": "Beschränkt die Token basierend darauf, ob sie in der Ausgabe vorkommen oder nicht."
       },
       "frequency_penalty": {
         "label": "",
-        "note": "Begrenzt die Token basierend darauf, wie oft sie in der Ausgabe erscheinen."
+        "note": "Beschränkt die Token basierend darauf, wie oft sie in der Ausgabe vorkommen."
       },
       "dry_multiplier": {
         "label": "",
-        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt den Multiplikator für trockene Probenahme fest."
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, selbst über lange Kontexte hinweg. Dieser Parameter legt den DRY-Sampling-Multiplikator fest."
       },
       "dry_base": {
         "label": "",
-        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt den Basiswert der trockenen Probenahme fest."
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, selbst über lange Kontexte hinweg. Dieser Parameter legt den Basiswert für die DRY-Sampling-Funktion fest."
       },
       "dry_allowed_length": {
         "label": "",
-        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt die zulässige Länge für trockene Probenahme fest."
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, selbst über lange Kontexte hinweg. Dieser Parameter legt die zulässige Länge für DRY-Sampling fest."
       },
       "dry_penalty_last_n": {
         "label": "",
-        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter setzt Trockenstrafe für die letzten N -Token."
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, selbst über lange Kontexte hinweg. Dieser Parameter legt die DRY-Strafe für die letzten n Token fest."
       },
       "custom": {
-        "label": "Benutzerdefinierte JSON -Konfiguration",
-        "note": "Weitere Informationen finden Sie unter <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> Serverdokumentation </a>"
+        "label": "Benutzerdefinierte JSON-Konfiguration",
+        "note": "Für weitere Informationen siehe die <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">Serverdokumentation</a>."
       },
       "pyIntepreterEnabled": {
-        "label": "Aktivieren Sie den Python -Dolmetscher",
-        "note": "Diese Funktion verwendet <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, heruntergeladen von CDN. Um diese Funktion zu verwenden, bitten Sie die LLM, Python -Code in einem Markdown -Code -Block zu generieren. Auf dem Codeblock sehen Sie eine Schaltfläche \"Ausführen\" in der Nähe der Schaltfläche \"Kopieren\"."
+        "label": "Python-Interpreter aktivieren",
+        "note": "Diese Funktion verwendet <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, das von einem CDN heruntergeladen wird. Um diese Funktion zu nutzen, bitten Sie das LLM, Python-Code innerhalb eines Markdown-Codeblocks zu generieren. In der Nähe der Schaltfläche \"Kopieren\" sehen Sie eine Schaltfläche \"Ausführen\" im Codeblock."
       },
       "ttsPitch": {
         "label": "Tonhöhe",
-        "note": "Die Tonhöhe, auf der die Äußerung gesprochen wird."
+        "note": "Die Tonhöhe, in der die Äußerung ausgesprochen wird."
       },
       "ttsRate": {
         "label": "Rate",
@@ -169,37 +169,37 @@
       },
       "ttsVoice": {
         "label": "Stimme",
-        "note": "Die Stimme, die verwendet wird, um die Äußerung zu sprechen."
+        "note": "Die Stimme, die für die Äußerung verwendet wird."
       },
       "ttsVolume": {
         "label": "Volumen",
-        "note": "Der Band, in dem die Äußerung gesprochen wird."
+        "note": "Die Lautstärke, mit der die Äußerung gesprochen wird."
       }
     },
     "textToSpeech": {
       "check": {
-        "label": "Überprüfen",
+        "label": "Prüfen",
         "text": "Hallo Welt!"
       }
     },
     "presetManager": {
       "newPreset": {
-        "title": "Speichern Sie die aktuellen Einstellungen als Voreinstellung",
-        "saveBtnLabel": "Neues Voreinsatz speichern"
+        "title": "Speichern Sie die aktuellen Einstellungen als Voreinstellung.",
+        "saveBtnLabel": "Neues Preset speichern"
       },
       "savedPresets": {
-        "title": "Bestehende Voreinstellungen",
-        "noPresetFound": "Noch keine Voreinstellungen."
+        "title": "Vorhandene Voreinstellungen",
+        "noPresetFound": "Bislang keine Voreinstellungen."
       }
     },
     "themeManager": {
       "dataTheme": {
         "label": "Thema",
-        "note": "Wählen Sie das Farbthema der Anwendung."
+        "note": "Wählen Sie das Farbschema der Anwendung."
       },
       "syntaxTheme": {
-        "label": "Syntaxthema",
-        "note": "Wählen Sie das Farbthema für die Codeblöcke."
+        "label": "Syntax-Theme",
+        "note": "Wählen Sie das Farbschema für die Codeblöcke aus."
       }
     },
     "actionButtons": {
@@ -211,49 +211,49 @@
   "toast": {
     "newVersion": {
       "icon": null,
-      "title": "🎉 Neue Version verfügbar",
-      "description": "Update für die neuesten Funktionen und Korrekturen.",
-      "note": "Ihre Gespräche werden gespeichert, aber vergessen Sie nicht, vor dem Update eine Sicherung zu erstellen.",
-      "submitBtnLabel": "Aktualisieren",
+      "title": "🎉 Neue Version verfügbar!",
+      "description": "Aktualisierung für die neuesten Funktionen und Fehlerbehebungen.",
+      "note": "Ihre Unterhaltungen werden gespeichert, aber vergessen Sie nicht, vor dem Update ein Backup zu erstellen.",
+      "submitBtnLabel": "Aktualisierung",
       "cancelBtnLabel": "Später"
     },
     "welcomePopup": {
       "icon": null,
       "title": "👋 Willkommen",
-      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet. Gehen wir zu den Einstellungen, um Ihren Inferenzanbieter zu konfigurieren.",
+      "description": "Es sieht so aus, als ob die Modelle noch nicht eingerichtet sind. Gehen wir zu den Einstellungen, um Ihren Inferenzanbieter zu konfigurieren.",
       "note": "",
-      "submitBtnLabel": "Einstellungen geöffnet",
+      "submitBtnLabel": "Einstellungen öffnen",
       "cancelBtnLabel": "Überspringen"
     },
     "noModelsPopup": {
       "icon": null,
       "title": "😔 Keine Modelle gefunden",
-      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet, oder es gibt ein Problem mit Ihrem Anbieter. Gehen wir zu den Einstellungen, um zu überprüfen.",
+      "description": "Es sieht so aus, als ob die Modelle noch nicht eingerichtet sind oder ein Problem mit Ihrem Anbieter vorliegt. Lassen Sie uns zu den Einstellungen gehen, um dies zu überprüfen.",
       "note": "",
-      "submitBtnLabel": "Einstellungen geöffnet",
+      "submitBtnLabel": "Einstellungen öffnen.",
       "cancelBtnLabel": "Überspringen"
     }
   },
   "samplePrompts": [
-    "Erzählen Sie mir eine lustige Tatsache für heute.",
-    "Sag mir einen Witz.",
+    "Erzähl mir eine lustige Tatsache für heute.",
+    "Erzähl mir einen Witz.",
     "Gib mir drei interessante wissenschaftliche Fakten.",
-    "Listen Sie die Planeten in unserem Sonnensystem auf.",
-    "Erklären Sie die Regeln des Schaches.",
-    "Was sind einige gute Gesprächsstarter?",
-    "Geben Sie 10 Geschenkideen für den besten Freund.",
-    "Schreiben Sie eine Geburtstagsnachricht für meinen Freund.",
+    "Liste die Planeten unseres Sonnensystems auf.",
+    "Erkläre die Regeln des Schachs.",
+    "Was sind ein paar gute Gesprächsaufhänger?",
+    "Gib 10 Geschenkideen für beste/n Freund/in.",
+    "Schreibe eine Geburtstagsnachricht für meinen Freund/meine Freundin.",
     "Schlagen Sie Themen für eine Geburtstagsfeier vor.",
-    "Geben Sie mir Ideen für eine Spielabend.",
-    "Geben Sie mir Ideen für einen Wochenendausflug.",
-    "Tipps für meine erste Einzelreise.",
-    "Erklären Sie einfach ein komplexes Konzept.",
-    "Beheben Sie die Grammatik in diesem Text.",
-    "Fassen Sie den folgenden Text zusammen.",
-    "Schreiben Sie dies um, um formeller/ungezwungener zu sein.",
-    "Hilf mir, eine professionelle E -Mail zu schreiben.",
-    "Erstellen Sie einen Zeitplan für meinen Arbeitstag.",
+    "Gib mir Ideen für einen Spieleabend.",
+    "Gib mir Ideen für einen Wochenendausflug.",
+    "Tipps für meine erste Solo-Reise.",
+    "Erkläre ein komplexes Konzept einfach.",
+    "Korrigieren Sie die Grammatik in diesem Text.",
+    "Fasse den folgenden Text zusammen.",
+    "Schreiben Sie dies bitte formeller/informeller um.",
+    "Hilf mir bitte, eine professionelle E-Mail zu schreiben.",
+    "Erstelle einen Zeitplan für meinen Arbeitstag.",
     "Fassen Sie diese Besprechungsnotizen zusammen.",
-    "Geben Sie mir Ideen für eine Teambuilding -Aktivität."
+    "Gib mir Ideen für eine Teambuilding-Aktivität."
   ]
 }

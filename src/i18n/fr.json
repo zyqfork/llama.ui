@@ -1,13 +1,13 @@
 {
   "header": {
     "title": {
-      "noChat": "Nouveau chat",
+      "noChat": "Nouvelle conversation",
       "settings": "Paramètres"
     }
   },
   "chatScreen": {
     "welcome": "Salut,",
-    "welcomeNote": "comment puis-je t'aider?"
+    "welcomeNote": "Comment puis-je vous aider ?"
   },
   "chatMessage": {
     "systemLabel": "Système",
@@ -29,91 +29,91 @@
       },
       "apiKey": {
         "label": "Clé API",
-        "note": "Définissez la touche API Si vous utilisez l'option --API-Key pour le serveur."
+        "note": "Définissez la clé d'API si vous utilisez l'option --api-key pour le serveur."
       },
       "model": {
         "label": "Modèle",
-        "note": "Définissez le modèle d'inférence."
+        "note": "Définir le modèle d'inférence."
       },
       "systemMessage": {
-        "label": "Message du système (sera désactivé si vous laisse vide)",
-        "note": "Le message de départ qui définit comment le modèle doit se comporter. Vous pouvez obtenir des exemples à partir de <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+        "label": "Message système (sera désactivé si laissé vide)",
+        "note": "Le message de départ qui définit comment le modèle doit se comporter. Vous pouvez trouver des exemples sur <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>."
       },
       "initials": {
         "label": "Nom d'utilisateur",
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Coller: convertir si la longueur>",
-        "note": "Lors de la collation d'un long texte, il sera converti en fichier. Vous pouvez contrôler la longueur du fichier en définissant la valeur de ce paramètre. Réglé sur 0 pour désactiver."
+        "label": "Coller : convertir si la longueur est supérieure à >",
+        "note": "Lors du collage d'un long texte, celui-ci sera converti en fichier. Vous pouvez contrôler la longueur du fichier en définissant la valeur de ce paramètre. Définissez-le sur 0 pour le désactiver."
       },
       "pdfAsImage": {
-        "label": "Utilisez PDF comme image au lieu du texte",
-        "note": "Joignez le PDF en tant qu'image au lieu du texte. Prise en charge uniquement avec des modèles multimodaux avec support de vision."
+        "label": "Utiliser le PDF comme image au lieu de texte.",
+        "note": "Attachez le PDF en tant qu'image plutôt que du texte. Pris en charge uniquement avec les modèles multimodaux dotés d'une prise en charge de la vision."
       },
       "showTokensPerSecond": {
-        "label": "Afficher les mesures de performance",
-        "note": "Activer pour voir la vitesse de traitement, les heures, etc."
+        "label": "Afficher les indicateurs de performance",
+        "note": "Activer pour voir la vitesse de traitement, les temps, etc."
       },
       "showThoughtInProgress": {
-        "label": "Développez la section de réflexion",
-        "note": "Développez le message de réflexion lors de la génération de messages"
+        "label": "Développer la section réflexion",
+        "note": "Développer le message de réflexion lors de la génération de messages."
       },
       "excludeThoughtOnReq": {
-        "label": "Exclure les messages de réflexion sur Soumettre",
-        "note": "Exclure les messages de réflexion lors de l'envoi de demandes à l'API (recommandée)"
+        "label": "Exclure les messages de réflexion lors de la soumission.",
+        "note": "Exclure les messages de réflexion lors de l'envoi de requêtes à l'API (recommandé)"
       },
       "overrideGenerationOptions": {
-        "label": "Options de génération de remplacement",
+        "label": "Options de remplacement de génération",
         "note": ""
       },
       "temperature": {
         "label": "",
-        "note": "Contrôle l'aléatoire du texte généré en affectant la distribution de probabilité des jetons de sortie. Plus élevé = plus aléatoire, plus bas = plus focalisé."
+        "note": "Contrôle l'aléatoire du texte généré en affectant la distribution de probabilité des jetons de sortie. Plus élevé = plus aléatoire, plus bas = plus ciblé."
       },
       "top_k": {
         "label": "",
-        "note": "Ne conserve que les k tokens top."
+        "note": "Conserve uniquement les k meilleurs jetons."
       },
       "top_p": {
         "label": "",
-        "note": "Limite les jetons à ceux qui ont une probabilité cumulative d'au moins p"
+        "note": "Limite les jetons à ceux qui, ensemble, ont une probabilité cumulative d'au moins p."
       },
       "min_p": {
         "label": "",
-        "note": "Limite les jetons basés sur la probabilité minimale pour qu'un jeton soit pris en compte, par rapport à la probabilité du jeton le plus probable."
+        "note": "Limiter les jetons en fonction de la probabilité minimale pour qu'un jeton soit considéré, par rapport à la probabilité du jeton le plus probable."
       },
       "max_tokens": {
         "label": "",
-        "note": "Le nombre maximum de jetons par sortie."
+        "note": "Le nombre maximal de jetons par sortie."
       },
       "overrideSamplersOptions": {
-        "label": "Remplacer les options d'échantillonneurs",
+        "label": "Remplacer les options d'échantillons",
         "note": ""
       },
       "samplers": {
-        "label": "File d'attente d'échantillonneurs",
-        "note": "L'ordre dans lequel les échantillonneurs sont appliqués, de manière simplifiée. La valeur par défaut est \"dkyPMxt\": sèche-> top_k-> typ_p-> top_p-> min_p-> xtc-> température"
+        "label": "File d'échantillons",
+        "note": "L'ordre auquel les échantillonneurs sont appliqués, de manière simplifiée. La valeur par défaut est \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
       },
       "dynatemp_range": {
         "label": "",
-        "note": "Addon pour l'échantillonneur de température. La valeur ajoutée à la plage de température dynamique, qui ajuste les probabilités par entropie des jetons."
+        "note": "Module complémentaire pour l'échantillonneur de température. La valeur ajoutée à la plage de température dynamique, qui ajuste les probabilités par entropie des jetons."
       },
       "dynatemp_exponent": {
         "label": "",
-        "note": "Addon pour l'échantillonneur de température. Méalifie la redistribution de probabilité basée sur le jeton le plus probable."
+        "note": "Module complémentaire pour l'échantillonneur de température. Lisse la redétermination des probabilités en se basant sur le jeton le plus probable."
       },
       "typical_p": {
         "label": "",
-        "note": "Torse et limite les jetons en fonction de la différence entre la probabilité du log et l'entropie."
+        "note": "Trie et limite les jetons en fonction de la différence entre la probabilité logarithmique et l'entropie."
       },
       "xtc_probability": {
         "label": "",
-        "note": "L'échantillonneur XTC coupe les jetons supérieurs; Ce paramètre contrôle le risque de couper les jetons. 0 désactive XTC."
+        "note": "L'échantillonneur XTC coupe les jetons supérieurs ; ce paramètre contrôle la probabilité de couper des jetons en général. 0 désactive XTC."
       },
       "xtc_threshold": {
         "label": "",
-        "note": "L'échantillonneur XTC coupe les jetons supérieurs; Ce paramètre contrôle la probabilité de jeton nécessaire pour couper ce jeton."
+        "note": "L'échantillonneur XTC supprime les jetons supérieurs ; ce paramètre contrôle la probabilité du jeton requise pour supprimer ce jeton."
       },
       "overridePenaltyOptions": {
         "label": "Remplacer les options de pénalité",
@@ -121,7 +121,7 @@
       },
       "repeat_last_n": {
         "label": "",
-        "note": "Dernier n jetons à considérer pour avoir pénalisé la répétition"
+        "note": "Derniers n jetons à considérer pour pénaliser la répétition"
       },
       "repeat_penalty": {
         "label": "",
@@ -129,81 +129,81 @@
       },
       "presence_penalty": {
         "label": "",
-        "note": "Limite les jetons en fonction de leur appartenance ou non dans la sortie."
+        "note": "Limite les jetons en fonction de leur présence ou non dans la sortie."
       },
       "frequency_penalty": {
         "label": "",
-        "note": "Limite les jetons en fonction de la fréquence à laquelle ils apparaissent dans la sortie."
+        "note": "Limite les jetons en fonction de leur fréquence d'apparition dans la sortie."
       },
       "dry_multiplier": {
         "label": "",
-        "note": "L'échantillonnage à sec réduit la répétition dans le texte généré même dans de longs contextes. Ce paramètre définit le multiplicateur d'échantillonnage sec."
+        "note": "L'échantillonnage DRY réduit la répétition dans le texte généré, même sur de longs contextes. Ce paramètre définit le multiplicateur d'échantillonnage DRY."
       },
       "dry_base": {
         "label": "",
-        "note": "L'échantillonnage à sec réduit la répétition dans le texte généré même dans de longs contextes. Ce paramètre définit la valeur de base d'échantillonnage sèche."
+        "note": "L'échantillonnage DRY réduit la répétition dans le texte généré, même sur de longs contextes. Ce paramètre définit la valeur de base de l'échantillonnage DRY."
       },
       "dry_allowed_length": {
         "label": "",
-        "note": "L'échantillonnage à sec réduit la répétition dans le texte généré même dans de longs contextes. Ce paramètre définit la longueur autorisée pour l'échantillonnage sec."
+        "note": "L'échantillonnage DRY réduit la répétition dans le texte généré, même sur de longs contextes. Ce paramètre définit la longueur maximale autorisée pour l'échantillonnage DRY."
       },
       "dry_penalty_last_n": {
         "label": "",
-        "note": "L'échantillonnage à sec réduit la répétition dans le texte généré même dans de longs contextes. Ce paramètre établit une pénalité sèche pour les derniers jetons N."
+        "note": "L'échantillonnage DRY réduit la répétition dans le texte généré, même sur de longs contextes. Ce paramètre définit la pénalité DRY pour les n derniers jetons."
       },
       "custom": {
-        "label": "Configuration json personnalisée",
-        "note": "Pour plus d'informations, reportez-vous à <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> Documentation du serveur </a>"
+        "label": "Configuration JSON personnalisée",
+        "note": "Pour plus d'informations, veuillez consulter la <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">documentation du serveur</a>."
       },
       "pyIntepreterEnabled": {
         "label": "Activer l'interpréteur Python",
-        "note": "Cette fonction utilise <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, téléchargé à partir de CDN. Pour utiliser cette fonctionnalité, demandez au LLM de générer du code Python dans un bloc de code Markdown. Vous verrez un bouton \"Exécuter\" sur le bloc de code, près du bouton \"Copier\"."
+        "note": "Cette fonctionnalité utilise <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, téléchargé depuis un CDN. Pour utiliser cette fonctionnalité, demandez au LLM de générer du code Python dans un bloc de code Markdown. Vous verrez un bouton \"Exécuter\" sur le bloc de code, près du bouton \"Copier\"."
       },
       "ttsPitch": {
-        "label": "Pas",
-        "note": "Le terrain auquel l'énoncé sera prononcé."
+        "label": "lancer",
+        "note": "La hauteur à laquelle l'énoncé sera prononcé."
       },
       "ttsRate": {
         "label": "Taux",
         "note": "La vitesse à laquelle l'énoncé sera prononcé."
       },
       "ttsVoice": {
-        "label": "Voix",
-        "note": "La voix qui sera utilisée pour parler l'énoncé."
+        "label": "voix",
+        "note": "La voix qui sera utilisée pour prononcer l'énoncé."
       },
       "ttsVolume": {
         "label": "Volume",
-        "note": "Le volume dans lequel l'énoncé sera parlé."
+        "note": "Le volume auquel l'énoncé sera prononcé."
       }
     },
     "textToSpeech": {
       "check": {
         "label": "Vérifier",
-        "text": "Bonjour le monde!"
+        "text": "Bonjour le monde !"
       }
     },
     "presetManager": {
       "newPreset": {
-        "title": "Enregistrez les paramètres actuels en tant que préréglage",
-        "saveBtnLabel": "Enregistrer un nouveau préréglage"
+        "title": "Enregistrer les paramètres actuels comme un préréglage",
+        "saveBtnLabel": "Enregistrer le nouveau préréglage"
       },
       "savedPresets": {
         "title": "Préréglages existants",
-        "noPresetFound": "Pas encore de préréglages."
+        "noPresetFound": "Pas de préréglages pour l'instant."
       }
     },
     "themeManager": {
       "dataTheme": {
         "label": "Thème",
-        "note": "Choisissez le thème de la couleur de l'application."
+        "note": "Choisissez le thème de couleur de l'application."
       },
       "syntaxTheme": {
         "label": "Thème de syntaxe",
-        "note": "Choisissez le thème de la couleur des blocs de code."
+        "note": "Choisissez le thème de couleur pour les blocs de code."
       }
     },
     "actionButtons": {
-      "saveBtnLabel": "Sauvegarder",
+      "saveBtnLabel": "Sauver",
       "cancelBtnLabel": "Fermer",
       "resetBtnLabel": "Réinitialiser"
     }
@@ -212,48 +212,48 @@
     "newVersion": {
       "icon": null,
       "title": "🎉 Nouvelle version disponible",
-      "description": "Mise à jour des dernières fonctionnalités et correctifs.",
-      "note": "Vos conversations seront enregistrées, mais n'oubliez pas de faire une sauvegarde avant la mise à jour.",
+      "description": "Mise à jour pour les dernières fonctionnalités et corrections.",
+      "note": "Vos conversations seront sauvegardées, mais n'oubliez pas de faire une sauvegarde avant la mise à jour.",
       "submitBtnLabel": "Mise à jour",
       "cancelBtnLabel": "Plus tard"
     },
     "welcomePopup": {
       "icon": null,
       "title": "👋 Bienvenue",
-      "description": "Il semble que vous n'ayez pas encore la configuration des modèles. Passons aux paramètres pour configurer votre fournisseur d'inférence.",
+      "description": "Il semble que les modèles ne soient pas encore configurés. Allons dans les Paramètres pour configurer votre fournisseur d'inférence.",
       "note": "",
-      "submitBtnLabel": "Paramètres ouvrir",
+      "submitBtnLabel": "Ouvrir les paramètres",
       "cancelBtnLabel": "Sauter"
     },
     "noModelsPopup": {
       "icon": null,
-      "title": "😔 Aucun modèle trouvé",
-      "description": "Il semble que vous n'ayez pas encore la configuration des modèles ou il y a un problème avec votre fournisseur. Passons aux paramètres pour vérifier.",
+      "title": "😔 Aucun modèle trouvé.",
+      "description": "On dirait que les modèles ne sont pas encore configurés ou qu'il y a un problème avec votre fournisseur. Allons dans les Paramètres pour vérifier.",
       "note": "",
-      "submitBtnLabel": "Paramètres ouvrir",
+      "submitBtnLabel": "Ouvrir les paramètres",
       "cancelBtnLabel": "Sauter"
     }
   },
   "samplePrompts": [
-    "Dites-moi un fait amusant pour aujourd'hui.",
-    "Dites-moi une blague.",
+    "Dis-moi un fait amusant pour aujourd'hui.",
+    "Dis-moi une blague.",
     "Donnez-moi trois faits scientifiques intéressants.",
     "Énumérez les planètes de notre système solaire.",
     "Expliquez les règles des échecs.",
-    "Quels sont les bons démarreurs de conversation?",
-    "Donnez 10 idées cadeaux pour le meilleur ami.",
-    "Écrivez un message d'anniversaire pour mon ami.",
-    "Suggérer des thèmes pour une fête d'anniversaire.",
-    "Donnez-moi des idées pour une soirée de jeu.",
-    "Donnez-moi des idées pour une escapade d'un week-end.",
+    "Quelles sont de bonnes phrases d'accroche ?",
+    "Donnez 10 idées de cadeaux pour votre meilleure amie/votre meilleur ami.",
+    "Écris un message d'anniversaire pour mon ami(e).",
+    "Suggérez des thèmes pour une fête d'anniversaire.",
+    "Donnez-moi des idées pour une soirée jeux.",
+    "Donnez-moi des idées pour une escapade de week-end.",
     "Conseils pour mon premier voyage en solo.",
-    "Expliquez simplement un concept complexe.",
+    "Expliquez un concept complexe simplement.",
     "Corrigez la grammaire dans ce texte.",
     "Résumez le texte suivant.",
-    "Réécrivez-vous pour être plus formel / décontracté.",
-    "Aidez-moi à écrire un e-mail professionnel.",
-    "Créez un horaire pour ma journée de travail.",
+    "Réécrivez ceci pour être plus formel/informel.",
+    "Aidez-moi à rédiger un e-mail professionnel.",
+    "Établir un emploi du temps pour ma journée de travail.",
     "Résumez ces notes de réunion.",
-    "Donnez-moi des idées pour une activité de consolidation d'équipe."
+    "Donnez-moi des idées pour une activité de team building."
   ]
 }
