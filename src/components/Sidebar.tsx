@@ -6,6 +6,7 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { TFunction } from 'i18next';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
@@ -15,7 +16,6 @@ import StorageUtils from '../database';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
 import { useModals } from './ModalProvider';
-import { TFunction } from 'i18next';
 
 export default function Sidebar() {
   const navigate = useNavigate();
