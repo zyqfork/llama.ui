@@ -15,6 +15,10 @@
   },
   "settings": {
     "parameters": {
+      "language": {
+        "label": "Language",
+        "note": "User interface display language."
+      },
       "provider": {
         "label": "Provider",
         "note": "Provider may charge for usage."

@@ -58,6 +58,7 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 import {
   Configuration,
   ConfigurationKey,
@@ -95,6 +96,7 @@ interface SettingFieldInput {
   type: SettingFieldInputType;
   key: ConfigurationKey;
   disabled?: boolean;
+  translateKey?: string;
   [key: string]: unknown; // Allow additional properties
 }
 
@@ -103,6 +105,7 @@ interface SettingFieldCustom {
   key:
     | ConfigurationKey
     | 'custom'
+    | 'language'
     | 'import-export'
     | 'preset-manager'
     | 'fetch-models'
@@ -259,7 +262,13 @@ const getSettingTabsConfiguration = (
       </>
     ),
     fields: [
+      toSection('User Interface', <TvIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.SHORT_INPUT, 'initials'),
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'language',
+        component: UnusedCustomField,
+      },
       {
         type: SettingInputType.CUSTOM,
         key: 'theme-manager',
@@ -527,7 +536,7 @@ const getSettingTabsConfiguration = (
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { t: trans } = useTranslation();
+  const { t: trans, i18n } = useTranslation();
   const {
     config,
     saveConfig,
@@ -704,6 +713,23 @@ export default function Settings() {
         );
       case SettingInputType.CUSTOM:
         switch (field.key) {
+          case 'language':
+            return (
+              <SettingsModalDropdown
+                key="language"
+                field={{
+                  type: SettingInputType.DROPDOWN,
+                  key: 'custom',
+                  translateKey: 'language',
+                }}
+                options={SUPPORTED_LANGUAGES.map((lang) => ({
+                  value: lang.key,
+                  label: lang.label,
+                }))}
+                value={i18n.language}
+                onChange={(lang) => i18n.changeLanguage(lang as string)}
+              />
+            );
           case 'import-export':
             return <ImportExportComponent key={key} onClose={onClose} />;
           case 'preset-manager':
@@ -896,7 +922,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
   value,
   onChange,
 }) => (
-  <LabeledField configKey={field.key}>
+  <LabeledField configKey={field.translateKey || field.key}>
     {({ label, note }) => (
       <label className="form-control flex flex-col justify-center max-w-80 mb-3">
         <div className="text-sm opacity-60 mb-1">{label}</div>
@@ -921,7 +947,7 @@ const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
 const SettingsModalShortInput: React.FC<
   BaseInputProps & { value: string | number }
 > = ({ field, value, onChange }) => (
-  <LabeledField configKey={field.key}>
+  <LabeledField configKey={field.translateKey || field.key}>
     {({ label, note }) => (
       <label className="form-control flex flex-col justify-center mb-3">
         <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
@@ -969,7 +995,7 @@ const SettingsModalRangeInput: React.FC<
     );
   }, [max, min, step]);
   return (
-    <LabeledField configKey={field.key}>
+    <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
         <label className="form-control flex flex-col justify-center mb-3">
           <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
@@ -1018,7 +1044,7 @@ const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
   value,
   onChange,
 }) => (
-  <LabeledField configKey={field.key}>
+  <LabeledField configKey={field.translateKey || field.key}>
     {({ label, note }) => (
       <label className="form-control flex flex-col justify-center mb-3">
         <div className="flex flex-row items-center mb-1">
@@ -1083,7 +1109,7 @@ const SettingsModalDropdown: React.FC<
   }, [options, value, onChange]);
 
   return (
-    <LabeledField configKey={field.key}>
+    <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
         <div className="form-control flex flex-col justify-center mb-3">
           <div className="font-bold mb-1 md:hidden">{label}</div>
