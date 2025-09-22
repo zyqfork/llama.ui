@@ -3,6 +3,12 @@
     "title": {
       "noChat": "New Chat",
       "settings": "Settings"
+    },
+    "buttons": {
+      "newConvBtnTitle": "New",
+      "newConvBtnLabel": "New conversation",
+      "settingsBtnTitle": "Settings",
+      "settingsBtnLabel": "Open settings menu"
     }
   },
   "sidebar": {
