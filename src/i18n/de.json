@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 Neue Version verfügbar!",
       "description": "Aktualisierung für die neuesten Funktionen und Fehlerbehebungen.",
       "note": "Ihre Unterhaltungen werden gespeichert, aber vergessen Sie nicht, vor dem Update ein Backup zu erstellen.",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "Später"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 Willkommen",
       "description": "Es sieht so aus, als ob die Modelle noch nicht eingerichtet sind. Gehen wir zu den Einstellungen, um Ihren Inferenzanbieter zu konfigurieren.",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "Überspringen"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 Keine Modelle gefunden",
       "description": "Es sieht so aus, als ob die Modelle noch nicht eingerichtet sind oder ein Problem mit Ihrem Anbieter vorliegt. Lassen Sie uns zu den Einstellungen gehen, um dies zu überprüfen.",
       "note": "",

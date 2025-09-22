@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 ¡Nueva versión disponible!",
       "description": "Actualización para las últimas funciones y correcciones.",
       "note": "Tus conversaciones se guardarán, pero no olvides hacer una copia de seguridad antes de la actualización.",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "Más tarde"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 Bienvenido/Bienvenida",
       "description": "Parece que aún no tienes los modelos configurados. Vamos a la Configuración para configurar tu proveedor de Inferencia.",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "Saltar"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 No se encontraron modelos.",
       "description": "Parece que aún no has configurado los modelos o hay un problema con tu Proveedor. Vamos a la Configuración para verificarlo.",
       "note": "",

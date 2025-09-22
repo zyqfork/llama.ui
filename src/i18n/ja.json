@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 新バージョンが利用可能です",
       "description": "最新機能と修正のアップデートです。",
       "note": "あなたの会話は保存されますが、アップデートの前にバックアップを取っておいてください。",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "後で"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 こんにちは！",
       "description": "モデルがまだセットアップされていないようです。推論プロバイダーを構成するために、設定に移動しましょう。",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "スキップ"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 モデルが見つかりませんでした。",
       "description": "モデルの設定がまだ完了していないか、プロバイダーに問題があるようです。設定を確認してみましょう。",
       "note": "",

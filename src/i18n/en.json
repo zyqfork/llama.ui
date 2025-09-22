@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 New version available",
       "description": "Update for the latest features & fixes.",
       "note": "Your conversations will be saved, but don't forget to make a backup before update.",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "Later"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 Welcome",
       "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "Skip"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 No Models Found",
       "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
       "note": "",
