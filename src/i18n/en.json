@@ -1,6 +1,10 @@
 {
-  "header.title.noChat": "New Chat",
-  "header.title.settings": "Settings",
+  "header": {
+    "title": {
+      "noChat": "New Chat",
+      "settings": "Settings"
+    }
+  },
   "chatScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
@@ -11,6 +15,10 @@
   },
   "settings": {
     "parameters": {
+      "language": {
+        "label": "Language",
+        "note": "User interface display language."
+      },
       "provider": {
         "label": "Provider",
         "note": "Provider may charge for usage."
@@ -36,16 +44,16 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "On Paste: convert to file if length >",
-        "note": "On pasting long text, it will be converted to a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
+        "label": "Paste: convert if length >",
+        "note": "When pasting a long text, it will be converted into a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
       },
       "pdfAsImage": {
         "label": "Use PDF as image instead of text",
-        "note": "Attach PDF as image instead of text. Supported only with multimodal models with vision support."
+        "note": "Attach the PDF as an image instead of text. Supported only with multimodal models with vision support."
       },
       "showTokensPerSecond": {
         "label": "Show performance metrics",
-        "note": "Enable to see processing speed, timings, etc."
+        "note": "Activate to see the processing speed, times, etc."
       },
       "showThoughtInProgress": {
         "label": "Expand thinking section",
@@ -69,7 +77,7 @@
       },
       "top_p": {
         "label": "",
-        "note": "Limits tokens to those that together have a cumulative probability of at least p"
+        "note": "Limits tokens to those that together have a cumulative probability of at least p."
       },
       "min_p": {
         "label": "",
@@ -77,10 +85,10 @@
       },
       "max_tokens": {
         "label": "",
-        "note": "The maximum number of token per output."
+        "note": "The maximum number of tokens per output."
       },
       "overrideSamplersOptions": {
-        "label": "Override Samplers Options",
+        "label": "Replace Samplers Options",
         "note": ""
       },
       "samplers": {
@@ -108,7 +116,7 @@
         "note": "XTC sampler cuts out top tokens; this parameter controls the token probability that is required to cut that token."
       },
       "overridePenaltyOptions": {
-        "label": "Override Penalty Options",
+        "label": "Replace Penalty Options",
         "note": ""
       },
       "repeat_last_n": {
@@ -121,11 +129,11 @@
       },
       "presence_penalty": {
         "label": "",
-        "note": "Limits tokens based on whether they appear in the output or not."
+        "note": "Limits the tokens based on whether they appear in the output or not."
       },
       "frequency_penalty": {
         "label": "",
-        "note": "Limits tokens based on how often they appear in the output."
+        "note": "Limits the tokens based on how often they appear in the output."
       },
       "dry_multiplier": {
         "label": "",
@@ -176,7 +184,7 @@
     },
     "presetManager": {
       "newPreset": {
-        "title": "Save current settings as a preset",
+        "title": "Save the current settings as a preset",
         "saveBtnLabel": "Save New Preset"
       },
       "savedPresets": {
@@ -187,11 +195,11 @@
     "themeManager": {
       "dataTheme": {
         "label": "Theme",
-        "note": "Choose the color theme for application."
+        "note": "Choose the color theme of the application."
       },
       "syntaxTheme": {
         "label": "Syntax Theme",
-        "note": "Choose the color theme for code blocks."
+        "note": "Choose the color theme for the code blocks."
       }
     },
     "actionButtons": {
@@ -200,27 +208,31 @@
       "resetBtnLabel": "Reset"
     }
   },
-  "newVersion": {
-    "icon": null,
-    "title": "🎉 New version available",
-    "description": "Update for the latest features & fixes.",
-    "note": "Your conversations will be saved, but don't forget to make a backup before update.",
-    "submitBtnLabel": "Update",
-    "cancelBtnLabel": "Later"
-  },
-  "welcomePopup": {
-    "icon": null,
-    "title": "👋 Welcome",
-    "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
-    "submitBtnLabel": "Open Settings",
-    "cancelBtnLabel": "Skip"
-  },
-  "noModelsPopup": {
-    "icon": null,
-    "title": "😔 No Models Found",
-    "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
-    "submitBtnLabel": "Open Settings",
-    "cancelBtnLabel": "Skip"
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 New version available",
+      "description": "Update for the latest features & fixes.",
+      "note": "Your conversations will be saved, but don't forget to make a backup before update.",
+      "submitBtnLabel": "Update",
+      "cancelBtnLabel": "Later"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Welcome",
+      "description": "It looks like you don't have the models set up yet. Let's go to the Settings to configure your Inference provider.",
+      "note": "",
+      "submitBtnLabel": "Open Settings",
+      "cancelBtnLabel": "Skip"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 No Models Found",
+      "description": "It looks like you don't have the models set up yet or there is an issue with your Provider. Let's go to the Settings to check.",
+      "note": "",
+      "submitBtnLabel": "Open Settings",
+      "cancelBtnLabel": "Skip"
+    }
   },
   "samplePrompts": [
     "Tell me a fun fact for today.",

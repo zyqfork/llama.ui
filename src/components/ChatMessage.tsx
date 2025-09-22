@@ -12,11 +12,11 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
+import { Trans } from 'react-i18next';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
-import * as lang from '../lang/en.json';
 import { Message, MessageExtra, PendingMessage } from '../types';
 import {
   classNames,
@@ -143,7 +143,7 @@ export default function ChatMessage({
           <div className="mb-1 text-sm">
             {isUser && (
               <span className="font-bold mr-1">
-                {initials || lang.chatMessage.userLabel}
+                {initials || <Trans i18nKey="chatMessage.userLabel" />}
               </span>
             )}
             {isAssistant && msg.model && (

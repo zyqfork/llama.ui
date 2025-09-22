@@ -26,14 +26,20 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
+import { TFunction } from 'i18next';
 import React, {
   FC,
+  forwardRef,
+  Fragment,
   ReactElement,
+  ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useState,
 } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Dropdown } from '../components/common';
 import { useModals } from '../components/ModalProvider';
@@ -52,7 +58,7 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
-import lang from '../lang/en.json';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 import {
   Configuration,
   ConfigurationKey,
@@ -88,10 +94,9 @@ type SettingFieldInputType = Exclude<
 
 interface SettingFieldInput {
   type: SettingFieldInputType;
-  label: string | React.ReactElement;
-  note?: string | TrustedHTML;
   key: ConfigurationKey;
   disabled?: boolean;
+  translateKey?: string;
   [key: string]: unknown; // Allow additional properties
 }
 
@@ -100,6 +105,7 @@ interface SettingFieldCustom {
   key:
     | ConfigurationKey
     | 'custom'
+    | 'language'
     | 'import-export'
     | 'preset-manager'
     | 'fetch-models'
@@ -167,8 +173,6 @@ const toInput = (
 ): SettingFieldInput => {
   return {
     type,
-    label: lang.settings.parameters[key].label,
-    note: lang.settings.parameters[key].note,
     disabled,
     key,
     ...additional,
@@ -184,8 +188,6 @@ const toDropdown = (
     type: SettingInputType.DROPDOWN,
     key,
     disabled,
-    label: lang.settings.parameters[key].label,
-    note: lang.settings.parameters[key].note,
     options,
     filterable,
   };
@@ -201,6 +203,7 @@ const DELIMETER: SettingFieldCustom = {
 const UnusedCustomField: React.FC = () => null;
 
 const getSettingTabsConfiguration = (
+  trans: TFunction<'translation', undefined>,
   config: Configuration,
   models: InferenceApiModel[]
 ): SettingTab[] => [
@@ -259,7 +262,13 @@ const getSettingTabsConfiguration = (
       </>
     ),
     fields: [
+      toSection('User Interface', <TvIcon className={ICON_CLASSNAME} />),
       toInput(SettingInputType.SHORT_INPUT, 'initials'),
+      {
+        type: SettingInputType.CUSTOM,
+        key: 'language',
+        component: UnusedCustomField,
+      },
       {
         type: SettingInputType.CUSTOM,
         key: 'theme-manager',
@@ -327,7 +336,7 @@ const getSettingTabsConfiguration = (
         key: 'custom', // dummy key, won't be used
         component: () => (
           <TextToSpeech
-            text={lang.settings.textToSpeech.check.text}
+            text={trans('settings.textToSpeech.check.text')}
             voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
             pitch={config.ttsPitch}
             rate={config.ttsRate}
@@ -343,7 +352,7 @@ const getSettingTabsConfiguration = (
               >
                 {!isPlaying && <SpeakerWaveIcon className={ICON_CLASSNAME} />}
                 {isPlaying && <SpeakerXMarkIcon className={ICON_CLASSNAME} />}
-                {lang.settings.textToSpeech.check.label}
+                {trans('settings.textToSpeech.check.label')}
               </button>
             )}
           </TextToSpeech>
@@ -527,6 +536,7 @@ const getSettingTabsConfiguration = (
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { t: trans, i18n } = useTranslation();
   const {
     config,
     saveConfig,
@@ -547,8 +557,8 @@ export default function Settings() {
     Object.assign([], models)
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(localConfig, localModels),
-    [localConfig, localModels]
+    () => getSettingTabsConfiguration(trans, localConfig, localModels),
+    [trans, localConfig, localModels]
   );
   const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
@@ -655,7 +665,6 @@ export default function Settings() {
         return (
           <SettingsModalShortInput
             key={key}
-            configKey={field.key}
             field={field}
             value={localConfig[field.key] as string | number}
             onChange={onChange(field.key)}
@@ -665,7 +674,6 @@ export default function Settings() {
         return (
           <SettingsModalRangeInput
             key={key}
-            configKey={field.key}
             field={field}
             min={field.min as number}
             max={field.max as number}
@@ -678,7 +686,6 @@ export default function Settings() {
         return (
           <SettingsModalLongInput
             key={key}
-            configKey={field.key}
             field={field}
             value={String(localConfig[field.key])}
             onChange={onChange(field.key)}
@@ -688,7 +695,6 @@ export default function Settings() {
         return (
           <SettingsModalCheckbox
             key={key}
-            configKey={field.key}
             field={field}
             value={!!localConfig[field.key]}
             onChange={onChange(field.key)}
@@ -698,7 +704,6 @@ export default function Settings() {
         return (
           <SettingsModalDropdown
             key={key}
-            configKey={field.key}
             field={field as SettingFieldInput}
             options={(field as SettingFieldDropdown).options}
             filterable={(field as SettingFieldDropdown).filterable}
@@ -708,6 +713,23 @@ export default function Settings() {
         );
       case SettingInputType.CUSTOM:
         switch (field.key) {
+          case 'language':
+            return (
+              <SettingsModalDropdown
+                key="language"
+                field={{
+                  type: SettingInputType.DROPDOWN,
+                  key: 'custom',
+                  translateKey: 'language',
+                }}
+                options={SUPPORTED_LANGUAGES.map((lang) => ({
+                  value: lang.key,
+                  label: lang.label,
+                }))}
+                value={i18n.language}
+                onChange={(lang) => i18n.changeLanguage(lang as string)}
+              />
+            );
           case 'import-export':
             return <ImportExportComponent key={key} onClose={onClose} />;
           case 'preset-manager':
@@ -838,13 +860,13 @@ export default function Settings() {
           className="btn btn-neutral"
           onClick={() => handleSave(localConfig)}
         >
-          {lang.settings.actionButtons.saveBtnLabel}
+          <Trans i18nKey="settings.actionButtons.saveBtnLabel" />
         </button>
         <button className="btn" onClick={onClose}>
-          {lang.settings.actionButtons.cancelBtnLabel}
+          <Trans i18nKey="settings.actionButtons.cancelBtnLabel" />
         </button>
         <button className="btn" onClick={resetConfig}>
-          {lang.settings.actionButtons.resetBtnLabel}
+          <Trans i18nKey="settings.actionButtons.resetBtnLabel" />
         </button>
       </div>
     </div>
@@ -854,67 +876,106 @@ export default function Settings() {
 // --- Helper Input Components ---
 
 interface BaseInputProps {
-  configKey: ConfigurationKey | 'custom';
   field: SettingFieldInput;
   onChange: (value: string | number | boolean) => void;
 }
 
+interface LabeledFieldProps {
+  configKey: string;
+}
+interface LabeledFieldState {
+  label: string | React.ReactElement;
+  note?: string | TrustedHTML;
+}
+const LabeledField = forwardRef<
+  LabeledFieldState,
+  LabeledFieldProps & { children: (props: LabeledFieldState) => ReactNode }
+>(({ children, configKey }, ref) => {
+  const { t: trans } = useTranslation();
+  const { label, note } = useMemo(() => {
+    if (!configKey) return { label: '' };
+    return {
+      label:
+        trans(`settings.parameters.${configKey}.label`, {
+          defaultValue: configKey,
+        }) || configKey,
+      note: trans(`settings.parameters.${configKey}.note`, {
+        defaultValue: '',
+      }),
+    };
+  }, [trans, configKey]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      label,
+      note,
+    }),
+    [label, note]
+  );
+
+  return <Fragment>{children({ label, note })}</Fragment>;
+});
+
 const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
-  configKey,
   field,
   value,
   onChange,
-}) => {
-  return (
-    <label className="form-control flex flex-col justify-center max-w-80 mb-3">
-      <div className="text-sm opacity-60 mb-1">{field.label || configKey}</div>
-      <textarea
-        className="textarea textarea-bordered h-24"
-        placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={field.disabled}
-      />
-      {field.note && (
-        <div
-          className="text-xs opacity-75 mt-1"
-          dangerouslySetInnerHTML={{ __html: field.note }}
-        />
-      )}
-    </label>
-  );
-};
-
-const SettingsModalShortInput: React.FC<
-  BaseInputProps & { value: string | number }
-> = ({ configKey, field, value, onChange }) => {
-  return (
-    <label className="form-control flex flex-col justify-center mb-3">
-      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-        {field.label || configKey}
-      </div>
-      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div tabIndex={0} role="button" className="font-bold hidden md:block">
-          {field.label || configKey}
-        </div>
-        <input
-          type="text"
-          className="grow"
-          placeholder={`Default: ${CONFIG_DEFAULT[configKey] || 'none'}`}
+}) => (
+  <LabeledField configKey={field.translateKey || field.key}>
+    {({ label, note }) => (
+      <label className="form-control flex flex-col justify-center max-w-80 mb-3">
+        <div className="text-sm opacity-60 mb-1">{label}</div>
+        <textarea
+          className="textarea textarea-bordered h-24"
+          placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={field.disabled}
         />
+        {note && (
+          <div
+            className="text-xs opacity-75 mt-1"
+            dangerouslySetInnerHTML={{ __html: note }}
+          />
+        )}
       </label>
-      {field.note && (
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{ __html: field.note }}
-        />
-      )}
-    </label>
-  );
-};
+    )}
+  </LabeledField>
+);
+
+const SettingsModalShortInput: React.FC<
+  BaseInputProps & { value: string | number }
+> = ({ field, value, onChange }) => (
+  <LabeledField configKey={field.translateKey || field.key}>
+    {({ label, note }) => (
+      <label className="form-control flex flex-col justify-center mb-3">
+        <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+          {label}
+        </div>
+        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+          <div tabIndex={0} role="button" className="font-bold hidden md:block">
+            {label}
+          </div>
+          <input
+            type="text"
+            className="grow"
+            placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={field.disabled}
+          />
+        </label>
+        {note && (
+          <div
+            className="text-xs opacity-75 max-w-80"
+            dangerouslySetInnerHTML={{ __html: note }}
+          />
+        )}
+      </label>
+    )}
+  </LabeledField>
+);
 
 const SettingsModalRangeInput: React.FC<
   BaseInputProps & {
@@ -923,7 +984,7 @@ const SettingsModalRangeInput: React.FC<
     max: number;
     step: number;
   }
-> = ({ configKey, field, value, min, max, step, onChange }) => {
+> = ({ field, value, min, max, step, onChange }) => {
   const values = useMemo(() => {
     const fractionDigits =
       Math.floor(step) === step ? 0 : step.toString().split('.')[1].length || 0;
@@ -934,69 +995,78 @@ const SettingsModalRangeInput: React.FC<
     );
   }, [max, min, step]);
   return (
-    <label className="form-control flex flex-col justify-center mb-3">
-      <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-        {field.label || configKey}
-      </div>
-      <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-        <div tabIndex={0} role="button" className="font-bold hidden md:block">
-          {field.label || configKey}
-        </div>
-        <div className="grow px-2">
-          <input
-            type="range"
-            className="range range-xs [--range-fill:0]"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={field.disabled}
-          />
-          <div className="flex justify-between text-xs">
-            {values.map((v) => (
-              <span key={v}>{v}</span>
-            ))}
+    <LabeledField configKey={field.translateKey || field.key}>
+      {({ label, note }) => (
+        <label className="form-control flex flex-col justify-center mb-3">
+          <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
+            {label}
           </div>
-        </div>
-      </label>
-      {field.note && (
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{ __html: field.note }}
-        />
+          <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+            <div
+              tabIndex={0}
+              role="button"
+              className="font-bold hidden md:block"
+            >
+              {label}
+            </div>
+            <div className="grow px-2">
+              <input
+                type="range"
+                className="range range-xs [--range-fill:0]"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                disabled={field.disabled}
+              />
+              <div className="flex justify-between text-xs">
+                {values.map((v) => (
+                  <span key={v}>{v}</span>
+                ))}
+              </div>
+            </div>
+          </label>
+          {note && (
+            <div
+              className="text-xs opacity-75 max-w-80"
+              dangerouslySetInnerHTML={{ __html: note }}
+            />
+          )}
+        </label>
       )}
-    </label>
+    </LabeledField>
   );
 };
 
 const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
-  configKey,
   field,
   value,
   onChange,
-}) => {
-  return (
-    <label className="form-control flex flex-col justify-center mb-3">
-      <div className="flex flex-row items-center mb-1">
-        <input
-          type="checkbox"
-          className="toggle"
-          checked={value}
-          onChange={(e) => onChange(e.target.checked)}
-          disabled={field.disabled}
-        />
-        <span className="ml-2">{field.label || configKey}</span>
-      </div>
-      {field.note && (
-        <div
-          className="text-xs opacity-75 max-w-80 mt-1"
-          dangerouslySetInnerHTML={{ __html: field.note }}
-        />
-      )}
-    </label>
-  );
-};
+}) => (
+  <LabeledField configKey={field.translateKey || field.key}>
+    {({ label, note }) => (
+      <label className="form-control flex flex-col justify-center mb-3">
+        <div className="flex flex-row items-center mb-1">
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={value}
+            onChange={(e) => onChange(e.target.checked)}
+            disabled={field.disabled}
+          />
+          <span className="ml-2">{label}</span>
+        </div>
+        {note && (
+          <div
+            className="text-xs opacity-75 max-w-80 mt-1"
+            dangerouslySetInnerHTML={{ __html: note }}
+          />
+        )}
+      </label>
+    )}
+  </LabeledField>
+);
 
 const SettingsModalDropdown: React.FC<
   BaseInputProps & {
@@ -1004,7 +1074,7 @@ const SettingsModalDropdown: React.FC<
     filterable?: boolean;
     value: string;
   }
-> = ({ configKey, field, options, filterable = false, value, onChange }) => {
+> = ({ field, options, filterable = false, value, onChange }) => {
   const renderOption = (option: DropdownOption) => (
     <span className="truncate">
       {option.icon && (
@@ -1039,38 +1109,40 @@ const SettingsModalDropdown: React.FC<
   }, [options, value, onChange]);
 
   return (
-    <div className="form-control flex flex-col justify-center mb-3">
-      <div className="font-bold mb-1 md:hidden">{field.label || configKey}</div>
-      <label
-        className={classNames({
-          'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
-          'bg-base-200': disabled,
-        })}
-      >
-        <div className="font-bold hidden md:block">
-          {field.label || configKey}
+    <LabeledField configKey={field.translateKey || field.key}>
+      {({ label, note }) => (
+        <div className="form-control flex flex-col justify-center mb-3">
+          <div className="font-bold mb-1 md:hidden">{label}</div>
+          <label
+            className={classNames({
+              'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
+              'bg-base-200': disabled,
+            })}
+          >
+            <div className="font-bold hidden md:block">{label}</div>
+
+            <Dropdown
+              className="grow"
+              entity={field.key}
+              options={options}
+              filterable={filterable}
+              optionsSize={filterable ? 'small' : 'medium'}
+              currentValue={selectedValue}
+              renderOption={renderOption}
+              isSelected={(option) => value === option.value}
+              onSelect={(option) => onChange(option.value)}
+            />
+          </label>
+
+          {note && (
+            <div
+              className="text-xs opacity-75 max-w-80"
+              dangerouslySetInnerHTML={{ __html: note }}
+            />
+          )}
         </div>
-
-        <Dropdown
-          className="grow"
-          entity={configKey}
-          options={options}
-          filterable={filterable}
-          optionsSize={filterable ? 'small' : 'medium'}
-          currentValue={selectedValue}
-          renderOption={renderOption}
-          isSelected={(option) => value === option.value}
-          onSelect={(option) => onChange(option.value)}
-        />
-      </label>
-
-      {field.note && (
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{ __html: field.note }}
-        />
       )}
-    </div>
+    </LabeledField>
   );
 };
 
@@ -1137,11 +1209,11 @@ const ThemeController: FC = () => {
       {/* UI theme */}
       <div className="form-control flex flex-col justify-center mb-3">
         <div className="font-bold mb-1 md:hidden">
-          {lang.settings.themeManager.dataTheme.label}
+          <Trans i18nKey="settings.themeManager.dataTheme.label" />
         </div>
         <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
           <div className="font-bold hidden md:block">
-            {lang.settings.themeManager.dataTheme.label}
+            <Trans i18nKey="settings.themeManager.dataTheme.label" />
           </div>
 
           <Dropdown
@@ -1154,22 +1226,19 @@ const ThemeController: FC = () => {
             onSelect={(option) => switchTheme(option.value)}
           />
         </label>
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{
-            __html: lang.settings.themeManager.dataTheme.note,
-          }}
-        />
+        <div className="text-xs opacity-75 max-w-80">
+          <Trans i18nKey="settings.themeManager.dataTheme.note" />
+        </div>
       </div>
 
       {/* Code blocks theme */}
       <div className="form-control flex flex-col justify-center mb-3">
         <div className="font-bold mb-1 md:hidden">
-          {lang.settings.themeManager.syntaxTheme.label}
+          <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
         </div>
         <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
           <div className="font-bold hidden md:block">
-            {lang.settings.themeManager.syntaxTheme.label}
+            <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
           </div>
 
           <Dropdown
@@ -1182,12 +1251,9 @@ const ThemeController: FC = () => {
             onSelect={(option) => switchSyntaxTheme(option.value)}
           />
         </label>
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{
-            __html: lang.settings.themeManager.syntaxTheme.note,
-          }}
-        />
+        <div className="text-xs opacity-75 max-w-80">
+          <Trans i18nKey="settings.themeManager.syntaxTheme.note" />
+        </div>
       </div>
     </>
   );
@@ -1252,7 +1318,7 @@ const PresetManager: FC<{
     <>
       {/* Save new preset */}
       <SettingsSectionLabel>
-        {lang.settings.presetManager.newPreset.title}
+        <Trans i18nKey="settings.presetManager.newPreset.title" />
       </SettingsSectionLabel>
 
       <button
@@ -1262,21 +1328,18 @@ const PresetManager: FC<{
         aria-label="Save new preset"
       >
         <CloudArrowUpIcon className="w-5 h-5" />
-        {lang.settings.presetManager.newPreset.saveBtnLabel}
+        <Trans i18nKey="settings.presetManager.newPreset.saveBtnLabel" />
       </button>
 
       {/* List of saved presets */}
       <SettingsSectionLabel>
-        {lang.settings.presetManager.savedPresets.title}
+        <Trans i18nKey="settings.presetManager.savedPresets.title" />
       </SettingsSectionLabel>
 
       {presets.length === 0 && (
-        <div
-          className="text-xs opacity-75 max-w-80"
-          dangerouslySetInnerHTML={{
-            __html: lang.settings.presetManager.savedPresets.noPresetFound,
-          }}
-        />
+        <div className="text-xs opacity-75 max-w-80">
+          <Trans i18nKey="settings.presetManager.savedPresets.noPresetFound" />
+        </div>
       )}
 
       {presets.length > 0 && (

@@ -1,0 +1,259 @@
+{
+  "header": {
+    "title": {
+      "noChat": "新聊天",
+      "settings": "设置"
+    }
+  },
+  "chatScreen": {
+    "welcome": "你好，",
+    "welcomeNote": "我怎么帮你？"
+  },
+  "chatMessage": {
+    "systemLabel": "系统",
+    "userLabel": "你"
+  },
+  "settings": {
+    "parameters": {
+      "language": {
+        "label": "语言",
+        "note": "用户界面显示语言。"
+      },
+      "provider": {
+        "label": "提供者",
+        "note": "提供者可能会收取使用费用。"
+      },
+      "baseUrl": {
+        "label": "基础网址",
+        "note": "如果使用独立服务器，请设置基本URL。"
+      },
+      "apiKey": {
+        "label": "API键",
+        "note": "如果您为服务器使用-api-key选项，请设置API密钥。"
+      },
+      "model": {
+        "label": "模型",
+        "note": "设置推理模型。"
+      },
+      "systemMessage": {
+        "label": "系统消息（如果空白为止，将禁用）",
+        "note": "初始消息定义了模型应该如何运作。您可以参考示例了解更多信息。<a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "用户名",
+        "note": ""
+      },
+      "pasteLongTextToFileLen": {
+        "label": "粘贴：如果长度>转换>",
+        "note": "粘贴长文本时，它将转换为文件。您可以通过设置此参数的值来控制文件长度。设置为0禁用。"
+      },
+      "pdfAsImage": {
+        "label": "使用PDF作为图像而不是文本",
+        "note": "将PDF作为图像而不是文本附加。仅具有具有视觉支持的多模式模型。"
+      },
+      "showTokensPerSecond": {
+        "label": "显示性能指标",
+        "note": "激活以查看处理速度，时间等。"
+      },
+      "showThoughtInProgress": {
+        "label": "扩展思维部分",
+        "note": "生成消息时扩展思维消息"
+      },
+      "excludeThoughtOnReq": {
+        "label": "在提交中排除思考消息",
+        "note": "将请求发送到API时排除思维消息（建议）"
+      },
+      "overrideGenerationOptions": {
+        "label": "覆盖生成选项",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "通过影响输出令牌的概率分布来控制生成的文本的随机性。更高=更随机，较低=更集中。"
+      },
+      "top_k": {
+        "label": "",
+        "note": "仅保留k个顶部令牌。"
+      },
+      "top_p": {
+        "label": "",
+        "note": "限制对那些在一起的人的累积概率至少为p"
+      },
+      "min_p": {
+        "label": "",
+        "note": "相对于最有可能的令牌的概率，基于考虑令牌的最小概率的限制令牌。"
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "每个输出的最大令牌数量。"
+      },
+      "overrideSamplersOptions": {
+        "label": "更换采样器选项",
+        "note": ""
+      },
+      "samplers": {
+        "label": "采样器队列",
+        "note": "以简化的方式应用采样器的顺序。默认值为“ dkypmxt”：dry-> top_k-> typ_p-> top_p-> min_p-> xtc->"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "温度采样器的插件。动态温度范围的增加值，该温度通过令牌的熵调节概率。"
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "温度采样器的插件。基于最可能的令牌来平滑概率再分配。"
+      },
+      "typical_p": {
+        "label": "",
+        "note": "根据对数概率和熵之间的差异，分类和限制令牌。"
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "XTC采样器切出顶级令牌；该参数完全控制切割令牌的机会。 0禁用XTC。"
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "XTC采样器切出顶级令牌；该参数控制切割该令牌所需的令牌概率。"
+      },
+      "overridePenaltyOptions": {
+        "label": "更换罚款选项",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "最后的n代币要考虑惩罚重复"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "控制生成文本中令牌序列的重复"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "根据令牌是否出现在输出中。"
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "根据输出中出现的频率限制令牌。"
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了干采样乘数。"
+      },
+      "dry_base": {
+        "label": "",
+        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了干采样基数。"
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了允许的长度以进行干燥采样。"
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了最后N代币的干罚。"
+      },
+      "custom": {
+        "label": "自定义JSON配置",
+        "note": "有关更多信息，请参阅<a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">服务器文档</a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "启用Python解释器",
+        "note": "此功能使用<a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>，从cdn下载。要使用此功能，请LLM在Markdown代码块中生成Python代码。您将在“复制”按钮附近的代码块上看到一个“运行”按钮。"
+      },
+      "ttsPitch": {
+        "label": "沥青",
+        "note": "讲话的音调。"
+      },
+      "ttsRate": {
+        "label": "速度",
+        "note": "讲话的速度在以上。"
+      },
+      "ttsVoice": {
+        "label": "嗓音",
+        "note": "将用来说话的声音。"
+      },
+      "ttsVolume": {
+        "label": "体积",
+        "note": "话语的音量将在。"
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "查看",
+        "text": "你好世界！"
+      }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "将当前设置保存为预设",
+        "saveBtnLabel": "保存新的预设"
+      },
+      "savedPresets": {
+        "title": "现有预设",
+        "noPresetFound": "还没有预设。"
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "主题",
+        "note": "选择应用程序的颜色主题。"
+      },
+      "syntaxTheme": {
+        "label": "语法主题",
+        "note": "选择代码块的颜色主题。"
+      }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "节省",
+      "cancelBtnLabel": "关闭",
+      "resetBtnLabel": "重置"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉新版本可用",
+      "description": "更新最新功能和修复程序。",
+      "note": "您的对话将被保存，但不要忘记在更新之前备份。",
+      "submitBtnLabel": "更新",
+      "cancelBtnLabel": "之后"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋欢迎",
+      "description": "看来您还没有设置模型。让我们转到设置以配置您的推理提供商。",
+      "note": "",
+      "submitBtnLabel": "打开设置",
+      "cancelBtnLabel": "跳过"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔找不到模型",
+      "description": "看来您还没有设置模型，或者您的提供商存在问题。让我们去设置检查。",
+      "note": "",
+      "submitBtnLabel": "打开设置",
+      "cancelBtnLabel": "跳过"
+    }
+  },
+  "samplePrompts": [
+    "告诉我一个有趣的事实。",
+    "告诉我一个玩笑。",
+    "给我三个有趣的科学事实。",
+    "在我们的太阳系中列出行星。",
+    "解释国际象棋规则。",
+    "有什么好的对话开始者？",
+    "给最好的朋友给10个礼物的想法。",
+    "为我的朋友写生日消息。",
+    "为生日聚会建议主题。",
+    "给我一个游戏之夜的想法。",
+    "给我一个周末度假的想法。",
+    "我第一次独奏的提示。",
+    "简单地解释一个复杂的概念。",
+    "修复本文中的语法。",
+    "总结以下文本。",
+    "将其重写更为正式/休闲。",
+    "帮我写一封专业的电子邮件。",
+    "为我的工作日创建时间表。",
+    "总结这些会议笔记。",
+    "给我有关团队建设活动的想法。"
+  ]
+}

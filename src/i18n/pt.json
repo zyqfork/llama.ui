@@ -1,0 +1,259 @@
+{
+  "header": {
+    "title": {
+      "noChat": "Novo bate -papo",
+      "settings": "Configurações"
+    }
+  },
+  "chatScreen": {
+    "welcome": "Oi,",
+    "welcomeNote": "como posso ajudá-lo?"
+  },
+  "chatMessage": {
+    "systemLabel": "Sistema",
+    "userLabel": "Você"
+  },
+  "settings": {
+    "parameters": {
+      "language": {
+        "label": "Linguagem",
+        "note": "Idioma de exibição da interface do usuário."
+      },
+      "provider": {
+        "label": "Provedor",
+        "note": "O fornecedor pode cobrar pelo uso."
+      },
+      "baseUrl": {
+        "label": "URL base",
+        "note": "Defina o URL base se você estiver usando o servidor independente."
+      },
+      "apiKey": {
+        "label": "Chave da API",
+        "note": "Defina a tecla API se você estiver usando-Aapi-Key Opção para o servidor."
+      },
+      "model": {
+        "label": "Modelo",
+        "note": "Defina o modelo de inferência."
+      },
+      "systemMessage": {
+        "label": "Mensagem do sistema (será desativada se deixada vazia)",
+        "note": "A mensagem inicial que define como o modelo deve se comportar. Você pode obter exemplos de <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Nome de usuário",
+        "note": ""
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Colar: converter se comprimento>",
+        "note": "Ao colar um texto longo, ele será convertido em um arquivo. Você pode controlar o comprimento do arquivo definindo o valor deste parâmetro. Definido como 0 para desativar."
+      },
+      "pdfAsImage": {
+        "label": "Use PDF como imagem em vez de texto",
+        "note": "Anexe o PDF como uma imagem em vez de texto. Suportado apenas com modelos multimodais com suporte à visão."
+      },
+      "showTokensPerSecond": {
+        "label": "Mostre métricas de desempenho",
+        "note": "Ative para ver a velocidade de processamento, horários, etc."
+      },
+      "showThoughtInProgress": {
+        "label": "Expanda a seção de pensamento",
+        "note": "Expanda a mensagem de pensamento ao gerar mensagens"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Exclua mensagens de pensamento em envio",
+        "note": "Exclua mensagens de pensamento ao enviar solicitações para a API (recomendado)"
+      },
+      "overrideGenerationOptions": {
+        "label": "Substituir opções de geração",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Controla a aleatoriedade do texto gerado, afetando a distribuição de probabilidade dos tokens de saída. Maior = mais aleatório, mais baixo = mais focado."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Mantém apenas K top tokens."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Limita os tokens para aqueles que juntos têm uma probabilidade cumulativa de pelo menos P"
+      },
+      "min_p": {
+        "label": "",
+        "note": "Limita os tokens com base na probabilidade mínima para um token ser considerado, em relação à probabilidade do token mais provável."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "O número máximo de tokens por saída."
+      },
+      "overrideSamplersOptions": {
+        "label": "Substitua as opções de amostradores",
+        "note": ""
+      },
+      "samplers": {
+        "label": "Fila dos amostradores",
+        "note": "A ordem em que os amostradores são aplicados, de maneira simplificada. O padrão é \"dkypmxt\": seco-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatura"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Addon para o amostrador de temperatura. O valor agregado ao intervalo de temperatura dinâmica, que ajusta as probabilidades por entropia de tokens."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Addon para o amostrador de temperatura. Suaviza a redistribuição de probabilidade com base no token mais provável."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Classifica e limita os tokens com base na diferença entre probabilidade de log e entropia."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "O amostrador XTC corta os tokens top; Este parâmetro controla a chance de cortar tokens. 0 desativa o XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "O amostrador XTC corta os tokens top; Este parâmetro controla a probabilidade de token necessária para cortar esse token."
+      },
+      "overridePenaltyOptions": {
+        "label": "Substitua as opções de penalidade",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Últimos n tokens a considerar por penalizar a repetição"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Controla a repetição de sequências de token no texto gerado"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Limita os tokens com base em se eles aparecem na saída ou não."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Limita os tokens com base na frequência com que aparecem na saída."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "A amostragem seca reduz a repetição em texto gerado, mesmo em contextos longos. Este parâmetro define o multiplicador de amostragem seco."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "A amostragem seca reduz a repetição em texto gerado, mesmo em contextos longos. Este parâmetro define o valor da base de amostragem seca."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "A amostragem seca reduz a repetição em texto gerado, mesmo em contextos longos. Este parâmetro define o comprimento permitido para a amostragem seca."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "A amostragem seca reduz a repetição em texto gerado, mesmo em contextos longos. Este parâmetro define a penalidade seca para os últimos n tokens."
+      },
+      "custom": {
+        "label": "Config JSON personalizado",
+        "note": "Para obter mais informações, consulte <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> documentação do servidor </a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Ativar intérprete Python",
+        "note": "Esse recurso usa <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, baixado do CDN. Para usar esse recurso, peça ao LLM para gerar código Python dentro de um bloco de código de marcação. Você verá um botão \"Executar\" no bloco de código, próximo ao botão \"Copiar\"."
+      },
+      "ttsPitch": {
+        "label": "Tom",
+        "note": "O campo em que a expressão será falada."
+      },
+      "ttsRate": {
+        "label": "Avaliar",
+        "note": "A velocidade com que a expressão será falada."
+      },
+      "ttsVoice": {
+        "label": "Voz",
+        "note": "A voz que será usada para falar a expressão."
+      },
+      "ttsVolume": {
+        "label": "Volume",
+        "note": "O volume em que a expressão será falada."
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Verificar",
+        "text": "Olá, mundo!"
+      }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "Salve as configurações atuais como predefinido",
+        "saveBtnLabel": "Salvar nova predefinição"
+      },
+      "savedPresets": {
+        "title": "Predefinições existentes",
+        "noPresetFound": "Sem predefinições ainda."
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Tema",
+        "note": "Escolha o tema da cor do aplicativo."
+      },
+      "syntaxTheme": {
+        "label": "Tema sintaxe",
+        "note": "Escolha o tema da cor para os blocos de código."
+      }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "Salvar",
+      "cancelBtnLabel": "Fechar",
+      "resetBtnLabel": "Reiniciar"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 Nova versão disponível",
+      "description": "Atualização para os recursos e correções mais recentes.",
+      "note": "Suas conversas serão salvas, mas não se esqueça de fazer um backup antes da atualização.",
+      "submitBtnLabel": "Atualizar",
+      "cancelBtnLabel": "Mais tarde"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Bem -vindo",
+      "description": "Parece que você ainda não tem os modelos configurados. Vamos às configurações para definir seu provedor de inferência.",
+      "note": "",
+      "submitBtnLabel": "Abra as configurações",
+      "cancelBtnLabel": "Pular"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 Nenhum modelo encontrado",
+      "description": "Parece que você ainda não tem os modelos configurados ou há um problema com o seu provedor. Vamos para as configurações para verificar.",
+      "note": "",
+      "submitBtnLabel": "Abra as configurações",
+      "cancelBtnLabel": "Pular"
+    }
+  },
+  "samplePrompts": [
+    "Diga -me um fato divertido para hoje.",
+    "Conte -me uma piada.",
+    "Dê -me três fatos científicos interessantes.",
+    "Liste os planetas em nosso sistema solar.",
+    "Explique as regras do xadrez.",
+    "Quais são algumas boas conversas para iniciantes?",
+    "Dê 10 idéias de presentes para o melhor amigo.",
+    "Escreva uma mensagem de aniversário para meu amigo.",
+    "Sugira temas para uma festa de aniversário.",
+    "Dê -me idéias para uma noite de jogo.",
+    "Dê -me idéias para uma escapada de fim de semana.",
+    "Dicas para minha primeira viagem solo.",
+    "Explique simplesmente um conceito complexo.",
+    "Corrija a gramática neste texto.",
+    "Resuma o seguinte texto.",
+    "Reescreva isso para ser mais formal/casual.",
+    "Ajude -me a escrever um e -mail profissional.",
+    "Crie uma programação para o meu dia de trabalho.",
+    "Resuma essas notas da reunião.",
+    "Dê -me idéias para uma atividade de construção de equipes."
+  ]
+}
