@@ -1,13 +1,13 @@
 {
   "header": {
     "title": {
-      "noChat": "新聊天",
+      "noChat": "新聊",
       "settings": "设置"
     }
   },
   "chatScreen": {
     "welcome": "你好，",
-    "welcomeNote": "我怎么帮你？"
+    "welcomeNote": "您好，有什么可以帮您的吗？"
   },
   "chatMessage": {
     "systemLabel": "系统",
@@ -21,47 +21,47 @@
       },
       "provider": {
         "label": "提供者",
-        "note": "提供者可能会收取使用费用。"
+        "note": "供应商可能会收取使用费。"
       },
       "baseUrl": {
-        "label": "基础网址",
-        "note": "如果使用独立服务器，请设置基本URL。"
+        "label": "基本URL",
+        "note": "如果使用独立服务器，请设置基础URL。"
       },
       "apiKey": {
-        "label": "API键",
-        "note": "如果您为服务器使用-api-key选项，请设置API密钥。"
+        "label": "API 密钥",
+        "note": "如果正在使用--api-key选项启动服务器，请设置API密钥。"
       },
       "model": {
         "label": "模型",
         "note": "设置推理模型。"
       },
       "systemMessage": {
-        "label": "系统消息（如果空白为止，将禁用）",
-        "note": "初始消息定义了模型应该如何运作。您可以参考示例了解更多信息。<a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+        "label": "系统消息（如果为空将禁用）",
+        "note": "定义模型行为的起始信息。您可以从<a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a> 获取示例。"
       },
       "initials": {
         "label": "用户名",
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "粘贴：如果长度>转换>",
-        "note": "粘贴长文本时，它将转换为文件。您可以通过设置此参数的值来控制文件长度。设置为0禁用。"
+        "label": "粘贴：如果长度大于>",
+        "note": "粘贴长文本时，它将被转换为文件。您可以设置此参数的值来控制文件长度。设置为 0 可以禁用此功能。"
       },
       "pdfAsImage": {
         "label": "使用PDF作为图像而不是文本",
-        "note": "将PDF作为图像而不是文本附加。仅具有具有视觉支持的多模式模型。"
+        "note": "请将PDF作为图像附加，而不是文本。仅支持具有视觉支持的多模态模型。"
       },
       "showTokensPerSecond": {
         "label": "显示性能指标",
-        "note": "激活以查看处理速度，时间等。"
+        "note": "激活以查看处理速度、次数等。"
       },
       "showThoughtInProgress": {
         "label": "扩展思维部分",
-        "note": "生成消息时扩展思维消息"
+        "note": "扩展思维信息，在生成消息时"
       },
       "excludeThoughtOnReq": {
-        "label": "在提交中排除思考消息",
-        "note": "将请求发送到API时排除思维消息（建议）"
+        "label": "提交时排除思考信息",
+        "note": "排除向API发送请求时，思考消息（推荐）"
       },
       "overrideGenerationOptions": {
         "label": "覆盖生成选项",
@@ -69,123 +69,123 @@
       },
       "temperature": {
         "label": "",
-        "note": "通过影响输出令牌的概率分布来控制生成的文本的随机性。更高=更随机，较低=更集中。"
+        "note": "控制生成文本的随机性，通过影响输出标记的概率分布来实现。数值越高=越随机，数值越低=越集中。"
       },
       "top_k": {
         "label": "",
-        "note": "仅保留k个顶部令牌。"
+        "note": "保留前 k 个 token。"
       },
       "top_p": {
         "label": "",
-        "note": "限制对那些在一起的人的累积概率至少为p"
+        "note": "限制token到那些累积概率至少为p的token。"
       },
       "min_p": {
         "label": "",
-        "note": "相对于最有可能的令牌的概率，基于考虑令牌的最小概率的限制令牌。"
+        "note": "根据令牌被认为存在的最小概率，相对于最可能令牌的概率来限制令牌数量。"
       },
       "max_tokens": {
         "label": "",
-        "note": "每个输出的最大令牌数量。"
+        "note": "每个输出的最大token数。"
       },
       "overrideSamplersOptions": {
-        "label": "更换采样器选项",
+        "label": "替换采样器选项",
         "note": ""
       },
       "samplers": {
         "label": "采样器队列",
-        "note": "以简化的方式应用采样器的顺序。默认值为“ dkypmxt”：dry-> top_k-> typ_p-> top_p-> min_p-> xtc->"
+        "note": "采样器的应用顺序，以简化的方式呈现。 默认值为\"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
       },
       "dynatemp_range": {
         "label": "",
-        "note": "温度采样器的插件。动态温度范围的增加值，该温度通过令牌的熵调节概率。"
+        "note": "温度采样器的插件。为动态温度范围增加价值，它通过token的熵调整概率。"
       },
       "dynatemp_exponent": {
         "label": "",
-        "note": "温度采样器的插件。基于最可能的令牌来平滑概率再分配。"
+        "note": "温度采样器的插件。根据最可能的token平滑概率重新分布。"
       },
       "typical_p": {
         "label": "",
-        "note": "根据对数概率和熵之间的差异，分类和限制令牌。"
+        "note": "根据对数概率和熵之间的差异对token进行排序和限制。"
       },
       "xtc_probability": {
         "label": "",
-        "note": "XTC采样器切出顶级令牌；该参数完全控制切割令牌的机会。 0禁用XTC。"
+        "note": "XTC采样器会截断顶部token；此参数控制截断token的概率。0禁用XTC。"
       },
       "xtc_threshold": {
         "label": "",
-        "note": "XTC采样器切出顶级令牌；该参数控制切割该令牌所需的令牌概率。"
+        "note": "XTC 采样器会截断顶部token；此参数控制需要截断该token的token概率。"
       },
       "overridePenaltyOptions": {
-        "label": "更换罚款选项",
+        "label": "替换处罚选项",
         "note": ""
       },
       "repeat_last_n": {
         "label": "",
-        "note": "最后的n代币要考虑惩罚重复"
+        "note": "考虑惩罚重复的最后 n 个 token"
       },
       "repeat_penalty": {
         "label": "",
-        "note": "控制生成文本中令牌序列的重复"
+        "note": "控制生成文本中token序列的重复"
       },
       "presence_penalty": {
         "label": "",
-        "note": "根据令牌是否出现在输出中。"
+        "note": "限制 token 的数量，取决于它们是否出现在输出中。"
       },
       "frequency_penalty": {
         "label": "",
-        "note": "根据输出中出现的频率限制令牌。"
+        "note": "限制输出中token的出现频率。"
       },
       "dry_multiplier": {
         "label": "",
-        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了干采样乘数。"
+        "note": "DRY 采样减少了生成文本中的重复，即使是在长篇语境中。此参数设置 DRY 采样乘数。"
       },
       "dry_base": {
         "label": "",
-        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了干采样基数。"
+        "note": "DRY 采样减少了生成文本中的重复，即使是在很长的语境下。该参数设置 DRY 采样的基础值。"
       },
       "dry_allowed_length": {
         "label": "",
-        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了允许的长度以进行干燥采样。"
+        "note": "DRY 采样减少了生成文本中的重复，即使是在长篇语境中。此参数设置了 DRY 采样的允许长度。"
       },
       "dry_penalty_last_n": {
         "label": "",
-        "note": "即使在长篇小说中，干燥采样也可以减少生成文本的重复。该参数设置了最后N代币的干罚。"
+        "note": "DRY采样减少了生成文本中的重复，即使是在长篇内容中。这个参数设置了对最后n个token的DRY惩罚值。"
       },
       "custom": {
-        "label": "自定义JSON配置",
-        "note": "有关更多信息，请参阅<a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">服务器文档</a>"
+        "label": "自定义 JSON 配置",
+        "note": "了解更多信息，请参阅<a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">服务器文档</a>"
       },
       "pyIntepreterEnabled": {
-        "label": "启用Python解释器",
-        "note": "此功能使用<a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>，从cdn下载。要使用此功能，请LLM在Markdown代码块中生成Python代码。您将在“复制”按钮附近的代码块上看到一个“运行”按钮。"
+        "label": "启用 Python 解释器",
+        "note": "此功能使用从CDN下载的<a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>。要使用此功能，请让LLM在Markdown代码块中生成Python代码。您将在代码块附近（紧邻“复制”按钮）看到一个“运行”按钮。"
       },
       "ttsPitch": {
-        "label": "沥青",
-        "note": "讲话的音调。"
+        "label": "音高",
+        "note": "语音的音高。"
       },
       "ttsRate": {
-        "label": "速度",
-        "note": "讲话的速度在以上。"
+        "label": "费率",
+        "note": "语速。"
       },
       "ttsVoice": {
-        "label": "嗓音",
-        "note": "将用来说话的声音。"
+        "label": "声音",
+        "note": "用于发出语音的声音。"
       },
       "ttsVolume": {
-        "label": "体积",
-        "note": "话语的音量将在。"
+        "label": "音量",
+        "note": "话语的音量。"
       }
     },
     "textToSpeech": {
       "check": {
-        "label": "查看",
-        "text": "你好世界！"
+        "label": "检查",
+        "text": "你好，世界！"
       }
     },
     "presetManager": {
       "newPreset": {
         "title": "将当前设置保存为预设",
-        "saveBtnLabel": "保存新的预设"
+        "saveBtnLabel": "保存新预设"
       },
       "savedPresets": {
         "title": "现有预设",
@@ -199,11 +199,11 @@
       },
       "syntaxTheme": {
         "label": "语法主题",
-        "note": "选择代码块的颜色主题。"
+        "note": "选择代码块的主题颜色。"
       }
     },
     "actionButtons": {
-      "saveBtnLabel": "节省",
+      "saveBtnLabel": "保存",
       "cancelBtnLabel": "关闭",
       "resetBtnLabel": "重置"
     }
@@ -211,49 +211,49 @@
   "toast": {
     "newVersion": {
       "icon": null,
-      "title": "🎉新版本可用",
-      "description": "更新最新功能和修复程序。",
-      "note": "您的对话将被保存，但不要忘记在更新之前备份。",
+      "title": "🎉 新版本可用",
+      "description": "更新最新的功能和修复。",
+      "note": "您的对话将被保存，但请在更新前务必备份。",
       "submitBtnLabel": "更新",
-      "cancelBtnLabel": "之后"
+      "cancelBtnLabel": "以后"
     },
     "welcomePopup": {
       "icon": null,
-      "title": "👋欢迎",
-      "description": "看来您还没有设置模型。让我们转到设置以配置您的推理提供商。",
+      "title": "👋 欢迎",
+      "description": "看起来您还没有设置模型。让我们去“设置”配置您的推理提供程序。",
       "note": "",
       "submitBtnLabel": "打开设置",
       "cancelBtnLabel": "跳过"
     },
     "noModelsPopup": {
       "icon": null,
-      "title": "😔找不到模型",
-      "description": "看来您还没有设置模型，或者您的提供商存在问题。让我们去设置检查。",
+      "title": "😔 未找到模型",
+      "description": "看起来您还没有设置模型，或者您的Provider存在问题。让我们去设置中检查一下。",
       "note": "",
       "submitBtnLabel": "打开设置",
       "cancelBtnLabel": "跳过"
     }
   },
   "samplePrompts": [
-    "告诉我一个有趣的事实。",
-    "告诉我一个玩笑。",
-    "给我三个有趣的科学事实。",
-    "在我们的太阳系中列出行星。",
-    "解释国际象棋规则。",
-    "有什么好的对话开始者？",
-    "给最好的朋友给10个礼物的想法。",
-    "为我的朋友写生日消息。",
-    "为生日聚会建议主题。",
-    "给我一个游戏之夜的想法。",
-    "给我一个周末度假的想法。",
-    "我第一次独奏的提示。",
-    "简单地解释一个复杂的概念。",
-    "修复本文中的语法。",
-    "总结以下文本。",
-    "将其重写更为正式/休闲。",
-    "帮我写一封专业的电子邮件。",
-    "为我的工作日创建时间表。",
-    "总结这些会议笔记。",
-    "给我有关团队建设活动的想法。"
+    "今天告诉我要一个有趣的事实。",
+    "告诉我一个笑话。",
+    "请告诉我三个有趣的科学事实。",
+    "列出我们太阳系中的行星。",
+    "解释象棋的规则。",
+    "有什么好的话题开场白吗？",
+    "给最好的朋友的10个礼物建议。",
+    "为我的朋友写一条生日信息。",
+    "建议生日派对的主题。",
+    "给我一些游戏夜的想法。",
+    "给我一些周末度假的想法。",
+    "我的第一次独自旅行的小贴士。",
+    "用简单的语言解释一个复杂概念。",
+    "修正这段文字的语法。",
+    "总结以下文字。",
+    "请改写这段文字，使其更正式/随意。",
+    "帮我写一封专业的邮件。",
+    "为我的一天制定一个计划。",
+    "请总结这些会议记录。",
+    "给我一些团队建设活动的创意。"
   ]
 }
