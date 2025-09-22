@@ -5,6 +5,47 @@
       "settings": "Settings"
     }
   },
+  "sidebar": {
+    "groups": {
+      "Today": "Today",
+      "Yesterday": "Yesterday",
+      "Previous 7 Days": "Previous 7 Days",
+      "Previous 30 Days": "Previous 30 Days"
+    },
+    "buttons": {
+      "closeSideBarBtnTitle": "Close sidebar",
+      "newConvBtnTitle": "New conversation"
+    },
+    "actions": {
+      "select": {
+        "label": "Select conversation: {{name}}"
+      },
+      "more": {
+        "title": "More",
+        "label": "Show more options",
+        "dropdown": "More options"
+      },
+      "rename": {
+        "btnTitle": "Rename conversation",
+        "btnLabel": "Rename",
+        "isGenerating": "Cannot rename conversation while generating.",
+        "prompt": "Enter new name for the conversation"
+      },
+      "download": {
+        "btnTitle": "Download conversation",
+        "btnLabel": "Download",
+        "isGenerating": "Cannot download conversation while generating."
+      },
+      "delete": {
+        "btnTitle": "Delete conversation",
+        "btnLabel": "Delete",
+        "isGenerating": "Cannot delete conversation while generating.",
+        "confirm": "Are you sure to delete this conversation?",
+        "toast": "Conversation deleted."
+      }
+    },
+    "storageNote": "Conversations are saved to browser's IndexedDB."
+  },
   "chatScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
