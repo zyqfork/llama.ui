@@ -1,1 +1,259 @@
-{}
+{
+  "header": {
+    "title": {
+      "noChat": "Neuer Chat",
+      "settings": "Einstellungen"
+    }
+  },
+  "chatScreen": {
+    "welcome": "Hallo,",
+    "welcomeNote": "wie kann ich dir helfen?"
+  },
+  "chatMessage": {
+    "systemLabel": "System",
+    "userLabel": "Du"
+  },
+  "settings": {
+    "parameters": {
+      "language": {
+        "label": "Sprache",
+        "note": "Benutzeroberfläche Anzeigesprache."
+      },
+      "provider": {
+        "label": "Anbieter",
+        "note": "Der Anbieter kann für die Verwendung in Rechnung gestellt werden."
+      },
+      "baseUrl": {
+        "label": "Basis -URL",
+        "note": "Stellen Sie die Basis -URL fest, wenn Sie den Standalone -Server verwenden."
+      },
+      "apiKey": {
+        "label": "API -Schlüssel",
+        "note": "Legen Sie die API-Taste fest, wenn Sie die Option-API-Key-Option für den Server verwenden."
+      },
+      "model": {
+        "label": "Modell",
+        "note": "Stellen Sie das Inferenzmodell ein."
+      },
+      "systemMessage": {
+        "label": "Systemmeldung (wird deaktiviert, wenn sie leer gelassen wird)",
+        "note": "Die Startnachricht, die definiert, wie sich das Modell verhalten sollte. Sie können Beispiele von <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Benutzername",
+        "note": ""
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Paste: Konvertieren Sie, wenn Länge>",
+        "note": "Beim Einfügen eines langen Textes wird er in eine Datei konvertiert. Sie können die Dateilänge steuern, indem Sie den Wert dieses Parameters festlegen. Auf 0 einstellen, um zu deaktivieren."
+      },
+      "pdfAsImage": {
+        "label": "Verwenden Sie PDF als Bild anstelle von Text",
+        "note": "Fügen Sie das PDF als Bild anstelle von Text bei. Nur mit multimodalen Modellen mit Visionsunterstützung unterstützt."
+      },
+      "showTokensPerSecond": {
+        "label": "Performance -Metriken zeigen",
+        "note": "Aktivieren Sie, um die Verarbeitungsgeschwindigkeit, die Zeiten usw. zu sehen."
+      },
+      "showThoughtInProgress": {
+        "label": "Erweitern Sie den Denkabschnitt",
+        "note": "Erweitern Sie die Denknachricht beim Generieren von Nachrichten"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Denknachrichten zum Senden ausschließen",
+        "note": "Denknachrichten ausschließen, wenn Sie Anfragen an API senden (empfohlen)"
+      },
+      "overrideGenerationOptions": {
+        "label": "Überschreiben von Erzeugungsoptionen",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Steuert die Zufälligkeit des generierten Textes, indem die Wahrscheinlichkeitsverteilung der Ausgangs -Token beeinflusst wird. Höher = zufälliger, niedriger = fokussierter."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Hält nur K -Top -Token."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Grenzen Token für diejenigen, die zusammen eine kumulative Wahrscheinlichkeit von mindestens P haben"
+      },
+      "min_p": {
+        "label": "",
+        "note": "Begrenzt Token, die auf der Mindestwahrscheinlichkeit für ein Token beruhen, im Vergleich zur Wahrscheinlichkeit des wahrscheinlichsten Tokens."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "Die maximale Anzahl von Token pro Ausgang."
+      },
+      "overrideSamplersOptions": {
+        "label": "Ersetzen Sie die Optionen der Samplers",
+        "note": ""
+      },
+      "samplers": {
+        "label": "Sampler -Warteschlange",
+        "note": "Die Reihenfolge, in der Probenehmer auf vereinfachte Weise angewendet werden. Standard ist \"dkypmxt\": trocken-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatur"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Addon für den Temperaturabtaster. Der Mehrwert für den Bereich der dynamischen Temperatur, der die Wahrscheinlichkeiten durch Entropie von Token anpasst."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Addon für den Temperaturabtaster. Glättet die Wahrscheinlichkeitsumverteilung auf der Grundlage des wahrscheinlichsten Tokens."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Sortiert und begrenzt Token basierend auf dem Unterschied zwischen Protokollverbesserbarkeit und Entropie."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "XTC Sampler schneidet Top -Token aus; Dieser Parameter steuert die Wahrscheinlichkeit, Token überhaupt zu schneiden. 0 deaktiviert XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "XTC Sampler schneidet Top -Token aus; Dieser Parameter steuert die Token -Wahrscheinlichkeit, die erforderlich ist, um dieses Token zu schneiden."
+      },
+      "overridePenaltyOptions": {
+        "label": "Strafe ersetzen",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Letzte N -Token, die für die Bestrafung der Wiederholung in Betracht gezogen werden sollten"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Steuert die Wiederholung von Token -Sequenzen im generierten Text"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Begrenzt die Token basierend darauf, ob sie in der Ausgabe erscheinen oder nicht."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Begrenzt die Token basierend darauf, wie oft sie in der Ausgabe erscheinen."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt den Multiplikator für trockene Probenahme fest."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt den Basiswert der trockenen Probenahme fest."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter legt die zulässige Länge für trockene Probenahme fest."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "Trockene Probenahme reduziert die Wiederholung im erzeugten Text auch in langen Kontexten. Dieser Parameter setzt Trockenstrafe für die letzten N -Token."
+      },
+      "custom": {
+        "label": "Benutzerdefinierte JSON -Konfiguration",
+        "note": "Weitere Informationen finden Sie unter <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> Serverdokumentation </a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Aktivieren Sie den Python -Dolmetscher",
+        "note": "Diese Funktion verwendet <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, heruntergeladen von CDN. Um diese Funktion zu verwenden, bitten Sie die LLM, Python -Code in einem Markdown -Code -Block zu generieren. Auf dem Codeblock sehen Sie eine Schaltfläche \"Ausführen\" in der Nähe der Schaltfläche \"Kopieren\"."
+      },
+      "ttsPitch": {
+        "label": "Tonhöhe",
+        "note": "Die Tonhöhe, auf der die Äußerung gesprochen wird."
+      },
+      "ttsRate": {
+        "label": "Rate",
+        "note": "Die Geschwindigkeit, mit der die Äußerung gesprochen wird."
+      },
+      "ttsVoice": {
+        "label": "Stimme",
+        "note": "Die Stimme, die verwendet wird, um die Äußerung zu sprechen."
+      },
+      "ttsVolume": {
+        "label": "Volumen",
+        "note": "Der Band, in dem die Äußerung gesprochen wird."
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Überprüfen",
+        "text": "Hallo Welt!"
+      }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "Speichern Sie die aktuellen Einstellungen als Voreinstellung",
+        "saveBtnLabel": "Neues Voreinsatz speichern"
+      },
+      "savedPresets": {
+        "title": "Bestehende Voreinstellungen",
+        "noPresetFound": "Noch keine Voreinstellungen."
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Thema",
+        "note": "Wählen Sie das Farbthema der Anwendung."
+      },
+      "syntaxTheme": {
+        "label": "Syntaxthema",
+        "note": "Wählen Sie das Farbthema für die Codeblöcke."
+      }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "Speichern",
+      "cancelBtnLabel": "Schließen",
+      "resetBtnLabel": "Zurücksetzen"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 Neue Version verfügbar",
+      "description": "Update für die neuesten Funktionen und Korrekturen.",
+      "note": "Ihre Gespräche werden gespeichert, aber vergessen Sie nicht, vor dem Update eine Sicherung zu erstellen.",
+      "submitBtnLabel": "Aktualisieren",
+      "cancelBtnLabel": "Später"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Willkommen",
+      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet. Gehen wir zu den Einstellungen, um Ihren Inferenzanbieter zu konfigurieren.",
+      "note": "",
+      "submitBtnLabel": "Einstellungen geöffnet",
+      "cancelBtnLabel": "Überspringen"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 Keine Modelle gefunden",
+      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet, oder es gibt ein Problem mit Ihrem Anbieter. Gehen wir zu den Einstellungen, um zu überprüfen.",
+      "note": "",
+      "submitBtnLabel": "Einstellungen geöffnet",
+      "cancelBtnLabel": "Überspringen"
+    }
+  },
+  "samplePrompts": [
+    "Erzählen Sie mir eine lustige Tatsache für heute.",
+    "Sag mir einen Witz.",
+    "Gib mir drei interessante wissenschaftliche Fakten.",
+    "Listen Sie die Planeten in unserem Sonnensystem auf.",
+    "Erklären Sie die Regeln des Schaches.",
+    "Was sind einige gute Gesprächsstarter?",
+    "Geben Sie 10 Geschenkideen für den besten Freund.",
+    "Schreiben Sie eine Geburtstagsnachricht für meinen Freund.",
+    "Schlagen Sie Themen für eine Geburtstagsfeier vor.",
+    "Geben Sie mir Ideen für eine Spielabend.",
+    "Geben Sie mir Ideen für einen Wochenendausflug.",
+    "Tipps für meine erste Einzelreise.",
+    "Erklären Sie einfach ein komplexes Konzept.",
+    "Beheben Sie die Grammatik in diesem Text.",
+    "Fassen Sie den folgenden Text zusammen.",
+    "Schreiben Sie dies um, um formeller/ungezwungener zu sein.",
+    "Hilf mir, eine professionelle E -Mail zu schreiben.",
+    "Erstellen Sie einen Zeitplan für meinen Arbeitstag.",
+    "Fassen Sie diese Besprechungsnotizen zusammen.",
+    "Geben Sie mir Ideen für eine Teambuilding -Aktivität."
+  ]
+}

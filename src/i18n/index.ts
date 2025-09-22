@@ -4,7 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { isDev } from '../config';
 
 import en from './en.json';
-import zh from './zh.json';
+import zh from './zh-CN.json';
 import hi from './hi.json';
 import es from './es.json';
 import fr from './fr.json';
@@ -18,7 +18,7 @@ import ar from './ar.json';
 
 export const SUPPORTED_LANGUAGES = [
   { key: 'en', name: 'English', label: 'English' },
-  { key: 'zh-CN', name: 'Chinese Simplified', label: '汉语' },
+  { key: 'zh', name: 'Chinese Simplified', label: '汉语' },
   { key: 'hi', name: 'Hindi', label: 'हिन्दी' },
   { key: 'es', name: 'Spanish', label: 'Español' },
   { key: 'fr', name: 'French', label: 'Français' },

@@ -1,1 +1,259 @@
-{}
+{
+  "header": {
+    "title": {
+      "noChat": "Nuova chat",
+      "settings": "Impostazioni"
+    }
+  },
+  "chatScreen": {
+    "welcome": "CIAO,",
+    "welcomeNote": "Come posso aiutarla?"
+  },
+  "chatMessage": {
+    "systemLabel": "Sistema",
+    "userLabel": "Voi"
+  },
+  "settings": {
+    "parameters": {
+      "language": {
+        "label": "Lingua",
+        "note": "Lingua di visualizzazione dell'interfaccia utente."
+      },
+      "provider": {
+        "label": "Fornitore",
+        "note": "Il fornitore può addebitare per l'uso."
+      },
+      "baseUrl": {
+        "label": "URL di base",
+        "note": "Imposta l'URL di base se si utilizza un server autonomo."
+      },
+      "apiKey": {
+        "label": "Chiave API",
+        "note": "Imposta la chiave API se si utilizza l'opzione --Api-Key per il server."
+      },
+      "model": {
+        "label": "Modello",
+        "note": "Imposta il modello di inferenza."
+      },
+      "systemMessage": {
+        "label": "Messaggio di sistema (verrà disabilitato se lasciato vuoto)",
+        "note": "Il messaggio iniziale che definisce come il modello dovrebbe comportarsi. È possibile ottenere esempi da <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Nome utente",
+        "note": ""
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Incolla: converti se lunghezza>",
+        "note": "Quando si incolla un lungo testo, verrà convertito in un file. È possibile controllare la lunghezza del file impostando il valore di questo parametro. Impostare su 0 per disabilitare."
+      },
+      "pdfAsImage": {
+        "label": "Usa PDF come immagine anziché il testo",
+        "note": "Allega il PDF come immagine anziché testo. Supportato solo con modelli multimodali con supporto alla vista."
+      },
+      "showTokensPerSecond": {
+        "label": "Mostra metriche per le prestazioni",
+        "note": "Attivare per vedere la velocità di elaborazione, i tempi, ecc."
+      },
+      "showThoughtInProgress": {
+        "label": "Espandi la sezione di pensiero",
+        "note": "Espandi il messaggio di pensiero quando si generano messaggi"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Escludere i messaggi di pensiero su invio",
+        "note": "Escludi i messaggi di pensiero durante l'invio di richieste all'API (consigliato)"
+      },
+      "overrideGenerationOptions": {
+        "label": "Sostituire le opzioni di generazione",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Controlla la casualità del testo generato influenzando la distribuzione di probabilità dei token di uscita. Più alto = più casuale, inferiore = più focalizzato."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Mantiene solo i token K migliori."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Limita i token a coloro che insieme hanno una probabilità cumulativa di almeno P"
+      },
+      "min_p": {
+        "label": "",
+        "note": "Limita i token in base alla probabilità minima per essere considerato un token, rispetto alla probabilità del token più probabile."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "Il numero massimo di token per output."
+      },
+      "overrideSamplersOptions": {
+        "label": "Sostituire le opzioni Samplers",
+        "note": ""
+      },
+      "samplers": {
+        "label": "Coda campionatori",
+        "note": "L'ordine in cui vengono applicati i campionatori, in modo semplificato. L'impostazione predefinita è \"dkypmxt\": secco-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatura"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Addon per il campionatore di temperatura. Il valore aggiunto all'intervallo di temperatura dinamica, che regola le probabilità per entropia dei token."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Addon per il campionatore di temperatura. Leviga la ridistribuzione della probabilità in base al token più probabile."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Ordina e limita i token in base alla differenza tra probabilità di registro e entropia."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "Il campionatore XTC taglia i token migliori; Questo parametro controlla la possibilità di tagliare token. 0 Disabilita XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "Il campionatore XTC taglia i token migliori; Questo parametro controlla la probabilità token necessaria per tagliare quel token."
+      },
+      "overridePenaltyOptions": {
+        "label": "Sostituire le opzioni di penalità",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Ultimo n token da considerare per la penalizzazione della ripetizione"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Controlla la ripetizione delle sequenze token nel testo generato"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Limita i token in base al fatto che appaiano nell'output o meno."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Limita i token in base alla frequenza con cui appaiono nell'output."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "Il campionamento a secco riduce la ripetizione nel testo generato anche in contesti lunghi. Questo parametro imposta il moltiplicatore di campionamento a secco."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "Il campionamento a secco riduce la ripetizione nel testo generato anche in contesti lunghi. Questo parametro imposta il valore di base di campionamento a secco."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "Il campionamento a secco riduce la ripetizione nel testo generato anche in contesti lunghi. Questo parametro imposta la lunghezza consentita per il campionamento a secco."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "Il campionamento a secco riduce la ripetizione nel testo generato anche in contesti lunghi. Questo parametro imposta la penalità secca per gli ultimi token N."
+      },
+      "custom": {
+        "label": "Configurazione JSON personalizzata",
+        "note": "Per maggiori informazioni, consultare <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> documentazione server </a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Abilita l'interprete di Python",
+        "note": "Questa funzione utilizza <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, scaricato da CDN. Per utilizzare questa funzione, chiedi all'LLM di generare codice Python all'interno di un blocco di codice Markdown. Vedrai un pulsante \"Esegui\" sul blocco di codice, vicino al pulsante \"Copia\"."
+      },
+      "ttsPitch": {
+        "label": "Pece",
+        "note": "Il tono in cui verrà parlato l'espressione."
+      },
+      "ttsRate": {
+        "label": "Valutare",
+        "note": "La velocità con cui verrà pronunciata l'espressione."
+      },
+      "ttsVoice": {
+        "label": "Voce",
+        "note": "La voce che verrà usata per parlare dell'espressione."
+      },
+      "ttsVolume": {
+        "label": "Volume",
+        "note": "Il volume in cui si parla dell'espressione."
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Controllo",
+        "text": "Ciao mondo!"
+      }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "Salva le impostazioni correnti come preimpostazione",
+        "saveBtnLabel": "Salva nuovo preset"
+      },
+      "savedPresets": {
+        "title": "Preset esistenti",
+        "noPresetFound": "Nessun preset ancora."
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Tema",
+        "note": "Scegli il tema del colore dell'applicazione."
+      },
+      "syntaxTheme": {
+        "label": "Tema di sintassi",
+        "note": "Scegli il tema del colore per i blocchi di codice."
+      }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "Salva",
+      "cancelBtnLabel": "Vicino",
+      "resetBtnLabel": "Reset"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 Nuova versione disponibile",
+      "description": "Aggiornamento per le ultime funzionalità e correzioni.",
+      "note": "Le tue conversazioni verranno salvate, ma non dimenticare di effettuare un backup prima dell'aggiornamento.",
+      "submitBtnLabel": "Aggiornamento",
+      "cancelBtnLabel": "Dopo"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Benvenuto",
+      "description": "Sembra che tu non abbia ancora i modelli configurati. Andiamo alle impostazioni per configurare il fornitore di inferenze.",
+      "note": "",
+      "submitBtnLabel": "Impostazioni aperte",
+      "cancelBtnLabel": "Saltare"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 Nessun modello trovato",
+      "description": "Sembra che tu non abbia ancora i modelli configurati o c'è un problema con il tuo fornitore. Andiamo alle impostazioni per controllare.",
+      "note": "",
+      "submitBtnLabel": "Impostazioni aperte",
+      "cancelBtnLabel": "Saltare"
+    }
+  },
+  "samplePrompts": [
+    "Dimmi un fatto divertente per oggi.",
+    "Dimmi uno scherzo.",
+    "Dammi tre interessanti fatti scientifici.",
+    "Elenca i pianeti nel nostro sistema solare.",
+    "Spiega le regole degli scacchi.",
+    "Quali sono alcuni buoni antipasti di conversazione?",
+    "Dai 10 idee regalo per il migliore amico.",
+    "Scrivi un messaggio di compleanno per il mio amico.",
+    "Suggerisci temi per una festa di compleanno.",
+    "Dammi idee per una serata di gioco.",
+    "Dammi idee per un weekend.",
+    "Suggerimenti per il mio primo viaggio da solista.",
+    "Spiega semplicemente un concetto complesso.",
+    "Risolvi la grammatica in questo testo.",
+    "Riassumi il seguente testo.",
+    "Riscrivi questo per essere più formale/casuale.",
+    "Aiutami a scrivere un'e -mail professionale.",
+    "Crea un programma per la mia giornata lavorativa.",
+    "Riassumi queste note di incontro.",
+    "Dammi idee per un'attività di team building."
+  ]
+}

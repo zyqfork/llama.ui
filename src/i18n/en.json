@@ -77,7 +77,7 @@
       },
       "top_p": {
         "label": "",
-        "note": "Limits tokens to those that together have a cumulative probability of at least p"
+        "note": "Limits tokens to those that together have a cumulative probability of at least p."
       },
       "min_p": {
         "label": "",

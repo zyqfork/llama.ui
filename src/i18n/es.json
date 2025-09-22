@@ -1,1 +1,259 @@
-{}
+{
+  "header": {
+    "title": {
+      "noChat": "Nuevo chat",
+      "settings": "Ajustes"
+    }
+  },
+  "chatScreen": {
+    "welcome": "Hola,",
+    "welcomeNote": "¿Le puedo ayudar en algo?"
+  },
+  "chatMessage": {
+    "systemLabel": "Sistema",
+    "userLabel": "Tú"
+  },
+  "settings": {
+    "parameters": {
+      "language": {
+        "label": "Idioma",
+        "note": "Idioma de visualización de interfaz de usuario."
+      },
+      "provider": {
+        "label": "Proveedor",
+        "note": "El proveedor puede cobrar por su uso."
+      },
+      "baseUrl": {
+        "label": "URL base",
+        "note": "Establezca la URL base si está utilizando servidor independiente."
+      },
+      "apiKey": {
+        "label": "Llave de API",
+        "note": "Establezca la tecla API si está utilizando la opción de KeyPi-Key para el servidor."
+      },
+      "model": {
+        "label": "Modelo",
+        "note": "Establezca el modelo de inferencia."
+      },
+      "systemMessage": {
+        "label": "Mensaje del sistema (se deshabilitará si se deja vacío)",
+        "note": "El mensaje inicial que define cómo debe comportarse el modelo. Puede obtener ejemplos de <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Nombre de usuario",
+        "note": ""
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Paste: Convierta si longitud>",
+        "note": "Al pegar un texto largo, se convertirá en un archivo. Puede controlar la longitud del archivo configurando el valor de este parámetro. Establecido en 0 para deshabilitar."
+      },
+      "pdfAsImage": {
+        "label": "Use PDF como imagen en lugar de texto",
+        "note": "Adjunte el PDF como una imagen en lugar de texto. Compatible solo con modelos multimodales con soporte de visión."
+      },
+      "showTokensPerSecond": {
+        "label": "Mostrar métricas de rendimiento",
+        "note": "Activarse para ver la velocidad de procesamiento, los tiempos, etc."
+      },
+      "showThoughtInProgress": {
+        "label": "Expandir la sección de pensamiento",
+        "note": "Expandir el mensaje de pensamiento al generar mensajes"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Excluir mensajes de pensamiento en enviar",
+        "note": "Excluir mensajes de pensamiento al enviar solicitudes a API (recomendado)"
+      },
+      "overrideGenerationOptions": {
+        "label": "Anular las opciones de generación",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Controla la aleatoriedad del texto generado afectando la distribución de probabilidad de los tokens de salida. Más alto = más aleatorio, más bajo = más enfocado."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Mantiene solo k tokens top."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Limita las fichas a las que juntos tienen una probabilidad acumulativa de al menos P"
+      },
+      "min_p": {
+        "label": "",
+        "note": "Limita los tokens basados ​​en la probabilidad mínima de que se considere un token, en relación con la probabilidad del token más probable."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "El número máximo de tokens por salida."
+      },
+      "overrideSamplersOptions": {
+        "label": "Reemplace las opciones de muestras",
+        "note": ""
+      },
+      "samplers": {
+        "label": "Cola de muestras",
+        "note": "El orden en que se aplican los muestreadores, de manera simplificada. El valor predeterminado es \"dkypmxt\": seca-> top_k-> typ_p-> top_p-> min_p-> xtc-> temperatura"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Complemento para la muestra de temperatura. El valor agregado al rango de temperatura dinámica, que ajusta las probabilidades por entropía de tokens."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Complemento para la muestra de temperatura. Suaviza la redistribución de probabilidad en función del token más probable."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Clasifica y limita los tokens en función de la diferencia entre la probabilidad de registro y la entropía."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "XTC Sampler corta las tokens superiores; Este parámetro controla la posibilidad de cortar tokens en absoluto. 0 Desactiva XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "XTC Sampler corta las tokens superiores; Este parámetro controla la probabilidad de token que se requiere para cortar ese token."
+      },
+      "overridePenaltyOptions": {
+        "label": "Reemplazar opciones de penalización",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Último n tokens para considerar para penalizar la repetición"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Controla la repetición de secuencias de token en el texto generado"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Limita los tokens en función de si aparecen en la salida o no."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Limita los tokens en función de la frecuencia con la que aparecen en la salida."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece el multiplicador de muestreo seco."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece el valor base de muestreo en seco."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece la longitud permitida para el muestreo seco."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "El muestreo en seco reduce la repetición en el texto generado incluso en contextos largos. Este parámetro establece una penalización seca para los últimos n tokens."
+      },
+      "custom": {
+        "label": "Configuración JSON personalizada",
+        "note": "Para obtener más información, consulte <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\"> Documentación del servidor </a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Habilitar el intérprete de Python",
+        "note": "Esta característica usa <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, descargado de CDN. Para usar esta función, solicite al LLM que genere código Python dentro de un bloque de código de Markdown. Verá un botón \"Ejecutar\" en el bloque de código, cerca del botón \"Copiar\"."
+      },
+      "ttsPitch": {
+        "label": "Paso",
+        "note": "El tono en el que se hablará el enunciado."
+      },
+      "ttsRate": {
+        "label": "Tasa",
+        "note": "La velocidad a la que se hablará el enunciado."
+      },
+      "ttsVoice": {
+        "label": "Voz",
+        "note": "La voz que se usará para hablar el enunciado."
+      },
+      "ttsVolume": {
+        "label": "Volumen",
+        "note": "El volumen al que se hablará el enunciado."
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Controlar",
+        "text": "¡Hola Mundo!"
+      }
+    },
+    "presetManager": {
+      "newPreset": {
+        "title": "Guardar la configuración actual como preajuste",
+        "saveBtnLabel": "Guardar nuevo preajuste"
+      },
+      "savedPresets": {
+        "title": "Preajustes existentes",
+        "noPresetFound": "No hay preajustes todavía."
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Tema",
+        "note": "Elija el tema de color de la aplicación."
+      },
+      "syntaxTheme": {
+        "label": "Tema de sintaxis",
+        "note": "Elija el tema de color para los bloques de código."
+      }
+    },
+    "actionButtons": {
+      "saveBtnLabel": "Ahorrar",
+      "cancelBtnLabel": "Cerca",
+      "resetBtnLabel": "Reiniciar"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "icon": null,
+      "title": "🎉 nueva versión disponible",
+      "description": "Actualizar para las últimas funciones y soluciones.",
+      "note": "Sus conversaciones se guardarán, pero no olvide hacer una copia de seguridad antes de la actualización.",
+      "submitBtnLabel": "Actualizar",
+      "cancelBtnLabel": "Más tarde"
+    },
+    "welcomePopup": {
+      "icon": null,
+      "title": "👋 Bienvenido",
+      "description": "Parece que aún no tienes los modelos configurados. Vayamos a la configuración para configurar su proveedor de inferencia.",
+      "note": "",
+      "submitBtnLabel": "Abrir configuración",
+      "cancelBtnLabel": "Saltar"
+    },
+    "noModelsPopup": {
+      "icon": null,
+      "title": "😔 No se encuentran modelos",
+      "description": "Parece que aún no tiene los modelos configurados o hay un problema con su proveedor. Vamos a la configuración para verificar.",
+      "note": "",
+      "submitBtnLabel": "Abrir configuración",
+      "cancelBtnLabel": "Saltar"
+    }
+  },
+  "samplePrompts": [
+    "Dime un hecho divertido para hoy.",
+    "Cuéntame una broma.",
+    "Dame tres hechos científicos interesantes.",
+    "Enumere los planetas en nuestro sistema solar.",
+    "Explica las reglas del ajedrez.",
+    "¿Cuáles son algunos buenos iniciadores de conversación?",
+    "Dé 10 ideas de regalos para el mejor amigo.",
+    "Escribe un mensaje de cumpleaños para mi amigo.",
+    "Sugerir temas para una fiesta de cumpleaños.",
+    "Dame ideas para una noche de juego.",
+    "Dame ideas para una escapada de fin de semana.",
+    "Consejos para mi primer viaje en solitario.",
+    "Explica un concepto complejo simplemente.",
+    "Arregle la gramática en este texto.",
+    "Resume el siguiente texto.",
+    "Reescribe esto para que sea más formal/informal.",
+    "Ayúdame a escribir un correo electrónico profesional.",
+    "Crea un horario para mi jornada laboral.",
+    "Resume estas notas de la reunión.",
+    "Dame ideas para una actividad de construcción de equipos."
+  ]
+}
