@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 새 버전이 출시되었습니다.",
       "description": "최신 기능 및 수정 사항 업데이트입니다.",
       "note": "대화 내용이 저장되지만 업데이트하기 전에 백업을 해두는 것을 잊지 마세요.",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "나중에"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 안녕하세요",
       "description": "모델이 아직 설정되지 않은 것 같습니다. 추론 공급자를 구성하려면 설정으로 이동해 보겠습니다.",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "건너뛰다"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 모델을 찾을 수 없습니다.",
       "description": "모델이 아직 설정되지 않았거나 공급자에게 문제가 있는 것 같습니다. 설정을 확인해 보시죠.",
       "note": "",

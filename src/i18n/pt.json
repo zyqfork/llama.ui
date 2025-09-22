@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 Nova versão disponível",
       "description": "Atualização para os recursos e correções mais recentes.",
       "note": "As suas conversas serão guardadas, mas não se esqueça de fazer uma cópia de segurança antes da atualização.",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "Mais tarde."
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 Bem-vindo",
       "description": "Parece que você ainda não configurou os modelos. Vamos para as Configurações para configurar seu provedor de Inferência.",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "Pular"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 Nenhum modelo encontrado.",
       "description": "Parece que você ainda não configurou os modelos ou há um problema com seu provedor. Vamos para as Configurações para verificar.",
       "note": "",

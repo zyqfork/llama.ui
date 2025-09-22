@@ -210,7 +210,6 @@
   },
   "toast": {
     "newVersion": {
-      "icon": null,
       "title": "🎉 新版本可用",
       "description": "更新最新的功能和修复。",
       "note": "您的对话将被保存，但请在更新前务必备份。",
@@ -218,7 +217,6 @@
       "cancelBtnLabel": "以后"
     },
     "welcomePopup": {
-      "icon": null,
       "title": "👋 欢迎",
       "description": "看起来您还没有设置模型。让我们去“设置”配置您的推理提供程序。",
       "note": "",
@@ -226,7 +224,6 @@
       "cancelBtnLabel": "跳过"
     },
     "noModelsPopup": {
-      "icon": null,
       "title": "😔 未找到模型",
       "description": "看起来您还没有设置模型，或者您的Provider存在问题。让我们去设置中检查一下。",
       "note": "",

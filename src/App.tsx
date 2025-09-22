@@ -120,7 +120,6 @@ const AppLayout: FC = () => {
           id: TOAST_IDS.PWA_UPDATE,
           duration: Infinity,
           position: 'top-center',
-          icon: trans('toast.newVersion.icon'),
         }
       );
     }
