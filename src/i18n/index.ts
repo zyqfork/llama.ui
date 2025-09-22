@@ -4,6 +4,17 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { isDev } from '../config';
 
 import en from './en.json';
+import zh from './zh.json';
+import hi from './hi.json';
+import es from './es.json';
+import fr from './fr.json';
+import ru from './ru.json';
+import pt from './pt.json';
+import de from './de.json';
+import ja from './ja.json';
+import ko from './ko.json';
+import it from './it.json';
+import ar from './ar.json';
 
 export const SUPPORTED_LANGUAGES = [
   { key: 'en', name: 'English', label: 'English' },
@@ -33,6 +44,39 @@ i18n
     resources: {
       en: {
         translation: en,
+      },
+      zh: {
+        translation: zh,
+      },
+      hi: {
+        translation: hi,
+      },
+      es: {
+        translation: es,
+      },
+      fr: {
+        translation: fr,
+      },
+      ru: {
+        translation: ru,
+      },
+      pt: {
+        translation: pt,
+      },
+      de: {
+        translation: de,
+      },
+      ja: {
+        translation: ja,
+      },
+      ko: {
+        translation: ko,
+      },
+      it: {
+        translation: it,
+      },
+      ar: {
+        translation: ar,
       },
     },
   });

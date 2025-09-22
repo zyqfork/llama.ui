@@ -44,16 +44,16 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "On Paste: convert to file if length >",
-        "note": "On pasting long text, it will be converted to a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
+        "label": "Paste: convert if length >",
+        "note": "When pasting a long text, it will be converted into a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
       },
       "pdfAsImage": {
         "label": "Use PDF as image instead of text",
-        "note": "Attach PDF as image instead of text. Supported only with multimodal models with vision support."
+        "note": "Attach the PDF as an image instead of text. Supported only with multimodal models with vision support."
       },
       "showTokensPerSecond": {
         "label": "Show performance metrics",
-        "note": "Enable to see processing speed, timings, etc."
+        "note": "Activate to see the processing speed, times, etc."
       },
       "showThoughtInProgress": {
         "label": "Expand thinking section",
@@ -85,10 +85,10 @@
       },
       "max_tokens": {
         "label": "",
-        "note": "The maximum number of token per output."
+        "note": "The maximum number of tokens per output."
       },
       "overrideSamplersOptions": {
-        "label": "Override Samplers Options",
+        "label": "Replace Samplers Options",
         "note": ""
       },
       "samplers": {
@@ -116,7 +116,7 @@
         "note": "XTC sampler cuts out top tokens; this parameter controls the token probability that is required to cut that token."
       },
       "overridePenaltyOptions": {
-        "label": "Override Penalty Options",
+        "label": "Replace Penalty Options",
         "note": ""
       },
       "repeat_last_n": {
@@ -129,11 +129,11 @@
       },
       "presence_penalty": {
         "label": "",
-        "note": "Limits tokens based on whether they appear in the output or not."
+        "note": "Limits the tokens based on whether they appear in the output or not."
       },
       "frequency_penalty": {
         "label": "",
-        "note": "Limits tokens based on how often they appear in the output."
+        "note": "Limits the tokens based on how often they appear in the output."
       },
       "dry_multiplier": {
         "label": "",
@@ -184,7 +184,7 @@
     },
     "presetManager": {
       "newPreset": {
-        "title": "Save current settings as a preset",
+        "title": "Save the current settings as a preset",
         "saveBtnLabel": "Save New Preset"
       },
       "savedPresets": {
@@ -195,11 +195,11 @@
     "themeManager": {
       "dataTheme": {
         "label": "Theme",
-        "note": "Choose the color theme for application."
+        "note": "Choose the color theme of the application."
       },
       "syntaxTheme": {
         "label": "Syntax Theme",
-        "note": "Choose the color theme for code blocks."
+        "note": "Choose the color theme for the code blocks."
       }
     },
     "actionButtons": {
