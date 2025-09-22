@@ -1,3 +1,21 @@
+## [2.22.1] - 2025-09-22
+
+### 🛠 Fixes
+
+- LLM translation (#170)
+
+## [2.22.0] - 2025-09-22
+
+### 🚀 Enhancements
+
+- Internationalization (#169)
+
+## [2.21.5] - 2025-09-21
+
+### 🛠 Fixes
+
+- Welcome page - sample prompts flicker during inference chunks #162 (#164)
+
 ## [2.21.4] - 2025-09-19
 
 ### 🛠 Fixes
