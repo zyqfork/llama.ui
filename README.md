@@ -36,6 +36,8 @@ This repository is a fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) 
 
 5. **Privacy Focused**: All data is stored locally in your browser - no cloud required!
 
+6. **Localized Interface**: Most popular language packs are included in the app, and you can choose the language at any time.
+
 ## 🚀 Getting Started in 60 Seconds!
 
 ### 💻 Standalone Mode (Zero Installation)
