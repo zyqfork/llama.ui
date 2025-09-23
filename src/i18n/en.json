@@ -56,7 +56,7 @@
     },
     "storageNote": "Conversations are saved to browser's IndexedDB."
   },
-  "chatScreen": {
+  "welcomeScreen": {
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
   },
