@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { Trans } from 'react-i18next';
 
 type ModalContextType = {
   showConfirm: (message: string) => Promise<boolean>;
@@ -83,13 +84,13 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                 className="btn btn-ghost"
                 onClick={() => handleConfirm(false)}
               >
-                Cancel
+                <Trans i18nKey="modals.cancelBtnLabel" />
               </button>
               <button
                 className="btn btn-error"
                 onClick={() => handleConfirm(true)}
               >
-                Confirm
+                <Trans i18nKey="modals.confirmBtnLabel" />
               </button>
             </div>
           </div>
@@ -114,13 +115,13 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
             />
             <div className="modal-action">
               <button className="btn btn-ghost" onClick={() => handlePrompt()}>
-                Cancel
+                <Trans i18nKey="modals.cancelBtnLabel" />
               </button>
               <button
                 className="btn btn-neutral"
                 onClick={() => handlePrompt(inputRef.current?.value)}
               >
-                Submit
+                <Trans i18nKey="modals.submitBtnLabel" />
               </button>
             </div>
           </div>
@@ -134,7 +135,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
             <h3 className="font-bold text-lg">{alertState.message}</h3>
             <div className="modal-action">
               <button className="btn" onClick={handleAlertClose}>
-                OK
+                <Trans i18nKey="modals.okBtnLabel" />
               </button>
             </div>
           </div>

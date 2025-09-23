@@ -282,6 +282,12 @@
       "cancelBtnLabel": "Skip"
     }
   },
+  "modals": {
+    "cancelBtnLabel": "Cancel",
+    "confirmBtnLabel": "Confirm",
+    "submitBtnLabel": "Submit",
+    "okBtnLabel": "OK"
+  },
   "samplePrompts": [
     "Tell me a fun fact for today.",
     "Tell me a joke.",
