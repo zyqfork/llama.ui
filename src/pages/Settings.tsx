@@ -42,7 +42,6 @@ import React, {
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Dropdown } from '../components/common';
-import { useModals } from '../components/ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
@@ -57,6 +56,7 @@ import {
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
+import { useModals } from '../context/modal';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import {

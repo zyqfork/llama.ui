@@ -12,10 +12,10 @@ import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
+import { useModals } from '../context/modal';
 import StorageUtils from '../database';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
-import { useModals } from './ModalProvider';
 
 export default function Sidebar() {
   const navigate = useNavigate();

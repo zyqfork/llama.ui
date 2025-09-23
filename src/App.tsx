@@ -12,7 +12,6 @@ import {
 } from 'react-router';
 import { Footer } from './components/Footer';
 import Header from './components/Header';
-import { ModalProvider } from './components/ModalProvider';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
 import { AppContextProvider, useAppContext } from './context/app';
@@ -21,6 +20,7 @@ import {
   InferenceContextProvider,
   useInferenceContext,
 } from './context/inference';
+import { ModalProvider } from './context/modal';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import ChatScreen from './pages/ChatScreen';

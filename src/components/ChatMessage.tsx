@@ -17,6 +17,7 @@ import { Fragment, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
+import { useModals } from '../context/modal';
 import StorageUtils from '../database';
 import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import { Message, MessageExtra, PendingMessage } from '../types';
@@ -30,7 +31,6 @@ import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { IntlIconButton } from './common';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
-import { useModals } from './ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
