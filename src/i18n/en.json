@@ -60,9 +60,50 @@
     "welcome": "Hi,",
     "welcomeNote": "how can I help you?"
   },
-  "chatMessage": {
-    "systemLabel": "System",
-    "userLabel": "You"
+  "chatScreen": {
+    "labels": {
+      "system": "System",
+      "user": "You",
+      "cancel": "Cancel",
+      "send": "Send",
+      "save": "Save",
+      "thinking": "Thinking",
+      "thoughts": "Thoughts"
+    },
+    "titles": {
+      "previous": "Previous",
+      "next": "Next",
+      "regenerate": "Regenerate",
+      "copy": "Copy",
+      "run": "Run",
+      "edit": "Edit",
+      "delete": "Delete",
+      "branchChat": "Branch chat",
+      "play": "Play",
+      "stop": "Stop",
+      "performance": "Performance"
+    },
+    "ariaLabels": {
+      "messageUserRole": "Message from user",
+      "messageAssistantRole": "Message from assistant",
+      "codeBlock": "Code block",
+      "codeLanguage": "Code language",
+      "siblingLeafs": "Message version {{current}} of {{total}}",
+      "switchToPrevious": "Switch to the previous message version",
+      "switchToNext": "Switch to the next message version",
+      "regenerateResponse": "Regenerate response",
+      "showPerformanceMetric": "Show performance metric",
+      "copyContent": "Copy content",
+      "runCode": "Run code",
+      "editMessage": "Edit message",
+      "deleteMessage": "Delete message",
+      "branchChatAfterMessage": "Branch chat after this message",
+      "playMessage": "Play message",
+      "stopMessage": "Stop message",
+      "uploadFile": "Upload file",
+      "thoughtDisplay": "Toggle thought process display",
+      "thoughtContent": "Thought process content"
+    }
   },
   "settings": {
     "parameters": {

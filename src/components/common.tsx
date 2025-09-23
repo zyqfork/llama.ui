@@ -1,5 +1,14 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { TFunction } from 'i18next';
+import {
+  ButtonHTMLAttributes,
+  FC,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 
@@ -98,6 +107,34 @@ export function BtnWithTooltips({
     </div>
   );
 }
+
+interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: FC<{ className?: string }>;
+  tFunc: TFunction<'translation', undefined>;
+  titleKey: string;
+  ariaLabelKey: string;
+}
+export const IntlIconButton = ({
+  className,
+  disabled,
+  onClick,
+  icon: Icon,
+  tFunc,
+  titleKey,
+  ariaLabelKey,
+  ...props
+}: IconButtonProps) => (
+  <button
+    className={className}
+    onClick={onClick}
+    disabled={disabled}
+    title={tFunc(titleKey)}
+    aria-label={tFunc(ariaLabelKey)}
+    {...props}
+  >
+    <Icon className="h-4 w-4" />
+  </button>
+);
 
 export interface DropdownOption {
   value: string | number;

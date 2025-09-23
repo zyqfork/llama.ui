@@ -1,7 +1,8 @@
 import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Markdown, { ExtraProps } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -12,6 +13,7 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { CanvasType } from '../types';
 import { classNames, copyStr } from '../utils';
+import { IntlIconButton } from './common';
 
 export default memo(function MarkdownDisplay({
   content,
@@ -62,6 +64,7 @@ const CustomPre: React.ElementType<
     React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
 > = ({ className, children, node, origContent, isGenerating }) => {
+  const { t: trans } = useTranslation();
   const {
     config: { pyIntepreterEnabled },
   } = useAppContext();
@@ -113,31 +116,41 @@ const CustomPre: React.ElementType<
   };
 
   return (
-    <div className="hljs" aria-label="Code block">
+    <div className="hljs" aria-label={trans('chatScreen.ariaLabels.codeBlock')}>
       {showActionButtons && (
         <div
           className={classNames({
             'hljs sticky h-0 z-[1] text-right p-0': true,
             'display-none': !node?.position,
           })}
-          aria-label="Button block"
         >
           {canRunCode && (
-            <RunCodeButton
+            <IntlIconButton
               className="btn btn-ghost w-8 h-8 p-0"
-              onRun={handleRun}
+              tFunc={trans}
+              titleKey="chatScreen.titles.run"
+              ariaLabelKey="chatScreen.ariaLabels.runCode"
+              icon={PlayIcon}
+              onClick={handleRun}
             />
           )}
-          <CopyButton
+          <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
-            onCopy={handleCopy}
+            tFunc={trans}
+            titleKey="chatScreen.titles.copy"
+            ariaLabelKey="chatScreen.ariaLabels.copyContent"
+            icon={DocumentDuplicateIcon}
+            onClick={handleCopy}
           />
         </div>
       )}
 
       <pre className={className} {...node?.properties}>
         {codeLanguage && (
-          <div className="text-sm ml-2" aria-label="Code language">
+          <div
+            className="text-sm ml-2"
+            aria-label={trans('chatScreen.ariaLabels.codeLanguage')}
+          >
             {codeLanguage}
           </div>
         )}
@@ -145,49 +158,6 @@ const CustomPre: React.ElementType<
         {children}
       </pre>
     </div>
-  );
-};
-
-export const CopyButton = ({
-  className,
-  onCopy,
-}: {
-  className?: string;
-  onCopy: () => void;
-}) => {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      className={className}
-      onClick={() => {
-        onCopy();
-        setCopied(true);
-      }}
-      onMouseLeave={() => setCopied(false)}
-      title={copied ? 'Copied!' : 'Copy'}
-      aria-label={copied ? 'Content copied' : 'Copy content'}
-    >
-      <DocumentDuplicateIcon className="h-4 w-4" />
-    </button>
-  );
-};
-
-export const RunCodeButton = ({
-  className,
-  onRun,
-}: {
-  className?: string;
-  onRun: () => void;
-}) => {
-  return (
-    <button
-      className={className}
-      onClick={onRun}
-      title="Run code"
-      aria-label="Run the code"
-    >
-      <PlayIcon className="h-4 w-4" />
-    </button>
   );
 };
 
