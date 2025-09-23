@@ -727,7 +727,10 @@ export default function Settings() {
                   label: lang.label,
                 }))}
                 value={i18n.language}
-                onChange={(lang) => i18n.changeLanguage(lang as string)}
+                onChange={(lang) => {
+                  i18n.changeLanguage(lang as string);
+                  document.documentElement.setAttribute('lang', lang as string);
+                }}
               />
             );
           case 'import-export':
