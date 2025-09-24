@@ -26,7 +26,6 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import { TFunction } from 'i18next';
 import React, {
   FC,
   forwardRef,
@@ -203,7 +202,7 @@ const DELIMETER: SettingFieldCustom = {
 const UnusedCustomField: React.FC = () => null;
 
 const getSettingTabsConfiguration = (
-  trans: TFunction<'translation', undefined>,
+  trans: ReturnType<typeof useTranslation>['t'],
   config: Configuration,
   models: InferenceApiModel[]
 ): SettingTab[] => [

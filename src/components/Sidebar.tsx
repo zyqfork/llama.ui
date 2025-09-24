@@ -6,7 +6,6 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { TFunction } from 'i18next';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
@@ -212,7 +211,7 @@ function ConversationItem({
   onDelete: () => void;
   onDownload: () => void;
   onRename: () => void;
-  trans: TFunction<'translation', undefined>;
+  trans: ReturnType<typeof useTranslation>['t'];
 }) {
   return (
     <div

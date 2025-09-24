@@ -1,5 +1,4 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { TFunction } from 'i18next';
 import {
   ButtonHTMLAttributes,
   FC,
@@ -9,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 
@@ -110,7 +110,7 @@ export function BtnWithTooltips({
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: FC<{ className?: string }>;
-  tFunc: TFunction<'translation', undefined>;
+  tFunc: ReturnType<typeof useTranslation>['t'];
   titleKey: string;
   ariaLabelKey: string;
 }

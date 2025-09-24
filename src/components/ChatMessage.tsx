@@ -12,7 +12,6 @@ import {
   SpeakerXMarkIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import { TFunction } from 'i18next';
 import { Fragment, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useAppContext } from '../context/app';
@@ -367,7 +366,7 @@ function EditMessage({
   setIsEditing(flag: boolean): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
-  tFunc: TFunction<'translation', undefined>;
+  tFunc: ReturnType<typeof useTranslation>['t'];
 }) {
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
@@ -451,7 +450,7 @@ function ThoughtProcess({
 }: {
   isThinking: boolean;
   content: string;
-  tFunc: TFunction<'translation', undefined>;
+  tFunc: ReturnType<typeof useTranslation>['t'];
 }) {
   const {
     config: { showThoughtInProgress },
@@ -502,7 +501,7 @@ const PlayButton = ({
   className?: string;
   disabled?: boolean;
   text: string;
-  tFunc: TFunction<'translation', undefined>;
+  tFunc: ReturnType<typeof useTranslation>['t'];
 }) => {
   const {
     config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
