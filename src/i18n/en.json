@@ -29,35 +29,29 @@
       "Previous 30 Days": "Previous 30 Days"
     },
     "buttons": {
-      "closeSideBar": "Close sidebar"
+      "closeSideBar": "Close sidebar",
+      "more": "More",
+      "rename": "Rename",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "ariaLabels": {
+      "dropdown": "More options",
+      "select": "Select conversation: {{name}}",
+      "more": "Show more options",
+      "rename": "Rename conversation",
+      "download": "Download conversation",
+      "delete": "Delete conversation"
+    },
+    "errors": {
+      "renameOnGenerate": "Cannot rename conversation while generating.",
+      "downloadOnGenerate": "Cannot download conversation while generating.",
+      "deleteOnGenerate": "Cannot delete conversation while generating."
     },
     "actions": {
-      "select": {
-        "label": "Select conversation: {{name}}"
-      },
-      "more": {
-        "title": "More",
-        "label": "Show more options",
-        "dropdown": "More options"
-      },
-      "rename": {
-        "btnTitle": "Rename conversation",
-        "btnLabel": "Rename",
-        "isGenerating": "Cannot rename conversation while generating.",
-        "prompt": "Enter new name for the conversation"
-      },
-      "download": {
-        "btnTitle": "Download conversation",
-        "btnLabel": "Download",
-        "isGenerating": "Cannot download conversation while generating."
-      },
-      "delete": {
-        "btnTitle": "Delete conversation",
-        "btnLabel": "Delete",
-        "isGenerating": "Cannot delete conversation while generating.",
-        "confirm": "Are you sure to delete this conversation?",
-        "toast": "Conversation deleted."
-      }
+      "newName": "Enter new name for the conversation",
+      "deleteConfirm": "Are you sure to delete this conversation?",
+      "deleteSuccess": "Conversation deleted."
     },
     "storageNote": "Conversations are saved to browser's IndexedDB."
   },

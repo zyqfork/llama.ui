@@ -128,20 +128,20 @@ export default function Sidebar() {
                     }}
                     onDelete={async () => {
                       if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.actions.delete.isGenerating'));
+                        toast.error(t('sidebar.errors.deleteOnGenerate'));
                         return;
                       }
                       if (
-                        await showConfirm(t('sidebar.actions.delete.confirm'))
+                        await showConfirm(t('sidebar.actions.deleteConfirm'))
                       ) {
-                        toast.success(t('sidebar.actions.delete.toast'));
+                        toast.success(t('sidebar.actions.deleteSuccess'));
                         StorageUtils.deleteConversation(conv.id);
                         navigate('/');
                       }
                     }}
                     onDownload={async () => {
                       if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.actions.download.isGenerating'));
+                        toast.error(t('sidebar.errors.downloadOnGenerate'));
                         return;
                       }
                       const data = await StorageUtils.exportDB(conv.id);
@@ -160,11 +160,11 @@ export default function Sidebar() {
                     }}
                     onRename={async () => {
                       if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.actions.rename.isGenerating'));
+                        toast.error(t('sidebar.errors.renameOnGenerate'));
                         return;
                       }
                       const newName = await showPrompt(
-                        t('sidebar.actions.rename.prompt'),
+                        t('sidebar.actions.newName'),
                         conv.name
                       );
                       if (newName && newName.trim().length > 0) {
@@ -222,7 +222,7 @@ function ConversationItem({
         dir="auto"
         type="button"
         title={conv.name}
-        aria-label={t('sidebar.actions.select.label', { name: conv.name })}
+        aria-label={t('sidebar.ariaLabels.select', { name: conv.name })}
       >
         {conv.name}
       </button>
@@ -234,14 +234,14 @@ function ConversationItem({
           // we use opacity instead of hidden to avoid layout shift
           className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
           onClick={() => {}}
-          title={t('sidebar.actions.more.title')}
-          aria-label={t('sidebar.actions.more.label')}
+          title={t('sidebar.buttons.more')}
+          aria-label={t('sidebar.ariaLabels.more')}
         >
           <EllipsisVerticalIcon className="w-5 h-5" />
         </button>
         {/* dropdown menu */}
         <ul
-          aria-label={t('sidebar.actions.more.dropdown')}
+          aria-label={t('sidebar.ariaLabels.dropdown')}
           role="menu"
           tabIndex={-1}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
@@ -249,21 +249,21 @@ function ConversationItem({
           <li role="menuitem" tabIndex={0} onClick={onRename}>
             <button
               type="button"
-              title={t('sidebar.actions.rename.btnTitle')}
-              aria-label={t('sidebar.actions.rename.btnTitle')}
+              title={t('sidebar.buttons.rename')}
+              aria-label={t('sidebar.ariaLabels.rename')}
             >
               <PencilIcon className="w-4 h-4" />
-              <Trans i18nKey="sidebar.actions.rename.btnLabel" />
+              <Trans i18nKey="sidebar.buttons.rename" />
             </button>
           </li>
           <li role="menuitem" tabIndex={0} onClick={onDownload}>
             <button
               type="button"
-              title={t('sidebar.actions.download.btnTitle')}
-              aria-label={t('sidebar.actions.download.btnTitle')}
+              title={t('sidebar.buttons.download')}
+              aria-label={t('sidebar.ariaLabels.download')}
             >
               <ArrowDownTrayIcon className="w-4 h-4" />
-              <Trans i18nKey="sidebar.actions.download.btnLabel" />
+              <Trans i18nKey="sidebar.buttons.download" />
             </button>
           </li>
           <li
@@ -274,11 +274,11 @@ function ConversationItem({
           >
             <button
               type="button"
-              title={t('sidebar.actions.delete.btnTitle')}
-              aria-label={t('sidebar.actions.delete.btnTitle')}
+              title={t('sidebar.buttons.delete')}
+              aria-label={t('sidebar.ariaLabels.delete')}
             >
               <TrashIcon className="w-4 h-4" />
-              <Trans i18nKey="sidebar.actions.delete.btnLabel" />
+              <Trans i18nKey="sidebar.buttons.delete" />
             </button>
           </li>
         </ul>
