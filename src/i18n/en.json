@@ -180,6 +180,28 @@
     }
   },
   "settings": {
+    "tabs": {
+      "general": "General",
+      "ui": "UI",
+      "voice": "Voice",
+      "conversations": "Conversations",
+      "presets": "Presets",
+      "importExport": "Import/Export",
+      "advanced": "Advanced"
+    },
+    "sections": {
+      "inferenceProvider": "Inference Provider",
+      "userInterface": "User Interface",
+      "textToSpeech": "Text to Speech",
+      "chat": "Chat",
+      "performance": "Performance",
+      "reasoning": "Reasoning",
+      "generation": "Generation",
+      "samplers": "Samplers",
+      "penalties": "Penalties",
+      "custom": "Custom",
+      "experimental": "Experimental"
+    },
     "parameters": {
       "language": {
         "label": "Language",
@@ -344,9 +366,6 @@
       "experimental": {
         "note": "<p>Experimental features are not guaranteed to work correctly.</p><p>If you encounter any problems, create a <a class=\"underline\" href=\"https://github.com/olegshulyakov/llama.ui/issues/new?template=010-bug.yml\" target=\"_blank\" rel=\"noopener noreferrer\">Bug</a> report on Github. Please also specify <b>experimental</b> on the report title and include screenshots.</p><p>Some features may require packages downloaded from CDN, so they need internet connection.</p>"
       }
-    },
-    "sections": {
-      "experimental": "Experimental"
     },
     "textToSpeech": {
       "check": {

@@ -211,11 +211,11 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <Cog6ToothIcon className={ICON_CLASSNAME} />
-        General
+        {t('settings.tabs.general')}
       </>
     ),
     fields: [
-      toSection('Inference Provider'),
+      toSection(t('settings.sections.inferenceProvider')),
       toDropdown(
         'provider',
         Object.entries(INFERENCE_PROVIDERS).map(
@@ -257,11 +257,14 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <TvIcon className={ICON_CLASSNAME} />
-        UI
+        {t('settings.tabs.ui')}
       </>
     ),
     fields: [
-      toSection('User Interface', <TvIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.userInterface'),
+        <TvIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.SHORT_INPUT, 'initials'),
       {
         type: SettingInputType.CUSTOM,
@@ -281,13 +284,13 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <SignalIcon className={ICON_CLASSNAME} />
-        Voice
+        {t('settings.tabs.voice')}
       </>
     ),
     fields: [
       /* Text to Speech */
       toSection(
-        'Text to Speech',
+        t('settings.sections.textToSpeech'),
         <SpeakerWaveIcon className={ICON_CLASSNAME} />
       ),
       toDropdown(
@@ -365,12 +368,12 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <ChatBubbleLeftRightIcon className={ICON_CLASSNAME} />
-        Conversations
+        {t('settings.tabs.conversations')}
       </>
     ),
     fields: [
       toSection(
-        'Chat',
+        t('settings.sections.chat'),
         <ChatBubbleLeftEllipsisIcon className={ICON_CLASSNAME} />
       ),
       toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
@@ -378,13 +381,16 @@ const getSettingTabsConfiguration = (
 
       /* Performance */
       DELIMETER,
-      toSection('Performance', <RocketLaunchIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.performance'),
+        <RocketLaunchIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
       DELIMETER,
       toSection(
-        'Reasoning',
+        t('settings.sections.reasoning'),
         <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
       ),
       toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
@@ -397,7 +403,7 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <BookmarkIcon className={ICON_CLASSNAME} />
-        Presets
+        {t('settings.tabs.presets')}
       </>
     ),
     fields: [
@@ -414,7 +420,7 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <CircleStackIcon className={ICON_CLASSNAME} />
-        Import/Export
+        {t('settings.tabs.importExport')}
       </>
     ),
     fields: [
@@ -431,12 +437,15 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <SquaresPlusIcon className={ICON_CLASSNAME} />
-        Advanced
+        {t('settings.tabs.advanced')}
       </>
     ),
     fields: [
       /* Generation */
-      toSection('Generation', <CogIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.generation'),
+        <CogIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
       ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
         toInput(
@@ -448,7 +457,10 @@ const getSettingTabsConfiguration = (
 
       /* Samplers */
       DELIMETER,
-      toSection('Samplers', <FunnelIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.samplers'),
+        <FunnelIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
       ...[
         'samplers',
@@ -467,7 +479,10 @@ const getSettingTabsConfiguration = (
 
       /* Penalties */
       DELIMETER,
-      toSection('Penalties', <HandRaisedIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.penalties'),
+        <HandRaisedIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
       ...[
         'repeat_last_n',
@@ -488,7 +503,10 @@ const getSettingTabsConfiguration = (
 
       /* Custom */
       DELIMETER,
-      toSection('Custom', <CpuChipIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.custom'),
+        <CpuChipIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.LONG_INPUT, 'custom'),
     ],
   },
