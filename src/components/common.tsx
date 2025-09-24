@@ -224,7 +224,7 @@ export function Dropdown<T extends DropdownOption>({
         <div
           className="grow truncate"
           title={entity}
-          aria-label={t('common.dropdown.chooseEntity', { entity })}
+          aria-label={t('dropdown.chooseEntity', { entity })}
         >
           {currentValue}
         </div>
@@ -239,7 +239,7 @@ export function Dropdown<T extends DropdownOption>({
           <summary
             className="grow truncate flex justify-between items-center cursor-pointer"
             title={entity}
-            aria-label={t('common.dropdown.chooseEntity', { entity })}
+            aria-label={t('dropdown.chooseEntity', { entity })}
             aria-haspopup="listbox"
           >
             {currentValue}
@@ -253,7 +253,7 @@ export function Dropdown<T extends DropdownOption>({
             {filterable && (
               <input
                 type="text"
-                placeholder={t('common.dropdown.searchPlaceholder', { entity })}
+                placeholder={t('dropdown.searchPlaceholder', { entity })}
                 className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -262,9 +262,7 @@ export function Dropdown<T extends DropdownOption>({
             )}
 
             {filteredOptions.length === 0 && (
-              <div className="p-2 text-sm">
-                {t('common.dropdown.noOptions')}
-              </div>
+              <div className="p-2 text-sm">{t('dropdown.noOptions')}</div>
             )}
 
             {filteredOptions.length > 0 && (
@@ -284,11 +282,7 @@ export function Dropdown<T extends DropdownOption>({
                         'btn-active': isSelected(option),
                       })}
                       onClick={handleSelect(option)}
-                      aria-label={
-                        isSelected(option)
-                          ? `${option.label} selected`
-                          : `${option.label} option`
-                      }
+                      aria-label={`${option.label} ${isSelected(option) ? 'selected' : 'option'}`}
                     >
                       {renderOption(option)}
                     </button>

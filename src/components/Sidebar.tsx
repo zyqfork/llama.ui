@@ -66,8 +66,8 @@ export default function Sidebar() {
             <label
               htmlFor="toggle-drawer"
               className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
-              title={t('sidebar.buttons.closeSideBarBtnTitle')}
-              aria-label={t('sidebar.buttons.closeSideBarBtnTitle')}
+              title={t('sidebar.buttons.closeSideBar')}
+              aria-label={t('sidebar.buttons.closeSideBar')}
               role="button"
               tabIndex={0}
             >
@@ -87,8 +87,8 @@ export default function Sidebar() {
             <button
               className="btn btn-ghost w-8 h-8 p-0 rounded-full"
               onClick={() => navigate('/')}
-              title={t('sidebar.buttons.newConvBtnTitle')}
-              aria-label={t('sidebar.buttons.newConvBtnTitle')}
+              title={t('header.buttons.newConv')}
+              aria-label={t('header.ariaLabels.newConv')}
             >
               <PencilSquareIcon className="w-5 h-5" />
             </button>

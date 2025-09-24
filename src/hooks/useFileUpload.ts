@@ -155,7 +155,9 @@ export function useFileUpload(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = t('fileUpload.errorProcessingFile', { message });
+      const errorMessage = t('fileUpload.errorProcessingFile', {
+        message,
+      });
       toast.error(errorMessage);
     }
   };
@@ -381,7 +383,9 @@ function svgBase64UrlToPngDataURL(
       img.src = base64UrlSvg;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = t('fileUpload.errorConvertingSvg', { message });
+      const errorMessage = t('fileUpload.errorConvertingSvg', {
+        message,
+      });
       toast.error(errorMessage);
       reject(new Error(errorMessage));
     }

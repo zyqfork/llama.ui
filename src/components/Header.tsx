@@ -65,8 +65,8 @@ export default function Header() {
         <button
           className="btn btn-ghost w-8 h-8 p-0 rounded-full"
           onClick={() => navigate('/')}
-          title={t('header.buttons.newConvBtnTitle')}
-          aria-label={t('header.buttons.newConvBtnLabel')}
+          title={t('header.buttons.newConv')}
+          aria-label={t('header.ariaLabels.newConv')}
         >
           <PencilSquareIcon className="w-5 h-5" />
         </button>
@@ -122,8 +122,8 @@ export default function Header() {
           <div className="flex items-center">
             <button
               className="btn btn-ghost w-8 h-8 p-0 rounded-full max-xl:hidden"
-              title={t('header.buttons.settingsBtnTitle')}
-              aria-label={t('header.buttons.settingsBtnLabel')}
+              title={t('header.buttons.settings')}
+              aria-label={t('header.ariaLabels.settings')}
               onClick={() => navigate('/settings')}
             >
               {/* settings button */}

@@ -1,14 +1,20 @@
 {
+  "welcomeScreen": {
+    "welcome": "Hi,",
+    "welcomeNote": "how can I help you?"
+  },
   "header": {
     "title": {
       "noChat": "New Chat",
       "settings": "Settings"
     },
     "buttons": {
-      "newConvBtnTitle": "New",
-      "newConvBtnLabel": "New conversation",
-      "settingsBtnTitle": "Settings",
-      "settingsBtnLabel": "Open settings menu"
+      "newConv": "New",
+      "settings": "Settings"
+    },
+    "ariaLabels": {
+      "newConv": "New conversation",
+      "settings": "Open settings menu"
     }
   },
   "footer": {
@@ -23,8 +29,7 @@
       "Previous 30 Days": "Previous 30 Days"
     },
     "buttons": {
-      "closeSideBarBtnTitle": "Close sidebar",
-      "newConvBtnTitle": "New conversation"
+      "closeSideBar": "Close sidebar"
     },
     "actions": {
       "select": {
@@ -55,10 +60,6 @@
       }
     },
     "storageNote": "Conversations are saved to browser's IndexedDB."
-  },
-  "welcomeScreen": {
-    "welcome": "Hi,",
-    "welcomeNote": "how can I help you?"
   },
   "chatScreen": {
     "labels": {
@@ -110,9 +111,6 @@
     "errors": {
       "emptyMessage": "Please enter a message"
     },
-    "buttons": {
-      "settings": "Settings"
-    },
     "item": {
       "clickToShow": "Click to show: {{name}}",
       "extraContentName": "Extra content"
@@ -124,7 +122,6 @@
     "ariaLabels": {
       "chatInput": "Chat input",
       "uploadFile": "Upload file",
-      "settings": "Open settings menu",
       "send": "Send message",
       "fileItems": "Selected files",
       "removeButton": "Remove file",
@@ -132,28 +129,16 @@
       "previewDialog": "Preview {{name}}"
     }
   },
-  "codeRunner": {
-    "canvasPyInterpreter": {
-      "title": "Python Interpreter",
-      "output": {
-        "loading": "Loading Pyodide...",
-        "running": "Running..."
-      },
-      "buttons": {
-        "run": "Run",
-        "stop": "Stop"
-      },
-      "links": {
-        "reportBug": "Report a bug"
-      }
-    }
+  "modals": {
+    "cancelBtnLabel": "Cancel",
+    "confirmBtnLabel": "Confirm",
+    "submitBtnLabel": "Submit",
+    "okBtnLabel": "OK"
   },
-  "common": {
-    "dropdown": {
-      "chooseEntity": "Choose {{entity}}",
-      "searchPlaceholder": "Search {{entity}}s...",
-      "noOptions": "No options found"
-    }
+  "dropdown": {
+    "chooseEntity": "Choose {{entity}}",
+    "searchPlaceholder": "Search {{entity}}s...",
+    "noOptions": "No options found"
   },
   "fileUpload": {
     "errors": {
@@ -172,6 +157,22 @@
     },
     "errorProcessingFile": "Error processing file: {{message}}",
     "errorConvertingSvg": "Error converting SVG to PNG: {{message}}"
+  },
+  "codeRunner": {
+    "canvasPyInterpreter": {
+      "title": "Python Interpreter",
+      "output": {
+        "loading": "Loading Pyodide...",
+        "running": "Running..."
+      },
+      "buttons": {
+        "run": "Run",
+        "stop": "Stop"
+      },
+      "links": {
+        "reportBug": "Report a bug"
+      }
+    }
   },
   "settings": {
     "parameters": {
@@ -390,12 +391,6 @@
       "submitBtnLabel": "Open Settings",
       "cancelBtnLabel": "Skip"
     }
-  },
-  "modals": {
-    "cancelBtnLabel": "Cancel",
-    "confirmBtnLabel": "Confirm",
-    "submitBtnLabel": "Submit",
-    "okBtnLabel": "OK"
   },
   "samplePrompts": [
     "Tell me a fun fact for today.",

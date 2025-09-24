@@ -133,8 +133,8 @@ export function ChatInput({
 
               <button
                 className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
-                title={t('chatInput.buttons.settings')}
-                aria-label={t('chatInput.ariaLabels.settings')}
+                title={t('header.title.settings')}
+                aria-label={t('header.ariaLabels.settings')}
                 onClick={() => navigate('/settings')}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
