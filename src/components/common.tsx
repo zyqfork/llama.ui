@@ -110,7 +110,7 @@ export function BtnWithTooltips({
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: FC<{ className?: string }>;
-  tFunc: ReturnType<typeof useTranslation>['t'];
+  t: ReturnType<typeof useTranslation>['t'];
   titleKey: string;
   ariaLabelKey: string;
 }
@@ -119,7 +119,7 @@ export const IntlIconButton = ({
   disabled,
   onClick,
   icon: Icon,
-  tFunc,
+  t,
   titleKey,
   ariaLabelKey,
   ...props
@@ -128,8 +128,8 @@ export const IntlIconButton = ({
     className={className}
     onClick={onClick}
     disabled={disabled}
-    title={tFunc(titleKey)}
-    aria-label={tFunc(ariaLabelKey)}
+    title={t(titleKey)}
+    aria-label={t(ariaLabelKey)}
     {...props}
   >
     <Icon className="h-4 w-4" />

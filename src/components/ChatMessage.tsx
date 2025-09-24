@@ -61,7 +61,7 @@ export default function ChatMessage({
   onChangeSibling(sibling: Message['id']): void;
   isPending?: boolean;
 }) {
-  const { t: tFunc } = useTranslation();
+  const { t } = useTranslation();
   const { showConfirm } = useModals();
   const {
     config: { initials, showTokensPerSecond },
@@ -127,9 +127,9 @@ export default function ChatMessage({
       role="group"
       aria-description={
         isUser
-          ? tFunc('chatScreen.ariaLabels.messageUserRole')
+          ? t('chatScreen.ariaLabels.messageUserRole')
           : isAssistant
-            ? tFunc('chatScreen.ariaLabels.messageAssistantRole')
+            ? t('chatScreen.ariaLabels.messageAssistantRole')
             : undefined
       }
     >
@@ -173,7 +173,7 @@ export default function ChatMessage({
               setIsEditing={setIsEditing}
               onEditUserMessage={onEditUserMessage}
               onEditAssistantMessage={onEditAssistantMessage}
-              tFunc={tFunc}
+              t={t}
             />
           )}
 
@@ -184,7 +184,7 @@ export default function ChatMessage({
                 <ThoughtProcess
                   isThinking={!!isPending && !content}
                   content={reasoning_content}
-                  tFunc={tFunc}
+                  t={t}
                 />
               )}
 
@@ -214,7 +214,7 @@ export default function ChatMessage({
             <div
               className="flex gap-1 items-center opacity-60 text-sm"
               role="navigation"
-              aria-description={tFunc('chatScreen.ariaLabels.siblingLeafs', {
+              aria-description={t('chatScreen.ariaLabels.siblingLeafs', {
                 current: siblingCurrIdx + 1,
                 total: siblingLeafNodeIds.length,
               })}
@@ -224,7 +224,7 @@ export default function ChatMessage({
                 onClick={() => prevSibling && onChangeSibling(prevSibling)}
                 disabled={!prevSibling}
                 icon={ChevronLeftIcon}
-                tFunc={tFunc}
+                t={t}
                 titleKey="chatScreen.titles.previous"
                 ariaLabelKey="chatScreen.ariaLabels.switchToPrevious"
               />
@@ -237,7 +237,7 @@ export default function ChatMessage({
                 onClick={() => nextSibling && onChangeSibling(nextSibling)}
                 disabled={!nextSibling}
                 icon={ChevronRightIcon}
-                tFunc={tFunc}
+                t={t}
                 titleKey="chatScreen.titles.next"
                 ariaLabelKey="chatScreen.ariaLabels.switchToNext"
               />
@@ -254,8 +254,8 @@ export default function ChatMessage({
                 }
               }}
               disabled={!msg.content}
-              title={tFunc('chatScreen.titles.regenerate')}
-              aria-label={tFunc('chatScreen.ariaLabels.regenerateResponse')}
+              title={t('chatScreen.titles.regenerate')}
+              aria-label={t('chatScreen.ariaLabels.regenerateResponse')}
             >
               <ArrowPathIcon className="h-4 w-4" />
             </button>
@@ -265,8 +265,8 @@ export default function ChatMessage({
           {isAssistant && timings && showTokensPerSecond && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
-              title={tFunc('chatScreen.titles.performance')}
-              aria-label={tFunc('chatScreen.ariaLabels.showPerformanceMetric')}
+              title={t('chatScreen.titles.performance')}
+              aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >
               <div className="dropdown dropdown-hover dropdown-top">
                 <ExclamationCircleIcon className="h-4 w-4" />
@@ -301,7 +301,7 @@ export default function ChatMessage({
             onClick={() => setIsEditing(msg.content !== null)}
             disabled={!msg.content}
             icon={PencilSquareIcon}
-            tFunc={tFunc}
+            t={t}
             titleKey="chatScreen.titles.edit"
             ariaLabelKey="chatScreen.ariaLabels.editMessage"
           />
@@ -311,7 +311,7 @@ export default function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             onClick={handleCopy}
             icon={DocumentDuplicateIcon}
-            tFunc={tFunc}
+            t={t}
             titleKey="chatScreen.titles.copy"
             ariaLabelKey="chatScreen.ariaLabels.copyContent"
           />
@@ -321,7 +321,7 @@ export default function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || !content}
             text={content ?? ''}
-            tFunc={tFunc}
+            t={t}
           />
 
           {/* delete message */}
@@ -334,7 +334,7 @@ export default function ChatMessage({
             }}
             disabled={!msg.content}
             icon={TrashIcon}
-            tFunc={tFunc}
+            t={t}
             titleKey="chatScreen.titles.delete"
             ariaLabelKey="chatScreen.ariaLabels.deleteMessage"
           />
@@ -344,7 +344,7 @@ export default function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             onClick={async () => await branchMessage(msg as Message)}
             disabled={!msg.content}
-            tFunc={tFunc}
+            t={t}
             titleKey="chatScreen.titles.branchChat"
             ariaLabelKey="chatScreen.ariaLabels.branchChatAfterMessage"
             icon={ShareIcon}
@@ -360,13 +360,13 @@ function EditMessage({
   setIsEditing,
   onEditUserMessage,
   onEditAssistantMessage,
-  tFunc,
+  t,
 }: {
   msg: Message | PendingMessage;
   setIsEditing(flag: boolean): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
-  tFunc: ReturnType<typeof useTranslation>['t'];
+  t: ReturnType<typeof useTranslation>['t'];
 }) {
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
@@ -392,7 +392,7 @@ function EditMessage({
             <label
               htmlFor={`file-upload-${msg.id}`}
               className="btn w-8 h-8 mt-1 p-0 rounded-full"
-              aria-label={tFunc('chatScreen.ariaLabels.uploadFile')}
+              aria-label={t('chatScreen.ariaLabels.uploadFile')}
               tabIndex={0}
               role="button"
             >
@@ -446,11 +446,11 @@ function EditMessage({
 function ThoughtProcess({
   isThinking,
   content,
-  tFunc,
+  t,
 }: {
   isThinking: boolean;
   content: string;
-  tFunc: ReturnType<typeof useTranslation>['t'];
+  t: ReturnType<typeof useTranslation>['t'];
 }) {
   const {
     config: { showThoughtInProgress },
@@ -458,7 +458,7 @@ function ThoughtProcess({
   return (
     <div
       role="button"
-      aria-label={tFunc('chatScreen.ariaLabels.thoughtDisplay')}
+      aria-label={t('chatScreen.ariaLabels.thoughtDisplay')}
       tabIndex={0}
       className="collapse bg-none"
     >
@@ -482,7 +482,7 @@ function ThoughtProcess({
       <div
         className="collapse-content text-base-content/70 text-sm p-1"
         tabIndex={0}
-        aria-description={tFunc('chatScreen.ariaLabels.thoughtContent')}
+        aria-description={t('chatScreen.ariaLabels.thoughtContent')}
       >
         <div className="border-l-2 border-base-content/20 pl-4 mb-4">
           <MarkdownDisplay content={content} />
@@ -496,12 +496,12 @@ const PlayButton = ({
   className,
   disabled,
   text,
-  tFunc,
+  t,
 }: {
   className?: string;
   disabled?: boolean;
   text: string;
-  tFunc: ReturnType<typeof useTranslation>['t'];
+  t: ReturnType<typeof useTranslation>['t'];
 }) => {
   const {
     config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
@@ -521,7 +521,7 @@ const PlayButton = ({
               className={className}
               onClick={play}
               disabled={disabled}
-              tFunc={tFunc}
+              t={t}
               titleKey="chatScreen.titles.play"
               ariaLabelKey="chatScreen.ariaLabels.playMessage"
               icon={SpeakerWaveIcon}
@@ -532,7 +532,7 @@ const PlayButton = ({
               className={className}
               onClick={stop}
               disabled={disabled}
-              tFunc={tFunc}
+              t={t}
               titleKey="chatScreen.titles.stop"
               ariaLabelKey="chatScreen.ariaLabels.stopMessage"
               icon={SpeakerXMarkIcon}

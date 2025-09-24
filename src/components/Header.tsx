@@ -13,7 +13,7 @@ import { Dropdown } from './common';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const {
     config,
     config: { model },
@@ -27,11 +27,11 @@ export default function Header() {
   const title = useMemo(
     () =>
       showSettings
-        ? trans('header.title.settings')
+        ? t('header.title.settings')
         : currConv
           ? currConv.name
-          : trans('header.title.noChat'),
-    [trans, currConv, showSettings]
+          : t('header.title.noChat'),
+    [t, currConv, showSettings]
   );
 
   const selectedModel = useMemo(() => {
@@ -65,8 +65,8 @@ export default function Header() {
         <button
           className="btn btn-ghost w-8 h-8 p-0 rounded-full"
           onClick={() => navigate('/')}
-          title={trans('header.buttons.newConvBtnTitle')}
-          aria-label={trans('header.buttons.newConvBtnLabel')}
+          title={t('header.buttons.newConvBtnTitle')}
+          aria-label={t('header.buttons.newConvBtnLabel')}
         >
           <PencilSquareIcon className="w-5 h-5" />
         </button>
@@ -122,8 +122,8 @@ export default function Header() {
           <div className="flex items-center">
             <button
               className="btn btn-ghost w-8 h-8 p-0 rounded-full max-xl:hidden"
-              title={trans('header.buttons.settingsBtnTitle')}
-              aria-label={trans('header.buttons.settingsBtnLabel')}
+              title={t('header.buttons.settingsBtnTitle')}
+              aria-label={t('header.buttons.settingsBtnLabel')}
               onClick={() => navigate('/settings')}
             >
               {/* settings button */}

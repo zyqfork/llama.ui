@@ -59,7 +59,7 @@ const App: FC = () => {
 
 const AppLayout: FC = () => {
   const navigate = useNavigate();
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const { config, showSettings } = useAppContext();
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
@@ -70,19 +70,19 @@ const AppLayout: FC = () => {
       if (Array.isArray(models) && models.length > 0) return;
 
       toast(
-        (t) => {
+        (toast) => {
           const isInitialSetup = config.baseUrl === '';
           const popupConfig = isInitialSetup ? 'welcomePopup' : 'noModelsPopup';
 
           return (
             <ToastPopup
-              t={t}
+              t={toast}
               onSubmit={() => navigate('/settings')}
-              title={trans(`toast.${popupConfig}.title`)}
-              description={trans(`toast.${popupConfig}.description`)}
-              note={trans(`toast.${popupConfig}.note`)}
-              submitBtn={trans(`toast.${popupConfig}.submitBtnLabel`)}
-              cancelBtn={trans(`toast.${popupConfig}.cancelBtnLabel`)}
+              title={t(`toast.${popupConfig}.title`)}
+              description={t(`toast.${popupConfig}.description`)}
+              note={t(`toast.${popupConfig}.note`)}
+              submitBtn={t(`toast.${popupConfig}.submitBtnLabel`)}
+              cancelBtn={t(`toast.${popupConfig}.cancelBtnLabel`)}
             />
           );
         },
@@ -93,7 +93,7 @@ const AppLayout: FC = () => {
         }
       );
     },
-    [trans, config.baseUrl, navigate]
+    [t, config.baseUrl, navigate]
   );
 
   const delayedNoModels = useDebouncedCallback(
@@ -105,15 +105,15 @@ const AppLayout: FC = () => {
   useEffect(() => {
     if (isNewVersion) {
       toast(
-        (t) => (
+        (toast) => (
           <ToastPopup
-            t={t}
+            t={toast}
             onSubmit={handleUpdate}
-            title={trans('toast.newVersion.title')}
-            description={trans('toast.newVersion.description')}
-            note={trans('toast.newVersion.note')}
-            submitBtn={trans('toast.newVersion.submitBtnLabel')}
-            cancelBtn={trans('toast.newVersion.cancelBtnLabel')}
+            title={t('toast.newVersion.title')}
+            description={t('toast.newVersion.description')}
+            note={t('toast.newVersion.note')}
+            submitBtn={t('toast.newVersion.submitBtnLabel')}
+            cancelBtn={t('toast.newVersion.cancelBtnLabel')}
           />
         ),
         {
@@ -123,7 +123,7 @@ const AppLayout: FC = () => {
         }
       );
     }
-  }, [trans, isNewVersion, handleUpdate]);
+  }, [t, isNewVersion, handleUpdate]);
 
   // Handle model checking
   useEffect(() => {

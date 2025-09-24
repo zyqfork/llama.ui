@@ -202,9 +202,9 @@ const DELIMETER: SettingFieldCustom = {
 const UnusedCustomField: React.FC = () => null;
 
 const getSettingTabsConfiguration = (
-  trans: ReturnType<typeof useTranslation>['t'],
   config: Configuration,
-  models: InferenceApiModel[]
+  models: InferenceApiModel[],
+  t: ReturnType<typeof useTranslation>['t']
 ): SettingTab[] => [
   /* General */
   {
@@ -335,7 +335,7 @@ const getSettingTabsConfiguration = (
         key: 'custom', // dummy key, won't be used
         component: () => (
           <TextToSpeech
-            text={trans('settings.textToSpeech.check.text')}
+            text={t('settings.textToSpeech.check.text')}
             voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
             pitch={config.ttsPitch}
             rate={config.ttsRate}
@@ -351,7 +351,7 @@ const getSettingTabsConfiguration = (
               >
                 {!isPlaying && <SpeakerWaveIcon className={ICON_CLASSNAME} />}
                 {isPlaying && <SpeakerXMarkIcon className={ICON_CLASSNAME} />}
-                {trans('settings.textToSpeech.check.label')}
+                {t('settings.textToSpeech.check.label')}
               </button>
             )}
           </TextToSpeech>
@@ -535,7 +535,7 @@ const getSettingTabsConfiguration = (
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { t: trans, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     config,
     saveConfig,
@@ -556,8 +556,8 @@ export default function Settings() {
     Object.assign([], models)
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(trans, localConfig, localModels),
-    [trans, localConfig, localModels]
+    () => getSettingTabsConfiguration(localConfig, localModels, t),
+    [t, localConfig, localModels]
   );
   const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
@@ -890,19 +890,19 @@ const LabeledField = forwardRef<
   LabeledFieldState,
   LabeledFieldProps & { children: (props: LabeledFieldState) => ReactNode }
 >(({ children, configKey }, ref) => {
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const { label, note } = useMemo(() => {
     if (!configKey) return { label: '' };
     return {
       label:
-        trans(`settings.parameters.${configKey}.label`, {
+        t(`settings.parameters.${configKey}.label`, {
           defaultValue: configKey,
         }) || configKey,
-      note: trans(`settings.parameters.${configKey}.note`, {
+      note: t(`settings.parameters.${configKey}.note`, {
         defaultValue: '',
       }),
     };
-  }, [trans, configKey]);
+  }, [t, configKey]);
 
   useImperativeHandle(
     ref,

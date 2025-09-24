@@ -12,7 +12,7 @@ const SAMPLE_PROMPTS_COUNT = 4;
 
 export default function WelcomeScreen() {
   const navigate = useNavigate();
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const {
     config: { systemMessage },
   } = useAppContext();
@@ -20,10 +20,10 @@ export default function WelcomeScreen() {
   const samplePrompts = useMemo(
     () =>
       getUniqueRandomElements(
-        trans('samplePrompts', { returnObjects: true }) as string[],
+        t('samplePrompts', { returnObjects: true }) as string[],
         SAMPLE_PROMPTS_COUNT
       ),
-    [trans]
+    [t]
   );
 
   const handleSend = useCallback(

@@ -64,7 +64,7 @@ const CustomPre: React.ElementType<
     React.HTMLAttributes<HTMLPreElement> &
     ExtraProps & { origContent: string; isGenerating?: boolean }
 > = ({ className, children, node, origContent, isGenerating }) => {
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const {
     config: { pyIntepreterEnabled },
   } = useAppContext();
@@ -116,7 +116,7 @@ const CustomPre: React.ElementType<
   };
 
   return (
-    <div className="hljs" aria-label={trans('chatScreen.ariaLabels.codeBlock')}>
+    <div className="hljs" aria-label={t('chatScreen.ariaLabels.codeBlock')}>
       {showActionButtons && (
         <div
           className={classNames({
@@ -127,7 +127,7 @@ const CustomPre: React.ElementType<
           {canRunCode && (
             <IntlIconButton
               className="btn btn-ghost w-8 h-8 p-0"
-              tFunc={trans}
+              t={t}
               titleKey="chatScreen.titles.run"
               ariaLabelKey="chatScreen.ariaLabels.runCode"
               icon={PlayIcon}
@@ -136,7 +136,7 @@ const CustomPre: React.ElementType<
           )}
           <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
-            tFunc={trans}
+            t={t}
             titleKey="chatScreen.titles.copy"
             ariaLabelKey="chatScreen.ariaLabels.copyContent"
             icon={DocumentDuplicateIcon}
@@ -149,7 +149,7 @@ const CustomPre: React.ElementType<
         {codeLanguage && (
           <div
             className="text-sm ml-2"
-            aria-label={trans('chatScreen.ariaLabels.codeLanguage')}
+            aria-label={t('chatScreen.ariaLabels.codeLanguage')}
           >
             {codeLanguage}
           </div>
