@@ -328,7 +328,7 @@ export default function ChatMessage({
           <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
             onClick={async () => {
-              if (await showConfirm('Are you sure to delete this message?')) {
+              if (await showConfirm(t('chatScreen.actions.delete.confirm'))) {
                 await StorageUtils.deleteMessage(msg);
               }
             }}

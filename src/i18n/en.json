@@ -71,6 +71,11 @@
       "thinking": "Thinking",
       "thoughts": "Thoughts"
     },
+    "actions": {
+      "delete": {
+        "confirm": "Are you sure to delete this message?"
+      }
+    },
     "titles": {
       "previous": "Previous",
       "next": "Next",
