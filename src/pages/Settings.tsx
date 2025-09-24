@@ -756,7 +756,7 @@ export default function Settings() {
                 }
               >
                 <ArrowPathIcon className={ICON_CLASSNAME} />
-                Fetch Models
+                <Trans i18nKey="settings.actionButtons.fetchModels" />
               </button>
             );
           default:
@@ -846,9 +846,12 @@ export default function Settings() {
           {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
           <p className="opacity-40 text-sm mt-8">
-            App Version: {import.meta.env.PACKAGE_VERSION}
+            <Trans
+              i18nKey="settings.footer.version"
+              values={{ version: import.meta.env.PACKAGE_VERSION }}
+            />
             <br />
-            Settings are saved in browser's localStorage
+            <Trans i18nKey="settings.footer.storageNote" />
           </p>
         </div>
       </div>

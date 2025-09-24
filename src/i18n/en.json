@@ -420,9 +420,14 @@
       "importDemoConversationBtnLabel": "Import demo conversation"
     },
     "actionButtons": {
+      "fetchModels": "Fetch Models",
       "saveBtnLabel": "Save",
       "cancelBtnLabel": "Close",
       "resetBtnLabel": "Reset"
+    },
+    "footer": {
+      "version": "Application Version: {{version}}",
+      "storageNote": "Settings are saved in browser's localStorage."
     }
   },
   "toast": {
