@@ -1265,11 +1265,14 @@ const PresetManager: FC<{
   onSavePreset: (name: string, config: Configuration) => Promise<void>;
   onRemovePreset: (name: string) => Promise<void>;
 }> = ({ config, onLoadConfig, presets, onSavePreset, onRemovePreset }) => {
+  const { t } = useTranslation();
   const { showConfirm, showPrompt } = useModals();
 
   const handleSavePreset = async () => {
     const newPresetName = (
-      (await showPrompt('Enter a new preset name')) || ''
+      (await showPrompt(
+        t('settings.presetManager.modals.enterNewPresetName')
+      )) || ''
     ).trim();
     if (newPresetName === '') return;
 
@@ -1277,7 +1280,9 @@ const PresetManager: FC<{
     if (
       !existingPreset ||
       (await showConfirm(
-        `Preset "${newPresetName}" already exists, overwrite it?`
+        t('settings.presetManager.modals.presetAlreadyExists', {
+          presetName: newPresetName,
+        })
       ))
     ) {
       await onSavePreset(newPresetName, config);
@@ -1285,7 +1290,9 @@ const PresetManager: FC<{
   };
 
   const handleRenamePreset = async (preset: ConfigurationPreset) => {
-    const newPresetName = ((await showPrompt('Enter a new name')) || '').trim();
+    const newPresetName = (
+      (await showPrompt(t('settings.presetManager.modals.enterNewName'))) || ''
+    ).trim();
     if (newPresetName === '') return;
 
     await onRemovePreset(preset.name);
@@ -1298,7 +1305,9 @@ const PresetManager: FC<{
   const handleLoadPreset = async (preset: ConfigurationPreset) => {
     if (
       await showConfirm(
-        `Load preset "${preset.name}"? Current settings will be replaced.`
+        t('settings.presetManager.modals.loadPresetConfirm', {
+          presetName: preset.name,
+        })
       )
     ) {
       await onLoadConfig(
@@ -1308,7 +1317,13 @@ const PresetManager: FC<{
   };
 
   const handleDeletePreset = async (preset: ConfigurationPreset) => {
-    if (await showConfirm(`Delete preset "${preset.name}"?`)) {
+    if (
+      await showConfirm(
+        t('settings.presetManager.modals.deletePresetConfirm', {
+          presetName: preset.name,
+        })
+      )
+    ) {
       await onRemovePreset(preset.name);
     }
   };
@@ -1317,27 +1332,27 @@ const PresetManager: FC<{
     <>
       {/* Save new preset */}
       <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.newPreset.title" />
+        <Trans i18nKey="settings.presetManager.newPreset" />
       </SettingsSectionLabel>
 
       <button
         className="btn btn-neutral max-w-80 mb-4"
         onClick={handleSavePreset}
-        title="Save new preset"
-        aria-label="Save new preset"
+        title={t('settings.presetManager.buttons.save')}
+        aria-label={t('settings.presetManager.ariaLabels.save')}
       >
         <CloudArrowUpIcon className="w-5 h-5" />
-        <Trans i18nKey="settings.presetManager.newPreset.saveBtnLabel" />
+        <Trans i18nKey="settings.presetManager.buttons.save" />
       </button>
 
       {/* List of saved presets */}
       <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.savedPresets.title" />
+        <Trans i18nKey="settings.presetManager.savedPresets" />
       </SettingsSectionLabel>
 
       {presets.length === 0 && (
         <div className="text-xs opacity-75 max-w-80">
-          <Trans i18nKey="settings.presetManager.savedPresets.noPresetFound" />
+          <Trans i18nKey="settings.presetManager.noPresetFound" />
         </div>
       )}
 
@@ -1351,7 +1366,8 @@ const PresetManager: FC<{
                   <div className="grow">
                     <h4 className="font-medium">{preset.name}</h4>
                     <p className="text-xs opacity-40">
-                      Created: {dateFormatter.format(preset.createdAt)}
+                      {t('settings.presetManager.labels.created')}{' '}
+                      {dateFormatter.format(preset.createdAt)}
                     </p>
                   </div>
 
@@ -1359,8 +1375,8 @@ const PresetManager: FC<{
                     <button
                       className="btn btn-ghost w-8 h-8 p-0 rounded-full"
                       onClick={() => handleLoadPreset(preset)}
-                      title="Load preset"
-                      aria-label="Load preset"
+                      title={t('settings.presetManager.buttons.load')}
+                      aria-label={t('settings.presetManager.ariaLabels.load')}
                     >
                       <PlayCircleIcon className="w-5 h-5" />
                     </button>
@@ -1369,8 +1385,8 @@ const PresetManager: FC<{
                     <div tabIndex={0} className="dropdown dropdown-end">
                       <button
                         className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                        title="More"
-                        aria-label="Show more actions"
+                        title={t('settings.presetManager.buttons.more')}
+                        aria-label={t('settings.presetManager.ariaLabels.more')}
                       >
                         <EllipsisVerticalIcon className="w-5 h-5" />
                       </button>
@@ -1386,22 +1402,26 @@ const PresetManager: FC<{
                           <button
                             type="button"
                             onClick={() => handleRenamePreset(preset)}
-                            title="Rename preset"
-                            aria-label="Rename preset"
+                            title={t('settings.presetManager.buttons.rename')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.rename'
+                            )}
                           >
                             <PencilIcon className={ICON_CLASSNAME} />
-                            Rename
+                            {t('settings.presetManager.buttons.rename')}
                           </button>
                         </li>
                         <li role="menuitem" tabIndex={0} className="text-error">
                           <button
                             type="button"
                             onClick={() => handleDeletePreset(preset)}
-                            title="Delete preset"
-                            aria-label="Delete preset"
+                            title={t('settings.presetManager.buttons.delete')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.delete'
+                            )}
                           >
                             <TrashIcon className={ICON_CLASSNAME} />
-                            Delete
+                            {t('settings.presetManager.buttons.delete')}
                           </button>
                         </li>
                       </ul>
@@ -1419,6 +1439,7 @@ const PresetManager: FC<{
 const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { importDB, exportDB } = useAppContext();
 
   const onExport = async () => {
@@ -1459,13 +1480,13 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
     <>
       <SettingsSectionLabel>
         <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-        Chats
+        {t('settings.importExport.chatsSectionTitle')}
       </SettingsSectionLabel>
 
       <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
           <ArrowDownTrayIcon className={ICON_CLASSNAME} />
-          Export
+          {t('settings.importExport.exportBtnLabel')}
         </button>
 
         <input
@@ -1478,12 +1499,12 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
         <label
           htmlFor="file-import"
           className="btn"
-          aria-label="Import file"
+          aria-label={t('settings.importExport.importBtnLabel')}
           tabIndex={0}
           role="button"
         >
           <ArrowUpTrayIcon className={ICON_CLASSNAME} />
-          Import
+          {t('settings.importExport.importBtnLabel')}
         </label>
       </div>
 
@@ -1491,11 +1512,11 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
       <SettingsSectionLabel>
         <EyeIcon className={ICON_CLASSNAME} />
-        Technical Demo
+        {t('settings.importExport.technicalDemoSectionTitle')}
       </SettingsSectionLabel>
 
       <button className="btn" onClick={debugImportDemoConv}>
-        Import demo conversation
+        {t('settings.importExport.importDemoConversationBtnLabel')}
       </button>
     </>
   );

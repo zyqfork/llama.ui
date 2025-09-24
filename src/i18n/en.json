@@ -374,13 +374,32 @@
       }
     },
     "presetManager": {
-      "newPreset": {
-        "title": "Save the current settings as a preset",
-        "saveBtnLabel": "Save New Preset"
+      "newPreset": "Save the current settings as a preset",
+      "savedPresets": "Existing presets",
+      "noPresetFound": "No presets yet.",
+      "modals": {
+        "enterNewPresetName": "Enter a new preset name",
+        "presetAlreadyExists": "Preset \"{{presetName}}\" already exists, overwrite it?",
+        "enterNewName": "Enter a new name",
+        "loadPresetConfirm": "Load preset \"{{presetName}}\"? Current settings will be replaced.",
+        "deletePresetConfirm": "Delete preset \"{{presetName}}\"?"
       },
-      "savedPresets": {
-        "title": "Existing presets",
-        "noPresetFound": "No presets yet."
+      "buttons": {
+        "save": "Create preset",
+        "load": "Load",
+        "more": "More",
+        "rename": "Rename",
+        "delete": "Delete"
+      },
+      "labels": {
+        "created": "Created:"
+      },
+      "ariaLabels": {
+        "save": "Create new preset",
+        "load": "Load preset",
+        "more": "Show more actions",
+        "rename": "Rename preset",
+        "delete": "Delete preset"
       }
     },
     "themeManager": {
@@ -392,6 +411,13 @@
         "label": "Syntax Theme",
         "note": "Choose the color theme for the code blocks."
       }
+    },
+    "importExport": {
+      "chatsSectionTitle": "Chats",
+      "exportBtnLabel": "Export",
+      "importBtnLabel": "Import",
+      "technicalDemoSectionTitle": "Technical Demo",
+      "importDemoConversationBtnLabel": "Import demo conversation"
     },
     "actionButtons": {
       "saveBtnLabel": "Save",
