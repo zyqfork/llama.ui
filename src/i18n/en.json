@@ -397,6 +397,38 @@
       "cancelBtnLabel": "Skip"
     }
   },
+  "state": {
+    "database": {
+      "import": {
+        "failed": "Database import failed.",
+        "completed": "Database import completed."
+      },
+      "export": {
+        "failed": "Database export failed.",
+        "completed": "Database export completed."
+      }
+    },
+    "preset": {
+      "saved": "Preset is saved successfully.",
+      "removed": "Preset is removed successfully."
+    },
+    "inference": {
+      "errors": {
+        "providerError": "Inference Provider: {{message}}."
+      }
+    },
+    "chat": {
+      "errors": {
+        "conversationNotFound": "Current conversation is not found",
+        "messagesNotFound": "Current messages are not found",
+        "unknownError": "Unknown error",
+        "unknownErrorDuringGeneration": "Unknown error during generation",
+        "cannotSaveMessage": "Cannot save message.",
+        "failedToGetResponse": "Failed to get response from AI.",
+        "failedToBranchConversation": "Failed to branch conversation."
+      }
+    }
+  },
   "samplePrompts": [
     "Tell me a fun fact for today.",
     "Tell me a joke.",

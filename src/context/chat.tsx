@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 import { normalizeMsgsForAPI } from '../api/inference';
 import { isDev } from '../config';
@@ -69,6 +70,7 @@ const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
 export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const params = matchPath('/chat/:convId', pathname);
   const convId = params?.params?.convId;
 
@@ -142,7 +144,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
 
     const currConversation = await StorageUtils.getOneConversation(convId);
     if (!currConversation) {
-      throw new Error('Current conversation is not found');
+      throw new Error(t('state.chat.errors.conversationNotFound'));
     }
 
     const currMessages = StorageUtils.filterByLeafNodeId(
@@ -154,7 +156,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     setAbort(convId, abortController);
 
     if (!currMessages) {
-      throw new Error('Current messages are not found');
+      throw new Error(t('state.chat.errors.messagesNotFound'));
     }
 
     const messages: InferenceApiMessage[] = normalizeMsgsForAPI(currMessages);
@@ -183,7 +185,9 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       );
       for await (const chunk of chunks) {
         if (chunk.error) {
-          throw new Error(chunk.error?.message || 'Unknown error');
+          throw new Error(
+            chunk.error?.message || t('state.chat.errors.unknownError')
+          );
         }
         if (!chunk.choices || !Array.isArray(chunk.choices)) {
           console.warn('Invalid chunk format received:', chunk);
@@ -236,7 +240,8 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       } else {
         console.error('Error during message generation:', err);
         toast.error(
-          (err as Error)?.message ?? 'Unknown error during generation'
+          (err as Error)?.message ??
+            t('state.chat.errors.unknownErrorDuringGeneration')
         );
         throw err; // rethrow
       }
@@ -285,7 +290,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
           parent
         );
       } catch (err) {
-        toast.error('Cannot save message.');
+        toast.error(t('state.chat.errors.cannotSaveMessage'));
         return false;
       }
     }
@@ -302,7 +307,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       return true;
     } catch (error) {
       console.error('Message sending failed, consider rollback:', error);
-      toast.error('Failed to get response from AI.');
+      toast.error(t('state.chat.errors.failedToGetResponse'));
       // TODO: rollback
     }
     return false;
@@ -342,7 +347,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       navigate(`/chat/${conv.id}`);
     } catch (error) {
       console.error('Conversation branch failed:', error);
-      toast.error('Failed to branch conversation.');
+      toast.error(t('state.chat.errors.failedToBranchConversation'));
     }
   };
 

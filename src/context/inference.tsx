@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import InferenceApi from '../api/inference';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import {
@@ -67,6 +68,8 @@ export const InferenceContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
+  const { t } = useTranslation();
+
   const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
   const [api, setApi] = useState<InferenceApi>(
     InferenceApi.new(CONFIG_DEFAULT)
@@ -110,7 +113,11 @@ export const InferenceContextProvider = ({
     } catch (err) {
       if (!options.silent) {
         console.error('fetch models failed: ', err);
-        toast.error(`Inference Provider: ${(err as Error).message}.`);
+        toast.error(
+          t('state.inference.errors.providerError', {
+            message: (err as Error).message,
+          })
+        );
       }
     }
     return newModels;
