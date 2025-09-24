@@ -6,6 +6,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
@@ -41,6 +42,7 @@ export function ChatInput({
   onStop: () => void;
   isGenerating: boolean;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
   const extraContext = useFileUpload();
@@ -48,7 +50,7 @@ export function ChatInput({
   const sendNewMessage = async () => {
     const lastInpMsg = textarea.value();
     if (lastInpMsg.trim().length === 0) {
-      toast.error('Please enter a message');
+      toast.error(t('chatInput.errors.emptyMessage'));
       return;
     }
 
@@ -84,7 +86,7 @@ export function ChatInput({
   return (
     <div
       className="shrink-0 w-full lg:max-w-[900px] bg-base-100 mx-auto p-1 md:p-2"
-      aria-label="Chat input"
+      aria-label={t('chatInput.ariaLabels.chatInput')}
     >
       <DropzoneArea
         inputId="new-message-file-upload"
@@ -96,7 +98,7 @@ export function ChatInput({
             // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
             // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
             className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
-            placeholder="Type your message... (Shift+Enter to add a new line)"
+            placeholder={t('chatInput.placeholder')}
             ref={textarea.ref}
             onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
             onKeyDown={(e) => {
@@ -122,7 +124,7 @@ export function ChatInput({
                   'btn btn-ghost w-8 h-8 p-0 rounded-full': true,
                   'btn-disabled': isGenerating,
                 })}
-                aria-label="Upload file"
+                aria-label={t('chatInput.ariaLabels.uploadFile')}
                 tabIndex={0}
                 role="button"
               >
@@ -131,8 +133,8 @@ export function ChatInput({
 
               <button
                 className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
-                title="Settings"
-                aria-label="Open settings menu"
+                title={t('chatInput.buttons.settings')}
+                aria-label={t('chatInput.ariaLabels.settings')}
                 onClick={() => navigate('/settings')}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
@@ -153,7 +155,7 @@ export function ChatInput({
                 <button
                   className="btn btn-neutral w-8 h-8 p-0 rounded-full"
                   onClick={sendNewMessage}
-                  aria-label="Send message"
+                  aria-label={t('chatInput.ariaLabels.send')}
                 >
                   <ArrowUpIcon className="h-5 w-5" />
                 </button>

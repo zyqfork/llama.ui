@@ -181,6 +181,7 @@ export function Dropdown<T extends DropdownOption>({
   isSelected,
   onSelect,
 }: DropdownProps<T>) {
+  const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDetailsElement>(null);
   const [filter, setFilter] = useState<string>('');
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
@@ -223,7 +224,7 @@ export function Dropdown<T extends DropdownOption>({
         <div
           className="grow truncate"
           title={entity}
-          aria-label={`Choose ${entity}`}
+          aria-label={t('common.dropdown.chooseEntity', { entity })}
         >
           {currentValue}
         </div>
@@ -238,7 +239,7 @@ export function Dropdown<T extends DropdownOption>({
           <summary
             className="grow truncate flex justify-between items-center cursor-pointer"
             title={entity}
-            aria-label={`Choose ${entity}`}
+            aria-label={t('common.dropdown.chooseEntity', { entity })}
             aria-haspopup="listbox"
           >
             {currentValue}
@@ -252,7 +253,7 @@ export function Dropdown<T extends DropdownOption>({
             {filterable && (
               <input
                 type="text"
-                placeholder={`Search ${entity}s...`}
+                placeholder={t('common.dropdown.searchPlaceholder', { entity })}
                 className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -261,7 +262,9 @@ export function Dropdown<T extends DropdownOption>({
             )}
 
             {filteredOptions.length === 0 && (
-              <div className="p-2 text-sm">No options found</div>
+              <div className="p-2 text-sm">
+                {t('common.dropdown.noOptions')}
+              </div>
             )}
 
             {filteredOptions.length > 0 && (

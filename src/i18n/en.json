@@ -105,6 +105,56 @@
       "thoughtContent": "Thought process content"
     }
   },
+  "chatInput": {
+    "placeholder": "Type your message... (Shift+Enter to add a new line)",
+    "errors": {
+      "emptyMessage": "Please enter a message"
+    },
+    "buttons": {
+      "settings": "Settings"
+    },
+    "item": {
+      "clickToShow": "Click to show: {{name}}",
+      "extraContentName": "Extra content"
+    },
+    "previewDialog": {
+      "closeButton": "Close preview dialog",
+      "audioNotSupported": "Your browser does not support the audio element."
+    },
+    "ariaLabels": {
+      "chatInput": "Chat input",
+      "uploadFile": "Upload file",
+      "settings": "Open settings menu",
+      "send": "Send message",
+      "fileItems": "Selected files",
+      "removeButton": "Remove file",
+      "documentIcon": "Document icon",
+      "previewDialog": "Preview {{name}}"
+    }
+  },
+  "codeRunner": {
+    "canvasPyInterpreter": {
+      "title": "Python Interpreter",
+      "output": {
+        "loading": "Loading Pyodide...",
+        "running": "Running..."
+      },
+      "buttons": {
+        "run": "Run",
+        "stop": "Stop"
+      },
+      "links": {
+        "reportBug": "Report a bug"
+      }
+    }
+  },
+  "common": {
+    "dropdown": {
+      "chooseEntity": "Choose {{entity}}",
+      "searchPlaceholder": "Search {{entity}}s...",
+      "noOptions": "No options found"
+    }
+  },
   "fileUpload": {
     "errors": {
       "fileTooLarge": "File is too large. Maximum size is 500MB.",
