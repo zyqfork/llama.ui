@@ -18,7 +18,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
 // - pdf (converted to text)
 
 // Interface describing the API returned by the hook
-export interface ChatExtraContextApi {
+export interface FileUploadApi {
   items?: MessageExtra[]; // undefined if empty, similar to Message['extra']
   addItems: (items: MessageExtra[]) => void;
   removeItem: (idx: number) => void;
@@ -26,9 +26,9 @@ export interface ChatExtraContextApi {
   onFileAdded: (files: File[]) => void; // used by "upload" button
 }
 
-export function useChatExtraContext(
+export function useFileUpload(
   initialItems: MessageExtra[] = []
-): ChatExtraContextApi {
+): FileUploadApi {
   const { t } = useTranslation();
   const {
     config: { pdfAsImage },

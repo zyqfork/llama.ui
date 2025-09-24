@@ -1,7 +1,7 @@
 import { ClipboardEvent, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { useAppContext } from '../context/app';
-import { ChatExtraContextApi } from '../hooks/useChatExtraContext';
+import { FileUploadApi } from '../hooks/useFileUpload';
 import { classNames } from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 
@@ -13,7 +13,7 @@ export function DropzoneArea({
 }: {
   children: React.ReactNode;
   inputId: string;
-  extraContext: ChatExtraContextApi;
+  extraContext: FileUploadApi;
   disabled: boolean;
 }) {
   const {

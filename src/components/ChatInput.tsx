@@ -7,8 +7,8 @@ import {
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
-import { useChatExtraContext } from '../hooks/useChatExtraContext';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
+import { useFileUpload } from '../hooks/useFileUpload';
 import { MessageExtra } from '../types';
 import { classNames, cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
@@ -43,7 +43,7 @@ export function ChatInput({
 }) {
   const navigate = useNavigate();
   const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
-  const extraContext = useChatExtraContext();
+  const extraContext = useFileUpload();
 
   const sendNewMessage = async () => {
     const lastInpMsg = textarea.value();

@@ -18,7 +18,7 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
 import StorageUtils from '../database';
-import { useChatExtraContext } from '../hooks/useChatExtraContext';
+import { useFileUpload } from '../hooks/useFileUpload';
 import { Message, MessageExtra, PendingMessage } from '../types';
 import {
   classNames,
@@ -371,7 +371,7 @@ function EditMessage({
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
   );
-  const extraContext = useChatExtraContext(msg.extra);
+  const extraContext = useFileUpload(msg.extra);
 
   return (
     <DropzoneArea
