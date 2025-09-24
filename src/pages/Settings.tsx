@@ -498,7 +498,7 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <BeakerIcon className={ICON_CLASSNAME} />
-        Experimental
+        <Trans i18nKey="settings.sections.experimental" />
       </>
     ),
     fields: [
@@ -506,26 +506,12 @@ const getSettingTabsConfiguration = (
         type: SettingInputType.CUSTOM,
         key: 'custom', // dummy key, won't be used
         component: () => (
-          <div className="flex flex-col gap-2 mb-8">
-            <p>Experimental features are not guaranteed to work correctly.</p>
-            <p>
-              If you encounter any problems, create a{' '}
-              <a
-                className="underline"
-                href="https://github.com/ggerganov/llama.cpp/issues/new?template=019-bug-misc.yml"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Bug (misc.)
-              </a>{' '}
-              report on Github. Please also specify <b>webui/experimental</b> on
-              the report title and include screenshots.
-            </p>
-            <p>
-              Some features may require packages downloaded from CDN, so they
-              need internet connection.
-            </p>
-          </div>
+          <div
+            className="flex flex-col gap-2 mb-8"
+            dangerouslySetInnerHTML={{
+              __html: t('settings.parameters.experimental.note'),
+            }}
+          />
         ),
       },
       toInput(SettingInputType.CHECKBOX, 'pyIntepreterEnabled'),
