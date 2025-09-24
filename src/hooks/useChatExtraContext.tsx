@@ -3,6 +3,7 @@ import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../context/app';
 import { useInferenceContext } from '../context/inference';
 import { MessageExtra } from '../types';
@@ -28,6 +29,7 @@ export interface ChatExtraContextApi {
 export function useChatExtraContext(
   initialItems: MessageExtra[] = []
 ): ChatExtraContextApi {
+  const { t } = useTranslation();
   const {
     config: { pdfAsImage },
   } = useAppContext();
@@ -56,20 +58,20 @@ export function useChatExtraContext(
         // this limit is only to prevent accidental uploads of huge files
         // it can potentially crashes the browser because we read the file as base64
         if (file.size > 500 * 1024 * 1024) {
-          toast.error('File is too large. Maximum size is 500MB.');
+          toast.error(t('fileUpload.errors.fileTooLarge'));
           break;
         }
 
         if (mimeType.startsWith('image/')) {
           if (!isSupportVision) {
-            toast.error('Multimodal is not supported by this server or model.');
+            toast.error(t('fileUpload.errors.multimodalNotSupported'));
             break;
           }
 
-          let base64Url = await getFileAsBase64(file);
+          let base64Url = await getFileAsBase64(file, true, t);
           if (mimeType === 'image/svg+xml') {
             // Convert SVG to PNG
-            base64Url = await svgBase64UrlToPngDataURL(base64Url);
+            base64Url = await svgBase64UrlToPngDataURL(base64Url, t);
           }
           addItems([
             {
@@ -79,16 +81,16 @@ export function useChatExtraContext(
             },
           ]);
         } else if (mimeType.startsWith('video/')) {
-          toast.error('Video files are not supported yet.');
+          toast.error(t('fileUpload.errors.videoNotSupported'));
           break;
         } else if (mimeType.startsWith('audio/')) {
           if (!/mpeg|wav/.test(mimeType)) {
-            toast.error('Only mp3 and wav audio files are supported.');
+            toast.error(t('fileUpload.errors.audioNotSupported'));
             break;
           }
 
           // plain base64, not a data URL
-          const base64Data = await getFileAsBase64(file, false);
+          const base64Data = await getFileAsBase64(file, false, t);
           addItems([
             {
               type: 'audioFile',
@@ -99,15 +101,13 @@ export function useChatExtraContext(
           ]);
         } else if (mimeType.startsWith('application/pdf')) {
           if (pdfAsImage && !isSupportVision) {
-            toast(
-              'Multimodal is not supported, PDF will be converted to text instead of image.'
-            );
+            toast(t('fileUpload.errors.pdfMultimodalNotSupported'));
             break;
           }
 
           if (pdfAsImage && isSupportVision) {
             // Convert PDF to images
-            const base64Urls = await convertPDFToImage(file);
+            const base64Urls = await convertPDFToImage(file, t);
             addItems(
               base64Urls.map((base64Url) => ({
                 type: 'imageFile',
@@ -117,7 +117,7 @@ export function useChatExtraContext(
             );
           } else {
             // Convert PDF to text
-            const content = await convertPDFToText(file);
+            const content = await convertPDFToText(file, t);
             addItems([
               {
                 type: 'textFile',
@@ -126,9 +126,7 @@ export function useChatExtraContext(
               },
             ]);
             if (isSupportVision) {
-              toast.success(
-                'PDF file converted to text. You can also convert it to image, see in Settings.'
-              );
+              toast.success(t('fileUpload.notifications.pdfConvertedToText'));
             }
           }
           break;
@@ -140,7 +138,7 @@ export function useChatExtraContext(
             if (event.target?.result) {
               const content = event.target.result as string;
               if (!isLikelyNotBinary(content)) {
-                toast.error('File is binary. Please upload a text file.');
+                toast.error(t('fileUpload.errors.fileIsBinary'));
                 return;
               }
               addItems([
@@ -157,7 +155,7 @@ export function useChatExtraContext(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = `Error processing file: ${message}`;
+      const errorMessage = t('fileUpload.errorProcessingFile', { message });
       toast.error(errorMessage);
     }
   };
@@ -171,7 +169,11 @@ export function useChatExtraContext(
   };
 }
 
-async function getFileAsBase64(file: File, outputUrl = true): Promise<string> {
+async function getFileAsBase64(
+  file: File,
+  outputUrl = true,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -183,29 +185,35 @@ async function getFileAsBase64(file: File, outputUrl = true): Promise<string> {
         }
         resolve(result);
       } else {
-        reject(new Error('Failed to read file.'));
+        reject(new Error(t('fileUpload.errors.failedToReadFile')));
       }
     };
     reader.readAsDataURL(file);
   });
 }
 
-async function getFileAsBuffer(file: File): Promise<ArrayBuffer> {
+async function getFileAsBuffer(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
         resolve(event.target.result as ArrayBuffer);
       } else {
-        reject(new Error('Failed to read file.'));
+        reject(new Error(t('fileUpload.errors.failedToReadFile')));
       }
     };
     reader.readAsArrayBuffer(file);
   });
 }
 
-async function convertPDFToText(file: File): Promise<string> {
-  const buffer = await getFileAsBuffer(file);
+async function convertPDFToText(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
+  const buffer = await getFileAsBuffer(file, t);
   const pdf = await pdfjs.getDocument(buffer).promise;
   const numPages = pdf.numPages;
   const textContentPromises: Promise<TextContent>[] = [];
@@ -222,8 +230,11 @@ async function convertPDFToText(file: File): Promise<string> {
 }
 
 // returns list of base64 images
-async function convertPDFToImage(file: File): Promise<string[]> {
-  const buffer = await getFileAsBuffer(file);
+async function convertPDFToImage(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string[]> {
+  const buffer = await getFileAsBuffer(file, t);
   const doc = await pdfjs.getDocument(buffer).promise;
   const pages: Promise<string>[] = [];
 
@@ -235,7 +246,7 @@ async function convertPDFToImage(file: File): Promise<string[]> {
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     if (!ctx) {
-      throw new Error('Failed to get 2D context from canvas');
+      throw new Error(t('fileUpload.errors.failedToGetCanvasContext'));
     }
     const task = page.render({ canvasContext: ctx, viewport: viewport });
     pages.push(
@@ -325,7 +336,10 @@ function isLikelyNotBinary(str: string): boolean {
 
 // WARN: vibe code below
 // Converts a Base64URL encoded SVG string to a PNG Data URL using browser Canvas API.
-function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
+function svgBase64UrlToPngDataURL(
+  base64UrlSvg: string,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
   const backgroundColor = 'white'; // Default background color for PNG
 
   return new Promise((resolve, reject) => {
@@ -337,7 +351,7 @@ function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
         const ctx = canvas.getContext('2d');
 
         if (!ctx) {
-          reject(new Error('Failed to get 2D canvas context.'));
+          reject(new Error(t('fileUpload.errors.failedToGetCanvasContext')));
           return;
         }
 
@@ -360,16 +374,14 @@ function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
       };
 
       img.onerror = () => {
-        reject(
-          new Error('Failed to load SVG image. Ensure the SVG data is valid.')
-        );
+        reject(new Error(t('fileUpload.errors.failedToLoadSvg')));
       };
 
       // Load SVG string into an Image element
       img.src = base64UrlSvg;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = `Error converting SVG to PNG: ${message}`;
+      const errorMessage = t('fileUpload.errorConvertingSvg', { message });
       toast.error(errorMessage);
       reject(new Error(errorMessage));
     }

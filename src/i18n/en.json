@@ -105,6 +105,24 @@
       "thoughtContent": "Thought process content"
     }
   },
+  "fileUpload": {
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is 500MB.",
+      "multimodalNotSupported": "Multimodal is not supported by this server or model.",
+      "videoNotSupported": "Video files are not supported yet.",
+      "audioNotSupported": "Only mp3 and wav audio files are supported.",
+      "pdfMultimodalNotSupported": "Multimodal is not supported, PDF will be converted to text instead of image.",
+      "fileIsBinary": "File is binary. Please upload a text file.",
+      "failedToReadFile": "Failed to read file.",
+      "failedToGetCanvasContext": "Failed to get 2D canvas context.",
+      "failedToLoadSvg": "Failed to load SVG image. Ensure the SVG data is valid."
+    },
+    "notifications": {
+      "pdfConvertedToText": "PDF file converted to text. You can also convert it to image, see in Settings."
+    },
+    "errorProcessingFile": "Error processing file: {{message}}",
+    "errorConvertingSvg": "Error converting SVG to PNG: {{message}}"
+  },
   "settings": {
     "parameters": {
       "language": {
