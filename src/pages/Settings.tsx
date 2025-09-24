@@ -91,12 +91,15 @@ type SettingFieldInputType = Exclude<
   SettingInputType.CUSTOM | SettingInputType.SECTION
 >;
 
-interface SettingFieldInput {
-  type: SettingFieldInputType;
+interface BaseSettingField {
   key: ConfigurationKey;
   disabled?: boolean;
   translateKey?: string;
-  [key: string]: unknown; // Allow additional properties
+  [key: string]: unknown;
+}
+
+interface SettingFieldInput extends BaseSettingField {
+  type: SettingFieldInputType;
 }
 
 interface SettingFieldCustom {
@@ -123,7 +126,8 @@ interface DropdownOption {
   label: string;
   icon?: string;
 }
-interface SettingFieldDropdown extends SettingFieldInput {
+
+interface SettingFieldDropdown extends BaseSettingField {
   type: SettingInputType.DROPDOWN;
   options: DropdownOption[];
   filterable: boolean;
@@ -131,7 +135,7 @@ interface SettingFieldDropdown extends SettingFieldInput {
 
 interface SettingSection {
   type: SettingInputType.SECTION;
-  label: string | React.ReactElement;
+  label: string | ReactNode;
 }
 
 type SettingField =
@@ -141,66 +145,58 @@ type SettingField =
   | SettingFieldDropdown;
 
 interface SettingTab {
-  title: React.ReactElement;
+  title: ReactNode;
   fields: SettingField[];
 }
 
-// --- Helper Functions ---
-
+// --- Constants ---
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+const DELIMITER: SettingFieldCustom = {
+  type: SettingInputType.CUSTOM,
+  key: 'custom',
+  component: 'delimeter',
+};
 
+// --- Helper Functions ---
 const toSection = (
   label: string | ReactElement,
   icon?: string | ReactElement
-): SettingSection => {
-  return {
-    type: SettingInputType.SECTION,
-    label: (
-      <>
-        {icon}
-        {label}
-      </>
-    ),
-  };
-};
+): SettingSection => ({
+  type: SettingInputType.SECTION,
+  label: (
+    <>
+      {icon}
+      {label}
+    </>
+  ),
+});
 
 const toInput = (
   type: SettingFieldInputType,
   key: ConfigurationKey,
   disabled: boolean = false,
   additional?: Record<string, unknown>
-): SettingFieldInput => {
-  return {
-    type,
-    disabled,
-    key,
-    ...additional,
-  };
-};
+): SettingFieldInput => ({
+  type,
+  disabled,
+  key,
+  ...additional,
+});
+
 const toDropdown = (
   key: ConfigurationKey,
   options: DropdownOption[],
   filterable: boolean = false,
   disabled: boolean = false
-): SettingFieldDropdown => {
-  return {
-    type: SettingInputType.DROPDOWN,
-    key,
-    disabled,
-    options,
-    filterable,
-  };
-};
-
-const DELIMETER: SettingFieldCustom = {
-  type: SettingInputType.CUSTOM,
-  key: 'custom',
-  component: 'delimeter',
-};
+): SettingFieldDropdown => ({
+  type: SettingInputType.DROPDOWN,
+  key,
+  disabled,
+  options,
+  filterable,
+});
 
 // --- Setting Tabs Configuration ---
-const UnusedCustomField: React.FC = () => null;
-
 const getSettingTabsConfiguration = (
   config: Configuration,
   models: InferenceApiModel[],
@@ -243,11 +239,11 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'fetch-models',
-        component: UnusedCustomField,
+        component: () => null,
       },
 
-      DELIMETER,
-      DELIMETER,
+      DELIMITER,
+      DELIMITER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
@@ -269,12 +265,12 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'language',
-        component: UnusedCustomField,
+        component: () => null,
       },
       {
         type: SettingInputType.CUSTOM,
         key: 'theme-manager',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -380,7 +376,7 @@ const getSettingTabsConfiguration = (
       toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
 
       /* Performance */
-      DELIMETER,
+      DELIMITER,
       toSection(
         t('settings.sections.performance'),
         <RocketLaunchIcon className={ICON_CLASSNAME} />
@@ -388,7 +384,7 @@ const getSettingTabsConfiguration = (
       toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
-      DELIMETER,
+      DELIMITER,
       toSection(
         t('settings.sections.reasoning'),
         <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
@@ -410,7 +406,7 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'preset-manager',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -427,7 +423,7 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'import-export',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -456,7 +452,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Samplers */
-      DELIMETER,
+      DELIMITER,
       toSection(
         t('settings.sections.samplers'),
         <FunnelIcon className={ICON_CLASSNAME} />
@@ -478,7 +474,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Penalties */
-      DELIMETER,
+      DELIMITER,
       toSection(
         t('settings.sections.penalties'),
         <HandRaisedIcon className={ICON_CLASSNAME} />
@@ -502,7 +498,7 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Custom */
-      DELIMETER,
+      DELIMITER,
       toSection(
         t('settings.sections.custom'),
         <CpuChipIcon className={ICON_CLASSNAME} />

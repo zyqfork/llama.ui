@@ -138,7 +138,7 @@ export const IntlIconButton = ({
 
 export interface DropdownOption {
   value: string | number;
-  label: string | React.ReactElement;
+  label: string | ReactNode;
 }
 export interface DropdownProps<T> {
   className?: string;
