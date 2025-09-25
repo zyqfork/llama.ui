@@ -355,7 +355,7 @@ export function groupConversationsByDate(
 
   if (groups['Today'].length > 0) {
     result.push({
-      title: undefined, // no title for Today
+      title: 'Today',
       conversations: groups['Today'],
     });
   }
