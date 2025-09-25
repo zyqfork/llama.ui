@@ -1,3 +1,21 @@
+## [2.22.4] - 2025-09-25
+
+### 🎨 User Interface
+
+- i18n - Full UI translation (#172)
+
+## [2.22.3] - 2025-09-23
+
+### 🛠 Fixes
+
+- i18n - Update document lang (#173)
+
+## [2.22.2] - 2025-09-22
+
+### 🛠 Fixes
+
+- New Version toast miss icon (#171)
+
 ## [2.22.1] - 2025-09-22
 
 ### 🛠 Fixes
