@@ -250,23 +250,23 @@
         "note": ""
       },
       "temperature": {
-        "label": "Temperature",
+        "label": "",
         "note": "Controls the randomness of the generated text by affecting the probability distribution of the output tokens. Higher = more random, lower = more focused."
       },
       "top_k": {
-        "label": "Top-K",
+        "label": "",
         "note": "Keeps only k top tokens."
       },
       "top_p": {
-        "label": "Top-P",
+        "label": "",
         "note": "Limits tokens to those that together have a cumulative probability of at least p."
       },
       "min_p": {
-        "label": "Min-P",
+        "label": "",
         "note": "Limits tokens based on the minimum probability for a token to be considered, relative to the probability of the most likely token."
       },
       "max_tokens": {
-        "label": "Max Tokens",
+        "label": "",
         "note": "The maximum number of tokens per output."
       },
       "overrideSamplersOptions": {
@@ -274,27 +274,27 @@
         "note": ""
       },
       "samplers": {
-        "label": "Samplers",
+        "label": "",
         "note": "The order at which samplers are applied, in simplified way. Default is \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
       },
       "dynatemp_range": {
-        "label": "Dynamic Temperature Range",
+        "label": "",
         "note": "Addon for the temperature sampler. The added value to the range of dynamic temperature, which adjusts probabilities by entropy of tokens."
       },
       "dynatemp_exponent": {
-        "label": "Dynamic Temperature Exponent",
+        "label": "",
         "note": "Addon for the temperature sampler. Smoothes out the probability redistribution based on the most probable token."
       },
       "typical_p": {
-        "label": "Typical-P",
+        "label": "",
         "note": "Sorts and limits tokens based on the difference between log-probability and entropy."
       },
       "xtc_probability": {
-        "label": "XTC Probability",
+        "label": "",
         "note": "XTC sampler cuts out top tokens; this parameter controls the chance of cutting tokens at all. 0 disables XTC."
       },
       "xtc_threshold": {
-        "label": "XTC Threshold",
+        "label": "",
         "note": "XTC sampler cuts out top tokens; this parameter controls the token probability that is required to cut that token."
       },
       "overridePenaltyOptions": {
@@ -302,35 +302,35 @@
         "note": ""
       },
       "repeat_last_n": {
-        "label": "Repeat Last N",
+        "label": "",
         "note": "Last n tokens to consider for penalizing repetition"
       },
       "repeat_penalty": {
-        "label": "Repeat Penalty",
+        "label": "",
         "note": "Controls the repetition of token sequences in the generated text"
       },
       "presence_penalty": {
-        "label": "Presence Penalty",
+        "label": "",
         "note": "Limits the tokens based on whether they appear in the output or not."
       },
       "frequency_penalty": {
-        "label": "Frequency Penalty",
+        "label": "",
         "note": "Limits the tokens based on how often they appear in the output."
       },
       "dry_multiplier": {
-        "label": "DRY Multiplier",
+        "label": "",
         "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the DRY sampling multiplier."
       },
       "dry_base": {
-        "label": "DRY Base",
+        "label": "",
         "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the DRY sampling base value."
       },
       "dry_allowed_length": {
-        "label": "DRY Allowed Length",
+        "label": "",
         "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets the allowed length for DRY sampling."
       },
       "dry_penalty_last_n": {
-        "label": "DRY Penalty Last N",
+        "label": "",
         "note": "DRY sampling reduces repetition in generated text even across long contexts. This parameter sets DRY penalty for the last n tokens."
       },
       "custom": {
@@ -364,7 +364,7 @@
     "textToSpeech": {
       "check": {
         "label": "Check",
-        "text": "Hello, world!"
+        "text": "This is a demo of Web Speech Synthesis."
       }
     },
     "presetManager": {
