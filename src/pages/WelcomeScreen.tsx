@@ -12,7 +12,7 @@ const SAMPLE_PROMPTS_COUNT = 4;
 
 export default function WelcomeScreen() {
   const navigate = useNavigate();
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const {
     config: { systemMessage },
   } = useAppContext();
@@ -20,10 +20,10 @@ export default function WelcomeScreen() {
   const samplePrompts = useMemo(
     () =>
       getUniqueRandomElements(
-        trans('samplePrompts', { returnObjects: true }) as string[],
+        t('samplePrompts', { returnObjects: true }) as string[],
         SAMPLE_PROMPTS_COUNT
       ),
-    [trans]
+    [t]
   );
 
   const handleSend = useCallback(
@@ -52,10 +52,10 @@ export default function WelcomeScreen() {
     <div className="flex flex-col h-full w-full xl:max-w-[900px] mx-auto">
       <div className="grow flex flex-col items-center justify-center px-2 transition-[300ms]">
         <h1 className="text-4xl font-medium">
-          <Trans i18nKey="chatScreen.welcome" />
+          <Trans i18nKey="welcomeScreen.welcome" />
         </h1>
         <small>
-          <Trans i18nKey="chatScreen.welcomeNote" />
+          <Trans i18nKey="welcomeScreen.welcomeNote" />
         </small>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">

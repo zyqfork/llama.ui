@@ -26,7 +26,6 @@ import {
   TrashIcon,
   TvIcon,
 } from '@heroicons/react/24/outline';
-import { TFunction } from 'i18next';
 import React, {
   FC,
   forwardRef,
@@ -42,7 +41,6 @@ import React, {
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Dropdown } from '../components/common';
-import { useModals } from '../components/ModalProvider';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
@@ -57,6 +55,7 @@ import {
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
+import { useModals } from '../context/modal';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import {
@@ -92,12 +91,15 @@ type SettingFieldInputType = Exclude<
   SettingInputType.CUSTOM | SettingInputType.SECTION
 >;
 
-interface SettingFieldInput {
-  type: SettingFieldInputType;
+interface BaseSettingField {
   key: ConfigurationKey;
   disabled?: boolean;
   translateKey?: string;
-  [key: string]: unknown; // Allow additional properties
+  [key: string]: unknown;
+}
+
+interface SettingFieldInput extends BaseSettingField {
+  type: SettingFieldInputType;
 }
 
 interface SettingFieldCustom {
@@ -124,7 +126,8 @@ interface DropdownOption {
   label: string;
   icon?: string;
 }
-interface SettingFieldDropdown extends SettingFieldInput {
+
+interface SettingFieldDropdown extends BaseSettingField {
   type: SettingInputType.DROPDOWN;
   options: DropdownOption[];
   filterable: boolean;
@@ -132,7 +135,7 @@ interface SettingFieldDropdown extends SettingFieldInput {
 
 interface SettingSection {
   type: SettingInputType.SECTION;
-  label: string | React.ReactElement;
+  label: string | ReactNode;
 }
 
 type SettingField =
@@ -142,81 +145,73 @@ type SettingField =
   | SettingFieldDropdown;
 
 interface SettingTab {
-  title: React.ReactElement;
+  title: ReactNode;
   fields: SettingField[];
 }
 
-// --- Helper Functions ---
-
+// --- Constants ---
 const ICON_CLASSNAME = 'w-4 h-4 mr-1 inline';
+const DELIMITER: SettingFieldCustom = {
+  type: SettingInputType.CUSTOM,
+  key: 'custom',
+  component: 'delimeter',
+};
 
+// --- Helper Functions ---
 const toSection = (
   label: string | ReactElement,
   icon?: string | ReactElement
-): SettingSection => {
-  return {
-    type: SettingInputType.SECTION,
-    label: (
-      <>
-        {icon}
-        {label}
-      </>
-    ),
-  };
-};
+): SettingSection => ({
+  type: SettingInputType.SECTION,
+  label: (
+    <>
+      {icon}
+      {label}
+    </>
+  ),
+});
 
 const toInput = (
   type: SettingFieldInputType,
   key: ConfigurationKey,
   disabled: boolean = false,
   additional?: Record<string, unknown>
-): SettingFieldInput => {
-  return {
-    type,
-    disabled,
-    key,
-    ...additional,
-  };
-};
+): SettingFieldInput => ({
+  type,
+  disabled,
+  key,
+  ...additional,
+});
+
 const toDropdown = (
   key: ConfigurationKey,
   options: DropdownOption[],
   filterable: boolean = false,
   disabled: boolean = false
-): SettingFieldDropdown => {
-  return {
-    type: SettingInputType.DROPDOWN,
-    key,
-    disabled,
-    options,
-    filterable,
-  };
-};
-
-const DELIMETER: SettingFieldCustom = {
-  type: SettingInputType.CUSTOM,
-  key: 'custom',
-  component: 'delimeter',
-};
+): SettingFieldDropdown => ({
+  type: SettingInputType.DROPDOWN,
+  key,
+  disabled,
+  options,
+  filterable,
+});
 
 // --- Setting Tabs Configuration ---
-const UnusedCustomField: React.FC = () => null;
-
 const getSettingTabsConfiguration = (
-  trans: TFunction<'translation', undefined>,
   config: Configuration,
-  models: InferenceApiModel[]
+  models: InferenceApiModel[],
+  t: ReturnType<typeof useTranslation>['t']
 ): SettingTab[] => [
   /* General */
   {
     title: (
       <>
         <Cog6ToothIcon className={ICON_CLASSNAME} />
-        General
+        {t('settings.tabs.general')}
       </>
     ),
     fields: [
-      toSection('Inference Provider'),
+      toSection(t('settings.sections.inferenceProvider')),
       toDropdown(
         'provider',
         Object.entries(INFERENCE_PROVIDERS).map(
@@ -244,11 +239,11 @@ const getSettingTabsConfiguration = (
       {
         type: SettingInputType.CUSTOM,
         key: 'fetch-models',
-        component: UnusedCustomField,
+        component: () => null,
       },
 
-      DELIMETER,
-      DELIMETER,
+      DELIMITER,
+      DELIMITER,
       toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
     ],
   },
@@ -258,21 +253,24 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <TvIcon className={ICON_CLASSNAME} />
-        UI
+        {t('settings.tabs.ui')}
       </>
     ),
     fields: [
-      toSection('User Interface', <TvIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.userInterface'),
+        <TvIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.SHORT_INPUT, 'initials'),
       {
         type: SettingInputType.CUSTOM,
         key: 'language',
-        component: UnusedCustomField,
+        component: () => null,
       },
       {
         type: SettingInputType.CUSTOM,
         key: 'theme-manager',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -282,13 +280,13 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <SignalIcon className={ICON_CLASSNAME} />
-        Voice
+        {t('settings.tabs.voice')}
       </>
     ),
     fields: [
       /* Text to Speech */
       toSection(
-        'Text to Speech',
+        t('settings.sections.textToSpeech'),
         <SpeakerWaveIcon className={ICON_CLASSNAME} />
       ),
       toDropdown(
@@ -336,7 +334,7 @@ const getSettingTabsConfiguration = (
         key: 'custom', // dummy key, won't be used
         component: () => (
           <TextToSpeech
-            text={trans('settings.textToSpeech.check.text')}
+            text={t('settings.textToSpeech.check.text')}
             voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
             pitch={config.ttsPitch}
             rate={config.ttsRate}
@@ -352,7 +350,7 @@ const getSettingTabsConfiguration = (
               >
                 {!isPlaying && <SpeakerWaveIcon className={ICON_CLASSNAME} />}
                 {isPlaying && <SpeakerXMarkIcon className={ICON_CLASSNAME} />}
-                {trans('settings.textToSpeech.check.label')}
+                {t('settings.textToSpeech.check.label')}
               </button>
             )}
           </TextToSpeech>
@@ -366,26 +364,29 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <ChatBubbleLeftRightIcon className={ICON_CLASSNAME} />
-        Conversations
+        {t('settings.tabs.conversations')}
       </>
     ),
     fields: [
       toSection(
-        'Chat',
+        t('settings.sections.chat'),
         <ChatBubbleLeftEllipsisIcon className={ICON_CLASSNAME} />
       ),
       toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
       toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
 
       /* Performance */
-      DELIMETER,
-      toSection('Performance', <RocketLaunchIcon className={ICON_CLASSNAME} />),
+      DELIMITER,
+      toSection(
+        t('settings.sections.performance'),
+        <RocketLaunchIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
       /* Reasoning */
-      DELIMETER,
+      DELIMITER,
       toSection(
-        'Reasoning',
+        t('settings.sections.reasoning'),
         <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
       ),
       toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
@@ -398,14 +399,14 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <BookmarkIcon className={ICON_CLASSNAME} />
-        Presets
+        {t('settings.tabs.presets')}
       </>
     ),
     fields: [
       {
         type: SettingInputType.CUSTOM,
         key: 'preset-manager',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -415,14 +416,14 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <CircleStackIcon className={ICON_CLASSNAME} />
-        Import/Export
+        {t('settings.tabs.importExport')}
       </>
     ),
     fields: [
       {
         type: SettingInputType.CUSTOM,
         key: 'import-export',
-        component: UnusedCustomField,
+        component: () => null,
       },
     ],
   },
@@ -432,12 +433,15 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <SquaresPlusIcon className={ICON_CLASSNAME} />
-        Advanced
+        {t('settings.tabs.advanced')}
       </>
     ),
     fields: [
       /* Generation */
-      toSection('Generation', <CogIcon className={ICON_CLASSNAME} />),
+      toSection(
+        t('settings.sections.generation'),
+        <CogIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
       ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
         toInput(
@@ -448,8 +452,11 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Samplers */
-      DELIMETER,
-      toSection('Samplers', <FunnelIcon className={ICON_CLASSNAME} />),
+      DELIMITER,
+      toSection(
+        t('settings.sections.samplers'),
+        <FunnelIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
       ...[
         'samplers',
@@ -467,8 +474,11 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Penalties */
-      DELIMETER,
-      toSection('Penalties', <HandRaisedIcon className={ICON_CLASSNAME} />),
+      DELIMITER,
+      toSection(
+        t('settings.sections.penalties'),
+        <HandRaisedIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
       ...[
         'repeat_last_n',
@@ -488,8 +498,11 @@ const getSettingTabsConfiguration = (
       ),
 
       /* Custom */
-      DELIMETER,
-      toSection('Custom', <CpuChipIcon className={ICON_CLASSNAME} />),
+      DELIMITER,
+      toSection(
+        t('settings.sections.custom'),
+        <CpuChipIcon className={ICON_CLASSNAME} />
+      ),
       toInput(SettingInputType.LONG_INPUT, 'custom'),
     ],
   },
@@ -499,7 +512,7 @@ const getSettingTabsConfiguration = (
     title: (
       <>
         <BeakerIcon className={ICON_CLASSNAME} />
-        Experimental
+        <Trans i18nKey="settings.sections.experimental" />
       </>
     ),
     fields: [
@@ -507,26 +520,12 @@ const getSettingTabsConfiguration = (
         type: SettingInputType.CUSTOM,
         key: 'custom', // dummy key, won't be used
         component: () => (
-          <div className="flex flex-col gap-2 mb-8">
-            <p>Experimental features are not guaranteed to work correctly.</p>
-            <p>
-              If you encounter any problems, create a{' '}
-              <a
-                className="underline"
-                href="https://github.com/ggerganov/llama.cpp/issues/new?template=019-bug-misc.yml"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Bug (misc.)
-              </a>{' '}
-              report on Github. Please also specify <b>webui/experimental</b> on
-              the report title and include screenshots.
-            </p>
-            <p>
-              Some features may require packages downloaded from CDN, so they
-              need internet connection.
-            </p>
-          </div>
+          <div
+            className="flex flex-col gap-2 mb-8"
+            dangerouslySetInnerHTML={{
+              __html: t('settings.parameters.experimental.note'),
+            }}
+          />
         ),
       },
       toInput(SettingInputType.CHECKBOX, 'pyIntepreterEnabled'),
@@ -536,7 +535,7 @@ const getSettingTabsConfiguration = (
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { t: trans, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     config,
     saveConfig,
@@ -557,8 +556,8 @@ export default function Settings() {
     Object.assign([], models)
   );
   const settingTabs = useMemo<SettingTab[]>(
-    () => getSettingTabsConfiguration(trans, localConfig, localModels),
-    [trans, localConfig, localModels]
+    () => getSettingTabsConfiguration(localConfig, localModels, t),
+    [t, localConfig, localModels]
   );
   const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
@@ -760,7 +759,7 @@ export default function Settings() {
                 }
               >
                 <ArrowPathIcon className={ICON_CLASSNAME} />
-                Fetch Models
+                <Trans i18nKey="settings.actionButtons.fetchModels" />
               </button>
             );
           default:
@@ -850,9 +849,12 @@ export default function Settings() {
           {settingTabs[tabIdx].fields.map(mapFieldToElement)}
 
           <p className="opacity-40 text-sm mt-8">
-            App Version: {import.meta.env.PACKAGE_VERSION}
+            <Trans
+              i18nKey="settings.footer.version"
+              values={{ version: import.meta.env.PACKAGE_VERSION }}
+            />
             <br />
-            Settings are saved in browser's localStorage
+            <Trans i18nKey="settings.footer.storageNote" />
           </p>
         </div>
       </div>
@@ -894,19 +896,19 @@ const LabeledField = forwardRef<
   LabeledFieldState,
   LabeledFieldProps & { children: (props: LabeledFieldState) => ReactNode }
 >(({ children, configKey }, ref) => {
-  const { t: trans } = useTranslation();
+  const { t } = useTranslation();
   const { label, note } = useMemo(() => {
     if (!configKey) return { label: '' };
     return {
       label:
-        trans(`settings.parameters.${configKey}.label`, {
+        t(`settings.parameters.${configKey}.label`, {
           defaultValue: configKey,
         }) || configKey,
-      note: trans(`settings.parameters.${configKey}.note`, {
+      note: t(`settings.parameters.${configKey}.note`, {
         defaultValue: '',
       }),
     };
-  }, [trans, configKey]);
+  }, [t, configKey]);
 
   useImperativeHandle(
     ref,
@@ -1269,11 +1271,14 @@ const PresetManager: FC<{
   onSavePreset: (name: string, config: Configuration) => Promise<void>;
   onRemovePreset: (name: string) => Promise<void>;
 }> = ({ config, onLoadConfig, presets, onSavePreset, onRemovePreset }) => {
+  const { t } = useTranslation();
   const { showConfirm, showPrompt } = useModals();
 
   const handleSavePreset = async () => {
     const newPresetName = (
-      (await showPrompt('Enter a new preset name')) || ''
+      (await showPrompt(
+        t('settings.presetManager.modals.enterNewPresetName')
+      )) || ''
     ).trim();
     if (newPresetName === '') return;
 
@@ -1281,7 +1286,9 @@ const PresetManager: FC<{
     if (
       !existingPreset ||
       (await showConfirm(
-        `Preset "${newPresetName}" already exists, overwrite it?`
+        t('settings.presetManager.modals.presetAlreadyExists', {
+          presetName: newPresetName,
+        })
       ))
     ) {
       await onSavePreset(newPresetName, config);
@@ -1289,7 +1296,9 @@ const PresetManager: FC<{
   };
 
   const handleRenamePreset = async (preset: ConfigurationPreset) => {
-    const newPresetName = ((await showPrompt('Enter a new name')) || '').trim();
+    const newPresetName = (
+      (await showPrompt(t('settings.presetManager.modals.enterNewName'))) || ''
+    ).trim();
     if (newPresetName === '') return;
 
     await onRemovePreset(preset.name);
@@ -1302,7 +1311,9 @@ const PresetManager: FC<{
   const handleLoadPreset = async (preset: ConfigurationPreset) => {
     if (
       await showConfirm(
-        `Load preset "${preset.name}"? Current settings will be replaced.`
+        t('settings.presetManager.modals.loadPresetConfirm', {
+          presetName: preset.name,
+        })
       )
     ) {
       await onLoadConfig(
@@ -1312,7 +1323,13 @@ const PresetManager: FC<{
   };
 
   const handleDeletePreset = async (preset: ConfigurationPreset) => {
-    if (await showConfirm(`Delete preset "${preset.name}"?`)) {
+    if (
+      await showConfirm(
+        t('settings.presetManager.modals.deletePresetConfirm', {
+          presetName: preset.name,
+        })
+      )
+    ) {
       await onRemovePreset(preset.name);
     }
   };
@@ -1321,27 +1338,27 @@ const PresetManager: FC<{
     <>
       {/* Save new preset */}
       <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.newPreset.title" />
+        <Trans i18nKey="settings.presetManager.newPreset" />
       </SettingsSectionLabel>
 
       <button
         className="btn btn-neutral max-w-80 mb-4"
         onClick={handleSavePreset}
-        title="Save new preset"
-        aria-label="Save new preset"
+        title={t('settings.presetManager.buttons.save')}
+        aria-label={t('settings.presetManager.ariaLabels.save')}
       >
         <CloudArrowUpIcon className="w-5 h-5" />
-        <Trans i18nKey="settings.presetManager.newPreset.saveBtnLabel" />
+        <Trans i18nKey="settings.presetManager.buttons.save" />
       </button>
 
       {/* List of saved presets */}
       <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.savedPresets.title" />
+        <Trans i18nKey="settings.presetManager.savedPresets" />
       </SettingsSectionLabel>
 
       {presets.length === 0 && (
         <div className="text-xs opacity-75 max-w-80">
-          <Trans i18nKey="settings.presetManager.savedPresets.noPresetFound" />
+          <Trans i18nKey="settings.presetManager.noPresetFound" />
         </div>
       )}
 
@@ -1355,7 +1372,8 @@ const PresetManager: FC<{
                   <div className="grow">
                     <h4 className="font-medium">{preset.name}</h4>
                     <p className="text-xs opacity-40">
-                      Created: {dateFormatter.format(preset.createdAt)}
+                      {t('settings.presetManager.labels.created')}{' '}
+                      {dateFormatter.format(preset.createdAt)}
                     </p>
                   </div>
 
@@ -1363,8 +1381,8 @@ const PresetManager: FC<{
                     <button
                       className="btn btn-ghost w-8 h-8 p-0 rounded-full"
                       onClick={() => handleLoadPreset(preset)}
-                      title="Load preset"
-                      aria-label="Load preset"
+                      title={t('settings.presetManager.buttons.load')}
+                      aria-label={t('settings.presetManager.ariaLabels.load')}
                     >
                       <PlayCircleIcon className="w-5 h-5" />
                     </button>
@@ -1373,8 +1391,8 @@ const PresetManager: FC<{
                     <div tabIndex={0} className="dropdown dropdown-end">
                       <button
                         className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                        title="More"
-                        aria-label="Show more actions"
+                        title={t('settings.presetManager.buttons.more')}
+                        aria-label={t('settings.presetManager.ariaLabels.more')}
                       >
                         <EllipsisVerticalIcon className="w-5 h-5" />
                       </button>
@@ -1390,22 +1408,26 @@ const PresetManager: FC<{
                           <button
                             type="button"
                             onClick={() => handleRenamePreset(preset)}
-                            title="Rename preset"
-                            aria-label="Rename preset"
+                            title={t('settings.presetManager.buttons.rename')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.rename'
+                            )}
                           >
                             <PencilIcon className={ICON_CLASSNAME} />
-                            Rename
+                            {t('settings.presetManager.buttons.rename')}
                           </button>
                         </li>
                         <li role="menuitem" tabIndex={0} className="text-error">
                           <button
                             type="button"
                             onClick={() => handleDeletePreset(preset)}
-                            title="Delete preset"
-                            aria-label="Delete preset"
+                            title={t('settings.presetManager.buttons.delete')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.delete'
+                            )}
                           >
                             <TrashIcon className={ICON_CLASSNAME} />
-                            Delete
+                            {t('settings.presetManager.buttons.delete')}
                           </button>
                         </li>
                       </ul>
@@ -1423,6 +1445,7 @@ const PresetManager: FC<{
 const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { importDB, exportDB } = useAppContext();
 
   const onExport = async () => {
@@ -1463,13 +1486,13 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
     <>
       <SettingsSectionLabel>
         <ChatBubbleOvalLeftEllipsisIcon className={ICON_CLASSNAME} />
-        Chats
+        {t('settings.importExport.chatsSectionTitle')}
       </SettingsSectionLabel>
 
       <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
           <ArrowDownTrayIcon className={ICON_CLASSNAME} />
-          Export
+          {t('settings.importExport.exportBtnLabel')}
         </button>
 
         <input
@@ -1482,12 +1505,12 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
         <label
           htmlFor="file-import"
           className="btn"
-          aria-label="Import file"
+          aria-label={t('settings.importExport.importBtnLabel')}
           tabIndex={0}
           role="button"
         >
           <ArrowUpTrayIcon className={ICON_CLASSNAME} />
-          Import
+          {t('settings.importExport.importBtnLabel')}
         </label>
       </div>
 
@@ -1495,11 +1518,11 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
       <SettingsSectionLabel>
         <EyeIcon className={ICON_CLASSNAME} />
-        Technical Demo
+        {t('settings.importExport.technicalDemoSectionTitle')}
       </SettingsSectionLabel>
 
       <button className="btn" onClick={debugImportDemoConv}>
-        Import demo conversation
+        {t('settings.importExport.importDemoConversationBtnLabel')}
       </button>
     </>
   );

@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
 import StorageUtils from '../database';
 import usePrefersColorScheme from '../hooks/usePrefersColorScheme';
@@ -39,6 +40,8 @@ export const AppContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
+  const { t } = useTranslation();
+
   const [config, setConfig] = useState<Configuration>(CONFIG_DEFAULT);
   const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -73,14 +76,14 @@ export const AppContextProvider = ({
     console.debug('Save preset', { name, config });
     await StorageUtils.savePreset(name, config);
     setPresets(await StorageUtils.getPresets());
-    toast.success('Preset is saved successfully');
+    toast.success(t('state.preset.saved'));
   };
 
   const removePreset = async (name: string) => {
     console.debug('Remove preset', name);
     await StorageUtils.removePreset(name);
     setPresets(await StorageUtils.getPresets());
-    toast.success('Preset is removed successfully');
+    toast.success(t('state.preset.removed'));
   };
 
   // --- Import/Export ---
@@ -93,11 +96,11 @@ export const AppContextProvider = ({
       setPresets(presets);
     } catch (error) {
       console.error('Error during database import:', error);
-      toast.success('Database import failed.');
+      toast.success(t('state.database.import.failed'));
       throw error; // Re-throw to allow caller to handle
     }
     console.info('Database import completed successfully.');
-    toast.success('Database import completed.');
+    toast.success(t('state.database.import.completed'));
   };
 
   const exportDB = async (convId?: string): Promise<ExportJsonStructure> => {
@@ -106,11 +109,11 @@ export const AppContextProvider = ({
       data = await StorageUtils.exportDB(convId);
     } catch (error) {
       console.error('Error during database export:', error);
-      toast.success('Database export failed.');
+      toast.success(t('state.database.export.failed'));
       throw error; // Re-throw to allow caller to handle
     }
     console.info('Database export completed successfully.');
-    toast.success('Database export completed.');
+    toast.success(t('state.database.export.completed'));
 
     return data;
   };
