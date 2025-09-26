@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { LuArrowUp, LuPaperclip, LuSettings2, LuSquare } from 'react-icons/lu';
+import { LuArrowUp, LuPaperclip, LuSquare } from 'react-icons/lu';
+import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
@@ -132,7 +133,7 @@ export function ChatInput({
                 aria-label={t('header.ariaLabels.settings')}
                 onClick={() => navigate('/settings')}
               >
-                <LuSettings2 className="lucide h-5 w-5" />
+                <TbAdjustmentsHorizontal className="lucide h-5 w-5" />
               </button>
             </div>
 

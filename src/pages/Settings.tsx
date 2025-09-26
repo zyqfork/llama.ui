@@ -19,7 +19,6 @@ import {
   LuCog,
   LuCpu,
   LuDatabase,
-  LuDownload,
   LuEllipsisVertical,
   LuEye,
   LuFilter,
@@ -32,13 +31,14 @@ import {
   LuPencil,
   LuRefreshCw,
   LuRocket,
+  LuSave,
   LuSettings,
   LuSpeech,
   LuTrash,
-  LuUpload,
   LuVolume2,
   LuVolumeX,
 } from 'react-icons/lu';
+import { TbDatabaseExport, TbDatabaseImport } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
 import { Dropdown } from '../components/common';
 import TextToSpeech, {
@@ -1347,7 +1347,7 @@ const PresetManager: FC<{
         title={t('settings.presetManager.buttons.save')}
         aria-label={t('settings.presetManager.ariaLabels.save')}
       >
-        <LuUpload className="lucide w-5 h-5" />
+        <LuSave className="lucide w-5 h-5" />
         <Trans i18nKey="settings.presetManager.buttons.save" />
       </button>
 
@@ -1491,7 +1491,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
       <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
-          <LuDownload className={ICON_CLASSNAME} />
+          <TbDatabaseExport className={ICON_CLASSNAME} />
           {t('settings.importExport.exportBtnLabel')}
         </button>
 
@@ -1509,7 +1509,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
           tabIndex={0}
           role="button"
         >
-          <LuUpload className={ICON_CLASSNAME} />
+          <TbDatabaseImport className={ICON_CLASSNAME} />
           {t('settings.importExport.importBtnLabel')}
         </label>
       </div>
