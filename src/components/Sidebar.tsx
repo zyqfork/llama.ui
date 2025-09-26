@@ -15,6 +15,7 @@ import { useModals } from '../context/modal';
 import StorageUtils from '../database';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
+import { downloadAsFile } from './common';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -144,19 +145,12 @@ export default function Sidebar() {
                         toast.error(t('sidebar.errors.downloadOnGenerate'));
                         return;
                       }
-                      const data = await StorageUtils.exportDB(conv.id);
-                      const conversationJson = JSON.stringify(data, null, 2);
-                      const blob = new Blob([conversationJson], {
-                        type: 'application/json',
-                      });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `conversation_${conv.id}.json`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
+                      return StorageUtils.exportDB(conv.id).then((data) =>
+                        downloadAsFile(
+                          [JSON.stringify(data, null, 2)],
+                          `conversation_${conv.id}.json`
+                        )
+                      );
                     }}
                     onRename={async () => {
                       if (isGenerating(conv.id)) {

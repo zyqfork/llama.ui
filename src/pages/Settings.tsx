@@ -40,7 +40,7 @@ import {
   LuVolumeX,
 } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
-import { Dropdown } from '../components/common';
+import { downloadAsFile, Dropdown } from '../components/common';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
@@ -1449,19 +1449,9 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
   const { importDB, exportDB } = useAppContext();
 
   const onExport = async () => {
-    const data = await exportDB();
-    const conversationJson = JSON.stringify(data, null, 2);
-    const blob = new Blob([conversationJson], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `database.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    return exportDB().then((data) =>
+      downloadAsFile([JSON.stringify(data, null, 2)], 'llama-ui-database.json')
+    );
   };
 
   const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
