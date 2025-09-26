@@ -1,3 +1,27 @@
+## [2.23.2] - 2025-09-26
+
+### 🚜 Refactor
+
+- _(common)_ Add downloadAsFile helper and streamline download logic (#181)
+
+## [2.23.1] - 2025-09-26
+
+### 🛠 Fixes
+
+- Adjust icons (#180)
+
+## [2.23.0] - 2025-09-26
+
+### 🚀 Enhancements
+
+- _(deps)_ Replace @heroicons/react with react-icons (#177)
+
+## [2.22.5] - 2025-09-25
+
+### 🛠 Fixes
+
+- Sidebar - today label missed (#174)
+
 ## [2.22.4] - 2025-09-25
 
 ### 🎨 User Interface
