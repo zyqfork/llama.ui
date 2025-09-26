@@ -16,11 +16,10 @@ import {
   LuBookmark,
   LuBrain,
   LuCirclePlay,
-  LuCloudDownload,
-  LuCloudUpload,
   LuCog,
   LuCpu,
   LuDatabase,
+  LuDownload,
   LuEllipsisVertical,
   LuEye,
   LuFilter,
@@ -36,6 +35,7 @@ import {
   LuSettings,
   LuSpeech,
   LuTrash,
+  LuUpload,
   LuVolume2,
   LuVolumeX,
 } from 'react-icons/lu';
@@ -1347,7 +1347,7 @@ const PresetManager: FC<{
         title={t('settings.presetManager.buttons.save')}
         aria-label={t('settings.presetManager.ariaLabels.save')}
       >
-        <LuCloudUpload className="lucide w-5 h-5" />
+        <LuUpload className="lucide w-5 h-5" />
         <Trans i18nKey="settings.presetManager.buttons.save" />
       </button>
 
@@ -1491,7 +1491,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
 
       <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
         <button className="btn" onClick={onExport}>
-          <LuCloudDownload className={ICON_CLASSNAME} />
+          <LuDownload className={ICON_CLASSNAME} />
           {t('settings.importExport.exportBtnLabel')}
         </button>
 
@@ -1509,7 +1509,7 @@ const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
           tabIndex={0}
           role="button"
         >
-          <LuCloudUpload className={ICON_CLASSNAME} />
+          <LuUpload className={ICON_CLASSNAME} />
           {t('settings.importExport.importBtnLabel')}
         </label>
       </div>
