@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import {
   ButtonHTMLAttributes,
   FC,
@@ -9,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 
@@ -132,7 +132,7 @@ export const IntlIconButton = ({
     aria-label={t(ariaLabelKey)}
     {...props}
   >
-    <Icon className="h-4 w-4" />
+    <Icon className="lucide h-4 w-4" />
   </button>
 );
 
@@ -244,7 +244,7 @@ export function Dropdown<T extends DropdownOption>({
           >
             {currentValue}
             {!hideChevron && (
-              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+              <LuChevronDown className="lucide inline h-5 w-5 ml-1" />
             )}
           </summary>
 

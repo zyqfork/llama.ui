@@ -1,12 +1,7 @@
-import {
-  AdjustmentsHorizontalIcon,
-  ArrowUpIcon,
-  PaperClipIcon,
-  StopIcon,
-} from '@heroicons/react/24/solid';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { LuArrowUp, LuPaperclip, LuSettings2, LuSquare } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
@@ -128,7 +123,7 @@ export function ChatInput({
                 tabIndex={0}
                 role="button"
               >
-                <PaperClipIcon className="h-5 w-5" />
+                <LuPaperclip className="lucide h-5 w-5" />
               </label>
 
               <button
@@ -137,7 +132,7 @@ export function ChatInput({
                 aria-label={t('header.ariaLabels.settings')}
                 onClick={() => navigate('/settings')}
               >
-                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+                <LuSettings2 className="lucide h-5 w-5" />
               </button>
             </div>
 
@@ -147,7 +142,7 @@ export function ChatInput({
                   className="btn btn-neutral w-8 h-8 p-0 rounded-full"
                   onClick={onStop}
                 >
-                  <StopIcon className="h-5 w-5" />
+                  <LuSquare className="lucide h-4 w-4" fill="currentColor" />
                 </button>
               )}
 
@@ -157,7 +152,7 @@ export function ChatInput({
                   onClick={sendNewMessage}
                   aria-label={t('chatInput.ariaLabels.send')}
                 >
-                  <ArrowUpIcon className="h-5 w-5" />
+                  <LuArrowUp className="lucide h-5 w-5" />
                 </button>
               )}
             </div>

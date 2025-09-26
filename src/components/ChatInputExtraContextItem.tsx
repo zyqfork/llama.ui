@@ -1,10 +1,6 @@
-import {
-  DocumentTextIcon,
-  SpeakerWaveIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuFileText, LuVolume2, LuX } from 'react-icons/lu';
 import { MessageExtra } from '../types';
 import { classNames } from '../utils';
 
@@ -49,7 +45,7 @@ export default function ChatInputExtraContextItem({
                 className="btn btn-neutral btn-sm w-4 h-4 p-0 rounded-full"
                 onClick={() => removeItem(i)}
               >
-                <XMarkIcon className="h-3 w-3" />
+                <LuX className="lucide h-3 w-3" />
               </button>
             </div>
           )}
@@ -75,9 +71,9 @@ export default function ChatInputExtraContextItem({
                   aria-description={t('chatInput.ariaLabels.documentIcon')}
                 >
                   {item.type === 'audioFile' ? (
-                    <SpeakerWaveIcon className="h-8 w-8 text-gray-500" />
+                    <LuVolume2 className="lucide h-8 w-8 text-gray-500" />
                   ) : (
-                    <DocumentTextIcon className="h-8 w-8 text-gray-500" />
+                    <LuFileText className="lucide h-8 w-8 text-gray-500" />
                   )}
                 </div>
 
@@ -104,7 +100,7 @@ export default function ChatInputExtraContextItem({
                 className="btn btn-ghost btn-sm"
                 aria-label={t('chatInput.previewDialog.closeButton')}
               >
-                <XMarkIcon className="h-5 w-5" onClick={() => setShow(-1)} />
+                <LuX className="lucide h-5 w-5" onClick={() => setShow(-1)} />
               </button>
             </div>
             {showingItem.type === 'imageFile' ? (
