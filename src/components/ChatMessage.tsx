@@ -111,8 +111,12 @@ export default memo(function ChatMessage({
     [msg.role]
   );
   const showActionButtons = useMemo(
-    () => !isEditing && (isUser || (isAssistant && !isPending)),
-    [isEditing, isPending, isUser, isAssistant]
+    () => !isEditing && !isPending,
+    [isEditing, isPending]
+  );
+  const isThinking = useMemo(
+    () => !!isPending && !content,
+    [content, isPending]
   );
 
   const handleCopy = () => {
@@ -179,14 +183,12 @@ export default memo(function ChatMessage({
             <div dir="auto" tabIndex={0}>
               {!!reasoning_content && (
                 <ThoughtProcess
-                  isThinking={!!isPending && !content}
+                  isThinking={isThinking}
                   content={reasoning_content}
                 />
               )}
 
-              {!!content && (
-                <MarkdownDisplay content={content} isGenerating={!!isPending} />
-              )}
+              {!!content && <MarkdownDisplay content={content} />}
             </div>
           )}
         </div>

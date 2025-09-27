@@ -15,13 +15,7 @@ import { CanvasType } from '../types';
 import { classNames, copyStr } from '../utils';
 import { IntlIconButton } from './common';
 
-export default memo(function MarkdownDisplay({
-  content,
-  isGenerating,
-}: {
-  content: string;
-  isGenerating?: boolean;
-}) {
+export default memo(function MarkdownDisplay({ content }: { content: string }) {
   const preprocessedContent = useMemo(
     () => preprocessLaTeX(content),
     [content]
@@ -33,11 +27,7 @@ export default memo(function MarkdownDisplay({
       components={{
         table: (props) => <CustomTable {...props} />,
         pre: (props) => (
-          <CustomPre
-            {...props}
-            isGenerating={isGenerating}
-            origContent={preprocessedContent}
-          />
+          <CustomPre {...props} origContent={preprocessedContent} />
         ),
         // note: do not use "pre", "p" or other basic html elements here, it will cause the node to re-render when the message is being generated (this should be a bug with react-markdown, not sure how to fix it)
       }}
@@ -62,8 +52,8 @@ const CustomTable: React.ElementType<
 const CustomPre: React.ElementType<
   React.ClassAttributes<HTMLPreElement> &
     React.HTMLAttributes<HTMLPreElement> &
-    ExtraProps & { origContent: string; isGenerating?: boolean }
-> = ({ className, children, node, origContent, isGenerating }) => {
+    ExtraProps & { origContent: string }
+> = ({ className, children, node, origContent }) => {
   const { t } = useTranslation();
   const {
     config: { pyIntepreterEnabled },
@@ -90,11 +80,8 @@ const CustomPre: React.ElementType<
   }, [node?.position, origContent]);
 
   const canRunCode = useMemo(
-    () =>
-      !isGenerating &&
-      pyIntepreterEnabled &&
-      codeLanguage.toLowerCase() === 'python',
-    [isGenerating, pyIntepreterEnabled, codeLanguage]
+    () => pyIntepreterEnabled && codeLanguage.toLowerCase() === 'python',
+    [pyIntepreterEnabled, codeLanguage]
   );
 
   const handleCopy = () => {
