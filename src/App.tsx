@@ -21,6 +21,7 @@ import {
   useInferenceContext,
 } from './context/inference';
 import { ModalProvider } from './context/modal';
+import { PendingMessagesProvider } from './context/pending';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import ChatScreen from './pages/ChatScreen';
@@ -40,15 +41,17 @@ const App: FC = () => {
         <div className="flex flex-row drawer xl:drawer-open">
           <AppContextProvider>
             <InferenceContextProvider>
-              <ChatContextProvider>
-                <Routes>
-                  <Route element={<AppLayout />}>
-                    <Route path="/chat/:convId" element={<Chat />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="*" element={<WelcomeScreen />} />
-                  </Route>
-                </Routes>
-              </ChatContextProvider>
+              <PendingMessagesProvider>
+                <ChatContextProvider>
+                  <Routes>
+                    <Route element={<AppLayout />}>
+                      <Route path="/chat/:convId" element={<Chat />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="*" element={<WelcomeScreen />} />
+                    </Route>
+                  </Routes>
+                </ChatContextProvider>
+              </PendingMessagesProvider>
             </InferenceContextProvider>
           </AppContextProvider>
         </div>

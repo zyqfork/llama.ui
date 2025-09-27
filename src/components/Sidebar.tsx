@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -12,6 +12,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
+import { usePendingMessages } from '../context/pending';
 import StorageUtils from '../database';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
@@ -119,179 +120,183 @@ export default function Sidebar() {
   );
 }
 
-const ConversationGroup = ({
-  group,
-  onItemSelect,
-}: {
-  group: GroupedConversations;
-  onItemSelect: () => void;
-}) => {
-  const { t } = useTranslation();
+const ConversationGroup = memo(
+  ({
+    group,
+    onItemSelect,
+  }: {
+    group: GroupedConversations;
+    onItemSelect: () => void;
+  }) => {
+    const { t } = useTranslation();
 
-  return (
-    <div role="group">
-      {/* group name (by date) */}
-      {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
-      <b
-        className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
-        role="note"
-        aria-description={t(`sidebar.groups.${group.title}`, {
-          defaultValue: group.title,
-        })}
-        tabIndex={0}
-      >
-        <Trans
-          i18nKey={`sidebar.groups.${group.title}`}
-          defaults={group.title}
-        />
-      </b>
-
-      {group.conversations.map((conv) => (
-        <ConversationItem key={conv.id} conv={conv} onSelect={onItemSelect} />
-      ))}
-    </div>
-  );
-};
-
-const ConversationItem = ({
-  conv,
-  onSelect,
-}: {
-  conv: Conversation;
-  onSelect: () => void;
-}) => {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { viewingChat, isGenerating } = useChatContext();
-  const { showConfirm, showPrompt } = useModals();
-
-  const isCurrent = useMemo(
-    () => viewingChat?.conv?.id === conv.id,
-    [conv.id, viewingChat?.conv?.id]
-  );
-
-  const handleSelect = () => {
-    onSelect();
-    navigate(`/chat/${conv.id}`);
-  };
-
-  const handleRename = async () => {
-    if (isGenerating(conv.id)) {
-      toast.error(t('sidebar.errors.renameOnGenerate'));
-      return;
-    }
-    const newName = await showPrompt(t('sidebar.actions.newName'), conv.name);
-    if (newName && newName.trim().length > 0) {
-      StorageUtils.updateConversationName(conv.id, newName);
-    }
-  };
-
-  const handleDownload = async () => {
-    if (isGenerating(conv.id)) {
-      toast.error(t('sidebar.errors.downloadOnGenerate'));
-      return;
-    }
-    return StorageUtils.exportDB(conv.id).then((data) =>
-      downloadAsFile(
-        [JSON.stringify(data, null, 2)],
-        `conversation_${conv.id}.json`
-      )
-    );
-  };
-
-  const handleDelete = async () => {
-    if (isGenerating(conv.id)) {
-      toast.error(t('sidebar.errors.deleteOnGenerate'));
-      return;
-    }
-    if (await showConfirm(t('sidebar.actions.deleteConfirm'))) {
-      toast.success(t('sidebar.actions.deleteSuccess'));
-      StorageUtils.deleteConversation(conv.id);
-      navigate('/');
-    }
-  };
-
-  return (
-    <div
-      role="menuitem"
-      tabIndex={0}
-      aria-label={conv.name}
-      className={classNames({
-        'group flex flex-row btn btn-ghost h-9 justify-start items-center font-normal px-2 xl:pr-0': true,
-        'btn-soft': isCurrent,
-      })}
-    >
-      <button
-        key={conv.id}
-        className="w-full overflow-hidden truncate text-start"
-        onClick={handleSelect}
-        dir="auto"
-        type="button"
-        title={conv.name}
-        aria-label={t('sidebar.ariaLabels.select', { name: conv.name })}
-      >
-        {conv.name}
-      </button>
-
-      <div tabIndex={0} className="dropdown dropdown-end h-5">
-        <button
-          // on mobile, we always show the ellipsis icon
-          // on desktop, we only show it when the user hovers over the conversation item
-          // we use opacity instead of hidden to avoid layout shift
-          className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
-          onClick={() => {}}
-          title={t('sidebar.buttons.more')}
-          aria-label={t('sidebar.ariaLabels.more')}
+    return (
+      <div role="group">
+        {/* group name (by date) */}
+        {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
+        <b
+          className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
+          role="note"
+          aria-description={t(`sidebar.groups.${group.title}`, {
+            defaultValue: group.title,
+          })}
+          tabIndex={0}
         >
-          <LuEllipsisVertical className="lucide w-5 h-5" />
-        </button>
-        {/* dropdown menu */}
-        <ul
-          aria-label={t('sidebar.ariaLabels.dropdown')}
-          role="menu"
-          tabIndex={-1}
-          className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
-        >
-          <li role="menuitem" tabIndex={0} onClick={handleRename}>
-            <button
-              type="button"
-              title={t('sidebar.buttons.rename')}
-              aria-label={t('sidebar.ariaLabels.rename')}
-            >
-              <LuPencil className="lucide w-4 h-4" />
-              <Trans i18nKey="sidebar.buttons.rename" />
-            </button>
-          </li>
-          <li role="menuitem" tabIndex={0} onClick={handleDownload}>
-            <button
-              type="button"
-              title={t('sidebar.buttons.download')}
-              aria-label={t('sidebar.ariaLabels.download')}
-            >
-              <LuDownload className="lucide w-4 h-4" />
-              <Trans i18nKey="sidebar.buttons.download" />
-            </button>
-          </li>
-          <li
-            role="menuitem"
-            tabIndex={0}
-            className="text-error"
-            onClick={handleDelete}
-          >
-            <button
-              type="button"
-              title={t('sidebar.buttons.delete')}
-              aria-label={t('sidebar.ariaLabels.delete')}
-            >
-              <LuTrash className="lucide w-4 h-4" />
-              <Trans i18nKey="sidebar.buttons.delete" />
-            </button>
-          </li>
-        </ul>
+          <Trans
+            i18nKey={`sidebar.groups.${group.title}`}
+            defaults={group.title}
+          />
+        </b>
+
+        {group.conversations.map((conv) => (
+          <ConversationItem key={conv.id} conv={conv} onSelect={onItemSelect} />
+        ))}
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+const ConversationItem = memo(
+  ({ conv, onSelect }: { conv: Conversation; onSelect: () => void }) => {
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    const { isGenerating } = usePendingMessages();
+    const { viewingChat } = useChatContext();
+    const { showConfirm, showPrompt } = useModals();
+
+    const isCurrent = useMemo(
+      () => viewingChat?.conv?.id === conv.id,
+      [conv.id, viewingChat?.conv?.id]
+    );
+
+    const isPending = useMemo(
+      () => isGenerating(conv.id),
+      [conv.id, isGenerating]
+    );
+
+    const handleSelect = () => {
+      onSelect();
+      navigate(`/chat/${conv.id}`);
+    };
+
+    const handleRename = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.renameOnGenerate'));
+        return;
+      }
+      const newName = await showPrompt(t('sidebar.actions.newName'), conv.name);
+      if (newName && newName.trim().length > 0) {
+        StorageUtils.updateConversationName(conv.id, newName);
+      }
+    };
+
+    const handleDownload = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.downloadOnGenerate'));
+        return;
+      }
+      return StorageUtils.exportDB(conv.id).then((data) =>
+        downloadAsFile(
+          [JSON.stringify(data, null, 2)],
+          `conversation_${conv.id}.json`
+        )
+      );
+    };
+
+    const handleDelete = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.deleteOnGenerate'));
+        return;
+      }
+      if (await showConfirm(t('sidebar.actions.deleteConfirm'))) {
+        toast.success(t('sidebar.actions.deleteSuccess'));
+        StorageUtils.deleteConversation(conv.id);
+        navigate('/');
+      }
+    };
+
+    return (
+      <div
+        role="menuitem"
+        tabIndex={0}
+        aria-label={conv.name}
+        className={classNames({
+          'group flex flex-row btn btn-ghost h-9 justify-start items-center font-normal px-2 xl:pr-0': true,
+          'btn-soft': isCurrent,
+        })}
+      >
+        <button
+          key={conv.id}
+          className="w-full overflow-hidden truncate text-start"
+          onClick={handleSelect}
+          dir="auto"
+          type="button"
+          title={conv.name}
+          aria-label={t('sidebar.ariaLabels.select', { name: conv.name })}
+        >
+          {conv.name}
+        </button>
+
+        <div tabIndex={0} className="dropdown dropdown-end h-5">
+          <button
+            // on mobile, we always show the ellipsis icon
+            // on desktop, we only show it when the user hovers over the conversation item
+            // we use opacity instead of hidden to avoid layout shift
+            className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
+            onClick={() => {}}
+            title={t('sidebar.buttons.more')}
+            aria-label={t('sidebar.ariaLabels.more')}
+          >
+            <LuEllipsisVertical className="lucide w-5 h-5" />
+          </button>
+          {/* dropdown menu */}
+          <ul
+            aria-label={t('sidebar.ariaLabels.dropdown')}
+            role="menu"
+            tabIndex={-1}
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
+          >
+            <li role="menuitem" tabIndex={0} onClick={handleRename}>
+              <button
+                type="button"
+                title={t('sidebar.buttons.rename')}
+                aria-label={t('sidebar.ariaLabels.rename')}
+              >
+                <LuPencil className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.rename" />
+              </button>
+            </li>
+            <li role="menuitem" tabIndex={0} onClick={handleDownload}>
+              <button
+                type="button"
+                title={t('sidebar.buttons.download')}
+                aria-label={t('sidebar.ariaLabels.download')}
+              >
+                <LuDownload className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.download" />
+              </button>
+            </li>
+            <li
+              role="menuitem"
+              tabIndex={0}
+              className="text-error"
+              onClick={handleDelete}
+            >
+              <button
+                type="button"
+                title={t('sidebar.buttons.delete')}
+                aria-label={t('sidebar.ariaLabels.delete')}
+              >
+                <LuTrash className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.delete" />
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+);
 
 // WARN: vibe code below
 

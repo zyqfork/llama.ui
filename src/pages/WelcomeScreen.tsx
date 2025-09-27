@@ -74,7 +74,7 @@ export default function WelcomeScreen() {
       </div>
 
       {/* chat input */}
-      <ChatInput onSend={handleSend} onStop={() => {}} isGenerating={false} />
+      <ChatInput onSend={handleSend} />
     </div>
   );
 }

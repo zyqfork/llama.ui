@@ -4,6 +4,7 @@ import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
+import { usePendingMessages } from '../context/pending';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
 import {
@@ -58,14 +59,8 @@ export default function ChatScreen({
   const {
     config: { systemMessage },
   } = useAppContext();
-  const {
-    viewingChat,
-    sendMessage,
-    isGenerating,
-    stopGenerating,
-    canvasData,
-    replaceMessage,
-  } = useChatContext();
+  const { viewingChat, sendMessage, canvasData, replaceMessage } =
+    useChatContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
@@ -232,9 +227,9 @@ export default function ChatScreen({
 
       {/* chat input */}
       <ChatInput
+        key={currConvId}
+        convId={currConvId}
         onSend={handleSendNewMessage}
-        onStop={() => stopGenerating(currConvId ?? '')}
-        isGenerating={isGenerating(currConvId ?? '')}
       />
     </div>
   );
@@ -247,7 +242,10 @@ function PendingMessage({
   currConvId: Conversation['id'];
   messages: MessageDisplay[];
 }) {
-  const { pendingMessages } = useChatContext();
+  const siblingLeafNodeIds = useMemo(() => [], []);
+  const siblingCurrIdx = useMemo(() => 0, []);
+  const emptyHandler = useCallback(() => {}, []);
+  const { pendingMessages } = usePendingMessages();
 
   const msg = useMemo(() => {
     if (!currConvId) {
@@ -267,12 +265,12 @@ function PendingMessage({
     <ChatMessage
       key={msg.id}
       msg={msg}
-      siblingLeafNodeIds={[]}
-      siblingCurrIdx={0}
-      onRegenerateMessage={() => {}}
-      onEditUserMessage={() => {}}
-      onEditAssistantMessage={() => {}}
-      onChangeSibling={() => {}}
+      siblingLeafNodeIds={siblingLeafNodeIds}
+      siblingCurrIdx={siblingCurrIdx}
+      onRegenerateMessage={emptyHandler}
+      onEditUserMessage={emptyHandler}
+      onEditAssistantMessage={emptyHandler}
+      onChangeSibling={emptyHandler}
       isPending={true}
     />
   );
