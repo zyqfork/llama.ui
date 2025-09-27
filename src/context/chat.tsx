@@ -23,7 +23,7 @@ import {
 } from '../types';
 import { filterThoughtFromMsgs } from '../utils';
 import { useAppContext } from './app';
-import { PendingMessagesContext } from './pending';
+import { PendingMessagesContext } from './pendingMessage';
 
 // Define action types enum
 enum ChatActionType {

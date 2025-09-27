@@ -21,7 +21,7 @@ import {
   useInferenceContext,
 } from './context/inference';
 import { ModalProvider } from './context/modal';
-import { PendingMessagesProvider } from './context/pending';
+import { PendingMessagesProvider } from './context/pendingMessage';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
 import ChatScreen from './pages/ChatScreen';

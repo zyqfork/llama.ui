@@ -5,7 +5,7 @@ import { LuArrowUp, LuPaperclip, LuSquare } from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
-import { usePendingMessages } from '../context/pending';
+import { usePendingMessages } from '../context/pendingMessage';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { MessageExtra } from '../types';

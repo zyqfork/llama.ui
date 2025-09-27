@@ -12,7 +12,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
-import { usePendingMessages } from '../context/pending';
+import { usePendingMessages } from '../context/pendingMessage';
 import StorageUtils from '../database';
 import { Conversation } from '../types';
 import { classNames } from '../utils';

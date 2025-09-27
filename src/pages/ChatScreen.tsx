@@ -4,7 +4,7 @@ import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
-import { usePendingMessages } from '../context/pending';
+import { usePendingMessages } from '../context/pendingMessage';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
 import {
