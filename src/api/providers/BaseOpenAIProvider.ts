@@ -1,13 +1,13 @@
-import { isDev } from '../config';
+import { isDev } from '../../config';
 import {
   ChatCompletionProvider,
   InferenceApiMessage,
   InferenceApiModel,
   LLMProvider,
   ModelProvider,
-} from '../types';
-import { normalizeUrl } from '../utils';
-import { getSSEStreamAsync, noResponse } from './utils';
+} from '../../types';
+import { normalizeUrl } from '../../utils';
+import { getSSEStreamAsync, noResponse } from '../utils';
 
 export class BaseOpenAIProvider
   implements LLMProvider, ModelProvider, ChatCompletionProvider
@@ -17,13 +17,14 @@ export class BaseOpenAIProvider
   private models: InferenceApiModel[] = [];
   private lastUpdated;
 
-  protected constructor(baseUrl: string, apiKey: string = '') {
+  protected constructor(baseUrl?: string, apiKey: string = '') {
+    if (!baseUrl) throw new Error(`Base URL is not specified`);
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
     this.lastUpdated = Date.now();
   }
 
-  static new(baseUrl: string, apiKey: string = '') {
+  static new(baseUrl?: string, apiKey: string = '') {
     return new BaseOpenAIProvider(baseUrl, apiKey);
   }
 
@@ -52,7 +53,7 @@ export class BaseOpenAIProvider
       }
       await this.isErrorResponse(fetchResponse);
       const json = await fetchResponse.json();
-      this.models = this.mapModels(json.data);
+      this.models = this.jsonToModels(json.data);
 
       this.lastUpdated = Date.now();
     }
@@ -186,25 +187,26 @@ export class BaseOpenAIProvider
     return Date.now() - this.lastUpdated > 60 * 1000;
   }
 
-  protected mapModels(data: InferenceApiModel[]) {
+  protected jsonToModels(data: unknown[]) {
     const res: InferenceApiModel[] = [];
     if (data && Array.isArray(data)) {
       data.map((m) => {
-        res.push({
-          id: m.id,
-          name: m.name || m.id,
-          created: m.created,
-          description: m.description,
-        });
+        res.push(this.jsonToModel(m));
       });
-      res.sort((a, b) => {
-        if (a.created || b.created) {
-          return (b.created || 0) - (a.created || 0);
-        }
-        return a.name.localeCompare(b.name);
-      });
+      res.sort(this.compareModels);
     }
     return res;
+  }
+
+  protected jsonToModel(m: unknown) {
+    return m as InferenceApiModel;
+  }
+
+  protected compareModels(a: InferenceApiModel, b: InferenceApiModel) {
+    if (a.created || b.created) {
+      return (b.created || 0) - (a.created || 0);
+    }
+    return a.name.localeCompare(b.name);
   }
 
   getBaseUrl() {
