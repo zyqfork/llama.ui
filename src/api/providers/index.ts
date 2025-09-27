@@ -1,6 +1,7 @@
 import { InferenceProvider } from '../../types';
 import { BaseOpenAIProvider } from './BaseOpenAIProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
+import { OpenRouterProvider } from './OpenRouterProvider';
 
 const PROVIDER_CACHE = new Map<string, InferenceProvider>();
 
@@ -22,6 +23,9 @@ export function getInferenceProvider(
   switch (key) {
     case 'llama-cpp':
       provider = LlamaCppProvider.new(baseUrl, apiKey);
+      break;
+    case 'open-router':
+      provider = OpenRouterProvider.new(baseUrl, apiKey);
       break;
     default:
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);

@@ -60,7 +60,7 @@ export class BaseOpenAIProvider
    * Used to determine cache expiration (1 minute).
    * @internal
    */
-  private lastUpdated: number;
+  protected lastUpdated: number;
 
   /**
    * Constructs a new BaseOpenAIProvider instance.
