@@ -101,7 +101,11 @@ export default function Sidebar() {
           {/* scrollable conversation list */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
             {groupedConv.map((group) => (
-              <ConversationGroup group={group} onItemSelect={handleSelect} />
+              <ConversationGroup
+                key={group.title}
+                group={group}
+                onItemSelect={handleSelect}
+              />
             ))}
           </div>
 

@@ -64,59 +64,71 @@ export const AppContextProvider = ({
     return !!config;
   }, []);
 
-  const saveConfig = (config: Configuration) => {
+  const saveConfig = useCallback((config: Configuration) => {
     console.debug('Save config', config);
     setConfig(() => {
       StorageUtils.setConfig(config);
       return config;
     });
-  };
+  }, []);
 
-  const savePreset = async (name: string, config: Configuration) => {
-    console.debug('Save preset', { name, config });
-    await StorageUtils.savePreset(name, config);
-    setPresets(await StorageUtils.getPresets());
-    toast.success(t('state.preset.saved'));
-  };
+  const savePreset = useCallback(
+    async (name: string, config: Configuration) => {
+      console.debug('Save preset', { name, config });
+      await StorageUtils.savePreset(name, config);
+      setPresets(await StorageUtils.getPresets());
+      toast.success(t('state.preset.saved'));
+    },
+    [t]
+  );
 
-  const removePreset = async (name: string) => {
-    console.debug('Remove preset', name);
-    await StorageUtils.removePreset(name);
-    setPresets(await StorageUtils.getPresets());
-    toast.success(t('state.preset.removed'));
-  };
+  const removePreset = useCallback(
+    async (name: string) => {
+      console.debug('Remove preset', name);
+      await StorageUtils.removePreset(name);
+      setPresets(await StorageUtils.getPresets());
+      toast.success(t('state.preset.removed'));
+    },
+    [t]
+  );
 
   // --- Import/Export ---
 
-  const importDB = async (data: string) => {
-    try {
-      await StorageUtils.importDB(JSON.parse(data));
+  const importDB = useCallback(
+    async (data: string) => {
+      try {
+        await StorageUtils.importDB(JSON.parse(data));
 
-      const presets = await StorageUtils.getPresets();
-      setPresets(presets);
-    } catch (error) {
-      console.error('Error during database import:', error);
-      toast.success(t('state.database.import.failed'));
-      throw error; // Re-throw to allow caller to handle
-    }
-    console.info('Database import completed successfully.');
-    toast.success(t('state.database.import.completed'));
-  };
+        const presets = await StorageUtils.getPresets();
+        setPresets(presets);
+      } catch (error) {
+        console.error('Error during database import:', error);
+        toast.success(t('state.database.import.failed'));
+        throw error; // Re-throw to allow caller to handle
+      }
+      console.info('Database import completed successfully.');
+      toast.success(t('state.database.import.completed'));
+    },
+    [t]
+  );
 
-  const exportDB = async (convId?: string): Promise<ExportJsonStructure> => {
-    let data: ExportJsonStructure;
-    try {
-      data = await StorageUtils.exportDB(convId);
-    } catch (error) {
-      console.error('Error during database export:', error);
-      toast.success(t('state.database.export.failed'));
-      throw error; // Re-throw to allow caller to handle
-    }
-    console.info('Database export completed successfully.');
-    toast.success(t('state.database.export.completed'));
+  const exportDB = useCallback(
+    async (convId?: string): Promise<ExportJsonStructure> => {
+      let data: ExportJsonStructure;
+      try {
+        data = await StorageUtils.exportDB(convId);
+      } catch (error) {
+        console.error('Error during database export:', error);
+        toast.success(t('state.database.export.failed'));
+        throw error; // Re-throw to allow caller to handle
+      }
+      console.info('Database export completed successfully.');
+      toast.success(t('state.database.export.completed'));
 
-    return data;
-  };
+      return data;
+    },
+    [t]
+  );
 
   // --- DaisyUI Theme ---
 
