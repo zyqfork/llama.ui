@@ -110,6 +110,16 @@ export const InferenceContextProvider = ({
     [t]
   );
 
+  const updateSelectedModel = useCallback(
+    (config: Configuration) => {
+      if (!!config.model && models.length > 0) {
+        const selectedModel = models.find((m) => m.id === config.model) || null;
+        setSelectedModel(selectedModel);
+      }
+    },
+    [models]
+  );
+
   const syncServer = useCallback(
     async (config: Configuration, options: FetchOptions = {}) => {
       if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
@@ -118,12 +128,9 @@ export const InferenceContextProvider = ({
       const models = await fetchModels(config, options);
       setModels(models);
 
-      if (!!config.model && models.length > 0) {
-        const selectedModel = models.find((m) => m.id === config.model) || null;
-        setSelectedModel(selectedModel);
-      }
+      updateSelectedModel(config);
     },
-    [fetchModels]
+    [fetchModels, updateSelectedModel]
   );
 
   // --- Initialization ---
@@ -142,8 +149,11 @@ export const InferenceContextProvider = ({
     if (shouldSync) {
       syncServer(config);
     }
+
+    updateSelectedModel(config);
+
     currentConfigRef.current = config;
-  }, [syncServer, updateApi, config]);
+  }, [syncServer, updateApi, updateSelectedModel, config]);
 
   return (
     <InferenceContext.Provider
