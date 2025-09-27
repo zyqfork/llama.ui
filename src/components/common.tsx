@@ -1,6 +1,7 @@
 import {
   ButtonHTMLAttributes,
   FC,
+  memo,
   ReactNode,
   useEffect,
   useMemo,
@@ -128,26 +129,28 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   titleKey: string;
   ariaLabelKey: string;
 }
-export const IntlIconButton = ({
-  className,
-  disabled,
-  onClick,
-  icon: Icon,
-  t,
-  titleKey,
-  ariaLabelKey,
-  ...props
-}: IconButtonProps) => (
-  <button
-    className={className}
-    onClick={onClick}
-    disabled={disabled}
-    title={t(titleKey)}
-    aria-label={t(ariaLabelKey)}
-    {...props}
-  >
-    <Icon className="lucide h-4 w-4" />
-  </button>
+export const IntlIconButton = memo(
+  ({
+    className,
+    disabled,
+    onClick,
+    icon: Icon,
+    t,
+    titleKey,
+    ariaLabelKey,
+    ...props
+  }: IconButtonProps) => (
+    <button
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+      title={t(titleKey)}
+      aria-label={t(ariaLabelKey)}
+      {...props}
+    >
+      <Icon className="lucide h-4 w-4" />
+    </button>
+  )
 );
 
 export interface DropdownOption {
