@@ -87,6 +87,59 @@ export const InferenceContextProvider = ({
     setApi(newApi);
   }, []);
 
+  const fetchModels = useCallback(
+    async (
+      config: Configuration,
+      options: FetchOptions = { silent: false }
+    ): Promise<InferenceApiModel[]> => {
+      if (!isProviderReady(config)) {
+        return noModels;
+      }
+
+      console.debug('Fetch models');
+      const newApi = InferenceApi.new(config);
+      let newModels = noModels;
+      try {
+        newModels = await newApi.v1Models();
+      } catch (err) {
+        if (!options.silent) {
+          console.error('fetch models failed: ', err);
+          toast.error(
+            t('state.inference.errors.providerError', {
+              message: (err as Error).message,
+            })
+          );
+        }
+      }
+      return newModels;
+    },
+    [t]
+  );
+
+  const fetchServerProperties = useCallback(
+    async (
+      config: Configuration,
+      options: FetchOptions = { silent: false }
+    ): Promise<LlamaCppServerProps> => {
+      if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
+        return noServerProps;
+      }
+
+      console.debug('Fetch server properties');
+      const newApi = InferenceApi.new(config);
+      let newProps = noServerProps;
+      try {
+        newProps = await newApi.getServerProps();
+      } catch (err) {
+        if (!options.silent) {
+          console.error('fetch llama.cpp props failed: ', err);
+        }
+      }
+      return newProps;
+    },
+    []
+  );
+
   const syncServer = useCallback(
     async (config: Configuration, options: FetchOptions = {}) => {
       if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
@@ -94,55 +147,8 @@ export const InferenceContextProvider = ({
       setModels(await fetchModels(config, options));
       setServerProps(await fetchServerProperties(config, options));
     },
-    []
+    [fetchModels, fetchServerProperties]
   );
-
-  const fetchModels = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<InferenceApiModel[]> => {
-    if (!isProviderReady(config)) {
-      return noModels;
-    }
-
-    console.debug('Fetch models');
-    const newApi = InferenceApi.new(config);
-    let newModels = noModels;
-    try {
-      newModels = await newApi.v1Models();
-    } catch (err) {
-      if (!options.silent) {
-        console.error('fetch models failed: ', err);
-        toast.error(
-          t('state.inference.errors.providerError', {
-            message: (err as Error).message,
-          })
-        );
-      }
-    }
-    return newModels;
-  };
-
-  const fetchServerProperties = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<LlamaCppServerProps> => {
-    if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
-      return noServerProps;
-    }
-
-    console.debug('Fetch server properties');
-    const newApi = InferenceApi.new(config);
-    let newProps = noServerProps;
-    try {
-      newProps = await newApi.getServerProps();
-    } catch (err) {
-      if (!options.silent) {
-        console.error('fetch llama.cpp props failed: ', err);
-      }
-    }
-    return newProps;
-  };
 
   // --- Initialization ---
 
@@ -152,10 +158,12 @@ export const InferenceContextProvider = ({
     if (!deepEqual(currentConfigRef.current, config)) {
       updateApi(config);
     }
-    if (
+    const shouldSync =
       prevConfig.baseUrl !== config.baseUrl ||
-      prevConfig.apiKey !== config.apiKey
-    ) {
+      prevConfig.apiKey !== config.apiKey ||
+      (Object.is(prevConfig, CONFIG_DEFAULT) && !!config.baseUrl);
+
+    if (shouldSync) {
       syncServer(config);
     }
     currentConfigRef.current = config;

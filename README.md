@@ -143,6 +143,15 @@ npm run build  # 🔨 Craft the magic
 npm start    # 🎬 Launch dev server (http://localhost:5173) for live-coding bliss! 🔥
 ```
 
+### 🧰 Preconfiguring Defaults
+
+Planning to redistribute the app with opinionated settings out of the box? Any JSON under
+[`src/config`](src/config) is baked into immutable defaults at build time (see
+[`src/config/index.ts`](src/config/index.ts)).
+
+If those baked defaults include a non-empty `baseUrl`, the inference server will auto-sync on first load
+so model metadata is fetched without requiring manual input.
+
 ### 🏗️ Architecture
 
 #### Core Technologies
