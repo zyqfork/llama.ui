@@ -2,15 +2,31 @@ import { InferenceProvider } from '../../types';
 import { BaseOpenAIProvider } from './BaseOpenAIProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
 
+const PROVIDER_CACHE = new Map<string, InferenceProvider>();
+
 export function getInferenceProvider(
   key: string,
-  baseUrl?: string,
-  apiKey?: string
+  baseUrl: string,
+  apiKey: string = ''
 ): InferenceProvider {
+  if (!baseUrl) throw new Error(`Base URL is not specified`);
+
+  if (PROVIDER_CACHE.has(baseUrl)) {
+    const provider = PROVIDER_CACHE.get(baseUrl)!;
+    if (provider.getApiKey() === apiKey) {
+      return PROVIDER_CACHE.get(baseUrl)!;
+    }
+  }
+
+  let provider: InferenceProvider;
   switch (key) {
     case 'llama-cpp':
-      return LlamaCppProvider.new(baseUrl, apiKey);
+      provider = LlamaCppProvider.new(baseUrl, apiKey);
+      break;
     default:
-      return BaseOpenAIProvider.new(baseUrl, apiKey);
+      provider = BaseOpenAIProvider.new(baseUrl, apiKey);
   }
+
+  PROVIDER_CACHE.set(baseUrl, provider);
+  return provider;
 }

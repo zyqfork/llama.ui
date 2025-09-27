@@ -10,22 +10,48 @@ import { MessageExtra } from '../types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
 
-// This file handles uploading extra context items (a.k.a files)
-// It allows processing these kinds of files:
-// - image files (converted to base64)
-// - audio files (converted to base64)
-// - text files (including code files)
-// - pdf (converted to text)
+/**
+ * This file handles uploading extra context items (a.k.a files)
+ * It allows processing these kinds of files:
+ * - image files (converted to base64)
+ * - audio files (converted to base64)
+ * - text files (including code files)
+ * - pdf (converted to text)
+ */
 
-// Interface describing the API returned by the hook
+/**
+ * Interface describing the API returned by the useFileUpload hook
+ */
 export interface FileUploadApi {
-  items?: MessageExtra[]; // undefined if empty, similar to Message['extra']
+  /** Array of uploaded files/items, undefined if empty */
+  items?: MessageExtra[];
+
+  /** Adds new items to the upload list */
   addItems: (items: MessageExtra[]) => void;
+
+  /** Removes an item at the specified index */
   removeItem: (idx: number) => void;
+
+  /** Clears all items from the upload list */
   clearItems: () => void;
-  onFileAdded: (files: File[]) => void; // used by "upload" button
+
+  /** Handles file uploads and processes them based on type */
+  onFileAdded: (files: File[]) => void;
 }
 
+/**
+ * Custom React hook for handling file uploads and processing various file types
+ *
+ * @remarks
+ * This hook supports processing of:
+ * - Image files (converted to base64)
+ * - Audio files (converted to base64)
+ * - Text files (including code files)
+ * - PDF files (converted to text or images based on configuration)
+ *
+ * @param initialItems - Initial array of MessageExtra items to pre-populate the hook
+ * @returns FileUploadApi object with methods and state for file upload management
+ */
 export function useFileUpload(
   initialItems: MessageExtra[] = []
 ): FileUploadApi {
@@ -33,7 +59,7 @@ export function useFileUpload(
   const {
     config: { pdfAsImage },
   } = useAppContext();
-  const { serverProps } = useInferenceContext();
+  const { selectedModel } = useInferenceContext();
   const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
   const addItems = (newItems: MessageExtra[]) => {
@@ -48,7 +74,7 @@ export function useFileUpload(
     setItems([]);
   };
 
-  const isSupportVision = serverProps?.modalities?.vision;
+  const isSupportVision = selectedModel?.modalities?.includes('image');
 
   const onFileAdded = async (files: File[]) => {
     try {
@@ -171,6 +197,14 @@ export function useFileUpload(
   };
 }
 
+/**
+ * Reads a file and returns it as a base64 string or data URL
+ *
+ * @param file - The file to read
+ * @param outputUrl - Whether to output as data URL (true) or plain base64 (false)
+ * @param t - Translation function
+ * @returns Promise resolving to the base64 string or data URL
+ */
 async function getFileAsBase64(
   file: File,
   outputUrl = true,
@@ -194,6 +228,13 @@ async function getFileAsBase64(
   });
 }
 
+/**
+ * Reads a file and returns it as an ArrayBuffer
+ *
+ * @param file - The file to read
+ * @param t - Translation function
+ * @returns Promise resolving to the ArrayBuffer
+ */
 async function getFileAsBuffer(
   file: File,
   t: ReturnType<typeof useTranslation>['t']
@@ -211,6 +252,13 @@ async function getFileAsBuffer(
   });
 }
 
+/**
+ * Converts a PDF file to text content
+ *
+ * @param file - The PDF file to convert
+ * @param t - Translation function
+ * @returns Promise resolving to the extracted text content
+ */
 async function convertPDFToText(
   file: File,
   t: ReturnType<typeof useTranslation>['t']
@@ -231,7 +279,13 @@ async function convertPDFToText(
   return textItems.join('\n');
 }
 
-// returns list of base64 images
+/**
+ * Converts a PDF file to an array of base64 image data URLs
+ *
+ * @param file - The PDF file to convert
+ * @param t - Translation function
+ * @returns Promise resolving to an array of base64 image data URLs
+ */
 async function convertPDFToImage(
   file: File,
   t: ReturnType<typeof useTranslation>['t']
@@ -261,10 +315,18 @@ async function convertPDFToImage(
   return await Promise.all(pages);
 }
 
-// WARN: vibe code below
-// This code is a heuristic to determine if a string is likely not binary.
-// It is necessary because input file can have various mime types which we don't have time to investigate.
-// For example, a python file can be text/plain, application/x-python, etc.
+/**
+ * Heuristic function to determine if a string is likely not binary
+ *
+ * @remarks
+ * This is a heuristic approach to detect binary files by checking for:
+ * - Unicode Replacement Characters (U+FFFD)
+ * - Null bytes (U+0000)
+ * - C0 Control Characters (excluding common text controls)
+ *
+ * @param str - The string to check
+ * @returns Boolean indicating if the string is likely not binary
+ */
 function isLikelyNotBinary(str: string): boolean {
   const options = {
     prefixLength: 1024 * 10, // Check the first 10KB of the string
@@ -336,8 +398,13 @@ function isLikelyNotBinary(str: string): boolean {
   return ratio <= options.suspiciousCharThresholdRatio;
 }
 
-// WARN: vibe code below
-// Converts a Base64URL encoded SVG string to a PNG Data URL using browser Canvas API.
+/**
+ * Converts a Base64URL encoded SVG string to a PNG Data URL using browser Canvas API
+ *
+ * @param base64UrlSvg - Base64 encoded SVG data URL
+ * @param t - Translation function
+ * @returns Promise resolving to PNG data URL
+ */
 function svgBase64UrlToPngDataURL(
   base64UrlSvg: string,
   t: ReturnType<typeof useTranslation>['t']

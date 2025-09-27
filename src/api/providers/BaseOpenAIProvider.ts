@@ -9,14 +9,68 @@ import {
 import { normalizeUrl } from '../../utils';
 import { getSSEStreamAsync, noResponse } from '../utils';
 
+/**
+ * Base implementation for OpenAI-compatible API providers.
+ *
+ * This class provides a foundational implementation for interacting with
+ * OpenAI-compatible inference APIs (e.g., Ollama, vLLM, LocalAI) that expose
+ * `/v1/models` and `/v1/chat/completions` endpoints.
+ *
+ * It handles:
+ * - Authentication via Bearer token
+ * - Model list caching with expiration
+ * - Error response parsing and throwing
+ * - Streaming chat completion via Server-Sent Events (SSE)
+ * - Header normalization and URL sanitization
+ *
+ * @example
+ * ```ts
+ * const provider = BaseOpenAIProvider.new('http://localhost:11434', 'sk-...');
+ * const models = await provider.getModels();
+ * const stream = await provider.postChatCompletions(
+ *   'llama3',
+ *   [{ role: 'user', content: 'Hello!' }],
+ *   abortSignal
+ * );
+ * ```
+ */
 export class BaseOpenAIProvider
   implements LLMProvider, ModelProvider, ChatCompletionProvider
 {
+  /**
+   * The base URL of the OpenAI-compatible API endpoint.
+   * @internal
+   */
   private baseUrl: string;
-  private apiKey: string;
-  private models: InferenceApiModel[] = [];
-  private lastUpdated;
 
+  /**
+   * The API key used for authentication.
+   * @internal
+   */
+  private apiKey: string;
+
+  /**
+   * Cached list of available models fetched from the API.
+   * @internal
+   */
+  private models: InferenceApiModel[] = [];
+
+  /**
+   * Timestamp of the last successful model list fetch.
+   * Used to determine cache expiration (1 minute).
+   * @internal
+   */
+  private lastUpdated: number;
+
+  /**
+   * Constructs a new BaseOpenAIProvider instance.
+   *
+   * @param baseUrl - The base URL of the API endpoint (e.g., `http://localhost:11434`)
+   * @param apiKey - Optional API key for authentication (Bearer token)
+   * @throws {Error} If `baseUrl` is not provided or is empty
+   *
+   * @private
+   */
   protected constructor(baseUrl?: string, apiKey: string = '') {
     if (!baseUrl) throw new Error(`Base URL is not specified`);
     this.baseUrl = baseUrl;
@@ -24,6 +78,13 @@ export class BaseOpenAIProvider
     this.lastUpdated = Date.now();
   }
 
+  /**
+   * Factory method to create a new BaseOpenAIProvider instance.
+   *
+   * @param baseUrl - The base URL of the API endpoint
+   * @param apiKey - Optional API key for authentication
+   * @returns A new instance of BaseOpenAIProvider
+   */
   static new(baseUrl?: string, apiKey: string = '') {
     return new BaseOpenAIProvider(baseUrl, apiKey);
   }
@@ -31,48 +92,78 @@ export class BaseOpenAIProvider
   /**
    * Retrieves the list of available models from the API.
    *
-   * @returns Promise resolving to array of available models
-   * @throws When the API returns a non-200 status or contains error data
+   * Uses cached models if available and not expired (cached for 1 minute).
+   * If cache is expired or empty, fetches fresh data from `/v1/models`.
+   *
+   * @returns Promise resolving to an array of `InferenceApiModel` objects
+   * @throws {Error} If the API returns a non-200 status or malformed response
+   *
+   * @example
+   * ```ts
+   * const models = await provider.getModels();
+   * console.log(models.map(m => m.id)); // ["llama3", "mistral", ...]
+   * ```
    */
   async getModels(): Promise<InferenceApiModel[]> {
-    if (!this.models) {
-      if (isDev) console.debug('v1Models');
+    if (isDev) console.debug('v1Models', this.models);
 
-      let fetchResponse = noResponse;
-      try {
-        fetchResponse = await fetch(
-          normalizeUrl('/v1/models', this.getBaseUrl()),
-          {
-            method: 'GET',
-            headers: this.getHeaders(),
-            signal: AbortSignal.timeout(1000),
-          }
-        );
-      } catch {
-        // do nothing
-      }
-      await this.isErrorResponse(fetchResponse);
-      const json = await fetchResponse.json();
-      this.models = this.jsonToModels(json.data);
-
-      this.lastUpdated = Date.now();
+    if (this.models.length > 0 && !this.isExpired()) {
+      return this.models;
     }
+
+    let fetchResponse = noResponse;
+    try {
+      fetchResponse = await fetch(normalizeUrl('/v1/models', this.baseUrl), {
+        method: 'GET',
+        headers: this.getHeaders(),
+        signal: AbortSignal.timeout(1000),
+      });
+    } catch {
+      // Silently ignore network/timeout errors; will be caught in isErrorResponse
+    }
+    await this.isErrorResponse(fetchResponse);
+    const json = await fetchResponse.json();
+    this.models = this.jsonToModels(json.data);
+
+    this.lastUpdated = Date.now();
+
     return this.models;
   }
 
   /**
-   * Sends chat messages to the API and processes the streaming response.
-   * Handles message normalization, thought filtering, and parameter configuration.
+   * Sends a chat completion request to the API with streaming support.
    *
-   * @param messages - Array of messages to send in the conversation
-   * @param abortSignal - Signal to cancel the request
-   * @returns Async generator yielding chat completion tokens/events
+   * Accepts a model name, message history, abort signal, and optional custom parameters.
+   * Returns a streaming response via Server-Sent Events (SSE).
    *
-   * @throws When the API returns a non-200 status or contains error data
+   * @param model - The model identifier to use for completion (e.g., "llama3")
+   * @param messages - Array of conversation messages following OpenAI format
+   * @param abortSignal - AbortSignal to cancel the request if needed
+   * @param customOptions - Optional override parameters for generation (e.g., temperature, max_tokens)
+   * @returns Async generator yielding SSE events (chat completion tokens)
+   * @throws {Error} If the API returns a non-200 status or malformed response
    *
    * @remarks
-   * This method supports advanced configuration options through the provider's
-   * configuration object, including generation parameters and custom options. [[6]]
+   * Default parameters include:
+   * - `stream: true`
+   * - `cache_prompt: true`
+   * - `timings_per_token: true`
+   *
+   * Custom options are merged into the request body. Be cautious: invalid parameters
+   * may cause API errors.
+   *
+   * @example
+   * ```ts
+   * const stream = await provider.postChatCompletions(
+   *   'llama3',
+   *   [{ role: 'user', content: 'Tell me a joke.' }],
+   *   abortController.signal,
+   *   { temperature: 0.7, max_tokens: 100 }
+   * );
+   * for await (const chunk of stream) {
+   *   console.log(chunk.content);
+   * }
+   * ```
    */
   async postChatCompletions(
     model: string,
@@ -82,7 +173,7 @@ export class BaseOpenAIProvider
   ) {
     if (isDev) console.debug('v1ChatCompletions', { messages });
 
-    // prepare params
+    // Prepare default parameters
     let params = {
       model,
       messages,
@@ -91,14 +182,16 @@ export class BaseOpenAIProvider
       timings_per_token: true,
     };
 
-    // advanced options
-    if (!customOptions) params = Object.assign(params, customOptions);
+    // Merge custom options if provided
+    if (customOptions && typeof customOptions === 'object') {
+      params = { ...params, ...customOptions };
+    }
 
-    // send request
+    // Send request
     let fetchResponse = noResponse;
     try {
       fetchResponse = await fetch(
-        normalizeUrl('/v1/chat/completions', this.getBaseUrl()),
+        normalizeUrl('/v1/chat/completions', this.baseUrl),
         {
           method: 'POST',
           headers: this.getHeaders(),
@@ -107,39 +200,43 @@ export class BaseOpenAIProvider
         }
       );
     } catch {
-      // do nothing
+      // Silently ignore network/timeout errors; will be caught in isErrorResponse
     }
+
     await this.isErrorResponse(fetchResponse);
     return getSSEStreamAsync(fetchResponse);
   }
 
   /**
-   * Generates appropriate headers for API requests, including authentication.
+   * Generates HTTP headers for API requests, including authentication.
    *
-   * @returns Headers configuration for fetch requests
+   * @returns Headers configuration suitable for `fetch` requests
    * @private
    */
   protected getHeaders(): HeadersInit {
-    const headers = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
-    const apiKey = this.getApiKey();
+    const apiKey = this.apiKey;
     if (apiKey) {
-      Object.assign(headers, {
-        Authorization: `Bearer ${apiKey}`,
-      });
+      headers.Authorization = `Bearer ${apiKey}`;
     }
+
     return headers;
   }
 
   /**
-   * Checks response for errors response.
+   * Validates the HTTP response and throws an appropriate error if status is not 200.
    *
-   * @throws Error if status is not Success
+   * Attempts to parse response body as JSON for detailed error messages.
+   * Logs errors to console in development mode.
+   *
+   * @param response - The HTTP response object from fetch
+   * @throws {Error} With specific message based on HTTP status code or API error body
    * @private
    */
-  protected async isErrorResponse(response: Response) {
+  protected async isErrorResponse(response: Response): Promise<void> {
     if (response.status === 200) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,50 +244,76 @@ export class BaseOpenAIProvider
     try {
       body = await response.json();
     } catch (e) {
-      // fallback if response is not JSON
-      body = {};
+      // Fallback if response is not JSON (e.g., plain text or empty)
+      console.warn('Non-JSON response received:', e);
     }
 
-    if (Object.keys(body).length > 0) console.error('API error: ', body);
+    if (Object.keys(body).length > 0) {
+      console.error('API error response:', body);
+    }
 
+    // Map HTTP status codes to human-readable errors
     switch (response.status) {
       case 400:
-        throw new Error('Bad request');
+        throw new Error('Bad request: Invalid parameters or malformed input');
       case 401:
-        throw new Error('Unauthorized');
+        throw new Error('Unauthorized: Invalid or missing API key');
       case 402:
-        throw new Error('Payment required');
+        throw new Error(
+          'Payment required: Quota exceeded or subscription needed'
+        );
       case 403:
-        throw new Error('Forbidden');
+        throw new Error('Forbidden: Access denied');
       case 404:
-        throw new Error('Not found');
+        throw new Error(
+          'Not found: The requested endpoint or model does not exist'
+        );
       case 429:
-        throw new Error('Too many requests');
+        throw new Error('Too many requests: Rate limit exceeded');
       case 444:
-        throw new Error('No response');
+        throw new Error(
+          'No response: Server closed connection without response'
+        );
       case 500:
-        throw new Error('Internal server error');
+        throw new Error('Internal server error: Please try again later');
       case 502:
-        throw new Error('Bad gateway');
+        throw new Error('Bad gateway: Backend service is unavailable');
       case 503:
-        throw new Error('Service unavailable');
+        throw new Error('Service unavailable: Server is temporarily down');
       case 504:
-        throw new Error('Gateway timeout');
+        throw new Error('Gateway timeout: Backend took too long to respond');
       default:
         throw new Error(
-          body?.error?.message || `Unknown error: ${response.status}`
+          body?.error?.message || `Unknown error: HTTP ${response.status}`
         );
     }
   }
 
-  protected isExpired() {
+  /**
+   * Determines whether the cached model list has expired.
+   *
+   * Cache expires after 60 seconds to ensure freshness.
+   *
+   * @returns `true` if the cache is expired, `false` otherwise
+   * @private
+   */
+  protected isExpired(): boolean {
     return Date.now() - this.lastUpdated > 60 * 1000;
   }
 
-  protected jsonToModels(data: unknown[]) {
+  /**
+   * Converts raw JSON data from `/v1/models` into an array of `InferenceApiModel` objects.
+   *
+   * Filters invalid entries and sorts models by creation time (descending) or name.
+   *
+   * @param data - Raw JSON array from API response (`data` field of `/v1/models`)
+   * @returns Sorted array of `InferenceApiModel` objects
+   * @private
+   */
+  protected jsonToModels(data: unknown[]): InferenceApiModel[] {
     const res: InferenceApiModel[] = [];
     if (data && Array.isArray(data)) {
-      data.map((m) => {
+      data.forEach((m) => {
         res.push(this.jsonToModel(m));
       });
       res.sort(this.compareModels);
@@ -198,22 +321,55 @@ export class BaseOpenAIProvider
     return res;
   }
 
-  protected jsonToModel(m: unknown) {
+  /**
+   * Converts a single JSON model object into an `InferenceApiModel`.
+   *
+   * This is a passthrough by default. Override in subclasses for provider-specific parsing.
+   *
+   * @param m - Raw model data from API response
+   * @returns A validated `InferenceApiModel` object
+   * @protected
+   */
+  protected jsonToModel(m: unknown): InferenceApiModel {
     return m as InferenceApiModel;
   }
 
-  protected compareModels(a: InferenceApiModel, b: InferenceApiModel) {
-    if (a.created || b.created) {
-      return (b.created || 0) - (a.created || 0);
+  /**
+   * Compares two models for sorting.
+   *
+   * Sorts by `created` timestamp (descending) if available; otherwise by `name` (ascending).
+   *
+   * @param a - First model to compare
+   * @param b - Second model to compare
+   * @returns Negative, zero, or positive value for sorting order
+   * @protected
+   */
+  protected compareModels(a: InferenceApiModel, b: InferenceApiModel): number {
+    const aCreated = a.created ?? 0;
+    const bCreated = b.created ?? 0;
+
+    if (aCreated !== bCreated) {
+      return bCreated - aCreated; // Newest first
     }
-    return a.name.localeCompare(b.name);
+
+    return a.name.localeCompare(b.name); // Alphabetical fallback
   }
 
-  getBaseUrl() {
+  /**
+   * Returns the base URL configured for this provider.
+   *
+   * @returns The base URL of the API endpoint
+   */
+  getBaseUrl(): string {
     return this.baseUrl;
   }
 
-  getApiKey() {
+  /**
+   * Returns the API key configured for authentication.
+   *
+   * @returns The Bearer token used for API requests
+   */
+  getApiKey(): string {
     return this.apiKey;
   }
 }

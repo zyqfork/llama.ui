@@ -8,13 +8,9 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import InferenceApi from '../api/inference';
+import { getInferenceProvider } from '../api/providers';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
-import {
-  Configuration,
-  InferenceApiModel,
-  LlamaCppServerProps,
-} from '../types';
+import { Configuration, InferenceApiModel, InferenceProvider } from '../types';
 import { deepEqual } from '../utils';
 import { useAppContext } from './app';
 
@@ -25,9 +21,9 @@ type FetchOptions = {
 };
 
 interface InferenceContextValue {
-  api: InferenceApi;
+  provider?: InferenceProvider | null;
   models: InferenceApiModel[];
-  serverProps: LlamaCppServerProps;
+  selectedModel: InferenceApiModel | null;
 
   fetchModels: (
     config: Configuration,
@@ -38,15 +34,6 @@ interface InferenceContextValue {
 // --- Constants ---
 
 const noModels: InferenceApiModel[] = [];
-const noServerProps: LlamaCppServerProps = {
-  build_info: '',
-  model: '',
-  n_ctx: 0,
-  modalities: {
-    vision: false,
-    audio: false,
-  },
-};
 
 const InferenceContext = createContext<InferenceContextValue | null>(null);
 
@@ -71,20 +58,23 @@ export const InferenceContextProvider = ({
   const { t } = useTranslation();
 
   const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
-  const [api, setApi] = useState<InferenceApi>(
-    InferenceApi.new(CONFIG_DEFAULT)
-  );
+  const [provider, setProvider] = useState<InferenceProvider | null>(null);
   const [models, setModels] = useState<InferenceApiModel[]>(noModels);
-  const [serverProps, setServerProps] =
-    useState<LlamaCppServerProps>(noServerProps);
+  const [selectedModel, setSelectedModel] = useState<InferenceApiModel | null>(
+    null
+  );
 
   // --- Main Functions ---
 
   const updateApi = useCallback((config: Configuration) => {
     if (Object.is(CONFIG_DEFAULT, config)) return;
     console.debug('Update Inference API');
-    const newApi = InferenceApi.new(config);
-    setApi(newApi);
+    const newProvider = getInferenceProvider(
+      config.provider,
+      config.baseUrl,
+      config.apiKey
+    );
+    setProvider(newProvider);
   }, []);
 
   const fetchModels = useCallback(
@@ -97,10 +87,14 @@ export const InferenceContextProvider = ({
       }
 
       console.debug('Fetch models');
-      const newApi = InferenceApi.new(config);
+      const newProvider = getInferenceProvider(
+        config.provider,
+        config.baseUrl,
+        config.apiKey
+      );
       let newModels = noModels;
       try {
-        newModels = await newApi.v1Models();
+        newModels = await newProvider.getModels();
       } catch (err) {
         if (!options.silent) {
           console.error('fetch models failed: ', err);
@@ -116,38 +110,20 @@ export const InferenceContextProvider = ({
     [t]
   );
 
-  const fetchServerProperties = useCallback(
-    async (
-      config: Configuration,
-      options: FetchOptions = { silent: false }
-    ): Promise<LlamaCppServerProps> => {
-      if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
-        return noServerProps;
-      }
-
-      console.debug('Fetch server properties');
-      const newApi = InferenceApi.new(config);
-      let newProps = noServerProps;
-      try {
-        newProps = await newApi.getServerProps();
-      } catch (err) {
-        if (!options.silent) {
-          console.error('fetch llama.cpp props failed: ', err);
-        }
-      }
-      return newProps;
-    },
-    []
-  );
-
   const syncServer = useCallback(
     async (config: Configuration, options: FetchOptions = {}) => {
       if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
-      console.debug('Synchronize models & props with server');
-      setModels(await fetchModels(config, options));
-      setServerProps(await fetchServerProperties(config, options));
+
+      console.debug('Synchronize models with server');
+      const models = await fetchModels(config, options);
+      setModels(models);
+
+      if (!!config.model && models.length > 0) {
+        const selectedModel = models.find((m) => m.id === config.model) || null;
+        setSelectedModel(selectedModel);
+      }
     },
-    [fetchModels, fetchServerProperties]
+    [fetchModels]
   );
 
   // --- Initialization ---
@@ -171,7 +147,7 @@ export const InferenceContextProvider = ({
 
   return (
     <InferenceContext.Provider
-      value={{ api, models, serverProps, fetchModels }}
+      value={{ provider, models, selectedModel, fetchModels }}
     >
       {children}
     </InferenceContext.Provider>

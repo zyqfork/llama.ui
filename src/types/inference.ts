@@ -1,6 +1,12 @@
 import { Message } from './chat';
 
 /**
+ * Specifies the supported modalities for input or output in the inference API.
+ * This enum-like type defines the possible content formats that the model can process or generate.
+ */
+export type Modality = 'text' | 'image' | 'audio' | 'video';
+
+/**
  * Represents a single content part in an API message, supporting multiple content types
  * including text, images, and audio inputs for multimodal interactions. [[9]]
  */
@@ -37,36 +43,29 @@ export type InferenceApiMessage = {
 
 /**
  * Represents model information returned by the API's models endpoint.
- * Contains basic model metadata that clients might need for display or selection. [[1]]
+ * Contains basic model metadata that clients might need for display or selection.
+ *
+ * @example
+ * {
+ *   id: 'gpt-4-vision',
+ *   name: 'GPT-4 Vision',
+ *   description: 'Multimodal model supporting text and images',
+ *   created: 1690000000000,
+ *   modalities: ['text', 'image'],
+ *   output_modalities: ['text']
+ * }
  */
 export type InferenceApiModel = {
-  /** Unique model identifier */
+  /** Unique model identifier, used for API requests to specify the model */
   id: string;
   /** User-friendly model name (optional) */
   name: string;
-  /** Model description (optional) */
+  /** A brief description of the model's capabilities or usage (optional) */
   description?: string;
-  /** Timestamp of model creation (optional) */
+  /** Timestamp of model creation in Unix milliseconds (optional) */
   created?: number;
+  /** Array of supported input modalities for the model (optional) */
+  modalities?: Modality[];
+  /** Array of supported output modalities for the model (optional) */
+  output_modalities?: Modality[];
 };
-
-/**
- * Interface representing server properties from a Llama.cpp server instance.
- * Contains essential information about the server configuration and capabilities. [[9]]
- */
-export interface LlamaCppServerProps {
-  /** Build information of the server */
-  build_info: string;
-  /** Currently loaded model name/path */
-  model: string;
-  /** Maximum context length supported by the model */
-  n_ctx: number;
-  /** Modality support information for the model */
-  modalities?: {
-    /** Whether vision capabilities are supported */
-    vision: boolean;
-    /** Whether audio capabilities are supported */
-    audio: boolean;
-  };
-  // TODO: support params
-}

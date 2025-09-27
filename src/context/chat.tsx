@@ -8,7 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { normalizeMsgsForAPI } from '../api/utils';
+import { configToCustomOptions, normalizeMsgsForAPI } from '../api/utils';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference';
 import StorageUtils from '../database';
@@ -21,6 +21,7 @@ import {
   ViewingChat,
 } from '../types';
 import { filterThoughtFromMsgs } from '../utils';
+import { useAppContext } from './app';
 
 interface SendMessageProps {
   convId: Message['convId'];
@@ -74,6 +75,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
   const params = matchPath('/chat/:convId', pathname);
   const convId = params?.params?.convId;
+  const { config } = useAppContext();
 
   const [viewingChat, setViewingChat] = useState<ViewingChat | null>(null);
   const [pendingMessages, setPendingMessages] = useState<
@@ -82,7 +84,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const [aborts, setAborts] = useState<
     Record<Conversation['id'], AbortController>
   >({});
-  const { api } = useInferenceContext();
+  const { provider } = useInferenceContext();
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
 
   // handle change when the convId from URL is changed
@@ -141,7 +143,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     systemMessage?: string;
     onChunk: CallbackGeneratedChunk;
   }) => {
-    if (isGenerating(convId)) return;
+    if (isGenerating(convId) || !provider) return;
 
     const currConversation = await StorageUtils.getOneConversation(convId);
     if (!currConversation) {
@@ -179,12 +181,14 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     };
     setPending(convId, pendingMsg);
 
-    const { excludeThoughtOnReq } = StorageUtils.getConfig();
+    const { model, excludeThoughtOnReq } = config;
 
     try {
-      const chunks = await api.v1ChatCompletions(
+      const chunks = await provider.postChatCompletions(
+        model,
         excludeThoughtOnReq ? filterThoughtFromMsgs(messages) : messages,
-        abortController.signal
+        abortController.signal,
+        configToCustomOptions(config)
       );
       for await (const chunk of chunks) {
         if (chunk.error) {

@@ -15,9 +15,11 @@ export interface ChatCompletionProvider {
     messages: readonly InferenceApiMessage[],
     abortSignal: AbortSignal,
     customOptions?: object
-  ): Promise<AsyncGenerator<unknown, void, unknown>>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<AsyncGenerator<any, void, unknown>>;
 }
 
 export interface InferenceProvider
-  extends ModelProvider,
+  extends LLMProvider,
+    ModelProvider,
     ChatCompletionProvider {}
