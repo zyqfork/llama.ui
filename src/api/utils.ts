@@ -147,8 +147,13 @@ export const configToCustomOptions = (config: Configuration) => {
       dry_penalty_last_n: config.dry_penalty_last_n,
     });
 
-  if (config.custom.trim().length)
-    params = Object.assign(params, JSON.parse(config.custom));
+  if (config.custom.trim().length) {
+    try {
+      params = Object.assign(params, JSON.parse(config.custom));
+    } catch (e) {
+      console.error('Failed to parse custom configuration:', e);
+    }
+  }
 
   return params;
 };
