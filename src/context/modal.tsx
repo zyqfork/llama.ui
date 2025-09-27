@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { Trans } from 'react-i18next';
 
 type ModalContextType = {
@@ -34,41 +34,47 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   });
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const showConfirm = (message: string): Promise<boolean> => {
+  const showConfirm = useCallback((message: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setConfirmState({ isOpen: true, message, resolve });
     });
-  };
+  }, []);
 
-  const showPrompt = (
-    message: string,
-    defaultValue?: string
-  ): Promise<string | undefined> => {
-    return new Promise((resolve) => {
-      setPromptState({ isOpen: true, message, defaultValue, resolve });
-    });
-  };
+  const showPrompt = useCallback(
+    (message: string, defaultValue?: string): Promise<string | undefined> => {
+      return new Promise((resolve) => {
+        setPromptState({ isOpen: true, message, defaultValue, resolve });
+      });
+    },
+    []
+  );
 
-  const showAlert = (message: string): Promise<void> => {
+  const showAlert = useCallback((message: string): Promise<void> => {
     return new Promise((resolve) => {
       setAlertState({ isOpen: true, message, resolve });
     });
-  };
+  }, []);
 
-  const handleConfirm = (result: boolean) => {
-    confirmState.resolve?.(result);
-    setConfirmState({ isOpen: false, message: '', resolve: null });
-  };
+  const handleConfirm = useCallback(
+    (result: boolean) => {
+      confirmState.resolve?.(result);
+      setConfirmState({ isOpen: false, message: '', resolve: null });
+    },
+    [confirmState]
+  );
 
-  const handlePrompt = (result?: string) => {
-    promptState.resolve?.(result);
-    setPromptState({ isOpen: false, message: '', resolve: null });
-  };
+  const handlePrompt = useCallback(
+    (result?: string) => {
+      promptState.resolve?.(result);
+      setPromptState({ isOpen: false, message: '', resolve: null });
+    },
+    [promptState]
+  );
 
-  const handleAlertClose = () => {
+  const handleAlertClose = useCallback(() => {
     alertState.resolve?.();
     setAlertState({ isOpen: false, message: '', resolve: null });
-  };
+  }, [alertState]);
 
   return (
     <ModalContext.Provider value={{ showConfirm, showPrompt, showAlert }}>

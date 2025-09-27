@@ -1,6 +1,7 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -88,275 +89,299 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
 
   // handle change when the convId from URL is changed
+  const handleConversationChange = useCallback(
+    async (changedConvId: string) => {
+      if (changedConvId !== convId) return;
+      setViewingChat(await getViewingChat(changedConvId));
+    },
+    [convId]
+  );
+
   useEffect(() => {
     // also reset the canvas data
     setCanvasData(null);
-    const handleConversationChange = async (changedConvId: string) => {
-      if (changedConvId !== convId) return;
-      setViewingChat(await getViewingChat(changedConvId));
-    };
     StorageUtils.onConversationChanged(handleConversationChange);
     getViewingChat(convId ?? '').then(setViewingChat);
     return () => {
       StorageUtils.offConversationChanged(handleConversationChange);
     };
-  }, [convId]);
+  }, [convId, handleConversationChange]);
 
-  const setPending = (convId: string, pendingMsg: PendingMessage | null) => {
-    // if pendingMsg is null, remove the key from the object
-    if (!pendingMsg) {
-      setPendingMessages((prev) => {
-        const newState = { ...prev };
-        delete newState[convId];
-        return newState;
-      });
-    } else {
-      setPendingMessages((prev) => ({ ...prev, [convId]: pendingMsg }));
-    }
-  };
+  const setPending = useCallback(
+    (convId: string, pendingMsg: PendingMessage | null) => {
+      // if pendingMsg is null, remove the key from the object
+      if (!pendingMsg) {
+        setPendingMessages((prev) => {
+          const newState = { ...prev };
+          delete newState[convId];
+          return newState;
+        });
+      } else {
+        setPendingMessages((prev) => ({ ...prev, [convId]: pendingMsg }));
+      }
+    },
+    []
+  );
 
-  const setAbort = (convId: string, controller: AbortController | null) => {
-    if (!controller) {
-      setAborts((prev) => {
-        const newState = { ...prev };
-        delete newState[convId];
-        return newState;
-      });
-    } else {
-      setAborts((prev) => ({ ...prev, [convId]: controller }));
-    }
-  };
+  const setAbort = useCallback(
+    (convId: string, controller: AbortController | null) => {
+      if (!controller) {
+        setAborts((prev) => {
+          const newState = { ...prev };
+          delete newState[convId];
+          return newState;
+        });
+      } else {
+        setAborts((prev) => ({ ...prev, [convId]: controller }));
+      }
+    },
+    []
+  );
 
   ////////////////////////////////////////////////////////////////////////
   // public functions
 
-  const isGenerating = (convId: string) => !!pendingMessages[convId];
+  const isGenerating = useCallback(
+    (convId: string) => !!pendingMessages[convId],
+    [pendingMessages]
+  );
 
-  const generateMessage = async ({
-    convId,
-    leafNodeId,
-    systemMessage,
-    onChunk,
-  }: {
-    convId: string;
-    leafNodeId: Message['id'];
-    systemMessage?: string;
-    onChunk: CallbackGeneratedChunk;
-  }) => {
-    if (isGenerating(convId) || !provider) return;
-
-    const currConversation = await StorageUtils.getOneConversation(convId);
-    if (!currConversation) {
-      throw new Error(t('state.chat.errors.conversationNotFound'));
-    }
-
-    const currMessages = StorageUtils.filterByLeafNodeId(
-      await StorageUtils.getMessages(convId),
-      leafNodeId,
-      false
-    ).filter((m) => m.role !== 'system');
-    const abortController = new AbortController();
-    setAbort(convId, abortController);
-
-    if (!currMessages) {
-      throw new Error(t('state.chat.errors.messagesNotFound'));
-    }
-
-    const messages: InferenceApiMessage[] = normalizeMsgsForAPI(currMessages);
-    if (systemMessage) {
-      messages.unshift({ role: 'system', content: systemMessage });
-    }
-
-    const pendingId = Date.now() + 1;
-    let pendingMsg: PendingMessage = {
-      id: pendingId,
+  const generateMessage = useCallback(
+    async ({
       convId,
-      type: 'text',
-      timestamp: pendingId,
-      role: 'assistant',
-      content: null,
-      reasoning_content: null,
-      parent: leafNodeId,
-      children: [],
-    };
-    setPending(convId, pendingMsg);
+      leafNodeId,
+      systemMessage,
+      onChunk,
+    }: {
+      convId: string;
+      leafNodeId: Message['id'];
+      systemMessage?: string;
+      onChunk: CallbackGeneratedChunk;
+    }) => {
+      if (isGenerating(convId) || !provider) return;
 
-    const { model, excludeThoughtOnReq } = config;
-
-    try {
-      const chunks = await provider.postChatCompletions(
-        model,
-        excludeThoughtOnReq ? filterThoughtFromMsgs(messages) : messages,
-        abortController.signal,
-        configToCustomOptions(config)
-      );
-      for await (const chunk of chunks) {
-        if (chunk.error) {
-          throw new Error(
-            chunk.error?.message || t('state.chat.errors.unknownError')
-          );
-        }
-        if (!chunk.choices || !Array.isArray(chunk.choices)) {
-          console.warn('Invalid chunk format received:', chunk);
-          continue;
-        }
-        if (chunk.choices.length === 0) {
-          console.warn('Empty choices array in chunk:', chunk);
-          continue;
-        }
-
-        const choice = chunk.choices[0];
-        const addedContent = choice.delta.content;
-        if (addedContent) {
-          const lastContent = pendingMsg.content || '';
-          pendingMsg = {
-            ...pendingMsg,
-            content: lastContent + addedContent,
-          };
-        }
-        const reasoningContent =
-          choice.delta.reasoning_content || choice.delta.reasoning;
-        if (reasoningContent) {
-          const lastContent = pendingMsg.reasoning_content || '';
-          pendingMsg = {
-            ...pendingMsg,
-            reasoning_content: lastContent + reasoningContent,
-          };
-        }
-        if (chunk.model) {
-          pendingMsg.model = chunk.model;
-        }
-        const timings = chunk.timings;
-        if (timings) {
-          // only extract what's really needed, to save some space
-          pendingMsg.timings = {
-            prompt_n: timings.prompt_n,
-            prompt_ms: timings.prompt_ms,
-            predicted_n: timings.predicted_n,
-            predicted_ms: timings.predicted_ms,
-          };
-        }
-        setPending(convId, pendingMsg);
+      const currConversation = await StorageUtils.getOneConversation(convId);
+      if (!currConversation) {
+        throw new Error(t('state.chat.errors.conversationNotFound'));
       }
-    } catch (err) {
-      setPending(convId, null);
-      if ((err as Error).name === 'AbortError') {
-        // user stopped the generation via stopGeneration() function
-        // we can safely ignore this error
-        if (isDev) console.debug('Generation aborted by user.');
-      } else {
-        console.error('Error during message generation:', err);
-        toast.error(
-          (err as Error)?.message ??
-            t('state.chat.errors.unknownErrorDuringGeneration')
-        );
-        throw err; // rethrow
+
+      const currMessages = StorageUtils.filterByLeafNodeId(
+        await StorageUtils.getMessages(convId),
+        leafNodeId,
+        false
+      ).filter((m) => m.role !== 'system');
+      const abortController = new AbortController();
+      setAbort(convId, abortController);
+
+      if (!currMessages) {
+        throw new Error(t('state.chat.errors.messagesNotFound'));
       }
-    }
 
-    if (pendingMsg.content !== null) {
-      await StorageUtils.appendMsg(pendingMsg as Message, leafNodeId);
-    }
-    setPending(convId, null);
-    onChunk(pendingId); // trigger scroll to bottom and switch to the last node
-  };
-
-  const sendMessage = async ({
-    convId,
-    type,
-    role,
-    parent,
-    content,
-    extra,
-    system,
-    onChunk,
-  }: SendMessageProps): Promise<boolean> => {
-    if (isGenerating(convId ?? '') || !convId || !type || !role || !parent)
-      return false;
-
-    let currMsgId;
-    if (content === null) {
-      // re-generate last assistant message
-      currMsgId = parent;
-    } else {
-      currMsgId = Date.now();
-      try {
-        // save user message
-        await StorageUtils.appendMsg(
-          {
-            id: currMsgId,
-            convId,
-            type,
-            role,
-            content,
-            extra,
-            parent,
-            children: [],
-            timestamp: currMsgId,
-          },
-          parent
-        );
-      } catch (err) {
-        toast.error(t('state.chat.errors.cannotSaveMessage'));
-        return false;
+      const messages: InferenceApiMessage[] = normalizeMsgsForAPI(currMessages);
+      if (systemMessage) {
+        messages.unshift({ role: 'system', content: systemMessage });
       }
-    }
 
-    onChunk(currMsgId);
-
-    try {
-      await generateMessage({
+      const pendingId = Date.now() + 1;
+      let pendingMsg: PendingMessage = {
+        id: pendingId,
         convId,
-        leafNodeId: currMsgId,
-        systemMessage: system,
-        onChunk,
-      });
-      return true;
-    } catch (error) {
-      console.error('Message sending failed, consider rollback:', error);
-      toast.error(t('state.chat.errors.failedToGetResponse'));
-      // TODO: rollback
-    }
-    return false;
-  };
+        type: 'text',
+        timestamp: pendingId,
+        role: 'assistant',
+        content: null,
+        reasoning_content: null,
+        parent: leafNodeId,
+        children: [],
+      };
+      setPending(convId, pendingMsg);
 
-  const stopGenerating = (convId: string) => {
-    setPending(convId, null);
-    aborts[convId]?.abort();
-  };
+      const { model, excludeThoughtOnReq } = config;
 
-  const replaceMessage = async ({
-    msg,
-    newContent,
-    onChunk,
-  }: ReplaceMessageProps) => {
-    if (isGenerating(msg.convId)) return;
+      try {
+        const chunks = await provider.postChatCompletions(
+          model,
+          excludeThoughtOnReq ? filterThoughtFromMsgs(messages) : messages,
+          abortController.signal,
+          configToCustomOptions(config)
+        );
+        for await (const chunk of chunks) {
+          if (chunk.error) {
+            throw new Error(
+              chunk.error?.message || t('state.chat.errors.unknownError')
+            );
+          }
+          if (!chunk.choices || !Array.isArray(chunk.choices)) {
+            console.warn('Invalid chunk format received:', chunk);
+            continue;
+          }
+          if (chunk.choices.length === 0) {
+            console.warn('Empty choices array in chunk:', chunk);
+            continue;
+          }
 
-    const now = Date.now();
-    const currMsgId = now;
-    await StorageUtils.appendMsg(
-      {
-        ...msg,
-        id: currMsgId,
-        timestamp: now,
-        content: newContent,
-      },
-      msg.parent
-    );
-    onChunk(currMsgId);
-  };
+          const choice = chunk.choices[0];
+          const addedContent = choice.delta.content;
+          if (addedContent) {
+            const lastContent = pendingMsg.content || '';
+            pendingMsg = {
+              ...pendingMsg,
+              content: lastContent + addedContent,
+            };
+          }
+          const reasoningContent =
+            choice.delta.reasoning_content || choice.delta.reasoning;
+          if (reasoningContent) {
+            const lastContent = pendingMsg.reasoning_content || '';
+            pendingMsg = {
+              ...pendingMsg,
+              reasoning_content: lastContent + reasoningContent,
+            };
+          }
+          if (chunk.model) {
+            pendingMsg.model = chunk.model;
+          }
+          const timings = chunk.timings;
+          if (timings) {
+            // only extract what's really needed, to save some space
+            pendingMsg.timings = {
+              prompt_n: timings.prompt_n,
+              prompt_ms: timings.prompt_ms,
+              predicted_n: timings.predicted_n,
+              predicted_ms: timings.predicted_ms,
+            };
+          }
+          setPending(convId, pendingMsg);
+        }
+      } catch (err) {
+        setPending(convId, null);
+        if ((err as Error).name === 'AbortError') {
+          // user stopped the generation via stopGeneration() function
+          // we can safely ignore this error
+          if (isDev) console.debug('Generation aborted by user.');
+        } else {
+          console.error('Error during message generation:', err);
+          toast.error(
+            (err as Error)?.message ??
+              t('state.chat.errors.unknownErrorDuringGeneration')
+          );
+          throw err; // rethrow
+        }
+      }
 
-  const branchMessage = async (msg: Message) => {
-    if (isGenerating(msg.convId)) return;
+      if (pendingMsg.content !== null) {
+        await StorageUtils.appendMsg(pendingMsg as Message, leafNodeId);
+      }
+      setPending(convId, null);
+      onChunk(pendingId); // trigger scroll to bottom and switch to the last node
+    },
+    [config, isGenerating, provider, setAbort, setPending, t]
+  );
 
-    try {
-      const conv = await StorageUtils.branchConversation(msg.convId, msg.id);
-      navigate(`/chat/${conv.id}`);
-    } catch (error) {
-      console.error('Conversation branch failed:', error);
-      toast.error(t('state.chat.errors.failedToBranchConversation'));
-    }
-  };
+  const sendMessage = useCallback(
+    async ({
+      convId,
+      type,
+      role,
+      parent,
+      content,
+      extra,
+      system,
+      onChunk,
+    }: SendMessageProps): Promise<boolean> => {
+      if (isGenerating(convId ?? '') || !convId || !type || !role || !parent)
+        return false;
+
+      let currMsgId;
+      if (content === null) {
+        // re-generate last assistant message
+        currMsgId = parent;
+      } else {
+        currMsgId = Date.now();
+        try {
+          // save user message
+          await StorageUtils.appendMsg(
+            {
+              id: currMsgId,
+              convId,
+              type,
+              role,
+              content,
+              extra,
+              parent,
+              children: [],
+              timestamp: currMsgId,
+            },
+            parent
+          );
+        } catch (err) {
+          toast.error(t('state.chat.errors.cannotSaveMessage'));
+          return false;
+        }
+      }
+
+      onChunk(currMsgId);
+
+      try {
+        await generateMessage({
+          convId,
+          leafNodeId: currMsgId,
+          systemMessage: system,
+          onChunk,
+        });
+        return true;
+      } catch (error) {
+        console.error('Message sending failed, consider rollback:', error);
+        toast.error(t('state.chat.errors.failedToGetResponse'));
+        // TODO: rollback
+      }
+      return false;
+    },
+    [generateMessage, isGenerating, t]
+  );
+
+  const stopGenerating = useCallback(
+    (convId: string) => {
+      setPending(convId, null);
+      aborts[convId]?.abort();
+    },
+    [aborts, setPending]
+  );
+
+  const replaceMessage = useCallback(
+    async ({ msg, newContent, onChunk }: ReplaceMessageProps) => {
+      if (isGenerating(msg.convId)) return;
+
+      const now = Date.now();
+      const currMsgId = now;
+      await StorageUtils.appendMsg(
+        {
+          ...msg,
+          id: currMsgId,
+          timestamp: now,
+          content: newContent,
+        },
+        msg.parent
+      );
+      onChunk(currMsgId);
+    },
+    [isGenerating]
+  );
+
+  const branchMessage = useCallback(
+    async (msg: Message) => {
+      if (isGenerating(msg.convId)) return;
+
+      try {
+        const conv = await StorageUtils.branchConversation(msg.convId, msg.id);
+        navigate(`/chat/${conv.id}`);
+      } catch (error) {
+        console.error('Conversation branch failed:', error);
+        toast.error(t('state.chat.errors.failedToBranchConversation'));
+      }
+    },
+    [isGenerating, navigate, t]
+  );
 
   return (
     <ChatContext.Provider
