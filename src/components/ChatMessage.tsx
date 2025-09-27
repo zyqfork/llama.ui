@@ -189,11 +189,6 @@ export default memo(function ChatMessage({
               )}
             </div>
           )}
-
-          {/* show loading dots for pending message */}
-          {!isEditing && isPending && (
-            <span className="loading loading-dots loading-md"></span>
-          )}
         </div>
       </div>
 

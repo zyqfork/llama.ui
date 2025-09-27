@@ -1,43 +1,44 @@
 import React, { useCallback, useEffect } from 'react';
 
-const TO_BOTTOM = 250;
-const DELAY = 50;
+const TO_BOTTOM = 100;
+const DELAY = 80;
 
-export function useChatScroll(msgListRef: React.RefObject<HTMLDivElement>) {
-  const scrollToBottom = useCallback(
-    (immediate: boolean = false, delay: number = DELAY) => {
-      const element = msgListRef?.current;
+export function scrollSmooth(element: HTMLElement) {
+  element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
+}
+
+export function useChatScroll(elementRef: React.RefObject<HTMLElement>) {
+  const scrollImmediate = useCallback(
+    (delay: number = DELAY) => {
+      const element = elementRef?.current;
       if (!element) return;
-
-      if (immediate) {
-        setTimeout(
-          () =>
-            element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' }),
-          delay
-        );
-        return;
-      }
-
-      const { scrollHeight, scrollTop, clientHeight } = element;
-      const spaceToBottom = scrollHeight - scrollTop - clientHeight;
-      if (spaceToBottom < TO_BOTTOM) {
-        element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
-      }
+      setTimeout(() => scrollSmooth(element), delay);
     },
-    [msgListRef]
+    [elementRef]
   );
 
+  const scrollToBottom = useCallback(() => {
+    const element = elementRef?.current;
+    if (!element) return;
+
+    const { scrollHeight, scrollTop, clientHeight } = element;
+    const spaceToBottom = scrollHeight - scrollTop - clientHeight;
+    if (spaceToBottom < TO_BOTTOM) {
+      scrollSmooth(element);
+    }
+  }, [elementRef]);
+
   useEffect(() => {
-    const element = msgListRef?.current;
+    const element = elementRef?.current;
     if (!element) return;
 
     const observer = new MutationObserver(() => {
-      scrollToBottom(false, 0);
+      scrollToBottom();
     });
 
     observer.observe(element, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [msgListRef, scrollToBottom]);
+  }, [elementRef, scrollToBottom]);
 
-  return { scrollToBottom };
+  return { scrollImmediate, scrollToBottom };
 }
