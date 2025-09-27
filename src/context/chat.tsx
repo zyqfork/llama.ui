@@ -8,7 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { matchPath, useLocation, useNavigate } from 'react-router';
-import { normalizeMsgsForAPI } from '../api/inference';
+import { normalizeMsgsForAPI } from '../api/utils';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference';
 import StorageUtils from '../database';
@@ -20,6 +20,7 @@ import {
   PendingMessage,
   ViewingChat,
 } from '../types';
+import { filterThoughtFromMsgs } from '../utils';
 
 interface SendMessageProps {
   convId: Message['convId'];
@@ -178,9 +179,11 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     };
     setPending(convId, pendingMsg);
 
+    const { excludeThoughtOnReq } = StorageUtils.getConfig();
+
     try {
       const chunks = await api.v1ChatCompletions(
-        messages,
+        excludeThoughtOnReq ? filterThoughtFromMsgs(messages) : messages,
         abortController.signal
       );
       for await (const chunk of chunks) {

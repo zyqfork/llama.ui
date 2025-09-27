@@ -1,3 +1,5 @@
+import { InferenceApiMessage } from '../types';
+
 /**
  * Checks if a value is a string by verifying it has a `toLowerCase` method.
  * Note: This is a heuristic check and may produce false positives for objects
@@ -172,6 +174,32 @@ export const splitMessageContent = (content: string | null) => {
   }
   return { content: actualContent, reasoning_content: thought };
 };
+
+/**
+ * Filters out thinking process content from assistant messages.
+ * Specifically removes content between <think> and </think> tags for DeepsSeek-R1 model compatibility.
+ *
+ * @param messages - API-formatted messages to process
+ * @returns Messages with thinking process content removed from assistant responses
+ *
+ * @remarks
+ * In development mode, this function logs the original messages for debugging purposes. [[7]]
+ */
+export function filterThoughtFromMsgs(
+  messages: InferenceApiMessage[]
+): InferenceApiMessage[] {
+  return messages.map((msg) => {
+    if (msg.role !== 'assistant') {
+      return msg;
+    }
+    // assistant message is always a string
+    const splittedMessage = splitMessageContent(msg.content as string);
+    return {
+      role: msg.role,
+      content: splittedMessage.content || '',
+    };
+  });
+}
 
 /**
  * Selects unique random elements from an array without repetition.
