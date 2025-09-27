@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -22,10 +22,7 @@ export default function Sidebar() {
   const { t, i18n } = useTranslation();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { viewingChat, isGenerating } = useChatContext();
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
   useEffect(() => {
     const handleConversationChange = async () => {
@@ -37,12 +34,18 @@ export default function Sidebar() {
       StorageUtils.offConversationChanged(handleConversationChange);
     };
   }, []);
-  const { showConfirm, showPrompt } = useModals();
 
   const groupedConv = useMemo(
     () => groupConversationsByDate(conversations, i18n.language),
     [i18n.language, conversations]
   );
+
+  const handleSelect = useCallback(() => {
+    const toggle = toggleDrawerRef.current;
+    if (toggle != null) {
+      toggle.click();
+    }
+  }, []);
 
   return (
     <>
@@ -97,78 +100,8 @@ export default function Sidebar() {
 
           {/* scrollable conversation list */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-            {groupedConv.map((group, i) => (
-              <div key={i} role="group">
-                {/* group name (by date) */}
-                {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
-                <b
-                  className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
-                  role="note"
-                  aria-description={t(`sidebar.groups.${group.title}`, {
-                    defaultValue: group.title,
-                  })}
-                  tabIndex={0}
-                >
-                  <Trans
-                    i18nKey={`sidebar.groups.${group.title}`}
-                    defaults={group.title}
-                  />
-                </b>
-
-                {group.conversations.map((conv) => (
-                  <ConversationItem
-                    key={conv.id}
-                    conv={conv}
-                    isCurrConv={currConv?.id === conv.id}
-                    onSelect={() => {
-                      const toggle = toggleDrawerRef.current;
-                      if (toggle != null) {
-                        toggle.click();
-                      }
-                      navigate(`/chat/${conv.id}`);
-                    }}
-                    onDelete={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.errors.deleteOnGenerate'));
-                        return;
-                      }
-                      if (
-                        await showConfirm(t('sidebar.actions.deleteConfirm'))
-                      ) {
-                        toast.success(t('sidebar.actions.deleteSuccess'));
-                        StorageUtils.deleteConversation(conv.id);
-                        navigate('/');
-                      }
-                    }}
-                    onDownload={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.errors.downloadOnGenerate'));
-                        return;
-                      }
-                      return StorageUtils.exportDB(conv.id).then((data) =>
-                        downloadAsFile(
-                          [JSON.stringify(data, null, 2)],
-                          `conversation_${conv.id}.json`
-                        )
-                      );
-                    }}
-                    onRename={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(t('sidebar.errors.renameOnGenerate'));
-                        return;
-                      }
-                      const newName = await showPrompt(
-                        t('sidebar.actions.newName'),
-                        conv.name
-                      );
-                      if (newName && newName.trim().length > 0) {
-                        StorageUtils.updateConversationName(conv.id, newName);
-                      }
-                    }}
-                    t={t}
-                  />
-                ))}
-              </div>
+            {groupedConv.map((group) => (
+              <ConversationGroup group={group} onItemSelect={handleSelect} />
             ))}
           </div>
 
@@ -182,23 +115,98 @@ export default function Sidebar() {
   );
 }
 
-function ConversationItem({
+const ConversationGroup = ({
+  group,
+  onItemSelect,
+}: {
+  group: GroupedConversations;
+  onItemSelect: () => void;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div role="group">
+      {/* group name (by date) */}
+      {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
+      <b
+        className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
+        role="note"
+        aria-description={t(`sidebar.groups.${group.title}`, {
+          defaultValue: group.title,
+        })}
+        tabIndex={0}
+      >
+        <Trans
+          i18nKey={`sidebar.groups.${group.title}`}
+          defaults={group.title}
+        />
+      </b>
+
+      {group.conversations.map((conv) => (
+        <ConversationItem key={conv.id} conv={conv} onSelect={onItemSelect} />
+      ))}
+    </div>
+  );
+};
+
+const ConversationItem = ({
   conv,
-  isCurrConv,
   onSelect,
-  onDelete,
-  onDownload,
-  onRename,
-  t,
 }: {
   conv: Conversation;
-  isCurrConv: boolean;
   onSelect: () => void;
-  onDelete: () => void;
-  onDownload: () => void;
-  onRename: () => void;
-  t: ReturnType<typeof useTranslation>['t'];
-}) {
+}) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { viewingChat, isGenerating } = useChatContext();
+  const { showConfirm, showPrompt } = useModals();
+
+  const isCurrent = useMemo(
+    () => viewingChat?.conv?.id === conv.id,
+    [conv.id, viewingChat?.conv?.id]
+  );
+
+  const handleSelect = () => {
+    onSelect();
+    navigate(`/chat/${conv.id}`);
+  };
+
+  const handleRename = async () => {
+    if (isGenerating(conv.id)) {
+      toast.error(t('sidebar.errors.renameOnGenerate'));
+      return;
+    }
+    const newName = await showPrompt(t('sidebar.actions.newName'), conv.name);
+    if (newName && newName.trim().length > 0) {
+      StorageUtils.updateConversationName(conv.id, newName);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (isGenerating(conv.id)) {
+      toast.error(t('sidebar.errors.downloadOnGenerate'));
+      return;
+    }
+    return StorageUtils.exportDB(conv.id).then((data) =>
+      downloadAsFile(
+        [JSON.stringify(data, null, 2)],
+        `conversation_${conv.id}.json`
+      )
+    );
+  };
+
+  const handleDelete = async () => {
+    if (isGenerating(conv.id)) {
+      toast.error(t('sidebar.errors.deleteOnGenerate'));
+      return;
+    }
+    if (await showConfirm(t('sidebar.actions.deleteConfirm'))) {
+      toast.success(t('sidebar.actions.deleteSuccess'));
+      StorageUtils.deleteConversation(conv.id);
+      navigate('/');
+    }
+  };
+
   return (
     <div
       role="menuitem"
@@ -206,13 +214,13 @@ function ConversationItem({
       aria-label={conv.name}
       className={classNames({
         'group flex flex-row btn btn-ghost h-9 justify-start items-center font-normal px-2 xl:pr-0': true,
-        'btn-soft': isCurrConv,
+        'btn-soft': isCurrent,
       })}
     >
       <button
         key={conv.id}
         className="w-full overflow-hidden truncate text-start"
-        onClick={onSelect}
+        onClick={handleSelect}
         dir="auto"
         type="button"
         title={conv.name}
@@ -240,7 +248,7 @@ function ConversationItem({
           tabIndex={-1}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
         >
-          <li role="menuitem" tabIndex={0} onClick={onRename}>
+          <li role="menuitem" tabIndex={0} onClick={handleRename}>
             <button
               type="button"
               title={t('sidebar.buttons.rename')}
@@ -250,7 +258,7 @@ function ConversationItem({
               <Trans i18nKey="sidebar.buttons.rename" />
             </button>
           </li>
-          <li role="menuitem" tabIndex={0} onClick={onDownload}>
+          <li role="menuitem" tabIndex={0} onClick={handleDownload}>
             <button
               type="button"
               title={t('sidebar.buttons.download')}
@@ -264,7 +272,7 @@ function ConversationItem({
             role="menuitem"
             tabIndex={0}
             className="text-error"
-            onClick={onDelete}
+            onClick={handleDelete}
           >
             <button
               type="button"
@@ -279,7 +287,7 @@ function ConversationItem({
       </div>
     </div>
   );
-}
+};
 
 // WARN: vibe code below
 
