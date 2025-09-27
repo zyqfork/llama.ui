@@ -4,7 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState,
+  useReducer,
 } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,118 @@ import {
 import { filterThoughtFromMsgs } from '../utils';
 import { useAppContext } from './app';
 
+// Define action types enum
+enum ChatActionType {
+  SET_VIEWING_CHAT = 'SET_VIEWING_CHAT',
+  SET_PENDING_MESSAGE = 'SET_PENDING_MESSAGE',
+  REMOVE_PENDING_MESSAGE = 'REMOVE_PENDING_MESSAGE',
+  SET_ABORT_CONTROLLER = 'SET_ABORT_CONTROLLER',
+  REMOVE_ABORT_CONTROLLER = 'REMOVE_ABORT_CONTROLLER',
+  SET_CANVAS_DATA = 'SET_CANVAS_DATA',
+}
+
+// Define action interfaces
+interface SetViewingChatAction {
+  type: ChatActionType.SET_VIEWING_CHAT;
+  payload: { viewingChat: ViewingChat | null };
+}
+
+interface SetPendingMessageAction {
+  type: ChatActionType.SET_PENDING_MESSAGE;
+  payload: { convId: string; pendingMsg: PendingMessage };
+}
+
+interface RemovePendingMessageAction {
+  type: ChatActionType.REMOVE_PENDING_MESSAGE;
+  payload: { convId: string };
+}
+
+interface SetAbortControllerAction {
+  type: ChatActionType.SET_ABORT_CONTROLLER;
+  payload: { convId: string; controller: AbortController };
+}
+
+interface RemoveAbortControllerAction {
+  type: ChatActionType.REMOVE_ABORT_CONTROLLER;
+  payload: { convId: string };
+}
+
+interface SetCanvasDataAction {
+  type: ChatActionType.SET_CANVAS_DATA;
+  payload: { canvasData: CanvasData | null };
+}
+
+type ChatAction =
+  | SetViewingChatAction
+  | SetPendingMessageAction
+  | RemovePendingMessageAction
+  | SetAbortControllerAction
+  | RemoveAbortControllerAction
+  | SetCanvasDataAction;
+
+interface ChatState {
+  viewingChat: ViewingChat | null;
+  pendingMessages: Record<Conversation['id'], PendingMessage>;
+  aborts: Record<Conversation['id'], AbortController>;
+  canvasData: CanvasData | null;
+}
+
+const initialState: ChatState = {
+  viewingChat: null,
+  pendingMessages: {},
+  aborts: {},
+  canvasData: null,
+};
+
+const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
+  switch (action.type) {
+    case ChatActionType.SET_VIEWING_CHAT:
+      return {
+        ...state,
+        viewingChat: action.payload.viewingChat,
+      };
+    case ChatActionType.SET_PENDING_MESSAGE:
+      return {
+        ...state,
+        pendingMessages: {
+          ...state.pendingMessages,
+          [action.payload.convId]: action.payload.pendingMsg,
+        },
+      };
+    case ChatActionType.REMOVE_PENDING_MESSAGE: {
+      const newPendingMessages = { ...state.pendingMessages };
+      delete newPendingMessages[action.payload.convId];
+      return {
+        ...state,
+        pendingMessages: newPendingMessages,
+      };
+    }
+    case ChatActionType.SET_ABORT_CONTROLLER:
+      return {
+        ...state,
+        aborts: {
+          ...state.aborts,
+          [action.payload.convId]: action.payload.controller,
+        },
+      };
+    case ChatActionType.REMOVE_ABORT_CONTROLLER: {
+      const newAborts = { ...state.aborts };
+      delete newAborts[action.payload.convId];
+      return {
+        ...state,
+        aborts: newAborts,
+      };
+    }
+    case ChatActionType.SET_CANVAS_DATA:
+      return {
+        ...state,
+        canvasData: action.payload.canvasData,
+      };
+    default:
+      return state;
+  }
+};
+
 interface SendMessageProps {
   convId: Message['convId'];
   type: Message['type'];
@@ -34,6 +146,7 @@ interface SendMessageProps {
   system?: string;
   onChunk: CallbackGeneratedChunk;
 }
+
 interface ReplaceMessageProps {
   msg: Message;
   newContent: string;
@@ -78,30 +191,34 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const convId = params?.params?.convId;
   const { config } = useAppContext();
 
-  const [viewingChat, setViewingChat] = useState<ViewingChat | null>(null);
-  const [pendingMessages, setPendingMessages] = useState<
-    Record<Conversation['id'], PendingMessage>
-  >({});
-  const [aborts, setAborts] = useState<
-    Record<Conversation['id'], AbortController>
-  >({});
+  const [state, dispatch] = useReducer(chatReducer, initialState);
   const { provider } = useInferenceContext();
-  const [canvasData, setCanvasData] = useState<CanvasData | null>(null);
 
   // handle change when the convId from URL is changed
   const handleConversationChange = useCallback(
     async (changedConvId: string) => {
       if (changedConvId !== convId) return;
-      setViewingChat(await getViewingChat(changedConvId));
+      dispatch({
+        type: ChatActionType.SET_VIEWING_CHAT,
+        payload: { viewingChat: await getViewingChat(changedConvId) },
+      });
     },
     [convId]
   );
 
   useEffect(() => {
     // also reset the canvas data
-    setCanvasData(null);
+    dispatch({
+      type: ChatActionType.SET_CANVAS_DATA,
+      payload: { canvasData: null },
+    });
     StorageUtils.onConversationChanged(handleConversationChange);
-    getViewingChat(convId ?? '').then(setViewingChat);
+    getViewingChat(convId ?? '').then((viewingChat) =>
+      dispatch({
+        type: ChatActionType.SET_VIEWING_CHAT,
+        payload: { viewingChat },
+      })
+    );
     return () => {
       StorageUtils.offConversationChanged(handleConversationChange);
     };
@@ -109,15 +226,16 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
 
   const setPending = useCallback(
     (convId: string, pendingMsg: PendingMessage | null) => {
-      // if pendingMsg is null, remove the key from the object
       if (!pendingMsg) {
-        setPendingMessages((prev) => {
-          const newState = { ...prev };
-          delete newState[convId];
-          return newState;
+        dispatch({
+          type: ChatActionType.REMOVE_PENDING_MESSAGE,
+          payload: { convId },
         });
       } else {
-        setPendingMessages((prev) => ({ ...prev, [convId]: pendingMsg }));
+        dispatch({
+          type: ChatActionType.SET_PENDING_MESSAGE,
+          payload: { convId, pendingMsg },
+        });
       }
     },
     []
@@ -126,13 +244,15 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const setAbort = useCallback(
     (convId: string, controller: AbortController | null) => {
       if (!controller) {
-        setAborts((prev) => {
-          const newState = { ...prev };
-          delete newState[convId];
-          return newState;
+        dispatch({
+          type: ChatActionType.REMOVE_ABORT_CONTROLLER,
+          payload: { convId },
         });
       } else {
-        setAborts((prev) => ({ ...prev, [convId]: controller }));
+        dispatch({
+          type: ChatActionType.SET_ABORT_CONTROLLER,
+          payload: { convId, controller },
+        });
       }
     },
     []
@@ -142,8 +262,8 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   // public functions
 
   const isGenerating = useCallback(
-    (convId: string) => !!pendingMessages[convId],
-    [pendingMessages]
+    (convId: string) => !!state.pendingMessages[convId],
+    [state.pendingMessages]
   );
 
   const generateMessage = useCallback(
@@ -343,9 +463,9 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const stopGenerating = useCallback(
     (convId: string) => {
       setPending(convId, null);
-      aborts[convId]?.abort();
+      state.aborts[convId]?.abort();
     },
-    [aborts, setPending]
+    [state.aborts, setPending]
   );
 
   const replaceMessage = useCallback(
@@ -383,17 +503,22 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     [isGenerating, navigate, t]
   );
 
+  const setCanvasData = useCallback((data: CanvasData | null) => {
+    dispatch({
+      type: ChatActionType.SET_CANVAS_DATA,
+      payload: { canvasData: data },
+    });
+  }, []);
+
   return (
     <ChatContext.Provider
       value={{
-        viewingChat,
-        pendingMessages,
+        ...state,
         isGenerating,
         sendMessage,
         stopGenerating,
         replaceMessage,
         branchMessage,
-        canvasData,
         setCanvasData,
       }}
     >
