@@ -494,4 +494,19 @@ export class CloudOpenAIProvider extends BaseOpenAIProvider {
   protected isExpired(): boolean {
     return Date.now() - this.lastUpdated > 15 * 60 * 1000;
   }
+
+  /** @inheritdoc */
+  protected isAllowCustomOptions(): boolean {
+    return false;
+  }
+
+  /** @inheritdoc */
+  protected isSupportCache(): boolean {
+    return false;
+  }
+
+  /** @inheritdoc */
+  protected isSupportTimings(): boolean {
+    return false;
+  }
 }
