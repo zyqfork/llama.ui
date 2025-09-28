@@ -133,6 +133,12 @@ export const AppContextProvider = ({
     [t]
   );
 
+  const setShowSettings = useCallback(
+    (show: boolean) =>
+      dispatch({ type: AppActionType.SET_SHOW_SETTINGS, payload: show }),
+    []
+  );
+
   // --- Import/Export ---
 
   const importDB = useCallback(
@@ -221,8 +227,7 @@ export const AppContextProvider = ({
         saveConfig,
         savePreset,
         removePreset,
-        setShowSettings: (show: boolean) =>
-          dispatch({ type: AppActionType.SET_SHOW_SETTINGS, payload: show }),
+        setShowSettings,
         switchTheme,
         switchSyntaxTheme,
         importDB,
