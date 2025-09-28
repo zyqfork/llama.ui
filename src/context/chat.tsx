@@ -461,7 +461,8 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ChatContext.Provider
       value={{
-        ...state,
+        viewingChat: state.viewingChat,
+        canvasData: state.canvasData,
         sendMessage,
         stopGenerating,
         replaceMessage,
