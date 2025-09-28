@@ -1,3 +1,15 @@
+## [2.30.1] - 2025-09-28
+
+### 🏗️ CI/CD
+
+- Fix GitHub Workflow permissions (#198)
+
+## [2.30.0] - 2025-09-28
+
+### 🏗️ CI/CD
+
+- Update GitHub Pages deployment workflows (#197)
+
 ## [2.29.0] - 2025-09-28
 
 ### 🛠 Fixes
