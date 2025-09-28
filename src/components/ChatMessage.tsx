@@ -20,7 +20,12 @@ import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
 import StorageUtils from '../database';
 import { useFileUpload } from '../hooks/useFileUpload';
-import { Message, MessageExtra, PendingMessage } from '../types';
+import {
+  Message,
+  MessageDisplay,
+  MessageExtra,
+  PendingMessage,
+} from '../types';
 import {
   classNames,
   copyStr,
@@ -42,24 +47,20 @@ interface SplitMessage {
 }
 
 export default memo(function ChatMessage({
-  msg,
-  siblingLeafNodeIds,
-  siblingCurrIdx,
+  message,
   onRegenerateMessage,
   onEditUserMessage,
   onEditAssistantMessage,
   onChangeSibling,
-  isPending,
 }: {
-  msg: Message | PendingMessage;
-  siblingLeafNodeIds: Message['id'][];
-  siblingCurrIdx: number;
+  message: MessageDisplay;
   onRegenerateMessage(msg: Message): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
   onChangeSibling(sibling: Message['id']): void;
-  isPending?: boolean;
 }) {
+  const { msg, siblingCurrIdx, siblingLeafNodeIds, isPending } = message;
+
   const { t } = useTranslation();
   const { showConfirm } = useModals();
   const {

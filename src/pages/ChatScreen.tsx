@@ -183,14 +183,11 @@ export default function ChatScreen({
                 {messages.map((msg) => (
                   <ChatMessage
                     key={msg.msg.id}
-                    msg={msg.msg}
-                    siblingLeafNodeIds={msg.siblingLeafNodeIds}
-                    siblingCurrIdx={msg.siblingCurrIdx}
+                    message={msg}
                     onRegenerateMessage={handleRegenerateMessage}
                     onEditUserMessage={handleEditUserMessage}
                     onEditAssistantMessage={handleEditMessage}
                     onChangeSibling={setCurrNodeId}
-                    isPending={msg.isPending}
                   />
                 ))}
                 <PendingMessage currConvId={currConvId} messages={messages} />
@@ -227,14 +224,12 @@ function PendingMessage({
   messages: MessageDisplay[];
 }) {
   const loadingRef = useRef<HTMLSpanElement>(null);
-  const siblingLeafNodeIds = useMemo(() => [], []);
-  const siblingCurrIdx = useMemo(() => 0, []);
   const emptyHandler = useCallback(() => {}, []);
   const { pendingMessages } = useChatContext();
 
   useChatScroll(loadingRef);
 
-  const msg = useMemo(() => {
+  const msg = useMemo((): MessageDisplay | null => {
     if (!currConvId) {
       return null;
     }
@@ -243,7 +238,12 @@ function PendingMessage({
     if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
       return null;
     }
-    return pendingMsg;
+    return {
+      msg: pendingMsg,
+      siblingLeafNodeIds: [],
+      siblingCurrIdx: 0,
+      isPending: true,
+    };
   }, [currConvId, messages, pendingMessages]);
 
   if (!msg) return null;
@@ -251,15 +251,12 @@ function PendingMessage({
   return (
     <>
       <ChatMessage
-        key={msg.id}
-        msg={msg}
-        siblingLeafNodeIds={siblingLeafNodeIds}
-        siblingCurrIdx={siblingCurrIdx}
+        key={msg.msg.id}
+        message={msg}
         onRegenerateMessage={emptyHandler}
         onEditUserMessage={emptyHandler}
         onEditAssistantMessage={emptyHandler}
         onChangeSibling={emptyHandler}
-        isPending={true}
       />
 
       {/* show loading dots for pending message */}
