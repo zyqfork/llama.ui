@@ -64,14 +64,7 @@ export class OpenRouterProvider extends BaseOpenAIProvider {
     return new OpenRouterProvider(baseUrl, apiKey);
   }
 
-  /**
-   * Determines if the provider's model cache has expired.
-   *
-   * OpenRouter models are cached for 15 minutes to reduce API calls.
-   * This method checks whether the last update time exceeds this threshold.
-   *
-   * @returns `true` if the cache has expired (>15 minutes since last update), otherwise `false`
-   */
+  /** @inheritdoc */
   protected isExpired(): boolean {
     return Date.now() - this.lastUpdated > 15 * 60 * 1000;
   }

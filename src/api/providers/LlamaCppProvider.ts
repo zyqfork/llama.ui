@@ -93,16 +93,19 @@ export class LlamaCppProvider extends BaseOpenAIProvider {
     return new LlamaCppProvider(baseUrl, apiKey);
   }
 
+  /** @inheritdoc */
   async getModels(): Promise<InferenceApiModel[]> {
     await this.getServerProps();
 
     return super.getModels();
   }
 
+  /** @inheritdoc */
   protected isExpired() {
     return true;
   }
 
+  /** @inheritdoc */
   protected jsonToModel(m: unknown): InferenceApiModel {
     const model = m as InferenceApiModel;
     const modalities: Modality[] = ['text'];

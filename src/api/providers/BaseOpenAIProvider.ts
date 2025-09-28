@@ -113,11 +113,14 @@ export class BaseOpenAIProvider
 
     let fetchResponse = noResponse;
     try {
-      fetchResponse = await fetch(normalizeUrl('/v1/models', this.baseUrl), {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: AbortSignal.timeout(1000),
-      });
+      fetchResponse = await fetch(
+        normalizeUrl('/v1/models', this.getBaseUrl()),
+        {
+          method: 'GET',
+          headers: this.getHeaders(),
+          signal: AbortSignal.timeout(1000),
+        }
+      );
     } catch {
       // Silently ignore network/timeout errors; will be caught in isErrorResponse
     }
@@ -146,8 +149,6 @@ export class BaseOpenAIProvider
    * @remarks
    * Default parameters include:
    * - `stream: true`
-   * - `cache_prompt: true`
-   * - `timings_per_token: true`
    *
    * Custom options are merged into the request body. Be cautious: invalid parameters
    * may cause API errors.
@@ -174,16 +175,25 @@ export class BaseOpenAIProvider
     if (isDev) console.debug('v1ChatCompletions', { messages });
 
     // Prepare default parameters
-    let params = {
+    let params: Record<string, unknown> = {
       model,
       messages,
       stream: true,
-      cache_prompt: true,
-      timings_per_token: true,
     };
 
+    if (this.isSupportCache()) {
+      params = { ...params, cache_prompt: true };
+    }
+    if (this.isSupportTimings()) {
+      params = { ...params, timings_per_token: true };
+    }
+
     // Merge custom options if provided
-    if (customOptions && typeof customOptions === 'object') {
+    if (
+      this.isAllowCustomOptions() &&
+      customOptions &&
+      typeof customOptions === 'object'
+    ) {
       params = { ...params, ...customOptions };
     }
 
@@ -191,7 +201,7 @@ export class BaseOpenAIProvider
     let fetchResponse = noResponse;
     try {
       fetchResponse = await fetch(
-        normalizeUrl('/v1/chat/completions', this.baseUrl),
+        normalizeUrl('/v1/chat/completions', this.getBaseUrl()),
         {
           method: 'POST',
           headers: this.getHeaders(),
@@ -218,7 +228,7 @@ export class BaseOpenAIProvider
       'Content-Type': 'application/json',
     };
 
-    const apiKey = this.apiKey;
+    const apiKey = this.getApiKey();
     if (apiKey) {
       headers.Authorization = `Bearer ${apiKey}`;
     }
@@ -299,6 +309,18 @@ export class BaseOpenAIProvider
    */
   protected isExpired(): boolean {
     return Date.now() - this.lastUpdated > 60 * 1000;
+  }
+
+  protected isAllowCustomOptions(): boolean {
+    return true;
+  }
+
+  protected isSupportCache(): boolean {
+    return true;
+  }
+
+  protected isSupportTimings(): boolean {
+    return true;
   }
 
   /**
