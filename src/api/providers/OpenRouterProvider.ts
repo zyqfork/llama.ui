@@ -71,16 +71,6 @@ export class OpenRouterProvider extends CloudOpenAIProvider {
     return true;
   }
 
-  /** @inheritdoc */
-  protected isSupportCache(): boolean {
-    return true;
-  }
-
-  /** @inheritdoc */
-  protected isSupportTimings(): boolean {
-    return true;
-  }
-
   /**
    * Converts raw OpenRouter API model data into the standardized `InferenceApiModel` format.
    *

@@ -3,6 +3,7 @@ import { BaseOpenAIProvider } from './BaseOpenAIProvider';
 import { GoogleProvider } from './GoogleProvider';
 import { GroqProvider } from './GroqProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
+import { MistralProvider } from './MistralProvider';
 import { OpenRouterProvider } from './OpenRouterProvider';
 
 const PROVIDER_CACHE = new Map<string, InferenceProvider>();
@@ -35,6 +36,9 @@ export function getInferenceProvider(
       break;
     case 'groq':
       provider = GroqProvider.new(baseUrl, apiKey);
+      break;
+    case 'mistral':
+      provider = MistralProvider.new(baseUrl, apiKey);
       break;
     default:
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);
