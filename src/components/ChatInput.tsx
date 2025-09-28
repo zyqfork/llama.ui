@@ -154,7 +154,7 @@ export const ChatInput = memo(
                   </button>
                 )}
 
-                {!isGenerating && (
+                {!isPending && (
                   <button
                     className="btn btn-neutral w-8 h-8 p-0 rounded-full"
                     onClick={sendNewMessage}
