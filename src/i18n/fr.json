@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Coller : convertir en fichier si la longueur >",
+        "label": "Coller: limitation",
         "note": "Lorsque vous collez un long texte, il sera converti en fichier. Vous pouvez contrôler la longueur du fichier en définissant la valeur de ce paramètre. Mettez 0 pour désactiver."
       },
       "pdfAsImage": {

@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "粘贴: 长度 > 时转换为文件",
+        "label": "粘贴：限制",
         "note": "粘贴长文本时，它将被转换为文件。您可以通过设置此参数的值来控制文件长度。设置为0可禁用。"
       },
       "pdfAsImage": {

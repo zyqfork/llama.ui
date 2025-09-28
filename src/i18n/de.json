@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Einfügen: in Datei umwandeln, wenn Länge >",
+        "label": "Einfügen: Einschränkung",
         "note": "Beim Einfügen eines langen Textes wird dieser in eine Datei umgewandelt. Sie können die Dateilänge durch diesen Parameter steuern. Setzen Sie ihn auf 0, um dies zu deaktivieren."
       },
       "pdfAsImage": {
