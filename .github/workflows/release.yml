@@ -191,7 +191,9 @@ jobs:
     needs: release
 
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
 
     concurrency:
       group: 'pages'
