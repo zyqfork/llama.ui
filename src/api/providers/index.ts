@@ -14,10 +14,11 @@ export function getInferenceProvider(
 ): InferenceProvider {
   if (!baseUrl) throw new Error(`Base URL is not specified`);
 
-  if (PROVIDER_CACHE.has(baseUrl)) {
-    const provider = PROVIDER_CACHE.get(baseUrl)!;
+  const cacheKey = `${key}-${baseUrl}`;
+  if (PROVIDER_CACHE.has(cacheKey)) {
+    const provider = PROVIDER_CACHE.get(cacheKey)!;
     if (provider.getApiKey() === apiKey) {
-      return PROVIDER_CACHE.get(baseUrl)!;
+      return PROVIDER_CACHE.get(cacheKey)!;
     }
   }
 
