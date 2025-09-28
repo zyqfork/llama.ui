@@ -2,7 +2,7 @@ import { isDev } from '../../config';
 import { InferenceApiModel, Modality } from '../../types';
 import { normalizeUrl } from '../../utils';
 import { noResponse } from '../utils';
-import { BaseOpenAIProvider } from './BaseOpenAIProvider';
+import { SelfHostedOpenAIProvider } from './BaseOpenAIProvider';
 
 /**
  * Interface representing server properties from a Llama.cpp server instance.
@@ -54,7 +54,7 @@ export function parseLlamaCppModelName(model: string): string {
 /**
  * Provider implementation for interacting with Llama.cpp HTTP servers.
  *
- * Extends {@link BaseOpenAIProvider} to adapt OpenAI-compatible API calls to the Llama.cpp server
+ * Extends {@link SelfHostedOpenAIProvider} to adapt OpenAI-compatible API calls to the Llama.cpp server
  * endpoint structure. Dynamically infers model capabilities (text, image, audio) from server `/props`
  * endpoint and normalizes model names for consistent display.
  *
@@ -64,10 +64,13 @@ export function parseLlamaCppModelName(model: string): string {
  * - Supports dynamic model capability detection (vision/audio) via `modalities` in server response.
  * - In development mode (`isDev === true`), server properties are logged to console for debugging.
  *
+ * @see https://github.com/ggml-org/llama.cpp/tree/master/tools/server
  * @see {@link LlamaCppServerProps} for server response structure
- * @see {@link BaseOpenAIProvider} for inherited OpenAI-compatible behavior
+ * @see {@link SelfHostedOpenAIProvider} for inherited OpenAI-compatible behavior
+ *
+ * @extends SelfHostedOpenAIProvider
  */
-export class LlamaCppProvider extends BaseOpenAIProvider {
+export class LlamaCppProvider extends SelfHostedOpenAIProvider {
   /**
    * Cached server properties retrieved from the Llama.cpp server.
    * Populated on first call to {@link getServerProps}.
@@ -101,7 +104,17 @@ export class LlamaCppProvider extends BaseOpenAIProvider {
   }
 
   /** @inheritdoc */
-  protected isExpired() {
+  protected isAllowCustomOptions(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportCache(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportTimings(): boolean {
     return true;
   }
 

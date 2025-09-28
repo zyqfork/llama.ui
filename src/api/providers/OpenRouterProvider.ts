@@ -1,5 +1,5 @@
 import { InferenceApiModel, Modality } from '../../types';
-import { BaseOpenAIProvider } from './BaseOpenAIProvider';
+import { CloudOpenAIProvider } from './BaseOpenAIProvider';
 
 /**
  * Represents a model available via the OpenRouter API.
@@ -47,12 +47,14 @@ interface Pricing {
 /**
  * Provider implementation for interacting with the OpenRouter API.
  *
- * Extends `BaseOpenAIProvider` to leverage OpenAI-compatible request formatting
+ * Extends `CloudOpenAIProvider` to leverage OpenAI-compatible request formatting
  * while adapting to OpenRouter-specific model metadata and endpoint structure.
  *
  * @see https://openrouter.ai/docs
+ *
+ * @extends CloudOpenAIProvider
  */
-export class OpenRouterProvider extends BaseOpenAIProvider {
+export class OpenRouterProvider extends CloudOpenAIProvider {
   /**
    * Creates a new instance of OpenRouterProvider with optional base URL and API key.
    *
@@ -65,8 +67,18 @@ export class OpenRouterProvider extends BaseOpenAIProvider {
   }
 
   /** @inheritdoc */
-  protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 15 * 60 * 1000;
+  protected isAllowCustomOptions(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportCache(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportTimings(): boolean {
+    return true;
   }
 
   /**

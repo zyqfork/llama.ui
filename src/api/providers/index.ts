@@ -1,6 +1,7 @@
 import { InferenceProvider } from '../../types';
 import { BaseOpenAIProvider } from './BaseOpenAIProvider';
 import { GoogleProvider } from './GoogleProvider';
+import { GroqProvider } from './GroqProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
 import { OpenRouterProvider } from './OpenRouterProvider';
 
@@ -30,6 +31,9 @@ export function getInferenceProvider(
       break;
     case 'google':
       provider = GoogleProvider.new(baseUrl, apiKey);
+      break;
+    case 'groq':
+      provider = GroqProvider.new(baseUrl, apiKey);
       break;
     default:
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);
