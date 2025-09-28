@@ -340,7 +340,7 @@ const getSettingTabsConfiguration = (
             rate={config.ttsRate}
             volume={config.ttsVolume}
           >
-            {({ isPlaying, play }) => (
+            {({ isPlaying, play, stop }) => (
               <button
                 className="btn"
                 onClick={() => (!isPlaying ? play() : stop())}
