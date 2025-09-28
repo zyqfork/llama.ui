@@ -192,7 +192,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const { config } = useAppContext();
 
   const [state, dispatch] = useReducer(chatReducer, initialState);
-  const { provider } = useInferenceContext();
+  const { provider, selectedModel } = useInferenceContext();
 
   // handle change when the convId from URL is changed
   const handleConversationChange = useCallback(
@@ -302,12 +302,15 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
         messages.unshift({ role: 'system', content: systemMessage });
       }
 
+      const { model, excludeThoughtOnReq } = config;
+
       const pendingId = Date.now() + 1;
       let pendingMsg: PendingMessage = {
         id: pendingId,
         convId,
         type: 'text',
         timestamp: pendingId,
+        model: selectedModel ? selectedModel.name : model,
         role: 'assistant',
         content: null,
         reasoning_content: null,
@@ -315,8 +318,6 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
         children: [],
       };
       setPending(convId, pendingMsg);
-
-      const { model, excludeThoughtOnReq } = config;
 
       try {
         const chunks = await provider.postChatCompletions(
@@ -358,9 +359,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
               reasoning_content: lastContent + reasoningContent,
             };
           }
-          if (chunk.model) {
-            pendingMsg.model = chunk.model;
-          }
+
           const timings = chunk.timings;
           if (timings) {
             // only extract what's really needed, to save some space
