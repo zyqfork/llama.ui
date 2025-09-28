@@ -3,8 +3,8 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useReducer,
   useRef,
-  useState,
 } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,15 @@ import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { Configuration, InferenceApiModel, InferenceProvider } from '../types';
 import { deepEqual } from '../utils';
 import { useAppContext } from './app';
+
+// --- Action Types ---
+
+enum InferenceActionTypes {
+  SET_PROVIDER = 'SET_PROVIDER',
+  SET_MODELS = 'SET_MODELS',
+  SET_SELECTED_MODEL = 'SET_SELECTED_MODEL',
+  RESET_STATE = 'RESET_STATE',
+}
 
 // --- Type Definitions ---
 
@@ -31,11 +40,77 @@ interface InferenceContextValue {
   ) => Promise<InferenceApiModel[]>;
 }
 
+interface SetProviderAction {
+  type: InferenceActionTypes.SET_PROVIDER;
+  payload: InferenceProvider | null;
+}
+
+interface SetModelsAction {
+  type: InferenceActionTypes.SET_MODELS;
+  payload: InferenceApiModel[];
+}
+
+interface SetSelectedModelAction {
+  type: InferenceActionTypes.SET_SELECTED_MODEL;
+  payload: InferenceApiModel | null;
+}
+
+interface ResetStateAction {
+  type: InferenceActionTypes.RESET_STATE;
+}
+
+type InferenceAction =
+  | SetProviderAction
+  | SetModelsAction
+  | SetSelectedModelAction
+  | ResetStateAction;
+
+interface InferenceState {
+  provider: InferenceProvider | null;
+  models: InferenceApiModel[];
+  selectedModel: InferenceApiModel | null;
+}
+
 // --- Constants ---
 
 const noModels: InferenceApiModel[] = [];
 
-const InferenceContext = createContext<InferenceContextValue | null>(null);
+const initialState: InferenceState = {
+  provider: null,
+  models: noModels,
+  selectedModel: null,
+};
+
+const inferenceReducer = (
+  state: InferenceState,
+  action: InferenceAction
+): InferenceState => {
+  switch (action.type) {
+    case InferenceActionTypes.SET_PROVIDER:
+      return {
+        ...state,
+        provider: action.payload,
+      };
+    case InferenceActionTypes.SET_MODELS:
+      return {
+        ...state,
+        models: action.payload,
+      };
+    case InferenceActionTypes.SET_SELECTED_MODEL:
+      return {
+        ...state,
+        selectedModel: action.payload,
+      };
+    case InferenceActionTypes.RESET_STATE:
+      return {
+        provider: null,
+        models: noModels,
+        selectedModel: null,
+      };
+    default:
+      return state;
+  }
+};
 
 // --- Helper Functions ---
 
@@ -50,6 +125,8 @@ function isProviderReady(config: Configuration) {
   );
 }
 
+const InferenceContext = createContext<InferenceContextValue | null>(null);
+
 export const InferenceContextProvider = ({
   children,
 }: {
@@ -58,17 +135,17 @@ export const InferenceContextProvider = ({
   const { t } = useTranslation();
 
   const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
-  const [provider, setProvider] = useState<InferenceProvider | null>(null);
-  const [models, setModels] = useState<InferenceApiModel[]>(noModels);
-  const [selectedModel, setSelectedModel] = useState<InferenceApiModel | null>(
-    null
-  );
+
+  const [state, dispatch] = useReducer(inferenceReducer, initialState);
 
   // --- Main Functions ---
 
   const updateApi = useCallback((config: Configuration) => {
     if (!isProviderReady(config)) {
-      setProvider(null);
+      dispatch({
+        type: InferenceActionTypes.SET_PROVIDER,
+        payload: null,
+      });
       return;
     }
 
@@ -78,7 +155,7 @@ export const InferenceContextProvider = ({
       config.baseUrl,
       config.apiKey
     );
-    setProvider(newProvider);
+    dispatch({ type: InferenceActionTypes.SET_PROVIDER, payload: newProvider });
   }, []);
 
   const fetchModels = useCallback(
@@ -116,12 +193,16 @@ export const InferenceContextProvider = ({
 
   const updateSelectedModel = useCallback(
     (config: Configuration) => {
-      if (!!config.model && models.length > 0) {
-        const selectedModel = models.find((m) => m.id === config.model) || null;
-        setSelectedModel(selectedModel);
+      if (!!config.model && state.models.length > 0) {
+        const selectedModel =
+          state.models.find((m) => m.id === config.model) || null;
+        dispatch({
+          type: InferenceActionTypes.SET_SELECTED_MODEL,
+          payload: selectedModel,
+        });
       }
     },
-    [models]
+    [state.models]
   );
 
   const syncServer = useCallback(
@@ -130,7 +211,7 @@ export const InferenceContextProvider = ({
 
       console.debug('Synchronize models with server');
       const models = await fetchModels(config, options);
-      setModels(models);
+      dispatch({ type: InferenceActionTypes.SET_MODELS, payload: models });
 
       updateSelectedModel(config);
     },
@@ -142,7 +223,7 @@ export const InferenceContextProvider = ({
   const { config } = useAppContext();
   useEffect(() => {
     const prevConfig = currentConfigRef.current;
-    if (!deepEqual(currentConfigRef.current, config) || !provider) {
+    if (!deepEqual(currentConfigRef.current, config) || !state.provider) {
       updateApi(config);
     }
     const shouldSync =
@@ -157,11 +238,16 @@ export const InferenceContextProvider = ({
     updateSelectedModel(config);
 
     currentConfigRef.current = config;
-  }, [syncServer, updateApi, updateSelectedModel, config, provider]);
+  }, [syncServer, updateApi, updateSelectedModel, config, state.provider]);
 
   return (
     <InferenceContext.Provider
-      value={{ provider, models, selectedModel, fetchModels }}
+      value={{
+        provider: state.provider,
+        models: state.models,
+        selectedModel: state.selectedModel,
+        fetchModels,
+      }}
     >
       {children}
     </InferenceContext.Provider>

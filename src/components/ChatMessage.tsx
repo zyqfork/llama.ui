@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   LuAtom,
@@ -20,7 +20,12 @@ import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
 import StorageUtils from '../database';
 import { useFileUpload } from '../hooks/useFileUpload';
-import { Message, MessageExtra, PendingMessage } from '../types';
+import {
+  Message,
+  MessageDisplay,
+  MessageExtra,
+  PendingMessage,
+} from '../types';
 import {
   classNames,
   copyStr,
@@ -41,27 +46,21 @@ interface SplitMessage {
   reasoning_content?: string;
 }
 
-export default function ChatMessage({
-  msg,
-  siblingLeafNodeIds,
-  siblingCurrIdx,
-  id,
+export default memo(function ChatMessage({
+  message,
   onRegenerateMessage,
   onEditUserMessage,
   onEditAssistantMessage,
   onChangeSibling,
-  isPending,
 }: {
-  msg: Message | PendingMessage;
-  siblingLeafNodeIds: Message['id'][];
-  siblingCurrIdx: number;
-  id?: string;
+  message: MessageDisplay;
   onRegenerateMessage(msg: Message): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
   onChangeSibling(sibling: Message['id']): void;
-  isPending?: boolean;
 }) {
+  const { msg, siblingCurrIdx, siblingLeafNodeIds, isPending } = message;
+
   const { t } = useTranslation();
   const { showConfirm } = useModals();
   const {
@@ -113,8 +112,12 @@ export default function ChatMessage({
     [msg.role]
   );
   const showActionButtons = useMemo(
-    () => !isEditing && (isUser || (isAssistant && !isPending)),
-    [isEditing, isPending, isUser, isAssistant]
+    () => !isEditing && !isPending,
+    [isEditing, isPending]
+  );
+  const isThinking = useMemo(
+    () => !!isPending && !content,
+    [content, isPending]
   );
 
   const handleCopy = () => {
@@ -124,7 +127,6 @@ export default function ChatMessage({
   return (
     <div
       className="group"
-      id={id}
       role="group"
       aria-description={
         isUser
@@ -174,7 +176,6 @@ export default function ChatMessage({
               setIsEditing={setIsEditing}
               onEditUserMessage={onEditUserMessage}
               onEditAssistantMessage={onEditAssistantMessage}
-              t={t}
             />
           )}
 
@@ -183,21 +184,13 @@ export default function ChatMessage({
             <div dir="auto" tabIndex={0}>
               {!!reasoning_content && (
                 <ThoughtProcess
-                  isThinking={!!isPending && !content}
+                  isThinking={isThinking}
                   content={reasoning_content}
-                  t={t}
                 />
               )}
 
-              {!!content && (
-                <MarkdownDisplay content={content} isGenerating={!!isPending} />
-              )}
+              {!!content && <MarkdownDisplay content={content} />}
             </div>
-          )}
-
-          {/* show loading dots for pending message */}
-          {!isEditing && isPending && (
-            <span className="loading loading-dots loading-md"></span>
           )}
         </div>
       </div>
@@ -322,7 +315,6 @@ export default function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || !content}
             text={content ?? ''}
-            t={t}
           />
 
           {/* delete message */}
@@ -354,21 +346,21 @@ export default function ChatMessage({
       )}
     </div>
   );
-}
+});
 
 function EditMessage({
   msg,
   setIsEditing,
   onEditUserMessage,
   onEditAssistantMessage,
-  t,
 }: {
   msg: Message | PendingMessage;
   setIsEditing(flag: boolean): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
-  t: ReturnType<typeof useTranslation>['t'];
 }) {
+  const { t } = useTranslation();
+
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
   );
@@ -447,12 +439,11 @@ function EditMessage({
 function ThoughtProcess({
   isThinking,
   content,
-  t,
 }: {
   isThinking: boolean;
   content: string;
-  t: ReturnType<typeof useTranslation>['t'];
 }) {
+  const { t } = useTranslation();
   const {
     config: { showThoughtInProgress },
   } = useAppContext();
@@ -493,54 +484,55 @@ function ThoughtProcess({
   );
 }
 
-const PlayButton = ({
-  className,
-  disabled,
-  text,
-  t,
-}: {
-  className?: string;
-  disabled?: boolean;
-  text: string;
-  t: ReturnType<typeof useTranslation>['t'];
-}) => {
-  const {
-    config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
-  } = useAppContext();
-  return (
-    <TextToSpeech
-      text={text}
-      voice={getSpeechSynthesisVoiceByName(ttsVoice)}
-      pitch={ttsPitch}
-      rate={ttsRate}
-      volume={ttsVolume}
-    >
-      {({ isPlaying, play, stop }) => (
-        <Fragment>
-          {!isPlaying && (
-            <IntlIconButton
-              className={className}
-              onClick={play}
-              disabled={disabled}
-              t={t}
-              titleKey="chatScreen.titles.play"
-              ariaLabelKey="chatScreen.ariaLabels.playMessage"
-              icon={LuVolume2}
-            />
-          )}
-          {isPlaying && (
-            <IntlIconButton
-              className={className}
-              onClick={stop}
-              disabled={disabled}
-              t={t}
-              titleKey="chatScreen.titles.stop"
-              ariaLabelKey="chatScreen.ariaLabels.stopMessage"
-              icon={LuVolumeX}
-            />
-          )}
-        </Fragment>
-      )}
-    </TextToSpeech>
-  );
-};
+const PlayButton = memo(
+  ({
+    className,
+    disabled,
+    text,
+  }: {
+    className?: string;
+    disabled?: boolean;
+    text: string;
+  }) => {
+    const { t } = useTranslation();
+    const {
+      config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
+    } = useAppContext();
+    return (
+      <TextToSpeech
+        text={text}
+        voice={getSpeechSynthesisVoiceByName(ttsVoice)}
+        pitch={ttsPitch}
+        rate={ttsRate}
+        volume={ttsVolume}
+      >
+        {({ isPlaying, play, stop }) => (
+          <Fragment>
+            {!isPlaying && (
+              <IntlIconButton
+                className={className}
+                onClick={play}
+                disabled={disabled}
+                t={t}
+                titleKey="chatScreen.titles.play"
+                ariaLabelKey="chatScreen.ariaLabels.playMessage"
+                icon={LuVolume2}
+              />
+            )}
+            {isPlaying && (
+              <IntlIconButton
+                className={className}
+                onClick={stop}
+                disabled={disabled}
+                t={t}
+                titleKey="chatScreen.titles.stop"
+                ariaLabelKey="chatScreen.ariaLabels.stopMessage"
+                icon={LuVolumeX}
+              />
+            )}
+          </Fragment>
+        )}
+      </TextToSpeech>
+    );
+  }
+);

@@ -1,5 +1,88 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useReducer,
+  useRef,
+} from 'react';
 import { Trans } from 'react-i18next';
+
+enum ModalActionType {
+  SHOW_MODAL = 'SHOW_MODAL',
+  HIDE_MODAL = 'HIDE_MODAL',
+}
+
+type ModalType = 'confirm' | 'prompt' | 'alert';
+
+type ModalAction =
+  | {
+      type: ModalActionType.SHOW_MODAL;
+      modalType: ModalType;
+      message: string;
+      defaultValue?: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolve: (value: any) => void;
+    }
+  | {
+      type: ModalActionType.HIDE_MODAL;
+      modalType: ModalType;
+    };
+
+interface ModalState {
+  [key: string]: {
+    isOpen: boolean;
+    message: string;
+    defaultValue?: string;
+    resolve: ((value?: boolean | string) => void) | null;
+  };
+}
+
+const initialState: ModalState = {
+  confirm: {
+    isOpen: false,
+    message: '',
+    resolve: null,
+  },
+  prompt: {
+    isOpen: false,
+    message: '',
+    defaultValue: undefined,
+    resolve: null,
+  },
+  alert: {
+    isOpen: false,
+    message: '',
+    resolve: null,
+  },
+};
+
+function modalReducer(state: ModalState, action: ModalAction): ModalState {
+  switch (action.type) {
+    case ModalActionType.SHOW_MODAL:
+      return {
+        ...state,
+        [action.modalType]: {
+          isOpen: true,
+          message: action.message,
+          defaultValue: action.defaultValue,
+          resolve: action.resolve,
+        },
+      };
+    case ModalActionType.HIDE_MODAL:
+      return {
+        ...state,
+        [action.modalType]: {
+          ...state[action.modalType],
+          isOpen: false,
+          message: '',
+          defaultValue: undefined,
+          resolve: null,
+        },
+      };
+    default:
+      return state;
+  }
+}
 
 type ModalContextType = {
   showConfirm: (message: string) => Promise<boolean>;
@@ -9,41 +92,34 @@ type ModalContextType = {
   ) => Promise<string | undefined>;
   showAlert: (message: string) => Promise<void>;
 };
+
 const ModalContext = createContext<ModalContextType>(null!);
 
-interface ModalState<T> {
-  isOpen: boolean;
-  message: string;
-  defaultValue?: string;
-  resolve: ((value: T) => void) | null;
-}
-
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-  const [confirmState, setConfirmState] = useState<ModalState<boolean>>({
-    isOpen: false,
-    message: '',
-    resolve: null,
-  });
-  const [promptState, setPromptState] = useState<
-    ModalState<string | undefined>
-  >({ isOpen: false, message: '', resolve: null });
-  const [alertState, setAlertState] = useState<ModalState<void>>({
-    isOpen: false,
-    message: '',
-    resolve: null,
-  });
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [state, dispatch] = useReducer(modalReducer, initialState);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const showConfirm = useCallback((message: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      setConfirmState({ isOpen: true, message, resolve });
+      dispatch({
+        type: ModalActionType.SHOW_MODAL,
+        modalType: 'confirm',
+        message,
+        resolve,
+      });
     });
   }, []);
 
   const showPrompt = useCallback(
     (message: string, defaultValue?: string): Promise<string | undefined> => {
       return new Promise((resolve) => {
-        setPromptState({ isOpen: true, message, defaultValue, resolve });
+        dispatch({
+          type: ModalActionType.SHOW_MODAL,
+          modalType: 'prompt',
+          message,
+          defaultValue,
+          resolve,
+        });
       });
     },
     []
@@ -51,40 +127,45 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   const showAlert = useCallback((message: string): Promise<void> => {
     return new Promise((resolve) => {
-      setAlertState({ isOpen: true, message, resolve });
+      dispatch({
+        type: ModalActionType.SHOW_MODAL,
+        modalType: 'alert',
+        message,
+        resolve,
+      });
     });
   }, []);
 
   const handleConfirm = useCallback(
     (result: boolean) => {
-      confirmState.resolve?.(result);
-      setConfirmState({ isOpen: false, message: '', resolve: null });
+      state.confirm.resolve?.(result);
+      dispatch({ type: ModalActionType.HIDE_MODAL, modalType: 'confirm' });
     },
-    [confirmState]
+    [state]
   );
 
   const handlePrompt = useCallback(
     (result?: string) => {
-      promptState.resolve?.(result);
-      setPromptState({ isOpen: false, message: '', resolve: null });
+      state.prompt.resolve?.(result);
+      dispatch({ type: ModalActionType.HIDE_MODAL, modalType: 'prompt' });
     },
-    [promptState]
+    [state]
   );
 
   const handleAlertClose = useCallback(() => {
-    alertState.resolve?.();
-    setAlertState({ isOpen: false, message: '', resolve: null });
-  }, [alertState]);
+    state.alert.resolve?.();
+    dispatch({ type: ModalActionType.HIDE_MODAL, modalType: 'alert' });
+  }, [state]);
 
   return (
     <ModalContext.Provider value={{ showConfirm, showPrompt, showAlert }}>
       {children}
 
       {/* Confirm Modal */}
-      {confirmState.isOpen && (
+      {state.confirm.isOpen && (
         <dialog className="modal modal-open z-[1100]">
           <div className="modal-box">
-            <h3 className="font-bold text-lg">{confirmState.message}</h3>
+            <h3 className="font-bold text-lg">{state.confirm.message}</h3>
             <div className="modal-action">
               <button
                 className="btn btn-ghost"
@@ -104,14 +185,14 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Prompt Modal */}
-      {promptState.isOpen && (
+      {state.prompt.isOpen && (
         <dialog className="modal modal-open z-[1100]">
           <div className="modal-box">
-            <h3 className="font-bold text-lg">{promptState.message}</h3>
+            <h3 className="font-bold text-lg">{state.prompt.message}</h3>
             <input
               type="text"
               className="input input-bordered w-full mt-2"
-              defaultValue={promptState.defaultValue}
+              defaultValue={state.prompt.defaultValue}
               ref={inputRef}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -135,10 +216,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Alert Modal */}
-      {alertState.isOpen && (
+      {state.alert.isOpen && (
         <dialog className="modal modal-open z-[1100]">
           <div className="modal-box">
-            <h3 className="font-bold text-lg">{alertState.message}</h3>
+            <h3 className="font-bold text-lg">{state.alert.message}</h3>
             <div className="modal-action">
               <button className="btn" onClick={handleAlertClose}>
                 <Trans i18nKey="modals.okBtnLabel" />
