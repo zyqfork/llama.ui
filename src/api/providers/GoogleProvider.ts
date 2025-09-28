@@ -1,5 +1,5 @@
 import { InferenceApiModel } from '../../types';
-import { BaseOpenAIProvider } from './BaseOpenAIProvider';
+import { CloudOpenAIProvider } from './BaseOpenAIProvider';
 
 /**
  * Represents a Google model metadata structure as returned by the API.
@@ -18,19 +18,16 @@ interface GoogleModel {
 }
 
 /**
- * GoogleProvider extends BaseOpenAIProvider to handle Google's model API responses.
+ * GoogleProvider extends CloudOpenAIProvider to handle Google's model API responses.
  *
  * This class adapts Google's model response format to the standard InferenceApiModel interface
  * used by the application. It implements a 15-minute cache expiration policy.
  *
- * @example
- * const provider = GoogleProvider.new('https://api.google.com', 'your-api-key');
- * const models = await provider.getModels();
+ * @see https://ai.google.dev/gemini-api/docs/openai
  *
- * @class GoogleProvider
- * @extends BaseOpenAIProvider
+ * @extends CloudOpenAIProvider
  */
-export class GoogleProvider extends BaseOpenAIProvider {
+export class GoogleProvider extends CloudOpenAIProvider {
   /**
    * Creates a new instance of GoogleProvider with optional base URL and API key.
    *
@@ -49,26 +46,6 @@ export class GoogleProvider extends BaseOpenAIProvider {
    */
   static new(baseUrl?: string, apiKey: string = ''): GoogleProvider {
     return new GoogleProvider(baseUrl, apiKey);
-  }
-
-  /** @inheritdoc */
-  protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 15 * 60 * 1000;
-  }
-
-  /** @inheritdoc */
-  protected isAllowCustomOptions(): boolean {
-    return false;
-  }
-
-  /** @inheritdoc */
-  protected isSupportCache(): boolean {
-    return false;
-  }
-
-  /** @inheritdoc */
-  protected isSupportTimings(): boolean {
-    return false;
   }
 
   /** @inheritdoc */
