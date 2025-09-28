@@ -104,18 +104,12 @@ export class LlamaCppProvider extends SelfHostedOpenAIProvider {
   }
 
   /** @inheritdoc */
-  protected isAllowCustomOptions(): boolean {
-    return true;
-  }
-
-  /** @inheritdoc */
-  protected isSupportCache(): boolean {
-    return true;
-  }
-
-  /** @inheritdoc */
-  protected isSupportTimings(): boolean {
-    return true;
+  protected getDefaultChatParams(): Record<string, unknown> {
+    return {
+      ...super.getDefaultChatParams(),
+      cache_prompt: true,
+      timings_per_token: true,
+    };
   }
 
   /** @inheritdoc */

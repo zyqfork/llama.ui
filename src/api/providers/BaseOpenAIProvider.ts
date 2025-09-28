@@ -172,8 +172,7 @@ export class BaseOpenAIProvider
    * ```
    *
    * @see {@link getSSEStreamAsync}
-   * @see {@link isSupportCache}
-   * @see {@link isSupportTimings}
+   * @see {@link getDefaultChatParams}
    * @see {@link isAllowCustomOptions}
    */
   async postChatCompletions(
@@ -188,15 +187,8 @@ export class BaseOpenAIProvider
     let params: Record<string, unknown> = {
       model,
       messages,
-      stream: true,
+      ...this.getDefaultChatParams(),
     };
-
-    if (this.isSupportCache()) {
-      params = { ...params, cache_prompt: true };
-    }
-    if (this.isSupportTimings()) {
-      params = { ...params, timings_per_token: true };
-    }
 
     // Merge custom options if provided
     if (
@@ -341,30 +333,8 @@ export class BaseOpenAIProvider
     return false;
   }
 
-  /**
-   * Indicates whether the backend supports prompt caching (`cache_prompt` parameter).
-   *
-   * Override in subclasses to enable support.
-   *
-   * @returns `false` by default
-   *
-   * @protected
-   */
-  protected isSupportCache(): boolean {
-    return false;
-  }
-
-  /**
-   * Indicates whether the backend supports token timing details (`timings_per_token` parameter).
-   *
-   * Override in subclasses to enable support.
-   *
-   * @returns `false` by default
-   *
-   * @protected
-   */
-  protected isSupportTimings(): boolean {
-    return false;
+  protected getDefaultChatParams(): Record<string, unknown> {
+    return { stream: true };
   }
 
   /**
@@ -497,16 +467,6 @@ export class CloudOpenAIProvider extends BaseOpenAIProvider {
 
   /** @inheritdoc */
   protected isAllowCustomOptions(): boolean {
-    return false;
-  }
-
-  /** @inheritdoc */
-  protected isSupportCache(): boolean {
-    return false;
-  }
-
-  /** @inheritdoc */
-  protected isSupportTimings(): boolean {
     return false;
   }
 }
