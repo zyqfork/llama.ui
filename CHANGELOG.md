@@ -1,3 +1,74 @@
+## [2.29.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- ChatScreen - model name can be displayed incorrectly (#196)
+
+### 🚜 Refactor
+
+- _(api)_ Consolidate chat parameters in BaseOpenAIProvider (#195)
+
+## [2.28.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(provider)_ Add Mistral provider (#194)
+
+## [2.27.0] - 2025-09-28
+
+### 🚜 Refactor
+
+- _(context)_ Replace useState with useReducer in core context providers (#186)
+
+## [2.26.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(inference)_ Re-init provider on null (#191)
+- _(api)_ Update provider cache key to include base URL (#192)
+
+## [2.25.1] - 2025-09-28
+
+### 🛠 Fixes
+
+- Decrease `pasteLongTextToFileLen` label size
+
+## [2.25.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(provider)_ Add Groq provider and extend CloudOpenAIProvider (#190)
+
+## [2.24.1] - 2025-09-28
+
+### 🛠 Fixes
+
+- Database import-export toast type on error (#189)
+
+## [2.24.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- Memorize context functions (#185)
+- _(provider)_ Add Google provider and extend BaseOpenAIProvider (#188)
+
+### 🚜 Refactor
+
+- Sidebar extract components (#184)
+- API provider (#183)
+
+## [2.23.4] - 2025-09-27
+
+### 🛠 Fixes
+
+- Trigger inference sync when default baseUrl is preconfigured (#167)
+
+## [2.23.3] - 2025-09-26
+
+### 🛠 Fixes
+
+- Code display issue (#182)
+
 ## [2.23.2] - 2025-09-26
 
 ### 🚜 Refactor
