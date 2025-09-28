@@ -103,7 +103,7 @@ export const AppContextProvider = ({
         setPresets(presets);
       } catch (error) {
         console.error('Error during database import:', error);
-        toast.success(t('state.database.import.failed'));
+        toast.error(t('state.database.import.failed'));
         throw error; // Re-throw to allow caller to handle
       }
       console.info('Database import completed successfully.');
@@ -119,7 +119,7 @@ export const AppContextProvider = ({
         data = await StorageUtils.exportDB(convId);
       } catch (error) {
         console.error('Error during database export:', error);
-        toast.success(t('state.database.export.failed'));
+        toast.error(t('state.database.export.failed'));
         throw error; // Re-throw to allow caller to handle
       }
       console.info('Database export completed successfully.');
