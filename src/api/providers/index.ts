@@ -1,5 +1,6 @@
 import { InferenceProvider } from '../../types';
 import { BaseOpenAIProvider } from './BaseOpenAIProvider';
+import { GoogleProvider } from './GoogleProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
 import { OpenRouterProvider } from './OpenRouterProvider';
 
@@ -26,6 +27,9 @@ export function getInferenceProvider(
       break;
     case 'open-router':
       provider = OpenRouterProvider.new(baseUrl, apiKey);
+      break;
+    case 'google':
+      provider = GoogleProvider.new(baseUrl, apiKey);
       break;
     default:
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);
