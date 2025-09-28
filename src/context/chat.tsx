@@ -24,6 +24,23 @@ import {
 import { filterThoughtFromMsgs } from '../utils';
 import { useAppContext } from './app';
 
+interface SendMessageProps {
+  convId: Message['convId'];
+  type: Message['type'];
+  role: Message['role'];
+  parent: Message['parent'];
+  content: string | null;
+  extra: Message['extra'];
+  system?: string;
+  onChunk: CallbackGeneratedChunk;
+}
+
+interface ReplaceMessageProps {
+  msg: Message;
+  newContent: string;
+  onChunk: CallbackGeneratedChunk;
+}
+
 // Define action types enum
 enum ChatActionType {
   SET_VIEWING_CHAT = 'SET_VIEWING_CHAT',
@@ -136,23 +153,6 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   }
 };
 
-interface SendMessageProps {
-  convId: Message['convId'];
-  type: Message['type'];
-  role: Message['role'];
-  parent: Message['parent'];
-  content: string | null;
-  extra: Message['extra'];
-  system?: string;
-  onChunk: CallbackGeneratedChunk;
-}
-
-interface ReplaceMessageProps {
-  msg: Message;
-  newContent: string;
-  onChunk: CallbackGeneratedChunk;
-}
-
 interface ChatContextValue {
   // canvas
   canvasData: CanvasData | null;
@@ -171,8 +171,6 @@ interface ChatContextValue {
 // this callback is used for scrolling to the bottom of the chat and switching to the last node
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
-const ChatContext = createContext<ChatContextValue | null>(null);
-
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
   const conv = await StorageUtils.getOneConversation(convId);
   if (!conv) return null;
@@ -182,6 +180,8 @@ const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
     messages: await StorageUtils.getMessages(convId),
   };
 };
+
+const ChatContext = createContext<ChatContextValue | null>(null);
 
 export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();

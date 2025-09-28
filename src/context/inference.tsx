@@ -75,9 +75,11 @@ interface InferenceState {
 
 const noModels: InferenceApiModel[] = [];
 
-const InferenceContext = createContext<InferenceContextValue | null>(null);
-
-// --- Reducer ---
+const initialState: InferenceState = {
+  provider: null,
+  models: noModels,
+  selectedModel: null,
+};
 
 const inferenceReducer = (
   state: InferenceState,
@@ -123,6 +125,8 @@ function isProviderReady(config: Configuration) {
   );
 }
 
+const InferenceContext = createContext<InferenceContextValue | null>(null);
+
 export const InferenceContextProvider = ({
   children,
 }: {
@@ -132,11 +136,7 @@ export const InferenceContextProvider = ({
 
   const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
 
-  const [state, dispatch] = useReducer(inferenceReducer, {
-    provider: null,
-    models: noModels,
-    selectedModel: null,
-  });
+  const [state, dispatch] = useReducer(inferenceReducer, initialState);
 
   // --- Main Functions ---
 
@@ -243,7 +243,9 @@ export const InferenceContextProvider = ({
   return (
     <InferenceContext.Provider
       value={{
-        ...state,
+        provider: state.provider,
+        models: state.models,
+        selectedModel: state.selectedModel,
         fetchModels,
       }}
     >
