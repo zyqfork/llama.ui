@@ -57,7 +57,7 @@ export class BaseOpenAIProvider
 
   /**
    * Timestamp of the last successful model list fetch.
-   * Used to determine cache expiration (1 minute).
+   * Used to determine cache expiration (5 minutes).
    * @internal
    */
   protected lastUpdated: number;
@@ -69,7 +69,7 @@ export class BaseOpenAIProvider
    * @param apiKey - Optional API key for authentication (Bearer token)
    * @throws {Error} If `baseUrl` is not provided or is empty
    *
-   * @private
+   * @protected
    */
   protected constructor(baseUrl?: string, apiKey: string = '') {
     if (!baseUrl) throw new Error(`Base URL is not specified`);
@@ -84,6 +84,8 @@ export class BaseOpenAIProvider
    * @param baseUrl - The base URL of the API endpoint
    * @param apiKey - Optional API key for authentication
    * @returns A new instance of BaseOpenAIProvider
+   *
+   * @static
    */
   static new(baseUrl?: string, apiKey: string = '') {
     return new BaseOpenAIProvider(baseUrl, apiKey);
@@ -92,7 +94,7 @@ export class BaseOpenAIProvider
   /**
    * Retrieves the list of available models from the API.
    *
-   * Uses cached models if available and not expired (cached for 1 minute).
+   * Uses cached models if available and not expired (cached for 5 minutes).
    * If cache is expired or empty, fetches fresh data from `/v1/models`.
    *
    * @returns Promise resolving to an array of `InferenceApiModel` objects
@@ -103,6 +105,9 @@ export class BaseOpenAIProvider
    * const models = await provider.getModels();
    * console.log(models.map(m => m.id)); // ["llama3", "mistral", ...]
    * ```
+   *
+   * @see {@link getBaseUrl}
+   * @see {@link jsonToModels}
    */
   async getModels(): Promise<InferenceApiModel[]> {
     if (isDev) console.debug('v1Models', this.models);
@@ -113,11 +118,14 @@ export class BaseOpenAIProvider
 
     let fetchResponse = noResponse;
     try {
-      fetchResponse = await fetch(normalizeUrl('/v1/models', this.baseUrl), {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: AbortSignal.timeout(1000),
-      });
+      fetchResponse = await fetch(
+        normalizeUrl('/v1/models', this.getBaseUrl()),
+        {
+          method: 'GET',
+          headers: this.getHeaders(),
+          signal: AbortSignal.timeout(1000),
+        }
+      );
     } catch {
       // Silently ignore network/timeout errors; will be caught in isErrorResponse
     }
@@ -146,8 +154,6 @@ export class BaseOpenAIProvider
    * @remarks
    * Default parameters include:
    * - `stream: true`
-   * - `cache_prompt: true`
-   * - `timings_per_token: true`
    *
    * Custom options are merged into the request body. Be cautious: invalid parameters
    * may cause API errors.
@@ -164,6 +170,11 @@ export class BaseOpenAIProvider
    *   console.log(chunk.content);
    * }
    * ```
+   *
+   * @see {@link getSSEStreamAsync}
+   * @see {@link isSupportCache}
+   * @see {@link isSupportTimings}
+   * @see {@link isAllowCustomOptions}
    */
   async postChatCompletions(
     model: string,
@@ -174,16 +185,25 @@ export class BaseOpenAIProvider
     if (isDev) console.debug('v1ChatCompletions', { messages });
 
     // Prepare default parameters
-    let params = {
+    let params: Record<string, unknown> = {
       model,
       messages,
       stream: true,
-      cache_prompt: true,
-      timings_per_token: true,
     };
 
+    if (this.isSupportCache()) {
+      params = { ...params, cache_prompt: true };
+    }
+    if (this.isSupportTimings()) {
+      params = { ...params, timings_per_token: true };
+    }
+
     // Merge custom options if provided
-    if (customOptions && typeof customOptions === 'object') {
+    if (
+      this.isAllowCustomOptions() &&
+      customOptions &&
+      typeof customOptions === 'object'
+    ) {
       params = { ...params, ...customOptions };
     }
 
@@ -191,7 +211,7 @@ export class BaseOpenAIProvider
     let fetchResponse = noResponse;
     try {
       fetchResponse = await fetch(
-        normalizeUrl('/v1/chat/completions', this.baseUrl),
+        normalizeUrl('/v1/chat/completions', this.getBaseUrl()),
         {
           method: 'POST',
           headers: this.getHeaders(),
@@ -210,15 +230,20 @@ export class BaseOpenAIProvider
   /**
    * Generates HTTP headers for API requests, including authentication.
    *
+   * Includes:
+   * - `Content-Type: application/json`
+   * - `Authorization: Bearer <apiKey>` if API key is provided
+   *
    * @returns Headers configuration suitable for `fetch` requests
-   * @private
+   *
+   * @protected
    */
   protected getHeaders(): HeadersInit {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
-    const apiKey = this.apiKey;
+    const apiKey = this.getApiKey();
     if (apiKey) {
       headers.Authorization = `Bearer ${apiKey}`;
     }
@@ -234,7 +259,8 @@ export class BaseOpenAIProvider
    *
    * @param response - The HTTP response object from fetch
    * @throws {Error} With specific message based on HTTP status code or API error body
-   * @private
+   *
+   * @protected
    */
   protected async isErrorResponse(response: Response): Promise<void> {
     if (response.status === 200) return;
@@ -292,13 +318,53 @@ export class BaseOpenAIProvider
   /**
    * Determines whether the cached model list has expired.
    *
-   * Cache expires after 60 seconds to ensure freshness.
+   * Cache expires after 5 minutes to ensure freshness.
    *
    * @returns `true` if the cache is expired, `false` otherwise
-   * @private
+   *
+   * @protected
    */
   protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 60 * 1000;
+    return Date.now() - this.lastUpdated > 5 * 60 * 1000;
+  }
+
+  /**
+   * Indicates whether custom generation options (e.g., temperature, max_tokens) are allowed.
+   *
+   * Override in subclasses to enable support.
+   *
+   * @returns `false` by default
+   *
+   * @protected
+   */
+  protected isAllowCustomOptions(): boolean {
+    return false;
+  }
+
+  /**
+   * Indicates whether the backend supports prompt caching (`cache_prompt` parameter).
+   *
+   * Override in subclasses to enable support.
+   *
+   * @returns `false` by default
+   *
+   * @protected
+   */
+  protected isSupportCache(): boolean {
+    return false;
+  }
+
+  /**
+   * Indicates whether the backend supports token timing details (`timings_per_token` parameter).
+   *
+   * Override in subclasses to enable support.
+   *
+   * @returns `false` by default
+   *
+   * @protected
+   */
+  protected isSupportTimings(): boolean {
+    return false;
   }
 
   /**
@@ -308,7 +374,8 @@ export class BaseOpenAIProvider
    *
    * @param data - Raw JSON array from API response (`data` field of `/v1/models`)
    * @returns Sorted array of `InferenceApiModel` objects
-   * @private
+   *
+   * @protected
    */
   protected jsonToModels(data: unknown[]): InferenceApiModel[] {
     const res: InferenceApiModel[] = [];
@@ -328,6 +395,7 @@ export class BaseOpenAIProvider
    *
    * @param m - Raw model data from API response
    * @returns A validated `InferenceApiModel` object
+   *
    * @protected
    */
   protected jsonToModel(m: unknown): InferenceApiModel {
@@ -342,6 +410,7 @@ export class BaseOpenAIProvider
    * @param a - First model to compare
    * @param b - Second model to compare
    * @returns Negative, zero, or positive value for sorting order
+   *
    * @protected
    */
   protected compareModels(a: InferenceApiModel, b: InferenceApiModel): number {
@@ -371,5 +440,58 @@ export class BaseOpenAIProvider
    */
   getApiKey(): string {
     return this.apiKey;
+  }
+}
+
+/**
+ * A provider implementation for Self-Hosted OpenAI instances.
+ *
+ * This class extends {@link BaseOpenAIProvider} and defines a shorter
+ * token expiration threshold suitable for self-hosted environments,
+ * where tokens may be refreshed more frequently due to local infrastructure
+ * or security policies.
+ *
+ * @remarks
+ * The expiration threshold is set to **60 seconds** (60,000 milliseconds),
+ * reflecting the typical short-lived token validity in self-hosted deployments.
+ */
+export class SelfHostedOpenAIProvider extends BaseOpenAIProvider {
+  /**
+   * Determines whether the current API token has expired based on the last update time.
+   *
+   * For self-hosted providers, the token is considered expired if more than
+   * 60 seconds have passed since the last update.
+   *
+   * @returns `true` if the token has expired; otherwise, `false`.
+   * @inheritdoc
+   */
+  protected isExpired(): boolean {
+    return Date.now() - this.lastUpdated > 60 * 1000;
+  }
+}
+
+/**
+ * A provider implementation for Cloud-based OpenAI services (e.g., OpenAI API).
+ *
+ * This class extends {@link BaseOpenAIProvider} and defines a longer
+ * token expiration threshold appropriate for cloud-based APIs,
+ * where token refresh cycles are typically longer and less frequent.
+ *
+ * @remarks
+ * The expiration threshold is set to **15 minutes** (900,000 milliseconds),
+ * aligning with standard token lifetimes in OpenAI's cloud API offerings.
+ */
+export class CloudOpenAIProvider extends BaseOpenAIProvider {
+  /**
+   * Determines whether the current API token has expired based on the last update time.
+   *
+   * For cloud providers, the token is considered expired if more than
+   * 15 minutes have passed since the last update.
+   *
+   * @returns `true` if the token has expired; otherwise, `false`.
+   * @inheritdoc
+   */
+  protected isExpired(): boolean {
+    return Date.now() - this.lastUpdated > 15 * 60 * 1000;
   }
 }

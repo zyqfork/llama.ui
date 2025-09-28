@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Incolla: converti se lunghezza >",
+        "label": "Incolla: limitazione",
         "note": "Quando incolli un testo lungo, verrà convertito in un file. Puoi controllare la lunghezza del file impostando il valore di questo parametro. Imposta su 0 per disabilitare."
       },
       "pdfAsImage": {

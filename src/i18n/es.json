@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Pegar: convertir a archivo si la longitud >",
+        "label": "Líma: takmörkun",
         "note": "Cuando se pega un texto largo, se convertirá en un archivo. Puedes controlar la longitud del archivo configurando el valor de este parámetro. Establece en 0 para deshabilitar."
       },
       "pdfAsImage": {

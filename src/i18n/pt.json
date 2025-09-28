@@ -226,7 +226,7 @@
         "note": ""
       },
       "pasteLongTextToFileLen": {
-        "label": "Colar: converter para arquivo se o comprimento >",
+        "label": "Colar: limitação",
         "note": "Ao colar um texto longo, ele será convertido em um arquivo. Você pode controlar o comprimento do arquivo definindo o valor deste parâmetro. Defina 0 para desativar."
       },
       "pdfAsImage": {

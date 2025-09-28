@@ -49,7 +49,7 @@
     "isKeyRequired": true
   },
   "google": {
-    "baseUrl": "https://generativelanguage.googleapis.com",
+    "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
     "name": "Google",
     "icon": "assets/providers/google.svg",
     "allowCustomBaseUrl": false,

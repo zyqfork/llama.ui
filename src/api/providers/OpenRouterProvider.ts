@@ -1,5 +1,5 @@
 import { InferenceApiModel, Modality } from '../../types';
-import { BaseOpenAIProvider } from './BaseOpenAIProvider';
+import { CloudOpenAIProvider } from './BaseOpenAIProvider';
 
 /**
  * Represents a model available via the OpenRouter API.
@@ -47,12 +47,14 @@ interface Pricing {
 /**
  * Provider implementation for interacting with the OpenRouter API.
  *
- * Extends `BaseOpenAIProvider` to leverage OpenAI-compatible request formatting
+ * Extends `CloudOpenAIProvider` to leverage OpenAI-compatible request formatting
  * while adapting to OpenRouter-specific model metadata and endpoint structure.
  *
  * @see https://openrouter.ai/docs
+ *
+ * @extends CloudOpenAIProvider
  */
-export class OpenRouterProvider extends BaseOpenAIProvider {
+export class OpenRouterProvider extends CloudOpenAIProvider {
   /**
    * Creates a new instance of OpenRouterProvider with optional base URL and API key.
    *
@@ -64,16 +66,19 @@ export class OpenRouterProvider extends BaseOpenAIProvider {
     return new OpenRouterProvider(baseUrl, apiKey);
   }
 
-  /**
-   * Determines if the provider's model cache has expired.
-   *
-   * OpenRouter models are cached for 15 minutes to reduce API calls.
-   * This method checks whether the last update time exceeds this threshold.
-   *
-   * @returns `true` if the cache has expired (>15 minutes since last update), otherwise `false`
-   */
-  protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 15 * 60 * 1000;
+  /** @inheritdoc */
+  protected isAllowCustomOptions(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportCache(): boolean {
+    return true;
+  }
+
+  /** @inheritdoc */
+  protected isSupportTimings(): boolean {
+    return true;
   }
 
   /**
