@@ -67,7 +67,11 @@ export const InferenceContextProvider = ({
   // --- Main Functions ---
 
   const updateApi = useCallback((config: Configuration) => {
-    if (Object.is(CONFIG_DEFAULT, config)) return;
+    if (!isProviderReady(config)) {
+      setProvider(null);
+      return;
+    }
+
     console.debug('Update Inference API');
     const newProvider = getInferenceProvider(
       config.provider,
@@ -138,7 +142,7 @@ export const InferenceContextProvider = ({
   const { config } = useAppContext();
   useEffect(() => {
     const prevConfig = currentConfigRef.current;
-    if (!deepEqual(currentConfigRef.current, config)) {
+    if (!deepEqual(currentConfigRef.current, config) || !provider) {
       updateApi(config);
     }
     const shouldSync =
@@ -153,7 +157,7 @@ export const InferenceContextProvider = ({
     updateSelectedModel(config);
 
     currentConfigRef.current = config;
-  }, [syncServer, updateApi, updateSelectedModel, config]);
+  }, [syncServer, updateApi, updateSelectedModel, config, provider]);
 
   return (
     <InferenceContext.Provider
