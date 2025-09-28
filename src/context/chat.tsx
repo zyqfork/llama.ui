@@ -23,11 +23,12 @@ import {
 } from '../types';
 import { filterThoughtFromMsgs } from '../utils';
 import { useAppContext } from './app';
-import { PendingMessagesContext } from './pendingMessage';
 
 // Define action types enum
 enum ChatActionType {
   SET_VIEWING_CHAT = 'SET_VIEWING_CHAT',
+  SET_PENDING_MESSAGE = 'SET_PENDING_MESSAGE',
+  REMOVE_PENDING_MESSAGE = 'REMOVE_PENDING_MESSAGE',
   SET_ABORT_CONTROLLER = 'SET_ABORT_CONTROLLER',
   REMOVE_ABORT_CONTROLLER = 'REMOVE_ABORT_CONTROLLER',
   SET_CANVAS_DATA = 'SET_CANVAS_DATA',
@@ -37,6 +38,16 @@ enum ChatActionType {
 interface SetViewingChatAction {
   type: ChatActionType.SET_VIEWING_CHAT;
   payload: { viewingChat: ViewingChat | null };
+}
+
+interface SetPendingMessageAction {
+  type: ChatActionType.SET_PENDING_MESSAGE;
+  payload: { convId: string; pendingMsg: PendingMessage };
+}
+
+interface RemovePendingMessageAction {
+  type: ChatActionType.REMOVE_PENDING_MESSAGE;
+  payload: { convId: string };
 }
 
 interface SetAbortControllerAction {
@@ -56,18 +67,22 @@ interface SetCanvasDataAction {
 
 type ChatAction =
   | SetViewingChatAction
+  | SetPendingMessageAction
+  | RemovePendingMessageAction
   | SetAbortControllerAction
   | RemoveAbortControllerAction
   | SetCanvasDataAction;
 
 interface ChatState {
   viewingChat: ViewingChat | null;
+  pendingMessages: Record<Conversation['id'], PendingMessage>;
   aborts: Record<Conversation['id'], AbortController>;
   canvasData: CanvasData | null;
 }
 
 const initialState: ChatState = {
   viewingChat: null,
+  pendingMessages: {},
   aborts: {},
   canvasData: null,
 };
@@ -79,6 +94,22 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         ...state,
         viewingChat: action.payload.viewingChat,
       };
+    case ChatActionType.SET_PENDING_MESSAGE:
+      return {
+        ...state,
+        pendingMessages: {
+          ...state.pendingMessages,
+          [action.payload.convId]: action.payload.pendingMsg,
+        },
+      };
+    case ChatActionType.REMOVE_PENDING_MESSAGE: {
+      const newPendingMessages = { ...state.pendingMessages };
+      delete newPendingMessages[action.payload.convId];
+      return {
+        ...state,
+        pendingMessages: newPendingMessages,
+      };
+    }
     case ChatActionType.SET_ABORT_CONTROLLER:
       return {
         ...state,
@@ -129,6 +160,8 @@ interface ChatContextValue {
 
   // conversations and messages
   viewingChat: ViewingChat | null;
+  pendingMessages: Record<Conversation['id'], PendingMessage>;
+  isGenerating: (convId: string) => boolean;
   sendMessage: (props: SendMessageProps) => Promise<boolean>;
   stopGenerating: (convId: string) => void;
   replaceMessage: (props: ReplaceMessageProps) => Promise<void>;
@@ -161,9 +194,6 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { provider } = useInferenceContext();
 
-  // Get pending messages and setter from the separate context
-  const { setPending, isGenerating } = useContext(PendingMessagesContext);
-
   // handle change when the convId from URL is changed
   const handleConversationChange = useCallback(
     async (changedConvId: string) => {
@@ -194,6 +224,23 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [convId, handleConversationChange]);
 
+  const setPending = useCallback(
+    (convId: string, pendingMsg: PendingMessage | null) => {
+      if (!pendingMsg) {
+        dispatch({
+          type: ChatActionType.REMOVE_PENDING_MESSAGE,
+          payload: { convId },
+        });
+      } else {
+        dispatch({
+          type: ChatActionType.SET_PENDING_MESSAGE,
+          payload: { convId, pendingMsg },
+        });
+      }
+    },
+    []
+  );
+
   const setAbort = useCallback(
     (convId: string, controller: AbortController | null) => {
       if (!controller) {
@@ -213,6 +260,11 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
 
   ////////////////////////////////////////////////////////////////////////
   // public functions
+
+  const isGenerating = useCallback(
+    (convId: string) => convId in state.pendingMessages,
+    [state.pendingMessages]
+  );
 
   const generateMessage = useCallback(
     async ({
@@ -463,6 +515,8 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       value={{
         viewingChat: state.viewingChat,
         canvasData: state.canvasData,
+        pendingMessages: state.pendingMessages,
+        isGenerating,
         sendMessage,
         stopGenerating,
         replaceMessage,

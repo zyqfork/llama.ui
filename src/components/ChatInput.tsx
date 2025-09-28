@@ -5,7 +5,6 @@ import { LuArrowUp, LuPaperclip, LuSquare } from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
-import { usePendingMessages } from '../context/pendingMessage';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { MessageExtra } from '../types';
@@ -39,8 +38,7 @@ export const ChatInput = memo(
     const navigate = useNavigate();
     const textarea: ChatTextareaApi = useChatTextarea(getPrefilledContent());
     const extraContext = useFileUpload();
-    const { isGenerating } = usePendingMessages();
-    const { stopGenerating } = useChatContext();
+    const { isGenerating, stopGenerating } = useChatContext();
 
     const isPending = useMemo(
       () => (!convId ? false : isGenerating(convId)),

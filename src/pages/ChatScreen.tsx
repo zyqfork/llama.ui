@@ -4,7 +4,6 @@ import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
-import { usePendingMessages } from '../context/pendingMessage';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
 import {
@@ -231,7 +230,7 @@ function PendingMessage({
   const siblingLeafNodeIds = useMemo(() => [], []);
   const siblingCurrIdx = useMemo(() => 0, []);
   const emptyHandler = useCallback(() => {}, []);
-  const { pendingMessages } = usePendingMessages();
+  const { pendingMessages } = useChatContext();
 
   useChatScroll(loadingRef);
 
