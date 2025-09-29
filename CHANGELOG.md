@@ -1,3 +1,9 @@
+## [2.34.0] - 2025-09-29
+
+### 🛠 Fixes
+
+- _(inference)_ Model list may be not loaded after setting save (#207)
+
 ## [2.33.0] - 2025-09-29
 
 ### 🚜 Refactor
