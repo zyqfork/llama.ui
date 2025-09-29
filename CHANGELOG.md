@@ -1,3 +1,9 @@
+## [2.32.3] - 2025-09-29
+
+### 🚀 Enhancements
+
+- _(api)_ Add NVIDIA NIM provider support (#205)
+
 ## [2.32.2] - 2025-09-29
 
 ### 🛠 Fixes
