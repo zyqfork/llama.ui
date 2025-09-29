@@ -134,7 +134,7 @@ export class BaseOpenAIProvider
     const json = await fetchResponse.json();
     this.models = this.jsonToModels(json.data);
 
-    this.lastUpdated = Date.now();
+    if (this.models.length > 0) this.lastUpdated = Date.now();
 
     return this.models;
   }

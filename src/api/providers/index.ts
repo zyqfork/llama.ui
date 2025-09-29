@@ -44,6 +44,6 @@ export function getInferenceProvider(
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);
   }
 
-  PROVIDER_CACHE.set(baseUrl, provider);
+  PROVIDER_CACHE.set(cacheKey, provider);
   return provider;
 }
