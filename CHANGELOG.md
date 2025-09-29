@@ -1,4 +1,20 @@
-## [2.30.2] - 2025-09-29
+### ⚡️ Performance
+
+- _(chat)_ Add throttling to pending messages for smoother UI updates (#201)
+
+## [2.31.0] - 2025-09-29
+
+### 🚜 Refactor
+
+- _(api)_ Replace SSE processing with native stream processing (#200)
+
+## [2.30.3] - 2025-09-29
+
+### 🛠 Fixes
+
+- Chat context selectedModel may not work
+
+## [2.30.2] - 2025-09-28
 
 ### 🛠 Fixes
 
