@@ -6,7 +6,6 @@ import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
-import useThrottle from '../hooks/useThrottle';
 import {
   CanvasType,
   Conversation,
@@ -65,7 +64,10 @@ export default function ChatScreen({
   const msgListRef = useRef<HTMLDivElement>(null);
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
-  const { scrollImmediate } = useChatScroll(msgListRef);
+  const { scrollImmediate } = useChatScroll({
+    elementRef: msgListRef,
+    behavior: 'smooth',
+  });
   const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
 
   const { messages, lastMsgNodeId } = useMemo(() => {
@@ -95,7 +97,6 @@ export default function ChatScreen({
       if (currLeafNodeId) {
         setCurrNodeId(currLeafNodeId);
       }
-      // useChatScroll will handle the auto scroll
     },
     []
   );
@@ -224,13 +225,13 @@ function PendingMessage({
   currConvId: Conversation['id'];
   messages: MessageDisplay[];
 }) {
-  const loadingRef = useRef<HTMLSpanElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const emptyHandler = useCallback(() => {}, []);
   const { pendingMessages } = useChatContext();
 
-  useChatScroll(loadingRef);
+  const { scrollToBottom } = useChatScroll({ elementRef: scrollRef });
 
-  const pendingMsg = useMemo(() => {
+  const msg = useMemo(() => {
     if (!currConvId) {
       return null;
     }
@@ -239,26 +240,24 @@ function PendingMessage({
     if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
       return null;
     }
-    return pendingMsg;
-  }, [currConvId, messages, pendingMessages]);
 
-  const msg = useThrottle(
-    {
+    scrollToBottom();
+
+    return {
       msg: pendingMsg,
       siblingLeafNodeIds: [],
       siblingCurrIdx: 0,
       isPending: true,
-    },
-    300 // 3,33 FPS
-  );
+    };
+  }, [currConvId, messages, pendingMessages, scrollToBottom]);
 
-  if (!msg.msg) return null;
+  if (!msg) return null;
 
   return (
     <>
       <ChatMessage
         key={msg.msg.id}
-        message={msg as MessageDisplay}
+        message={msg}
         onRegenerateMessage={emptyHandler}
         onEditUserMessage={emptyHandler}
         onEditAssistantMessage={emptyHandler}
@@ -266,7 +265,14 @@ function PendingMessage({
       />
 
       {/* show loading dots for pending message */}
-      <span ref={loadingRef} className="loading loading-dots loading-md"></span>
+      <span className="loading loading-dots loading-md"></span>
+
+      <div
+        id="scroll-anchor"
+        ref={scrollRef}
+        className="hidden"
+        aria-disabled={true}
+      />
     </>
   );
 }
