@@ -55,21 +55,7 @@ export class GroqProvider extends CloudOpenAIProvider {
     return new GroqProvider(baseUrl, apiKey);
   }
 
-  /**
-   * Converts a raw Grok model response object into a standardized InferenceApiModel.
-   *
-   * This method transforms the Grok-specific model response format into the common
-   * {@link InferenceApiModel} interface used across all providers. The model name
-   * is formatted as "{owned_by}: {id}" for better user readability and organization
-   * context.
-   *
-   * @param m - The raw model object received from the Grok API.
-   * @returns A standardized InferenceApiModel object with id, name, and created fields.
-   *
-   * @internal
-   * @override
-   * @inheritdoc
-   */
+  /** @inheritdoc */
   protected jsonToModel(m: unknown): InferenceApiModel {
     const model = m as GroqModel;
 

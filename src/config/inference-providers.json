@@ -127,7 +127,7 @@
   },
   "nvidia": {
     "baseUrl": "https://integrate.api.nvidia.com",
-    "name": "Nvidia",
+    "name": "Nvidia NIM",
     "icon": "assets/providers/nvidia.svg",
     "allowCustomBaseUrl": false,
     "isKeyRequired": true

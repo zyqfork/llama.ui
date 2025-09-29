@@ -4,6 +4,7 @@ import { GoogleProvider } from './GoogleProvider';
 import { GroqProvider } from './GroqProvider';
 import { LlamaCppProvider } from './LlamaCppProvider';
 import { MistralProvider } from './MistralProvider';
+import { NvidiaNimProvider } from './NvidiaNimProvider';
 import { OpenRouterProvider } from './OpenRouterProvider';
 
 const PROVIDER_CACHE = new Map<string, InferenceProvider>();
@@ -39,6 +40,9 @@ export function getInferenceProvider(
       break;
     case 'mistral':
       provider = MistralProvider.new(baseUrl, apiKey);
+      break;
+    case 'nvidia':
+      provider = NvidiaNimProvider.new(baseUrl, apiKey);
       break;
     default:
       provider = BaseOpenAIProvider.new(baseUrl, apiKey);

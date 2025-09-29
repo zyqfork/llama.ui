@@ -370,7 +370,11 @@ export class BaseOpenAIProvider
    * @protected
    */
   protected jsonToModel(m: unknown): InferenceApiModel {
-    return m as InferenceApiModel;
+    const model = m as InferenceApiModel;
+    return {
+      ...model,
+      name: model.name || model.id,
+    };
   }
 
   /**
