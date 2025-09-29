@@ -1,3 +1,9 @@
+## [2.33.0] - 2025-09-29
+
+### 🚜 Refactor
+
+- _(settings)_ Extract settings components to separate modules (#206)
+
 ## [2.32.3] - 2025-09-29
 
 ### 🚀 Enhancements
