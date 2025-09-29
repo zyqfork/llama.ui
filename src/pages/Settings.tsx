@@ -1,12 +1,7 @@
 import React, {
-  FC,
-  forwardRef,
-  Fragment,
   ReactElement,
-  ReactNode,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useMemo,
   useState,
 } from 'react';
@@ -15,12 +10,9 @@ import {
   LuAudioLines,
   LuBookmark,
   LuBrain,
-  LuCirclePlay,
   LuCog,
   LuCpu,
   LuDatabase,
-  LuEllipsisVertical,
-  LuEye,
   LuFilter,
   LuFlaskConical,
   LuGrid2X2Plus,
@@ -28,30 +20,33 @@ import {
   LuMessageCircleMore,
   LuMessagesSquare,
   LuMonitor,
-  LuPencil,
   LuRefreshCw,
   LuRocket,
-  LuSave,
   LuSettings,
   LuSpeech,
-  LuTrash,
   LuVolume2,
   LuVolumeX,
 } from 'react-icons/lu';
-import { TbDatabaseExport, TbDatabaseImport } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
-import { downloadAsFile, Dropdown } from '../components/common';
+import { Dropdown } from '../components/common';
+import {
+  DelimeterComponent,
+  SettingsModalCheckbox,
+  SettingsModalDropdown,
+  SettingsModalLongInput,
+  SettingsModalRangeInput,
+  SettingsModalShortInput,
+  SettingsSectionLabel,
+} from '../components/settings';
+import { ImportExportComponent } from '../components/settings/ImportExportComponent';
+import { PresetManager } from '../components/settings/PresetManager';
+import { ThemeController } from '../components/settings/ThemeController';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
 } from '../components/TextToSpeech';
-import {
-  CONFIG_DEFAULT,
-  INFERENCE_PROVIDERS,
-  SYNTAX_THEMES,
-  THEMES,
-} from '../config';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
@@ -61,93 +56,22 @@ import { SUPPORTED_LANGUAGES } from '../i18n';
 import {
   Configuration,
   ConfigurationKey,
-  ConfigurationPreset,
   InferenceApiModel,
   InferenceProvidersKey,
   ProviderOption,
 } from '../types';
 import {
-  classNames,
-  dateFormatter,
-  isBoolean,
-  isNumeric,
-  isString,
-  normalizeUrl,
-} from '../utils';
-
-// --- Type Definitions ---
-enum SettingInputType {
-  SHORT_INPUT,
-  LONG_INPUT,
-  RANGE_INPUT,
-  CHECKBOX,
-  DROPDOWN,
-  CUSTOM,
-  SECTION,
-}
-
-type SettingFieldInputType = Exclude<
+  DropdownOption,
+  SettingField,
+  SettingFieldCustom,
+  SettingFieldDropdown,
+  SettingFieldInput,
+  SettingFieldInputType,
   SettingInputType,
-  SettingInputType.CUSTOM | SettingInputType.SECTION
->;
-
-interface BaseSettingField {
-  key: ConfigurationKey;
-  disabled?: boolean;
-  translateKey?: string;
-  [key: string]: unknown;
-}
-
-interface SettingFieldInput extends BaseSettingField {
-  type: SettingFieldInputType;
-}
-
-interface SettingFieldCustom {
-  type: SettingInputType.CUSTOM;
-  key:
-    | ConfigurationKey
-    | 'custom'
-    | 'language'
-    | 'import-export'
-    | 'preset-manager'
-    | 'fetch-models'
-    | 'theme-manager';
-  component:
-    | string
-    | React.FC<{
-        value: string | boolean | number;
-        onChange: (value: string | boolean) => void;
-      }>
-    | 'delimeter';
-}
-
-interface DropdownOption {
-  value: string | number;
-  label: string;
-  icon?: string;
-}
-
-interface SettingFieldDropdown extends BaseSettingField {
-  type: SettingInputType.DROPDOWN;
-  options: DropdownOption[];
-  filterable: boolean;
-}
-
-interface SettingSection {
-  type: SettingInputType.SECTION;
-  label: string | ReactNode;
-}
-
-type SettingField =
-  | SettingFieldInput
-  | SettingFieldCustom
-  | SettingSection
-  | SettingFieldDropdown;
-
-interface SettingTab {
-  title: ReactNode;
-  fields: SettingField[];
-}
+  SettingSection,
+  SettingTab,
+} from '../types/settings';
+import { classNames, isBoolean, isNumeric, isString } from '../utils';
 
 // --- Constants ---
 const ICON_CLASSNAME = 'lucide w-4 h-4 mr-1 inline';
@@ -158,380 +82,388 @@ const DELIMITER: SettingFieldCustom = {
 };
 
 // --- Helper Functions ---
-const toSection = (
+function toSection(
   label: string | ReactElement,
   icon?: string | ReactElement
-): SettingSection => ({
-  type: SettingInputType.SECTION,
-  label: (
-    <>
-      {icon}
-      {label}
-    </>
-  ),
-});
+): SettingSection {
+  return {
+    type: SettingInputType.SECTION,
+    label: (
+      <>
+        {icon}
+        {label}
+      </>
+    ),
+  };
+}
 
-const toInput = (
+function toInput(
   type: SettingFieldInputType,
   key: ConfigurationKey,
   disabled: boolean = false,
   additional?: Record<string, unknown>
-): SettingFieldInput => ({
-  type,
-  disabled,
-  key,
-  ...additional,
-});
+): SettingFieldInput {
+  return {
+    type,
+    disabled,
+    key,
+    ...additional,
+  };
+}
 
-const toDropdown = (
+function toDropdown(
   key: ConfigurationKey,
   options: DropdownOption[],
   filterable: boolean = false,
   disabled: boolean = false
-): SettingFieldDropdown => ({
-  type: SettingInputType.DROPDOWN,
-  key,
-  disabled,
-  options,
-  filterable,
-});
+): SettingFieldDropdown {
+  return {
+    type: SettingInputType.DROPDOWN,
+    key,
+    disabled,
+    options,
+    filterable,
+  };
+}
 
 // --- Setting Tabs Configuration ---
-const getSettingTabsConfiguration = (
+function getSettingTabsConfiguration(
   config: Configuration,
   models: InferenceApiModel[],
   t: ReturnType<typeof useTranslation>['t']
-): SettingTab[] => [
-  /* General */
-  {
-    title: (
-      <>
-        <LuSettings className={ICON_CLASSNAME} />
-        {t('settings.tabs.general')}
-      </>
-    ),
-    fields: [
-      toSection(t('settings.sections.inferenceProvider')),
-      toDropdown(
-        'provider',
-        Object.entries(INFERENCE_PROVIDERS).map(
-          ([key, val]: [string, ProviderOption]) => ({
-            value: key,
-            label: val.name,
-            icon: val.icon,
-          })
-        )
+): SettingTab[] {
+  return [
+    /* General */
+    {
+      title: (
+        <>
+          <LuSettings className={ICON_CLASSNAME} />
+          {t('settings.tabs.general')}
+        </>
       ),
-      toInput(
-        SettingInputType.SHORT_INPUT,
-        'baseUrl',
-        !INFERENCE_PROVIDERS[config.provider]?.allowCustomBaseUrl
-      ),
-      toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
-      toDropdown(
-        'model',
-        models.map((m) => ({
-          value: m.id,
-          label: m.name,
-        })),
-        true
-      ),
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'fetch-models',
-        component: () => null,
-      },
-
-      DELIMITER,
-      DELIMITER,
-      toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
-    ],
-  },
-
-  /* UI */
-  {
-    title: (
-      <>
-        <LuMonitor className={ICON_CLASSNAME} />
-        {t('settings.tabs.ui')}
-      </>
-    ),
-    fields: [
-      toSection(
-        t('settings.sections.userInterface'),
-        <LuMonitor className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.SHORT_INPUT, 'initials'),
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'language',
-        component: () => null,
-      },
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'theme-manager',
-        component: () => null,
-      },
-    ],
-  },
-
-  /* Voice */
-  {
-    title: (
-      <>
-        <LuAudioLines className={ICON_CLASSNAME} />
-        {t('settings.tabs.voice')}
-      </>
-    ),
-    fields: [
-      /* Text to Speech */
-      toSection(
-        t('settings.sections.textToSpeech'),
-        <LuSpeech className={ICON_CLASSNAME} />
-      ),
-      toDropdown(
-        'ttsVoice',
-        !IS_SPEECH_SYNTHESIS_SUPPORTED
-          ? []
-          : getSpeechSynthesisVoices().map((voice) => ({
-              value: `${voice.name} (${voice.lang})`,
-              label: `${voice.name} (${voice.lang})`,
-            })),
-        true
-      ),
-      toInput(
-        SettingInputType.RANGE_INPUT,
-        'ttsPitch',
-        !IS_SPEECH_SYNTHESIS_SUPPORTED,
-        {
-          min: 0,
-          max: 2,
-          step: 0.5,
-        }
-      ),
-      toInput(
-        SettingInputType.RANGE_INPUT,
-        'ttsRate',
-        !IS_SPEECH_SYNTHESIS_SUPPORTED,
-        {
-          min: 0.5,
-          max: 2,
-          step: 0.5,
-        }
-      ),
-      toInput(
-        SettingInputType.RANGE_INPUT,
-        'ttsVolume',
-        !IS_SPEECH_SYNTHESIS_SUPPORTED,
-        {
-          min: 0,
-          max: 1,
-          step: 0.25,
-        }
-      ),
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'custom', // dummy key, won't be used
-        component: () => (
-          <TextToSpeech
-            text={t('settings.textToSpeech.check.text')}
-            voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
-            pitch={config.ttsPitch}
-            rate={config.ttsRate}
-            volume={config.ttsVolume}
-          >
-            {({ isPlaying, play, stop }) => (
-              <button
-                className="btn"
-                onClick={() => (!isPlaying ? play() : stop())}
-                disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED}
-                title="Play test message"
-                aria-label="Play test message"
-              >
-                {!isPlaying && <LuVolume2 className={ICON_CLASSNAME} />}
-                {isPlaying && <LuVolumeX className={ICON_CLASSNAME} />}
-                {t('settings.textToSpeech.check.label')}
-              </button>
-            )}
-          </TextToSpeech>
+      fields: [
+        toSection(t('settings.sections.inferenceProvider')),
+        toDropdown(
+          'provider',
+          Object.entries(INFERENCE_PROVIDERS).map(
+            ([key, val]: [string, ProviderOption]) => ({
+              value: key,
+              label: val.name,
+              icon: val.icon,
+            })
+          )
         ),
-      },
-    ],
-  },
-
-  /* Conversations */
-  {
-    title: (
-      <>
-        <LuMessagesSquare className={ICON_CLASSNAME} />
-        {t('settings.tabs.conversations')}
-      </>
-    ),
-    fields: [
-      toSection(
-        t('settings.sections.chat'),
-        <LuMessageCircleMore className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
-      toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
-
-      /* Performance */
-      DELIMITER,
-      toSection(
-        t('settings.sections.performance'),
-        <LuRocket className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
-
-      /* Reasoning */
-      DELIMITER,
-      toSection(
-        t('settings.sections.reasoning'),
-        <LuBrain className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
-      toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
-    ],
-  },
-
-  /* Presets */
-  {
-    title: (
-      <>
-        <LuBookmark className={ICON_CLASSNAME} />
-        {t('settings.tabs.presets')}
-      </>
-    ),
-    fields: [
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'preset-manager',
-        component: () => null,
-      },
-    ],
-  },
-
-  /* Import/Export */
-  {
-    title: (
-      <>
-        <LuDatabase className={ICON_CLASSNAME} />
-        {t('settings.tabs.importExport')}
-      </>
-    ),
-    fields: [
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'import-export',
-        component: () => null,
-      },
-    ],
-  },
-
-  /* Advanced */
-  {
-    title: (
-      <>
-        <LuGrid2X2Plus className={ICON_CLASSNAME} />
-        {t('settings.tabs.advanced')}
-      </>
-    ),
-    fields: [
-      /* Generation */
-      toSection(
-        t('settings.sections.generation'),
-        <LuCog className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
-      ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
         toInput(
           SettingInputType.SHORT_INPUT,
-          key as ConfigurationKey,
-          !config['overrideGenerationOptions']
-        )
-      ),
-
-      /* Samplers */
-      DELIMITER,
-      toSection(
-        t('settings.sections.samplers'),
-        <LuFilter className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
-      ...[
-        'samplers',
-        'dynatemp_range',
-        'dynatemp_exponent',
-        'typical_p',
-        'xtc_probability',
-        'xtc_threshold',
-      ].map((key) =>
-        toInput(
-          SettingInputType.SHORT_INPUT,
-          key as ConfigurationKey,
-          !config['overrideSamplersOptions']
-        )
-      ),
-
-      /* Penalties */
-      DELIMITER,
-      toSection(
-        t('settings.sections.penalties'),
-        <LuHand className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
-      ...[
-        'repeat_last_n',
-        'repeat_penalty',
-        'presence_penalty',
-        'frequency_penalty',
-        'dry_multiplier',
-        'dry_base',
-        'dry_allowed_length',
-        'dry_penalty_last_n',
-      ].map((key) =>
-        toInput(
-          SettingInputType.SHORT_INPUT,
-          key as ConfigurationKey,
-          !config['overridePenaltyOptions']
-        )
-      ),
-
-      /* Custom */
-      DELIMITER,
-      toSection(
-        t('settings.sections.custom'),
-        <LuCpu className={ICON_CLASSNAME} />
-      ),
-      toInput(SettingInputType.LONG_INPUT, 'custom'),
-    ],
-  },
-
-  /* Experimental */
-  {
-    title: (
-      <>
-        <LuFlaskConical className={ICON_CLASSNAME} />
-        <Trans i18nKey="settings.sections.experimental" />
-      </>
-    ),
-    fields: [
-      {
-        type: SettingInputType.CUSTOM,
-        key: 'custom', // dummy key, won't be used
-        component: () => (
-          <div
-            className="flex flex-col gap-2 mb-8"
-            dangerouslySetInnerHTML={{
-              __html: t('settings.parameters.experimental.note'),
-            }}
-          />
+          'baseUrl',
+          !INFERENCE_PROVIDERS[config.provider]?.allowCustomBaseUrl
         ),
-      },
-      toInput(SettingInputType.CHECKBOX, 'pyIntepreterEnabled'),
-    ],
-  },
-];
+        toInput(SettingInputType.SHORT_INPUT, 'apiKey'),
+        toDropdown(
+          'model',
+          models.map((m) => ({
+            value: m.id,
+            label: m.name,
+          })),
+          true
+        ),
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'fetch-models',
+          component: () => null,
+        },
+
+        DELIMITER,
+        DELIMITER,
+        toInput(SettingInputType.LONG_INPUT, 'systemMessage'),
+      ],
+    },
+
+    /* UI */
+    {
+      title: (
+        <>
+          <LuMonitor className={ICON_CLASSNAME} />
+          {t('settings.tabs.ui')}
+        </>
+      ),
+      fields: [
+        toSection(
+          t('settings.sections.userInterface'),
+          <LuMonitor className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.SHORT_INPUT, 'initials'),
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'language',
+          component: () => null,
+        },
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'theme-manager',
+          component: () => null,
+        },
+      ],
+    },
+
+    /* Voice */
+    {
+      title: (
+        <>
+          <LuAudioLines className={ICON_CLASSNAME} />
+          {t('settings.tabs.voice')}
+        </>
+      ),
+      fields: [
+        /* Text to Speech */
+        toSection(
+          t('settings.sections.textToSpeech'),
+          <LuSpeech className={ICON_CLASSNAME} />
+        ),
+        toDropdown(
+          'ttsVoice',
+          !IS_SPEECH_SYNTHESIS_SUPPORTED
+            ? []
+            : getSpeechSynthesisVoices().map((voice) => ({
+                value: `${voice.name} (${voice.lang})`,
+                label: `${voice.name} (${voice.lang})`,
+              })),
+          true
+        ),
+        toInput(
+          SettingInputType.RANGE_INPUT,
+          'ttsPitch',
+          !IS_SPEECH_SYNTHESIS_SUPPORTED,
+          {
+            min: 0,
+            max: 2,
+            step: 0.5,
+          }
+        ),
+        toInput(
+          SettingInputType.RANGE_INPUT,
+          'ttsRate',
+          !IS_SPEECH_SYNTHESIS_SUPPORTED,
+          {
+            min: 0.5,
+            max: 2,
+            step: 0.5,
+          }
+        ),
+        toInput(
+          SettingInputType.RANGE_INPUT,
+          'ttsVolume',
+          !IS_SPEECH_SYNTHESIS_SUPPORTED,
+          {
+            min: 0,
+            max: 1,
+            step: 0.25,
+          }
+        ),
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'custom', // dummy key, won't be used
+          component: () => (
+            <TextToSpeech
+              text={t('settings.textToSpeech.check.text')}
+              voice={getSpeechSynthesisVoiceByName(config.ttsVoice)}
+              pitch={config.ttsPitch}
+              rate={config.ttsRate}
+              volume={config.ttsVolume}
+            >
+              {({ isPlaying, play, stop }) => (
+                <button
+                  className="btn"
+                  onClick={() => (!isPlaying ? play() : stop())}
+                  disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED}
+                  title="Play test message"
+                  aria-label="Play test message"
+                >
+                  {!isPlaying && <LuVolume2 className={ICON_CLASSNAME} />}
+                  {isPlaying && <LuVolumeX className={ICON_CLASSNAME} />}
+                  {t('settings.textToSpeech.check.label')}
+                </button>
+              )}
+            </TextToSpeech>
+          ),
+        },
+      ],
+    },
+
+    /* Conversations */
+    {
+      title: (
+        <>
+          <LuMessagesSquare className={ICON_CLASSNAME} />
+          {t('settings.tabs.conversations')}
+        </>
+      ),
+      fields: [
+        toSection(
+          t('settings.sections.chat'),
+          <LuMessageCircleMore className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
+        toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
+
+        /* Performance */
+        DELIMITER,
+        toSection(
+          t('settings.sections.performance'),
+          <LuRocket className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
+
+        /* Reasoning */
+        DELIMITER,
+        toSection(
+          t('settings.sections.reasoning'),
+          <LuBrain className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
+        toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
+      ],
+    },
+
+    /* Presets */
+    {
+      title: (
+        <>
+          <LuBookmark className={ICON_CLASSNAME} />
+          {t('settings.tabs.presets')}
+        </>
+      ),
+      fields: [
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'preset-manager',
+          component: () => null,
+        },
+      ],
+    },
+
+    /* Import/Export */
+    {
+      title: (
+        <>
+          <LuDatabase className={ICON_CLASSNAME} />
+          {t('settings.tabs.importExport')}
+        </>
+      ),
+      fields: [
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'import-export',
+          component: () => null,
+        },
+      ],
+    },
+
+    /* Advanced */
+    {
+      title: (
+        <>
+          <LuGrid2X2Plus className={ICON_CLASSNAME} />
+          {t('settings.tabs.advanced')}
+        </>
+      ),
+      fields: [
+        /* Generation */
+        toSection(
+          t('settings.sections.generation'),
+          <LuCog className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
+        ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
+          toInput(
+            SettingInputType.SHORT_INPUT,
+            key as ConfigurationKey,
+            !config['overrideGenerationOptions']
+          )
+        ),
+
+        /* Samplers */
+        DELIMITER,
+        toSection(
+          t('settings.sections.samplers'),
+          <LuFilter className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
+        ...[
+          'samplers',
+          'dynatemp_range',
+          'dynatemp_exponent',
+          'typical_p',
+          'xtc_probability',
+          'xtc_threshold',
+        ].map((key) =>
+          toInput(
+            SettingInputType.SHORT_INPUT,
+            key as ConfigurationKey,
+            !config['overrideSamplersOptions']
+          )
+        ),
+
+        /* Penalties */
+        DELIMITER,
+        toSection(
+          t('settings.sections.penalties'),
+          <LuHand className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
+        ...[
+          'repeat_last_n',
+          'repeat_penalty',
+          'presence_penalty',
+          'frequency_penalty',
+          'dry_multiplier',
+          'dry_base',
+          'dry_allowed_length',
+          'dry_penalty_last_n',
+        ].map((key) =>
+          toInput(
+            SettingInputType.SHORT_INPUT,
+            key as ConfigurationKey,
+            !config['overridePenaltyOptions']
+          )
+        ),
+
+        /* Custom */
+        DELIMITER,
+        toSection(
+          t('settings.sections.custom'),
+          <LuCpu className={ICON_CLASSNAME} />
+        ),
+        toInput(SettingInputType.LONG_INPUT, 'custom'),
+      ],
+    },
+
+    /* Experimental */
+    {
+      title: (
+        <>
+          <LuFlaskConical className={ICON_CLASSNAME} />
+          <Trans i18nKey="settings.sections.experimental" />
+        </>
+      ),
+      fields: [
+        {
+          type: SettingInputType.CUSTOM,
+          key: 'custom', // dummy key, won't be used
+          component: () => (
+            <div
+              className="flex flex-col gap-2 mb-8"
+              dangerouslySetInnerHTML={{
+                __html: t('settings.parameters.experimental.note'),
+              }}
+            />
+          ),
+        },
+        toInput(SettingInputType.CHECKBOX, 'pyIntepreterEnabled'),
+      ],
+    },
+  ];
+}
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -877,643 +809,3 @@ export default function Settings() {
     </div>
   );
 }
-
-// --- Helper Input Components ---
-
-interface BaseInputProps {
-  field: SettingFieldInput;
-  onChange: (value: string | number | boolean) => void;
-}
-
-interface LabeledFieldProps {
-  configKey: string;
-}
-interface LabeledFieldState {
-  label: string | React.ReactElement;
-  note?: string | TrustedHTML;
-}
-const LabeledField = forwardRef<
-  LabeledFieldState,
-  LabeledFieldProps & { children: (props: LabeledFieldState) => ReactNode }
->(({ children, configKey }, ref) => {
-  const { t } = useTranslation();
-  const { label, note } = useMemo(() => {
-    if (!configKey) return { label: '' };
-    return {
-      label:
-        t(`settings.parameters.${configKey}.label`, {
-          defaultValue: configKey,
-        }) || configKey,
-      note: t(`settings.parameters.${configKey}.note`, {
-        defaultValue: '',
-      }),
-    };
-  }, [t, configKey]);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      label,
-      note,
-    }),
-    [label, note]
-  );
-
-  return <Fragment>{children({ label, note })}</Fragment>;
-});
-
-const SettingsModalLongInput: React.FC<BaseInputProps & { value: string }> = ({
-  field,
-  value,
-  onChange,
-}) => (
-  <LabeledField configKey={field.translateKey || field.key}>
-    {({ label, note }) => (
-      <label className="form-control flex flex-col justify-center max-w-80 mb-3">
-        <div className="text-sm opacity-60 mb-1">{label}</div>
-        <textarea
-          className="textarea textarea-bordered h-24"
-          placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={field.disabled}
-        />
-        {note && (
-          <div
-            className="text-xs opacity-75 mt-1"
-            dangerouslySetInnerHTML={{ __html: note }}
-          />
-        )}
-      </label>
-    )}
-  </LabeledField>
-);
-
-const SettingsModalShortInput: React.FC<
-  BaseInputProps & { value: string | number }
-> = ({ field, value, onChange }) => (
-  <LabeledField configKey={field.translateKey || field.key}>
-    {({ label, note }) => (
-      <label className="form-control flex flex-col justify-center mb-3">
-        <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-          {label}
-        </div>
-        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-          <div tabIndex={0} role="button" className="font-bold hidden md:block">
-            {label}
-          </div>
-          <input
-            type="text"
-            className="grow"
-            placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={field.disabled}
-          />
-        </label>
-        {note && (
-          <div
-            className="text-xs opacity-75 max-w-80"
-            dangerouslySetInnerHTML={{ __html: note }}
-          />
-        )}
-      </label>
-    )}
-  </LabeledField>
-);
-
-const SettingsModalRangeInput: React.FC<
-  BaseInputProps & {
-    value: number;
-    min: number;
-    max: number;
-    step: number;
-  }
-> = ({ field, value, min, max, step, onChange }) => {
-  const values = useMemo(() => {
-    const fractionDigits =
-      Math.floor(step) === step ? 0 : step.toString().split('.')[1].length || 0;
-
-    const length = Math.floor((max - min) / step) + 1;
-    return Array.from({ length }, (_, i) =>
-      Number(min + i * step).toFixed(fractionDigits)
-    );
-  }, [max, min, step]);
-  return (
-    <LabeledField configKey={field.translateKey || field.key}>
-      {({ label, note }) => (
-        <label className="form-control flex flex-col justify-center mb-3">
-          <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
-            {label}
-          </div>
-          <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-            <div
-              tabIndex={0}
-              role="button"
-              className="font-bold hidden md:block"
-            >
-              {label}
-            </div>
-            <div className="grow px-2">
-              <input
-                type="range"
-                className="range range-xs [--range-fill:0]"
-                min={min}
-                max={max}
-                step={step}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                disabled={field.disabled}
-              />
-              <div className="flex justify-between text-xs">
-                {values.map((v) => (
-                  <span key={v}>{v}</span>
-                ))}
-              </div>
-            </div>
-          </label>
-          {note && (
-            <div
-              className="text-xs opacity-75 max-w-80"
-              dangerouslySetInnerHTML={{ __html: note }}
-            />
-          )}
-        </label>
-      )}
-    </LabeledField>
-  );
-};
-
-const SettingsModalCheckbox: React.FC<BaseInputProps & { value: boolean }> = ({
-  field,
-  value,
-  onChange,
-}) => (
-  <LabeledField configKey={field.translateKey || field.key}>
-    {({ label, note }) => (
-      <label className="form-control flex flex-col justify-center mb-3">
-        <div className="flex flex-row items-center mb-1">
-          <input
-            type="checkbox"
-            className="toggle"
-            checked={value}
-            onChange={(e) => onChange(e.target.checked)}
-            disabled={field.disabled}
-          />
-          <span className="ml-2">{label}</span>
-        </div>
-        {note && (
-          <div
-            className="text-xs opacity-75 max-w-80 mt-1"
-            dangerouslySetInnerHTML={{ __html: note }}
-          />
-        )}
-      </label>
-    )}
-  </LabeledField>
-);
-
-const SettingsModalDropdown: React.FC<
-  BaseInputProps & {
-    options: DropdownOption[];
-    filterable?: boolean;
-    value: string;
-  }
-> = ({ field, options, filterable = false, value, onChange }) => {
-  const renderOption = (option: DropdownOption) => (
-    <span className="truncate">
-      {option.icon && (
-        <img
-          src={normalizeUrl(option.icon, import.meta.env.BASE_URL)}
-          className="inline h-5 w-5 mr-2"
-        />
-      )}
-      {option.label}
-    </span>
-  );
-
-  const disabled = useMemo(() => options.length < 2, [options]);
-  const selectedValue = useMemo(() => {
-    const selectedOption = options.find((option) => option.value === value);
-    return selectedOption ? (
-      <span className="max-w-48 truncate text-nowrap">
-        {selectedOption.label}
-      </span>
-    ) : (
-      ''
-    );
-  }, [options, value]);
-
-  useEffect(() => {
-    if (
-      options.length > 0 &&
-      !options.some((option) => option.value === value)
-    ) {
-      onChange(options[0].value);
-    }
-  }, [options, value, onChange]);
-
-  return (
-    <LabeledField configKey={field.translateKey || field.key}>
-      {({ label, note }) => (
-        <div className="form-control flex flex-col justify-center mb-3">
-          <div className="font-bold mb-1 md:hidden">{label}</div>
-          <label
-            className={classNames({
-              'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
-              'bg-base-200': disabled,
-            })}
-          >
-            <div className="font-bold hidden md:block">{label}</div>
-
-            <Dropdown
-              className="grow"
-              entity={field.key}
-              options={options}
-              filterable={filterable}
-              optionsSize={filterable ? 'small' : 'medium'}
-              currentValue={selectedValue}
-              renderOption={renderOption}
-              isSelected={(option) => value === option.value}
-              onSelect={(option) => onChange(option.value)}
-            />
-          </label>
-
-          {note && (
-            <div
-              className="text-xs opacity-75 max-w-80"
-              dangerouslySetInnerHTML={{ __html: note }}
-            />
-          )}
-        </div>
-      )}
-    </LabeledField>
-  );
-};
-
-const SettingsSectionLabel: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => (
-  <div className="mb-2">
-    <h4>{children}</h4>
-  </div>
-);
-
-const DelimeterComponent: React.FC = () => (
-  <div className="pb-3" aria-label="delimeter" />
-);
-
-const ThemeController: FC = () => {
-  const dataThemes = ['auto', ...THEMES].map((theme) => ({
-    value: theme,
-    label: theme,
-  }));
-  const syntaxThemes = ['auto', ...SYNTAX_THEMES].map((theme) => ({
-    value: theme,
-    label: theme,
-  }));
-
-  const { currentTheme, switchTheme, currentSyntaxTheme, switchSyntaxTheme } =
-    useAppContext();
-
-  const selectedThemeValue = useMemo(
-    () => (
-      <div className="flex gap-2 items-center ml-2">
-        <span
-          data-theme={currentTheme}
-          className="bg-base-100 grid shrink-0 grid-cols-2 gap-1 rounded-md p-1 shadow-sm"
-        >
-          <div className="bg-base-content size-1 rounded-full"></div>{' '}
-          <div className="bg-primary size-1 rounded-full"></div>{' '}
-          <div className="bg-secondary size-1 rounded-full"></div>{' '}
-          <div className="bg-accent size-1 rounded-full"></div>
-        </span>
-        <span className="truncate text-left">{currentTheme}</span>
-      </div>
-    ),
-    [currentTheme]
-  );
-  const renderThemeOption = (option: DropdownOption) => (
-    <div className="flex gap-2 items-center">
-      <span
-        data-theme={option.value}
-        className="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
-      >
-        <div className="bg-base-content size-1 rounded-full"></div>{' '}
-        <div className="bg-primary size-1 rounded-full"></div>{' '}
-        <div className="bg-secondary size-1 rounded-full"></div>{' '}
-        <div className="bg-accent size-1 rounded-full"></div>
-      </span>
-      <span className="truncate text-left">{option.label}</span>
-    </div>
-  );
-
-  /* theme controller is copied from https://daisyui.com/components/theme-controller/ */
-  return (
-    <>
-      {/* UI theme */}
-      <div className="form-control flex flex-col justify-center mb-3">
-        <div className="font-bold mb-1 md:hidden">
-          <Trans i18nKey="settings.themeManager.dataTheme.label" />
-        </div>
-        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-          <div className="font-bold hidden md:block">
-            <Trans i18nKey="settings.themeManager.dataTheme.label" />
-          </div>
-
-          <Dropdown
-            className="grow"
-            entity="theme"
-            options={dataThemes}
-            currentValue={selectedThemeValue}
-            renderOption={renderThemeOption}
-            isSelected={(option) => currentTheme === option.value}
-            onSelect={(option) => switchTheme(option.value)}
-          />
-        </label>
-        <div className="text-xs opacity-75 max-w-80">
-          <Trans i18nKey="settings.themeManager.dataTheme.note" />
-        </div>
-      </div>
-
-      {/* Code blocks theme */}
-      <div className="form-control flex flex-col justify-center mb-3">
-        <div className="font-bold mb-1 md:hidden">
-          <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
-        </div>
-        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
-          <div className="font-bold hidden md:block">
-            <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
-          </div>
-
-          <Dropdown
-            className="grow"
-            entity="theme"
-            options={syntaxThemes}
-            currentValue={<span>{currentSyntaxTheme}</span>}
-            renderOption={(option) => <span>{option.label}</span>}
-            isSelected={(option) => currentSyntaxTheme === option.value}
-            onSelect={(option) => switchSyntaxTheme(option.value)}
-          />
-        </label>
-        <div className="text-xs opacity-75 max-w-80">
-          <Trans i18nKey="settings.themeManager.syntaxTheme.note" />
-        </div>
-      </div>
-    </>
-  );
-};
-
-const PresetManager: FC<{
-  config: Configuration;
-  onLoadConfig: (config: Configuration) => Promise<void>;
-  presets: ConfigurationPreset[];
-  onSavePreset: (name: string, config: Configuration) => Promise<void>;
-  onRemovePreset: (name: string) => Promise<void>;
-}> = ({ config, onLoadConfig, presets, onSavePreset, onRemovePreset }) => {
-  const { t } = useTranslation();
-  const { showConfirm, showPrompt } = useModals();
-
-  const handleSavePreset = async () => {
-    const newPresetName = (
-      (await showPrompt(
-        t('settings.presetManager.modals.enterNewPresetName')
-      )) || ''
-    ).trim();
-    if (newPresetName === '') return;
-
-    const existingPreset = presets.find((p) => p.name === newPresetName);
-    if (
-      !existingPreset ||
-      (await showConfirm(
-        t('settings.presetManager.modals.presetAlreadyExists', {
-          presetName: newPresetName,
-        })
-      ))
-    ) {
-      await onSavePreset(newPresetName, config);
-    }
-  };
-
-  const handleRenamePreset = async (preset: ConfigurationPreset) => {
-    const newPresetName = (
-      (await showPrompt(t('settings.presetManager.modals.enterNewName'))) || ''
-    ).trim();
-    if (newPresetName === '') return;
-
-    await onRemovePreset(preset.name);
-    await onSavePreset(
-      newPresetName,
-      Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
-    );
-  };
-
-  const handleLoadPreset = async (preset: ConfigurationPreset) => {
-    if (
-      await showConfirm(
-        t('settings.presetManager.modals.loadPresetConfirm', {
-          presetName: preset.name,
-        })
-      )
-    ) {
-      await onLoadConfig(
-        Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
-      );
-    }
-  };
-
-  const handleDeletePreset = async (preset: ConfigurationPreset) => {
-    if (
-      await showConfirm(
-        t('settings.presetManager.modals.deletePresetConfirm', {
-          presetName: preset.name,
-        })
-      )
-    ) {
-      await onRemovePreset(preset.name);
-    }
-  };
-
-  return (
-    <>
-      {/* Save new preset */}
-      <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.newPreset" />
-      </SettingsSectionLabel>
-
-      <button
-        className="btn btn-neutral max-w-80 mb-4"
-        onClick={handleSavePreset}
-        title={t('settings.presetManager.buttons.save')}
-        aria-label={t('settings.presetManager.ariaLabels.save')}
-      >
-        <LuSave className="lucide w-5 h-5" />
-        <Trans i18nKey="settings.presetManager.buttons.save" />
-      </button>
-
-      {/* List of saved presets */}
-      <SettingsSectionLabel>
-        <Trans i18nKey="settings.presetManager.savedPresets" />
-      </SettingsSectionLabel>
-
-      {presets.length === 0 && (
-        <div className="text-xs opacity-75 max-w-80">
-          <Trans i18nKey="settings.presetManager.noPresetFound" />
-        </div>
-      )}
-
-      {presets.length > 0 && (
-        <div className="grid grid-cols-1 gap-2">
-          {presets
-            .sort((a, b) => b.createdAt - a.createdAt)
-            .map((preset) => (
-              <div key={preset.id} className="card bg-base-200 p-3">
-                <div className="flex items-center">
-                  <div className="grow">
-                    <h4 className="font-medium">{preset.name}</h4>
-                    <p className="text-xs opacity-40">
-                      {t('settings.presetManager.labels.created')}{' '}
-                      {dateFormatter.format(preset.createdAt)}
-                    </p>
-                  </div>
-
-                  <div className="min-w-18 grid grid-cols-2 gap-2">
-                    <button
-                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                      onClick={() => handleLoadPreset(preset)}
-                      title={t('settings.presetManager.buttons.load')}
-                      aria-label={t('settings.presetManager.ariaLabels.load')}
-                    >
-                      <LuCirclePlay className="w-5 h-5" />
-                    </button>
-
-                    {/* dropdown */}
-                    <div tabIndex={0} className="dropdown dropdown-end">
-                      <button
-                        className="btn btn-ghost w-8 h-8 p-0 rounded-full"
-                        title={t('settings.presetManager.buttons.more')}
-                        aria-label={t('settings.presetManager.ariaLabels.more')}
-                      >
-                        <LuEllipsisVertical className="w-5 h-5" />
-                      </button>
-
-                      {/* dropdown menu */}
-                      <ul
-                        aria-label="More actions"
-                        role="menu"
-                        tabIndex={-1}
-                        className="dropdown-content menu rounded-box bg-base-100 max-w-60 p-2 shadow-2xl"
-                      >
-                        <li role="menuitem" tabIndex={0}>
-                          <button
-                            type="button"
-                            onClick={() => handleRenamePreset(preset)}
-                            title={t('settings.presetManager.buttons.rename')}
-                            aria-label={t(
-                              'settings.presetManager.ariaLabels.rename'
-                            )}
-                          >
-                            <LuPencil className={ICON_CLASSNAME} />
-                            {t('settings.presetManager.buttons.rename')}
-                          </button>
-                        </li>
-                        <li role="menuitem" tabIndex={0} className="text-error">
-                          <button
-                            type="button"
-                            onClick={() => handleDeletePreset(preset)}
-                            title={t('settings.presetManager.buttons.delete')}
-                            aria-label={t(
-                              'settings.presetManager.ariaLabels.delete'
-                            )}
-                          >
-                            <LuTrash className={ICON_CLASSNAME} />
-                            {t('settings.presetManager.buttons.delete')}
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-      )}
-    </>
-  );
-};
-
-const ImportExportComponent: React.FC<{ onClose: () => void }> = ({
-  onClose,
-}) => {
-  const { t } = useTranslation();
-  const { importDB, exportDB } = useAppContext();
-
-  const onExport = async () => {
-    return exportDB().then((data) =>
-      downloadAsFile([JSON.stringify(data, null, 2)], 'llama-ui-database.json')
-    );
-  };
-
-  const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length != 1) return false;
-    const data = await files[0].text();
-    await importDB(data);
-    onClose();
-  };
-
-  const debugImportDemoConv = async () => {
-    const res = await fetch(
-      normalizeUrl('/demo-conversation.json', import.meta.env.BASE_URL)
-    );
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data = await res.text();
-    await importDB(data);
-    onClose();
-  };
-
-  return (
-    <>
-      <SettingsSectionLabel>
-        <LuMessageCircleMore className={ICON_CLASSNAME} />
-        {t('settings.importExport.chatsSectionTitle')}
-      </SettingsSectionLabel>
-
-      <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
-        <button className="btn" onClick={onExport}>
-          <TbDatabaseExport className={ICON_CLASSNAME} />
-          {t('settings.importExport.exportBtnLabel')}
-        </button>
-
-        <input
-          id="file-import"
-          type="file"
-          accept=".json"
-          onInput={onImport}
-          hidden
-        />
-        <label
-          htmlFor="file-import"
-          className="btn"
-          aria-label={t('settings.importExport.importBtnLabel')}
-          tabIndex={0}
-          role="button"
-        >
-          <TbDatabaseImport className={ICON_CLASSNAME} />
-          {t('settings.importExport.importBtnLabel')}
-        </label>
-      </div>
-
-      <DelimeterComponent />
-
-      <SettingsSectionLabel>
-        <LuEye className={ICON_CLASSNAME} />
-        {t('settings.importExport.technicalDemoSectionTitle')}
-      </SettingsSectionLabel>
-
-      <button className="btn" onClick={debugImportDemoConv}>
-        {t('settings.importExport.importDemoConversationBtnLabel')}
-      </button>
-    </>
-  );
-};

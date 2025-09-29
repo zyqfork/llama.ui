@@ -1,0 +1,197 @@
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  LuCirclePlay,
+  LuEllipsisVertical,
+  LuPencil,
+  LuSave,
+  LuTrash,
+} from 'react-icons/lu';
+import { SettingsSectionLabel } from '.';
+import { CONFIG_DEFAULT } from '../../config';
+import { useModals } from '../../context/modal';
+import { Configuration, ConfigurationPreset } from '../../types';
+import { dateFormatter } from '../../utils';
+
+export function PresetManager({
+  config,
+  onLoadConfig,
+  presets,
+  onSavePreset,
+  onRemovePreset,
+}: {
+  config: Configuration;
+  onLoadConfig: (config: Configuration) => Promise<void>;
+  presets: ConfigurationPreset[];
+  onSavePreset: (name: string, config: Configuration) => Promise<void>;
+  onRemovePreset: (name: string) => Promise<void>;
+}) {
+  const { t } = useTranslation();
+  const { showConfirm, showPrompt } = useModals();
+
+  const handleSavePreset = async () => {
+    const newPresetName = (
+      (await showPrompt(
+        t('settings.presetManager.modals.enterNewPresetName')
+      )) || ''
+    ).trim();
+    if (newPresetName === '') return;
+
+    const existingPreset = presets.find((p) => p.name === newPresetName);
+    if (
+      !existingPreset ||
+      (await showConfirm(
+        t('settings.presetManager.modals.presetAlreadyExists', {
+          presetName: newPresetName,
+        })
+      ))
+    ) {
+      await onSavePreset(newPresetName, config);
+    }
+  };
+
+  const handleRenamePreset = async (preset: ConfigurationPreset) => {
+    const newPresetName = (
+      (await showPrompt(t('settings.presetManager.modals.enterNewName'))) || ''
+    ).trim();
+    if (newPresetName === '') return;
+
+    await onRemovePreset(preset.name);
+    await onSavePreset(
+      newPresetName,
+      Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
+    );
+  };
+
+  const handleLoadPreset = async (preset: ConfigurationPreset) => {
+    if (
+      await showConfirm(
+        t('settings.presetManager.modals.loadPresetConfirm', {
+          presetName: preset.name,
+        })
+      )
+    ) {
+      await onLoadConfig(
+        Object.assign(JSON.parse(JSON.stringify(CONFIG_DEFAULT)), preset.config)
+      );
+    }
+  };
+
+  const handleDeletePreset = async (preset: ConfigurationPreset) => {
+    if (
+      await showConfirm(
+        t('settings.presetManager.modals.deletePresetConfirm', {
+          presetName: preset.name,
+        })
+      )
+    ) {
+      await onRemovePreset(preset.name);
+    }
+  };
+
+  return (
+    <>
+      {/* Save new preset */}
+      <SettingsSectionLabel>
+        <Trans i18nKey="settings.presetManager.newPreset" />
+      </SettingsSectionLabel>
+
+      <button
+        className="btn btn-neutral max-w-80 mb-4"
+        onClick={handleSavePreset}
+        title={t('settings.presetManager.buttons.save')}
+        aria-label={t('settings.presetManager.ariaLabels.save')}
+      >
+        <LuSave className="lucide w-5 h-5" />
+        <Trans i18nKey="settings.presetManager.buttons.save" />
+      </button>
+
+      {/* List of saved presets */}
+      <SettingsSectionLabel>
+        <Trans i18nKey="settings.presetManager.savedPresets" />
+      </SettingsSectionLabel>
+
+      {presets.length === 0 && (
+        <div className="text-xs opacity-75 max-w-80">
+          <Trans i18nKey="settings.presetManager.noPresetFound" />
+        </div>
+      )}
+
+      {presets.length > 0 && (
+        <div className="grid grid-cols-1 gap-2">
+          {presets
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .map((preset) => (
+              <div key={preset.id} className="card bg-base-200 p-3">
+                <div className="flex items-center">
+                  <div className="grow">
+                    <h4 className="font-medium">{preset.name}</h4>
+                    <p className="text-xs opacity-40">
+                      {t('settings.presetManager.labels.created')}{' '}
+                      {dateFormatter.format(preset.createdAt)}
+                    </p>
+                  </div>
+
+                  <div className="min-w-18 grid grid-cols-2 gap-2">
+                    <button
+                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                      onClick={() => handleLoadPreset(preset)}
+                      title={t('settings.presetManager.buttons.load')}
+                      aria-label={t('settings.presetManager.ariaLabels.load')}
+                    >
+                      <LuCirclePlay className="w-5 h-5" />
+                    </button>
+
+                    {/* dropdown */}
+                    <div tabIndex={0} className="dropdown dropdown-end">
+                      <button
+                        className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                        title={t('settings.presetManager.buttons.more')}
+                        aria-label={t('settings.presetManager.ariaLabels.more')}
+                      >
+                        <LuEllipsisVertical className="w-5 h-5" />
+                      </button>
+
+                      {/* dropdown menu */}
+                      <ul
+                        aria-label="More actions"
+                        role="menu"
+                        tabIndex={-1}
+                        className="dropdown-content menu rounded-box bg-base-100 max-w-60 p-2 shadow-2xl"
+                      >
+                        <li role="menuitem" tabIndex={0}>
+                          <button
+                            type="button"
+                            onClick={() => handleRenamePreset(preset)}
+                            title={t('settings.presetManager.buttons.rename')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.rename'
+                            )}
+                          >
+                            <LuPencil className="lucide w-4 h-4 mr-1 inline" />
+                            {t('settings.presetManager.buttons.rename')}
+                          </button>
+                        </li>
+                        <li role="menuitem" tabIndex={0} className="text-error">
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePreset(preset)}
+                            title={t('settings.presetManager.buttons.delete')}
+                            aria-label={t(
+                              'settings.presetManager.ariaLabels.delete'
+                            )}
+                          >
+                            <LuTrash className="lucide w-4 h-4 mr-1 inline" />
+                            {t('settings.presetManager.buttons.delete')}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
+    </>
+  );
+}
