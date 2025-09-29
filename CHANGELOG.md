@@ -1,3 +1,9 @@
+## [2.32.2] - 2025-09-29
+
+### 🛠 Fixes
+
+- _(api)_ Cache provider instance with correct cache key (#204)
+
 ## [2.32.1] - 2025-09-29
 
 ### 🛠 Fixes
