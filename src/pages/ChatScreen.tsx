@@ -6,6 +6,7 @@ import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
+import useThrottle from '../hooks/useThrottle';
 import {
   CanvasType,
   Conversation,
@@ -229,7 +230,7 @@ function PendingMessage({
 
   useChatScroll(loadingRef);
 
-  const msg = useMemo((): MessageDisplay | null => {
+  const pendingMsg = useMemo(() => {
     if (!currConvId) {
       return null;
     }
@@ -238,21 +239,26 @@ function PendingMessage({
     if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
       return null;
     }
-    return {
+    return pendingMsg;
+  }, [currConvId, messages, pendingMessages]);
+
+  const msg = useThrottle(
+    {
       msg: pendingMsg,
       siblingLeafNodeIds: [],
       siblingCurrIdx: 0,
       isPending: true,
-    };
-  }, [currConvId, messages, pendingMessages]);
+    },
+    300 // 3,33 FPS
+  );
 
-  if (!msg) return null;
+  if (!msg.msg) return null;
 
   return (
     <>
       <ChatMessage
         key={msg.msg.id}
-        message={msg}
+        message={msg as MessageDisplay}
         onRegenerateMessage={emptyHandler}
         onEditUserMessage={emptyHandler}
         onEditAssistantMessage={emptyHandler}
