@@ -360,14 +360,17 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
             };
           }
 
-          const timings = chunk.timings;
-          if (timings) {
-            // only extract what's really needed, to save some space
+          if (chunk.timings) {
             pendingMsg.timings = {
-              prompt_n: timings.prompt_n,
-              prompt_ms: timings.prompt_ms,
-              predicted_n: timings.predicted_n,
-              predicted_ms: timings.predicted_ms,
+              prompt_n: chunk.timings.prompt_n,
+              prompt_ms: chunk.timings.prompt_ms,
+              predicted_n: chunk.timings.predicted_n,
+              predicted_ms: chunk.timings.predicted_ms,
+            };
+          } else if (chunk.usage) {
+            pendingMsg.timings = {
+              prompt_n: chunk.usage.prompt_tokens,
+              predicted_n: chunk.usage.completion_tokens,
             };
           }
           setPending(convId, pendingMsg);

@@ -75,9 +75,13 @@ export default memo(function ChatMessage({
         ? {
             ...msg.timings,
             prompt_per_second:
-              (msg.timings.prompt_n / msg.timings.prompt_ms) * 1000,
+              !msg.timings.prompt_n || !msg.timings.prompt_ms
+                ? undefined
+                : (msg.timings.prompt_n / msg.timings.prompt_ms) * 1000,
             predicted_per_second:
-              (msg.timings.predicted_n / msg.timings.predicted_ms) * 1000,
+              !msg.timings.predicted_n || !msg.timings.predicted_ms
+                ? undefined
+                : (msg.timings.predicted_n / msg.timings.predicted_ms) * 1000,
           }
         : null,
     [msg.timings]
@@ -256,7 +260,7 @@ export default memo(function ChatMessage({
           )}
 
           {/* render timings if enabled */}
-          {isAssistant && timings && showTokensPerSecond && (
+          {timings && showTokensPerSecond && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
               title={t('chatScreen.titles.performance')}
@@ -269,21 +273,43 @@ export default memo(function ChatMessage({
                   tabIndex={0}
                   className="dropdown-content rounded-box bg-base-100 z-10 w-48 px-4 py-2 shadow mt-4 text-sm text-left"
                 >
-                  <b>Prompt Processing</b>
-                  <ul className="list-inside list-disc">
-                    <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
-                    <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
-                    <li>Speed: {timings.prompt_per_second.toFixed(1)} t/s</li>
-                  </ul>
-                  <br />
-                  <b>Generation</b>
-                  <ul className="list-inside list-disc">
-                    <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
-                    <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
-                    <li>
-                      Speed: {timings.predicted_per_second.toFixed(1)} t/s
-                    </li>
-                  </ul>
+                  {(timings.prompt_n || timings.prompt_ms) && (
+                    <>
+                      <b>Prompt Processing</b>
+                      <ul className="list-inside list-disc">
+                        {timings.prompt_n && (
+                          <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
+                        )}
+                        {timings.prompt_ms && (
+                          <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
+                        )}
+                        {timings.prompt_per_second && (
+                          <li>
+                            Speed: {timings.prompt_per_second.toFixed(1)} t/s
+                          </li>
+                        )}
+                      </ul>
+                      <br />
+                    </>
+                  )}
+                  {(timings.predicted_n || timings.predicted_ms) && (
+                    <>
+                      <b>Generation</b>
+                      <ul className="list-inside list-disc">
+                        {timings.predicted_n && (
+                          <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
+                        )}
+                        {timings.predicted_ms && (
+                          <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
+                        )}
+                        {timings.predicted_per_second && (
+                          <li>
+                            Speed: {timings.predicted_per_second.toFixed(1)} t/s
+                          </li>
+                        )}
+                      </ul>
+                    </>
+                  )}
                 </div>
               </div>
             </button>
