@@ -1,8 +1,8 @@
 export interface TimingReport {
-  prompt_n: number;
-  prompt_ms: number;
-  predicted_n: number;
-  predicted_ms: number;
+  prompt_n?: number;
+  prompt_ms?: number;
+  predicted_n?: number;
+  predicted_ms?: number;
 }
 
 /**

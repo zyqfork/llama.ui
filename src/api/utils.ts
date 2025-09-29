@@ -1,14 +1,10 @@
-// @ts-expect-error this package does not have typing
-import TextLineStream from 'textlinestream';
-
-// ponyfill for missing ReadableStream asyncIterator on Safari
-import { asyncIterator } from '@sec-ant/readable-stream/ponyfill/asyncIterator';
-
 import {
   Configuration,
   InferenceApiMessage,
   InferenceApiMessageContentPart,
   Message,
+  SSEData,
+  SSEMessage,
 } from '../types';
 
 /**
@@ -80,33 +76,108 @@ export function normalizeMsgsForAPI(
 }
 
 /**
- * Creates an async generator for processing Server-Sent Events (SSE) streams.
- * Handles parsing of event data and error conditions from the stream.
- *
- * @param fetchResponse - Response object from a fetch request expecting SSE
- * @returns Async generator yielding parsed event data
- *
- * @throws When encountering error messages in the stream
- *
- * @remarks
- * This implementation uses TextLineStream and asyncIterator ponyfill to handle
- * streaming responses in environments like Safari that lack native support. [[2]]
+ * Process SSE stream from Response object and return async generator
  */
-export async function* getSSEStreamAsync(fetchResponse: Response) {
-  if (!fetchResponse.body) throw new Error('Response body is empty');
-  const lines: ReadableStream<string> = fetchResponse.body
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream());
-  // @ts-expect-error asyncIterator complains about type, but it should work
-  for await (const line of asyncIterator(lines)) {
-    //if (isDev) console.debug({ line });
-    if (line.startsWith('data:') && !line.endsWith('[DONE]')) {
-      const data = JSON.parse(line.slice(5));
-      yield data;
-    } else if (line.startsWith('error:')) {
-      const data = JSON.parse(line.slice(6));
-      throw new Error(data.message || 'Unknown error');
+export async function* processSSEStream<T = SSEData>(
+  response: Response
+): AsyncGenerator<T, void, undefined> {
+  if (!response.body) {
+    throw new Error('Response body is empty');
+  }
+
+  // Create a reader for the response body
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // Split buffer into lines
+      const lines = buffer.split('\n');
+      // Keep the last incomplete line in buffer
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.trim() === '') continue;
+
+        const sseMessage = parseSSELine(line);
+        if (sseMessage) {
+          if (sseMessage.type === 'data') {
+            if (sseMessage.value === '[DONE]') {
+              return; // End the stream
+            }
+            try {
+              const parsedData = JSON.parse(sseMessage.value) as T;
+              yield parsedData;
+            } catch (error) {
+              console.warn(
+                'Failed to parse SSE data:',
+                sseMessage.value,
+                error
+              );
+              // Optionally throw error or continue
+              continue;
+            }
+          } else if (sseMessage.type === 'error') {
+            try {
+              const errorData = JSON.parse(sseMessage.value);
+              throw new Error(errorData.message || 'SSE Error occurred');
+            } catch {
+              throw new Error(sseMessage.value);
+            }
+          }
+        }
+      }
     }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+/**
+ * Parse individual SSE line
+ */
+function parseSSELine(line: string): SSEMessage | null {
+  // Skip comment lines (lines starting with :)
+  if (line.startsWith(':')) {
+    return null;
+  }
+
+  // Find the first colon to separate field from value
+  const colonIndex = line.indexOf(':');
+  if (colonIndex === -1) {
+    return null;
+  }
+
+  const field = line.substring(0, colonIndex).trim();
+  const value = line.substring(colonIndex + 1).trim();
+
+  // If the line starts with a colon (field is empty), it's a comment
+  if (field === '') {
+    return null;
+  }
+
+  switch (field.toLowerCase()) {
+    case 'data':
+      return { type: 'data', value };
+    case 'event':
+      return { type: 'event', value };
+    case 'id':
+      return { type: 'id', value };
+    case 'retry':
+      return { type: 'retry', value };
+    case 'error':
+      return { type: 'error', value };
+    default:
+      return null;
   }
 }
 

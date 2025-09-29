@@ -5,9 +5,10 @@ import {
   InferenceApiModel,
   LLMProvider,
   ModelProvider,
+  SSEChatCompletionMessage,
 } from '../../types';
 import { normalizeUrl } from '../../utils';
-import { getSSEStreamAsync, noResponse } from '../utils';
+import { noResponse, processSSEStream } from '../utils';
 
 /**
  * Base implementation for OpenAI-compatible API providers.
@@ -171,7 +172,7 @@ export class BaseOpenAIProvider
    * }
    * ```
    *
-   * @see {@link getSSEStreamAsync}
+   * @see {@link processSSEStream}
    * @see {@link getDefaultChatParams}
    * @see {@link isAllowCustomOptions}
    */
@@ -216,7 +217,7 @@ export class BaseOpenAIProvider
     }
 
     await this.isErrorResponse(fetchResponse);
-    return getSSEStreamAsync(fetchResponse);
+    return processSSEStream<SSEChatCompletionMessage>(fetchResponse);
   }
 
   /**
