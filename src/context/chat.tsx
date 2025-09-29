@@ -394,7 +394,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       setPending(convId, null);
       onChunk(pendingId); // trigger scroll to bottom and switch to the last node
     },
-    [config, isGenerating, provider, setAbort, setPending, t]
+    [config, isGenerating, provider, selectedModel, setAbort, setPending, t]
   );
 
   const sendMessage = useCallback(
