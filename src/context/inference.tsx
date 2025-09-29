@@ -134,13 +134,14 @@ export const InferenceContextProvider = ({
 }) => {
   const { t } = useTranslation();
 
-  const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
+  const currentConfigRef = useRef<Configuration | null>(null);
 
   const [state, dispatch] = useReducer(inferenceReducer, initialState);
 
   // --- Main Functions ---
 
   const updateApi = useCallback((config: Configuration) => {
+    console.debug('Update Inference API');
     if (!isProviderReady(config)) {
       dispatch({
         type: InferenceActionTypes.SET_PROVIDER,
@@ -149,7 +150,6 @@ export const InferenceContextProvider = ({
       return;
     }
 
-    console.debug('Update Inference API');
     const newProvider = getInferenceProvider(
       config.provider,
       config.baseUrl,
@@ -205,11 +205,17 @@ export const InferenceContextProvider = ({
     [state.models]
   );
 
-  const syncServer = useCallback(
+  const loadModels = useCallback(
     async (config: Configuration, options: FetchOptions = {}) => {
-      if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
+      console.debug('Loading models');
+      if (!isProviderReady(config)) {
+        dispatch({
+          type: InferenceActionTypes.SET_MODELS,
+          payload: noModels,
+        });
+        return;
+      }
 
-      console.debug('Synchronize models with server');
       const models = await fetchModels(config, options);
       dispatch({ type: InferenceActionTypes.SET_MODELS, payload: models });
 
@@ -218,27 +224,31 @@ export const InferenceContextProvider = ({
     [fetchModels, updateSelectedModel]
   );
 
+  const initialize = useCallback(
+    async (config: Configuration) => {
+      console.debug('Initializing inference');
+      const prevConfig = currentConfigRef.current;
+      if (!deepEqual(prevConfig, config)) {
+        updateApi(config);
+      }
+
+      if (Object.is(prevConfig, CONFIG_DEFAULT) && !!config.baseUrl) {
+        loadModels(config);
+      }
+
+      updateSelectedModel(config);
+
+      currentConfigRef.current = config;
+    },
+    [loadModels, updateApi, updateSelectedModel]
+  );
+
   // --- Initialization ---
 
   const { config } = useAppContext();
   useEffect(() => {
-    const prevConfig = currentConfigRef.current;
-    if (!deepEqual(currentConfigRef.current, config) || !state.provider) {
-      updateApi(config);
-    }
-    const shouldSync =
-      prevConfig.baseUrl !== config.baseUrl ||
-      prevConfig.apiKey !== config.apiKey ||
-      (Object.is(prevConfig, CONFIG_DEFAULT) && !!config.baseUrl);
-
-    if (shouldSync) {
-      syncServer(config);
-    }
-
-    updateSelectedModel(config);
-
-    currentConfigRef.current = config;
-  }, [syncServer, updateApi, updateSelectedModel, config, state.provider]);
+    initialize(config);
+  }, [initialize, config]);
 
   return (
     <InferenceContext.Provider
