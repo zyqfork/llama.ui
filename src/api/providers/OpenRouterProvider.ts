@@ -71,16 +71,7 @@ export class OpenRouterProvider extends CloudOpenAIProvider {
     return true;
   }
 
-  /**
-   * Converts raw OpenRouter API model data into the standardized `InferenceApiModel` format.
-   *
-   * This method safely extracts and maps model metadata from the OpenRouter response schema
-   * to the application's internal model representation.
-   *
-   * @param m - Raw model data received from OpenRouter API (unknown type for safety)
-   * @returns A normalized `InferenceApiModel` object with id, name, created, description, and modalities
-   * @throws Will throw if `m` is not a valid OpenRouterModel or required fields are missing
-   */
+  /** @inheritdoc */
   protected jsonToModel(m: unknown): InferenceApiModel {
     const model = m as OpenRouterModel;
     return {
