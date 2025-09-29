@@ -22,22 +22,13 @@ const DELAY = 80;
  * @param options.elementRef - Ref object pointing to the chat container element
  * @param options.behavior - Scroll behavior option ('auto' or 'smooth'). Defaults to 'auto'
  */
-export function useChatScroll({
-  elementRef,
-  behavior = 'auto',
-}: {
+export function useChatScroll(
   /**
    * React ref object pointing to the chat container element.
    * This element must have scrollable content (overflow-y: auto/scroll).
    */
-  elementRef: React.RefObject<HTMLElement>;
-
-  /**
-   * The scroll behavior to use when scrolling to bottom.
-   * @default 'auto'
-   */
-  behavior?: ScrollBehavior;
-}) {
+  elementRef: React.RefObject<HTMLElement>
+) {
   /**
    * Immediately scrolls the chat container to the bottom after a specified delay.
    *
@@ -47,7 +38,7 @@ export function useChatScroll({
    * @param delay - Optional delay in milliseconds before scrolling. Defaults to 80ms.
    */
   const scrollImmediate = useCallback(
-    (delay: number = DELAY) => {
+    (behavior: ScrollBehavior = 'auto', delay: number = DELAY) => {
       const element = elementRef?.current;
       if (!element) return;
       setTimeout(
@@ -55,7 +46,7 @@ export function useChatScroll({
         delay
       );
     },
-    [elementRef, behavior]
+    [elementRef]
   );
 
   /**
@@ -65,16 +56,19 @@ export function useChatScroll({
    * user is within `TO_BOTTOM` pixels of the bottom. This prevents unwanted scrolling
    * when the user has manually scrolled up to read older messages.
    */
-  const scrollToBottom = useCallback(() => {
-    const element = elementRef?.current;
-    if (!element) return;
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'auto') => {
+      const element = elementRef?.current;
+      if (!element) return;
 
-    const { scrollHeight, scrollTop, clientHeight } = element;
-    const spaceToBottom = scrollHeight - scrollTop - clientHeight;
-    if (spaceToBottom < TO_BOTTOM) {
-      element.scrollTo({ top: element.scrollHeight, behavior });
-    }
-  }, [elementRef, behavior]);
+      const { scrollHeight, scrollTop, clientHeight } = element;
+      const spaceToBottom = scrollHeight - scrollTop - clientHeight;
+      if (spaceToBottom < TO_BOTTOM) {
+        element.scrollTo({ top: element.scrollHeight, behavior });
+      }
+    },
+    [elementRef]
+  );
 
   return { scrollImmediate, scrollToBottom };
 }
