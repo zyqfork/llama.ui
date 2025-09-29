@@ -129,17 +129,17 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   titleKey: string;
   ariaLabelKey: string;
 }
-export const IntlIconButton = memo(
-  ({
-    className,
-    disabled,
-    onClick,
-    icon: Icon,
-    t,
-    titleKey,
-    ariaLabelKey,
-    ...props
-  }: IconButtonProps) => (
+export const IntlIconButton = memo(function IntlIconButton({
+  className,
+  disabled,
+  onClick,
+  icon: Icon,
+  t,
+  titleKey,
+  ariaLabelKey,
+  ...props
+}: IconButtonProps) {
+  return (
     <button
       className={className}
       onClick={onClick}
@@ -150,8 +150,8 @@ export const IntlIconButton = memo(
     >
       <Icon className="lucide h-4 w-4" />
     </button>
-  )
-);
+  );
+});
 
 export interface DropdownOption {
   value: string | number;
