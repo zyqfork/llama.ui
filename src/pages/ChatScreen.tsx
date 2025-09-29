@@ -6,7 +6,6 @@ import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import StorageUtils from '../database';
 import { useChatScroll } from '../hooks/useChatScroll';
-import useThrottle from '../hooks/useThrottle';
 import {
   CanvasType,
   Conversation,
@@ -61,11 +60,12 @@ export default function ChatScreen({
   } = useAppContext();
   const { viewingChat, sendMessage, canvasData, replaceMessage } =
     useChatContext();
+  const { pendingMessages } = useChatContext();
 
   const msgListRef = useRef<HTMLDivElement>(null);
   const [currNodeId, setCurrNodeId] = useState<number>(-1); // keep track of leaf node for rendering
 
-  const { scrollImmediate } = useChatScroll(msgListRef);
+  const { scrollImmediate, scrollToBottom } = useChatScroll(msgListRef);
   const hasCanvas = useMemo(() => !!canvasData, [canvasData]);
 
   const { messages, lastMsgNodeId } = useMemo(() => {
@@ -83,11 +83,28 @@ export default function ChatScreen({
     };
   }, [viewingChat?.messages, currNodeId]);
 
+  const pendingMsg = useMemo(() => {
+    const pendingMsg = pendingMessages[currConvId];
+    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
+    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
+      return null;
+    }
+
+    scrollToBottom();
+
+    return {
+      msg: pendingMsg,
+      siblingLeafNodeIds: [],
+      siblingCurrIdx: 0,
+      isPending: true,
+    };
+  }, [currConvId, messages, pendingMessages, scrollToBottom]);
+
   useEffect(() => {
     // reset to latest node when conversation changes
     setCurrNodeId(-1);
     // scroll to bottom when conversation changes
-    scrollImmediate();
+    scrollImmediate('smooth');
   }, [currConvId, scrollImmediate]);
 
   const onChunk: CallbackGeneratedChunk = useCallback(
@@ -95,7 +112,6 @@ export default function ChatScreen({
       if (currLeafNodeId) {
         setCurrNodeId(currLeafNodeId);
       }
-      // useChatScroll will handle the auto scroll
     },
     []
   );
@@ -159,6 +175,8 @@ export default function ChatScreen({
     [currConvId, systemMessage, onChunk, sendMessage]
   );
 
+  const dummyCallback = useCallback(() => {}, []);
+
   return (
     <div className="flex flex-col h-full">
       {/* main content area */}
@@ -191,7 +209,22 @@ export default function ChatScreen({
                     onChangeSibling={setCurrNodeId}
                   />
                 ))}
-                <PendingMessage currConvId={currConvId} messages={messages} />
+
+                {!!pendingMsg && (
+                  <ChatMessage
+                    key={pendingMsg.msg.id}
+                    message={pendingMsg}
+                    onRegenerateMessage={dummyCallback}
+                    onEditUserMessage={dummyCallback}
+                    onEditAssistantMessage={dummyCallback}
+                    onChangeSibling={dummyCallback}
+                  />
+                )}
+
+                {/* show loading dots for pending message */}
+                {!!pendingMsg && (
+                  <span className="loading loading-dots loading-md"></span>
+                )}
               </div>
             )}
           </div>
@@ -214,59 +247,5 @@ export default function ChatScreen({
         onSend={handleSendNewMessage}
       />
     </div>
-  );
-}
-
-function PendingMessage({
-  currConvId,
-  messages,
-}: {
-  currConvId: Conversation['id'];
-  messages: MessageDisplay[];
-}) {
-  const loadingRef = useRef<HTMLSpanElement>(null);
-  const emptyHandler = useCallback(() => {}, []);
-  const { pendingMessages } = useChatContext();
-
-  useChatScroll(loadingRef);
-
-  const pendingMsg = useMemo(() => {
-    if (!currConvId) {
-      return null;
-    }
-    const pendingMsg = pendingMessages[currConvId];
-    // due to some timing issues of StorageUtils.appendMsg(), we need to make sure the pendingMsg is not duplicated upon rendering (i.e. appears once in the saved conversation and once in the pendingMsg)
-    if (!pendingMsg || messages.at(-1)?.msg.id === pendingMsg.id) {
-      return null;
-    }
-    return pendingMsg;
-  }, [currConvId, messages, pendingMessages]);
-
-  const msg = useThrottle(
-    {
-      msg: pendingMsg,
-      siblingLeafNodeIds: [],
-      siblingCurrIdx: 0,
-      isPending: true,
-    },
-    300 // 3,33 FPS
-  );
-
-  if (!msg.msg) return null;
-
-  return (
-    <>
-      <ChatMessage
-        key={msg.msg.id}
-        message={msg as MessageDisplay}
-        onRegenerateMessage={emptyHandler}
-        onEditUserMessage={emptyHandler}
-        onEditAssistantMessage={emptyHandler}
-        onChangeSibling={emptyHandler}
-      />
-
-      {/* show loading dots for pending message */}
-      <span ref={loadingRef} className="loading loading-dots loading-md"></span>
-    </>
   );
 }

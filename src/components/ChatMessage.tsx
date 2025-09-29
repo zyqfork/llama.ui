@@ -46,19 +46,20 @@ interface SplitMessage {
   reasoning_content?: string;
 }
 
+interface ChatMessageProps {
+  message: MessageDisplay;
+  onRegenerateMessage(msg: Message): void;
+  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
+  onEditAssistantMessage(msg: Message, content: string): void;
+  onChangeSibling(sibling: Message['id']): void;
+}
 export default memo(function ChatMessage({
   message,
   onRegenerateMessage,
   onEditUserMessage,
   onEditAssistantMessage,
   onChangeSibling,
-}: {
-  message: MessageDisplay;
-  onRegenerateMessage(msg: Message): void;
-  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
-  onEditAssistantMessage(msg: Message, content: string): void;
-  onChangeSibling(sibling: Message['id']): void;
-}) {
+}: ChatMessageProps) {
   const { msg, siblingCurrIdx, siblingLeafNodeIds, isPending } = message;
 
   const { t } = useTranslation();
@@ -187,7 +188,7 @@ export default memo(function ChatMessage({
           {!isEditing && (!!content || !!reasoning_content) && (
             <div dir="auto" tabIndex={0}>
               {!!reasoning_content && (
-                <ThoughtProcess
+                <ThinkingSection
                   isThinking={isThinking}
                   content={reasoning_content}
                 />
@@ -374,17 +375,18 @@ export default memo(function ChatMessage({
   );
 });
 
+interface EditMessageProps {
+  msg: Message | PendingMessage;
+  setIsEditing(flag: boolean): void;
+  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
+  onEditAssistantMessage(msg: Message, content: string): void;
+}
 function EditMessage({
   msg,
   setIsEditing,
   onEditUserMessage,
   onEditAssistantMessage,
-}: {
-  msg: Message | PendingMessage;
-  setIsEditing(flag: boolean): void;
-  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
-  onEditAssistantMessage(msg: Message, content: string): void;
-}) {
+}: EditMessageProps) {
   const { t } = useTranslation();
 
   const [editingContent, setEditingContent] = useState<string>(
@@ -462,17 +464,21 @@ function EditMessage({
   );
 }
 
-function ThoughtProcess({
-  isThinking,
-  content,
-}: {
+interface ThinkingSectionProps {
   isThinking: boolean;
   content: string;
-}) {
+}
+const ThinkingSection = memo(function ThinkingSection({
+  isThinking,
+  content,
+}: ThinkingSectionProps) {
   const { t } = useTranslation();
   const {
     config: { showThoughtInProgress },
   } = useAppContext();
+
+  if (!content) return null;
+
   return (
     <div
       role="button"
@@ -508,57 +514,56 @@ function ThoughtProcess({
       </div>
     </div>
   );
-}
+});
 
-const PlayButton = memo(
-  ({
-    className,
-    disabled,
-    text,
-  }: {
-    className?: string;
-    disabled?: boolean;
-    text: string;
-  }) => {
-    const { t } = useTranslation();
-    const {
-      config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
-    } = useAppContext();
-    return (
-      <TextToSpeech
-        text={text}
-        voice={getSpeechSynthesisVoiceByName(ttsVoice)}
-        pitch={ttsPitch}
-        rate={ttsRate}
-        volume={ttsVolume}
-      >
-        {({ isPlaying, play, stop }) => (
-          <Fragment>
-            {!isPlaying && (
-              <IntlIconButton
-                className={className}
-                onClick={play}
-                disabled={disabled}
-                t={t}
-                titleKey="chatScreen.titles.play"
-                ariaLabelKey="chatScreen.ariaLabels.playMessage"
-                icon={LuVolume2}
-              />
-            )}
-            {isPlaying && (
-              <IntlIconButton
-                className={className}
-                onClick={stop}
-                disabled={disabled}
-                t={t}
-                titleKey="chatScreen.titles.stop"
-                ariaLabelKey="chatScreen.ariaLabels.stopMessage"
-                icon={LuVolumeX}
-              />
-            )}
-          </Fragment>
-        )}
-      </TextToSpeech>
-    );
-  }
-);
+interface PlayButtonProps {
+  className?: string;
+  disabled?: boolean;
+  text: string;
+}
+const PlayButton = memo(function PlayButton({
+  className,
+  disabled,
+  text,
+}: PlayButtonProps) {
+  const { t } = useTranslation();
+  const {
+    config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
+  } = useAppContext();
+  return (
+    <TextToSpeech
+      text={text}
+      voice={getSpeechSynthesisVoiceByName(ttsVoice)}
+      pitch={ttsPitch}
+      rate={ttsRate}
+      volume={ttsVolume}
+    >
+      {({ isPlaying, play, stop }) => (
+        <Fragment>
+          {!isPlaying && (
+            <IntlIconButton
+              className={className}
+              onClick={play}
+              disabled={disabled}
+              t={t}
+              titleKey="chatScreen.titles.play"
+              ariaLabelKey="chatScreen.ariaLabels.playMessage"
+              icon={LuVolume2}
+            />
+          )}
+          {isPlaying && (
+            <IntlIconButton
+              className={className}
+              onClick={stop}
+              disabled={disabled}
+              t={t}
+              titleKey="chatScreen.titles.stop"
+              ariaLabelKey="chatScreen.ariaLabels.stopMessage"
+              icon={LuVolumeX}
+            />
+          )}
+        </Fragment>
+      )}
+    </TextToSpeech>
+  );
+});
