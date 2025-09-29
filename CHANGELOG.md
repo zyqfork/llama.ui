@@ -1,3 +1,17 @@
+## [2.32.1] - 2025-09-29
+
+### 🛠 Fixes
+
+- Auto-scroll too sticky (#203)
+
+### 🚜 Refactor
+
+- _(useChatScroll)_ Enhance hook with configurable options and improve chat scrolling behavior (#203)
+- _(chat)_ Optimize pending message handling in ChatScreen (#203)
+- _(ChatMessage)_ Wrap ThinkingSection in memo for performance optimization (#203)
+
+## [2.32.0] - 2025-09-29
+
 ### ⚡️ Performance
 
 - _(chat)_ Add throttling to pending messages for smoother UI updates (#201)
