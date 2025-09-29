@@ -2,7 +2,7 @@
   "private": true,
   "name": "llama.ui",
   "description": "A minimal Interface for AI Companion that runs entirely in your browser.",
-  "version": "2.32.2",
+  "version": "2.32.3",
   "homepage": "https://llama-ui.js.org/",
   "license": "MIT",
   "type": "module",
