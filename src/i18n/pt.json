@@ -225,6 +225,14 @@
         "label": "Nome de Usuário",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "Apresentar mensagens do utilizador em bruto",
+        "note": "O processamento de remarcação será desativado para as mensagens do utilizador."
+      },
+      "showRawAssistantMessage": {
+        "label": "Exibir mensagens do modelo em bruto",
+        "note": "O processamento de remarcação será desativado para mensagens de modelo."
+      },
       "pasteLongTextToFileLen": {
         "label": "Colar: limitação",
         "note": "Ao colar um texto longo, ele será convertido em um arquivo. Você pode controlar o comprimento do arquivo definindo o valor deste parâmetro. Defina 0 para desativar."

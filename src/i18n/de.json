@@ -225,6 +225,14 @@
         "label": "Benutzername",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "Benutzermeldungen roh anzeigen",
+        "note": "Die Markdown-Verarbeitung wird für Benutzernachrichten deaktiviert."
+      },
+      "showRawAssistantMessage": {
+        "label": "Modellnachrichten roh anzeigen",
+        "note": "Die Markdown-Verarbeitung wird für Modellnachrichten deaktiviert."
+      },
       "pasteLongTextToFileLen": {
         "label": "Einfügen: Einschränkung",
         "note": "Beim Einfügen eines langen Textes wird dieser in eine Datei umgewandelt. Sie können die Dateilänge durch diesen Parameter steuern. Setzen Sie ihn auf 0, um dies zu deaktivieren."

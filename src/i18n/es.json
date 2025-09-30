@@ -225,6 +225,14 @@
         "label": "Nombre de usuario",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "Mostrar mensajes de usuario sin formato",
+        "note": "El procesamiento de rebajas se deshabilitará para los mensajes de los usuarios."
+      },
+      "showRawAssistantMessage": {
+        "label": "Mostrar mensajes del modelo sin formato",
+        "note": "El procesamiento de rebajas se deshabilitará para los mensajes de modelo."
+      },
       "pasteLongTextToFileLen": {
         "label": "Líma: takmörkun",
         "note": "Cuando se pega un texto largo, se convertirá en un archivo. Puedes controlar la longitud del archivo configurando el valor de este parámetro. Establece en 0 para deshabilitar."

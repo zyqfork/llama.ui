@@ -225,6 +225,14 @@
         "label": "Nome utente",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "Visualizza i messaggi utente raw",
+        "note": "L'elaborazione Markdown sarà disabilitata per i messaggi utente."
+      },
+      "showRawAssistantMessage": {
+        "label": "Visualizza i messaggi del modello raw",
+        "note": "L'elaborazione Markdown sarà disabilitata per i messaggi modello."
+      },
       "pasteLongTextToFileLen": {
         "label": "Incolla: limitazione",
         "note": "Quando incolli un testo lungo, verrà convertito in un file. Puoi controllare la lunghezza del file impostando il valore di questo parametro. Imposta su 0 per disabilitare."

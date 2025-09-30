@@ -203,6 +203,8 @@ function getSettingTabsConfiguration(
           key: 'theme-manager',
           component: () => null,
         },
+        toInput(SettingInputType.CHECKBOX, 'showRawUserMessage'),
+        toInput(SettingInputType.CHECKBOX, 'showRawAssistantMessage'),
       ],
     },
 

@@ -225,6 +225,14 @@
         "label": "用户名",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "原始显示用户消息",
+        "note": "将对用户消息禁用标记处理。"
+      },
+      "showRawAssistantMessage": {
+        "label": "原始显示模型消息",
+        "note": "将对模型消息禁用标记处理。"
+      },
       "pasteLongTextToFileLen": {
         "label": "粘贴：限制",
         "note": "粘贴长文本时，它将被转换为文件。您可以通过设置此参数的值来控制文件长度。设置为0可禁用。"

@@ -23,6 +23,8 @@ export interface Configuration {
 
   /* ui */
   initials: string;
+  showRawUserMessage: boolean;
+  showRawAssistantMessage: boolean;
 
   /* conversations */
   pasteLongTextToFileLen: number;

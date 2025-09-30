@@ -65,7 +65,12 @@ export default memo(function ChatMessage({
   const { t } = useTranslation();
   const { showConfirm } = useModals();
   const {
-    config: { initials, showTokensPerSecond },
+    config: {
+      initials,
+      showTokensPerSecond,
+      showRawUserMessage,
+      showRawAssistantMessage,
+    },
   } = useAppContext();
   const { branchMessage } = useChatContext();
 
@@ -116,6 +121,12 @@ export default memo(function ChatMessage({
     }),
     [msg.role]
   );
+  const renderAsMarkdown = useMemo(() => {
+    if (isUser && !showRawUserMessage) return true;
+    if (isAssistant && !showRawAssistantMessage) return true;
+    if (!isUser && !isAssistant) return true;
+    return false;
+  }, [isAssistant, isUser, showRawAssistantMessage, showRawUserMessage]);
   const showActionButtons = useMemo(
     () => !isEditing && !isPending,
     [isEditing, isPending]
@@ -194,7 +205,12 @@ export default memo(function ChatMessage({
                 />
               )}
 
-              {!!content && <MarkdownDisplay content={content} />}
+              {!!content &&
+                (renderAsMarkdown ? (
+                  <MarkdownDisplay content={content} />
+                ) : (
+                  <div className="whitespace-pre-wrap">{content}</div>
+                ))}
             </div>
           )}
         </div>
@@ -474,7 +490,7 @@ const ThinkingSection = memo(function ThinkingSection({
 }: ThinkingSectionProps) {
   const { t } = useTranslation();
   const {
-    config: { showThoughtInProgress },
+    config: { showThoughtInProgress, showRawAssistantMessage },
   } = useAppContext();
 
   if (!content) return null;
@@ -509,7 +525,11 @@ const ThinkingSection = memo(function ThinkingSection({
         aria-description={t('chatScreen.ariaLabels.thoughtContent')}
       >
         <div className="border-l-2 border-base-content/20 pl-4 mb-4">
-          <MarkdownDisplay content={content} />
+          {showRawAssistantMessage ? (
+            <div className="whitespace-pre-wrap">{content}</div>
+          ) : (
+            <MarkdownDisplay content={content} />
+          )}
         </div>
       </div>
     </div>
