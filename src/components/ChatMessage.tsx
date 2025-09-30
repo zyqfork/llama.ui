@@ -18,7 +18,7 @@ import {
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
 import { useFileUpload } from '../hooks/useFileUpload';
 import {
   Message,
@@ -349,7 +349,7 @@ export default memo(function ChatMessage({
             className="btn btn-ghost w-8 h-8 p-0"
             onClick={async () => {
               if (await showConfirm(t('chatScreen.actions.delete.confirm'))) {
-                await StorageUtils.deleteMessage(msg);
+                await IndexedDB.deleteMessage(msg);
               }
             }}
             disabled={!msg.content}

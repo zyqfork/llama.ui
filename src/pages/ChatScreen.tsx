@@ -4,7 +4,7 @@ import { ChatInput } from '../components/ChatInput';
 import ChatMessage from '../components/ChatMessage';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
 import { useChatScroll } from '../hooks/useChatScroll';
 import {
   CanvasType,
@@ -19,7 +19,7 @@ function getListMessageDisplay(
   msgs: Readonly<Message[]>,
   leafNodeId: Message['id']
 ): MessageDisplay[] {
-  const currNodes = StorageUtils.filterByLeafNodeId(msgs, leafNodeId, true);
+  const currNodes = IndexedDB.filterByLeafNodeId(msgs, leafNodeId, true);
   const res: MessageDisplay[] = [];
   const nodeMap = new Map<Message['id'], Message>();
   for (const msg of msgs) {

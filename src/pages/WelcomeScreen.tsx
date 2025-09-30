@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { ChatInput } from '../components/ChatInput';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
 import { MessageExtra } from '../types';
 import { getUniqueRandomElements } from '../utils';
 
@@ -28,7 +28,7 @@ export default function WelcomeScreen() {
 
   const handleSend = useCallback(
     async (content: string, extra: MessageExtra[] | undefined) => {
-      const conv = await StorageUtils.createConversation(
+      const conv = await IndexedDB.createConversation(
         content.substring(0, 256)
       );
       // if user is creating a new conversation, redirect to the new conversation
