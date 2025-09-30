@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPlay, LuSquare } from 'react-icons/lu';
 import { useChatContext } from '../context/chat';
-import StorageUtils from '../database';
+import LocalStorage from '../database/localStorage';
 import { CanvasType } from '../types';
 import { OpenInNewTab, XCloseButton } from './common';
 
@@ -64,7 +64,7 @@ const startWorker = () => {
   }
 };
 
-if (StorageUtils.getConfig().pyIntepreterEnabled) {
+if (LocalStorage.getConfig().pyIntepreterEnabled) {
   startWorker();
 }
 

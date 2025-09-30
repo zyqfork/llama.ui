@@ -8,7 +8,8 @@ import React, {
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { CONFIG_DEFAULT, SYNTAX_THEMES } from '../config';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
+import LocalStorage from '../database/localStorage';
 import {
   Configuration,
   ConfigurationPreset,
@@ -45,8 +46,8 @@ const initialState: AppState = {
   config: CONFIG_DEFAULT,
   presets: [],
   showSettings: false,
-  currentTheme: StorageUtils.getTheme(),
-  currentSyntaxTheme: StorageUtils.getSyntaxTheme(),
+  currentTheme: LocalStorage.getTheme(),
+  currentSyntaxTheme: LocalStorage.getSyntaxTheme(),
 };
 
 // Reducer function
@@ -97,25 +98,25 @@ export const AppContextProvider = ({
 
   const init = useCallback(async (): Promise<boolean> => {
     console.debug('Load config & presets');
-    const config = StorageUtils.getConfig();
+    const config = LocalStorage.getConfig();
     dispatch({ type: AppActionType.SET_CONFIG, payload: config });
 
-    const presets = await StorageUtils.getPresets();
+    const presets = await IndexedDB.getPresets();
     dispatch({ type: AppActionType.SET_PRESETS, payload: presets });
     return !!config;
   }, []);
 
   const saveConfig = useCallback((config: Configuration) => {
     console.debug('Save config', config);
-    StorageUtils.setConfig(config);
+    LocalStorage.setConfig(config);
     dispatch({ type: AppActionType.SET_CONFIG, payload: config });
   }, []);
 
   const savePreset = useCallback(
     async (name: string, config: Configuration) => {
       console.debug('Save preset', { name, config });
-      await StorageUtils.savePreset(name, config);
-      const presets = await StorageUtils.getPresets();
+      await IndexedDB.savePreset(name, config);
+      const presets = await IndexedDB.getPresets();
       dispatch({ type: AppActionType.SET_PRESETS, payload: presets });
       toast.success(t('state.preset.saved'));
     },
@@ -125,8 +126,8 @@ export const AppContextProvider = ({
   const removePreset = useCallback(
     async (name: string) => {
       console.debug('Remove preset', name);
-      await StorageUtils.removePreset(name);
-      const presets = await StorageUtils.getPresets();
+      await IndexedDB.removePreset(name);
+      const presets = await IndexedDB.getPresets();
       dispatch({ type: AppActionType.SET_PRESETS, payload: presets });
       toast.success(t('state.preset.removed'));
     },
@@ -144,9 +145,9 @@ export const AppContextProvider = ({
   const importDB = useCallback(
     async (data: string) => {
       try {
-        await StorageUtils.importDB(JSON.parse(data));
+        await IndexedDB.importDB(JSON.parse(data));
 
-        const presets = await StorageUtils.getPresets();
+        const presets = await IndexedDB.getPresets();
         dispatch({ type: AppActionType.SET_PRESETS, payload: presets });
       } catch (error) {
         console.error('Error during database import:', error);
@@ -163,7 +164,7 @@ export const AppContextProvider = ({
     async (convId?: string): Promise<ExportJsonStructure> => {
       let data: ExportJsonStructure;
       try {
-        data = await StorageUtils.exportDB(convId);
+        data = await IndexedDB.exportDB(convId);
       } catch (error) {
         console.error('Error during database export:', error);
         toast.error(t('state.database.export.failed'));
@@ -181,7 +182,7 @@ export const AppContextProvider = ({
 
   const switchTheme = useCallback((theme: string) => {
     console.debug('Switch theme', theme);
-    StorageUtils.setTheme(theme);
+    LocalStorage.setTheme(theme);
     dispatch({ type: AppActionType.SET_CURRENT_THEME, payload: theme });
 
     // Update body color scheme
@@ -202,7 +203,7 @@ export const AppContextProvider = ({
 
   const switchSyntaxTheme = useCallback((theme: string) => {
     console.debug('Switch syntax theme', theme);
-    StorageUtils.setSyntaxTheme(theme);
+    LocalStorage.setSyntaxTheme(theme);
     dispatch({ type: AppActionType.SET_CURRENT_SYNTAX_THEME, payload: theme });
 
     // Update body color scheme
@@ -216,8 +217,8 @@ export const AppContextProvider = ({
 
   useEffect(() => {
     init();
-    switchTheme(StorageUtils.getTheme());
-    switchSyntaxTheme(StorageUtils.getSyntaxTheme());
+    switchTheme(LocalStorage.getTheme());
+    switchSyntaxTheme(LocalStorage.getSyntaxTheme());
   }, [init, switchSyntaxTheme, switchTheme]);
 
   return (

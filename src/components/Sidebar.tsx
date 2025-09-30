@@ -12,7 +12,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
 import { downloadAsFile } from './common';
@@ -26,12 +26,12 @@ export default function Sidebar() {
 
   useEffect(() => {
     const handleConversationChange = async () => {
-      setConversations(await StorageUtils.getAllConversations());
+      setConversations(await IndexedDB.getAllConversations());
     };
-    StorageUtils.onConversationChanged(handleConversationChange);
+    IndexedDB.onConversationChanged(handleConversationChange);
     handleConversationChange();
     return () => {
-      StorageUtils.offConversationChanged(handleConversationChange);
+      IndexedDB.offConversationChanged(handleConversationChange);
     };
   }, []);
 
@@ -184,7 +184,7 @@ const ConversationItem = memo(
       }
       const newName = await showPrompt(t('sidebar.actions.newName'), conv.name);
       if (newName && newName.trim().length > 0) {
-        StorageUtils.updateConversationName(conv.id, newName);
+        IndexedDB.updateConversationName(conv.id, newName);
       }
     };
 
@@ -193,7 +193,7 @@ const ConversationItem = memo(
         toast.error(t('sidebar.errors.downloadOnGenerate'));
         return;
       }
-      return StorageUtils.exportDB(conv.id).then((data) =>
+      return IndexedDB.exportDB(conv.id).then((data) =>
         downloadAsFile(
           [JSON.stringify(data, null, 2)],
           `conversation_${conv.id}.json`
@@ -208,7 +208,7 @@ const ConversationItem = memo(
       }
       if (await showConfirm(t('sidebar.actions.deleteConfirm'))) {
         toast.success(t('sidebar.actions.deleteSuccess'));
-        StorageUtils.deleteConversation(conv.id);
+        IndexedDB.deleteConversation(conv.id);
         navigate('/');
       }
     };

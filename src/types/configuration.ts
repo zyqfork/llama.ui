@@ -1,3 +1,12 @@
+import Dexie, { Table } from 'dexie';
+import { Conversation, Message } from './chat';
+
+export type Database = Dexie & {
+  conversations: Table<Conversation, string>;
+  messages: Table<Message, number>;
+  userConfigurations: Table<ConfigurationPreset, string>;
+};
+
 export type ProviderOption = {
   name: string;
   baseUrl: string;

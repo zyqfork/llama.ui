@@ -12,7 +12,7 @@ import { matchPath, useLocation, useNavigate } from 'react-router';
 import { configToCustomOptions, normalizeMsgsForAPI } from '../api/utils';
 import { isDev } from '../config';
 import { useInferenceContext } from '../context/inference';
-import StorageUtils from '../database';
+import IndexedDB from '../database/indexedDB';
 import {
   CanvasData,
   Conversation,
@@ -172,12 +172,12 @@ interface ChatContextValue {
 export type CallbackGeneratedChunk = (currLeafNodeId?: Message['id']) => void;
 
 const getViewingChat = async (convId: string): Promise<ViewingChat | null> => {
-  const conv = await StorageUtils.getOneConversation(convId);
+  const conv = await IndexedDB.getOneConversation(convId);
   if (!conv) return null;
   return {
     conv: conv,
     // all messages from all branches, not filtered by last node
-    messages: await StorageUtils.getMessages(convId),
+    messages: await IndexedDB.getMessages(convId),
   };
 };
 
@@ -212,7 +212,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       type: ChatActionType.SET_CANVAS_DATA,
       payload: { canvasData: null },
     });
-    StorageUtils.onConversationChanged(handleConversationChange);
+    IndexedDB.onConversationChanged(handleConversationChange);
     getViewingChat(convId ?? '').then((viewingChat) =>
       dispatch({
         type: ChatActionType.SET_VIEWING_CHAT,
@@ -220,7 +220,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       })
     );
     return () => {
-      StorageUtils.offConversationChanged(handleConversationChange);
+      IndexedDB.offConversationChanged(handleConversationChange);
     };
   }, [convId, handleConversationChange]);
 
@@ -280,13 +280,13 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     }) => {
       if (isGenerating(convId) || !provider) return;
 
-      const currConversation = await StorageUtils.getOneConversation(convId);
+      const currConversation = await IndexedDB.getOneConversation(convId);
       if (!currConversation) {
         throw new Error(t('state.chat.errors.conversationNotFound'));
       }
 
-      const currMessages = StorageUtils.filterByLeafNodeId(
-        await StorageUtils.getMessages(convId),
+      const currMessages = IndexedDB.filterByLeafNodeId(
+        await IndexedDB.getMessages(convId),
         leafNodeId,
         false
       ).filter((m) => m.role !== 'system');
@@ -392,7 +392,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (pendingMsg.content !== null) {
-        await StorageUtils.appendMsg(pendingMsg as Message, leafNodeId);
+        await IndexedDB.appendMsg(pendingMsg as Message, leafNodeId);
       }
       setPending(convId, null);
       onChunk(pendingId); // trigger scroll to bottom and switch to the last node
@@ -422,7 +422,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
         currMsgId = Date.now();
         try {
           // save user message
-          await StorageUtils.appendMsg(
+          await IndexedDB.appendMsg(
             {
               id: currMsgId,
               convId,
@@ -476,7 +476,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
 
       const now = Date.now();
       const currMsgId = now;
-      await StorageUtils.appendMsg(
+      await IndexedDB.appendMsg(
         {
           ...msg,
           id: currMsgId,
@@ -495,7 +495,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       if (isGenerating(msg.convId)) return;
 
       try {
-        const conv = await StorageUtils.branchConversation(msg.convId, msg.id);
+        const conv = await IndexedDB.branchConversation(msg.convId, msg.id);
         navigate(`/chat/${conv.id}`);
       } catch (error) {
         console.error('Conversation branch failed:', error);
