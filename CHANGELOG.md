@@ -1,3 +1,13 @@
+## [2.35.0] - 2025-09-30
+
+### 🚀 Enhancements
+
+- _(ui)_ Add option to display raw messages #178 (#210)
+
+### 🚜 Refactor
+
+- _(database)_ Split storage utils into indexedDB and localStorage classes (#209)
+
 ## [2.34.0] - 2025-09-29
 
 ### 🛠 Fixes
