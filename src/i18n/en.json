@@ -225,6 +225,14 @@
         "label": "User Name",
         "note": ""
       },
+      "showRawUserMessage": {
+        "label": "Display user messages raw",
+        "note": "Markdown processing will be disabled for user messages."
+      },
+      "showRawAssistantMessage": {
+        "label": "Display model messages raw",
+        "note": "Markdown processing will be disabled for model messages."
+      },
       "pasteLongTextToFileLen": {
         "label": "Paste: limitation",
         "note": "When pasting a long text, it will be converted into a file. You can control the file length by setting the value of this parameter. Set to 0 to disable."
