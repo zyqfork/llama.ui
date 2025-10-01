@@ -1,6 +1,6 @@
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCopy, LuPlay } from 'react-icons/lu';
 import Markdown, { ExtraProps } from 'react-markdown';
@@ -12,8 +12,9 @@ import remarkMath from 'remark-math';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { CanvasType } from '../types';
-import { classNames, copyStr } from '../utils';
+import { copyStr } from '../utils';
 import { IntlIconButton } from './common';
+import MermaidChart from './MermaidChart';
 
 export default memo(function MarkdownDisplay({ content }: { content: string }) {
   const preprocessedContent = useMemo(
@@ -55,98 +56,114 @@ const CustomPre: React.ElementType<
     ExtraProps & { origContent: string }
 > = ({ className, children, node, origContent }) => {
   const { t } = useTranslation();
-  const {
-    config: { pyIntepreterEnabled },
-  } = useAppContext();
-  const { setCanvasData } = useChatContext();
 
-  const showActionButtons = useMemo(() => {
+  const { language, code } = useMemo(() => {
     const startOffset = node?.position?.start.offset;
     const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return false;
-    return true;
-  }, [node?.position]);
-
-  const codeLanguage = useMemo(() => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return '';
-
-    return (
-      origContent
-        .substring(startOffset, endOffset)
-        .match(/^```([^\n]+)\n/)?.[1] ?? ''
-    );
+    if (!startOffset || !endOffset) {
+      return {
+        language: '',
+        code: '',
+      };
+    }
+    return {
+      language:
+        origContent
+          .substring(startOffset, endOffset)
+          .match(/^```([^\n]+)\n/)?.[1] ?? '',
+      code: getCodeContent(origContent.substring(startOffset, endOffset)),
+    };
   }, [node?.position, origContent]);
 
-  const canRunCode = useMemo(
-    () => pyIntepreterEnabled && codeLanguage.toLowerCase() === 'python',
-    [pyIntepreterEnabled, codeLanguage]
-  );
-
-  const handleCopy = () => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return;
-
-    copyStr(getCodeContent(origContent.substring(startOffset, endOffset)));
-  };
-  const handleRun = () => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return;
-
-    setCanvasData({
-      type: CanvasType.PY_INTERPRETER,
-      content: getCodeContent(origContent.substring(startOffset, endOffset)),
-    });
-  };
+  if (!!language && !!code && language.toLowerCase() === 'mermaid') {
+    return <MermaidChart className="mermaid-diagram" code={code} />;
+  }
 
   return (
     <div className="hljs" aria-label={t('chatScreen.ariaLabels.codeBlock')}>
-      {showActionButtons && (
-        <div
-          className={classNames({
-            'hljs sticky h-0 z-[1] text-right p-0': true,
-            'display-none': !node?.position,
-          })}
-        >
-          {canRunCode && (
-            <IntlIconButton
-              className="btn btn-ghost w-8 h-8 p-0"
-              t={t}
-              titleKey="chatScreen.titles.run"
-              ariaLabelKey="chatScreen.ariaLabels.runCode"
-              icon={LuPlay}
-              onClick={handleRun}
-            />
-          )}
-          <IntlIconButton
-            className="btn btn-ghost w-8 h-8 p-0"
-            t={t}
-            titleKey="chatScreen.titles.copy"
-            ariaLabelKey="chatScreen.ariaLabels.copyContent"
-            icon={LuCopy}
-            onClick={handleCopy}
-          />
-        </div>
-      )}
+      <CodeBlockToolbar language={language} code={code} />
 
       <pre className={className} {...node?.properties}>
-        {codeLanguage && (
-          <div
-            className="text-sm ml-2"
-            aria-label={t('chatScreen.ariaLabels.codeLanguage')}
-          >
-            {codeLanguage}
-          </div>
-        )}
-
+        <CodeLanguageDisplay language={language} />
         {children}
       </pre>
     </div>
   );
 };
+
+function CodeBlockToolbar({
+  language,
+  code,
+}: {
+  language: string;
+  code: string;
+}) {
+  const { t } = useTranslation();
+  const {
+    config: { pyIntepreterEnabled },
+  } = useAppContext();
+  const { setCanvasData } = useChatContext();
+
+  const canRunCode = useMemo(
+    () => pyIntepreterEnabled && language.toLowerCase() === 'python',
+    [pyIntepreterEnabled, language]
+  );
+
+  const handleCopy = useCallback(() => {
+    if (!code) return;
+    copyStr(code);
+  }, [code]);
+
+  const handleRun = useCallback(() => {
+    if (!code) return;
+
+    if (language.toLowerCase() === 'python') {
+      setCanvasData({
+        type: CanvasType.PY_INTERPRETER,
+        content: code,
+      });
+    }
+  }, [code, language, setCanvasData]);
+
+  if (!language || !code) return null;
+
+  return (
+    <div className="hljs sticky h-0 z-[1] text-right p-0">
+      {canRunCode && (
+        <IntlIconButton
+          className="btn btn-ghost w-8 h-8 p-0"
+          t={t}
+          titleKey="chatScreen.titles.run"
+          ariaLabelKey="chatScreen.ariaLabels.runCode"
+          icon={LuPlay}
+          onClick={handleRun}
+        />
+      )}
+      <IntlIconButton
+        className="btn btn-ghost w-8 h-8 p-0"
+        t={t}
+        titleKey="chatScreen.titles.copy"
+        ariaLabelKey="chatScreen.ariaLabels.copyContent"
+        icon={LuCopy}
+        onClick={handleCopy}
+      />
+    </div>
+  );
+}
+
+function CodeLanguageDisplay({ language }: { language: string }) {
+  const { t } = useTranslation();
+  if (!language) return null;
+
+  return (
+    <div
+      className="text-sm ml-2"
+      aria-label={t('chatScreen.ariaLabels.codeLanguage')}
+    >
+      {language}
+    </div>
+  );
+}
 
 /**
  * The part below is copied and adapted from:
