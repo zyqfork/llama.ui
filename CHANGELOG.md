@@ -1,3 +1,9 @@
+## [2.36.0] - 2025-10-01
+
+### 🚀 Enhancements
+
+- _(chat)_ Add mermaid chart support to markdown display #103 (#212)
+
 ## [2.35.0] - 2025-09-30
 
 ### 🚀 Enhancements
