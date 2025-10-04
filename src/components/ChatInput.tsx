@@ -1,7 +1,13 @@
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { LuArrowUp, LuPaperclip, LuSquare } from 'react-icons/lu';
+import {
+  LuArrowUp,
+  LuCircleStop,
+  LuMic,
+  LuPaperclip,
+  LuSquare,
+} from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
@@ -10,6 +16,10 @@ import { useFileUpload } from '../hooks/useFileUpload';
 import { MessageExtra } from '../types';
 import { classNames, cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
+import SpeechToText, {
+  IS_SPEECH_RECOGNITION_SUPPORTED,
+  SpeechRecordCallback,
+} from './SpeechToText';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.
@@ -49,6 +59,11 @@ export const ChatInput = memo(
       if (!convId) return;
       stopGenerating(convId);
     }, [convId, stopGenerating]);
+
+    const handleRecord: SpeechRecordCallback = useCallback(
+      (text: string) => textarea.setValue(text),
+      [textarea]
+    );
 
     const sendNewMessage = async () => {
       const lastInpMsg = textarea.value();
@@ -145,6 +160,35 @@ export const ChatInput = memo(
               </div>
 
               <div className="flex items-center">
+                {IS_SPEECH_RECOGNITION_SUPPORTED && !isPending && (
+                  <SpeechToText onRecord={handleRecord}>
+                    {({ isRecording, startRecording, stopRecording }) => (
+                      <>
+                        {!isRecording && (
+                          <button
+                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                            onClick={startRecording}
+                            title="Record"
+                            aria-label="Start Recording"
+                          >
+                            <LuMic className="h-5 w-5" />
+                          </button>
+                        )}
+                        {isRecording && (
+                          <button
+                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                            onClick={stopRecording}
+                            title="Stop"
+                            aria-label="Stop Recording"
+                          >
+                            <LuCircleStop className="h-5 w-5" />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </SpeechToText>
+                )}
+
                 {isPending && (
                   <button
                     className="btn btn-neutral w-8 h-8 p-0 rounded-full"
