@@ -1,0 +1,512 @@
+{
+  "welcomeScreen": {
+    "welcome": "Olá,",
+    "welcomeNote": "como posso ajudar?"
+  },
+  "header": {
+    "title": {
+      "noChat": "Novo chat",
+      "settings": "Configurações"
+    },
+    "buttons": {
+      "newConv": "Novo",
+      "settings": "Configurações"
+    },
+    "ariaLabels": {
+      "newConv": "Nova conversa",
+      "settings": "Abrir menu de configurações"
+    }
+  },
+  "footer": {
+    "ariaDesc": "Isenção de responsabilidade",
+    "disclaimer": "O conteúdo é gerado por IA. Pode ser impreciso."
+  },
+  "sidebar": {
+    "groups": {
+      "Today": "Hoje",
+      "Yesterday": "Ontem",
+      "Previous 7 Days": "7 dias anteriores",
+      "Previous 30 Days": "30 dias anteriores"
+    },
+    "buttons": {
+      "closeSideBar": "Fechar barra lateral",
+      "more": "Mais",
+      "rename": "Renomear",
+      "download": "Baixar",
+      "delete": "Excluir"
+    },
+    "ariaLabels": {
+      "dropdown": "Mais opções",
+      "select": "Selecionar conversa: {{name}}",
+      "more": "Mostrar mais opções",
+      "rename": "Renomear conversa",
+      "download": "Baixar conversa",
+      "delete": "Excluir conversa"
+    },
+    "errors": {
+      "renameOnGenerate": "Não é possível renomear a conversa durante a geração.",
+      "downloadOnGenerate": "Não é possível baixar a conversa durante a geração.",
+      "deleteOnGenerate": "Não é possível excluir a conversa durante a geração."
+    },
+    "actions": {
+      "newName": "Insira um novo nome para a conversa",
+      "deleteConfirm": "Tem certeza de que deseja excluir esta conversa?",
+      "deleteSuccess": "Conversa excluída."
+    },
+    "storageNote": "As conversas são salvas no IndexedDB do navegador."
+  },
+  "chatScreen": {
+    "labels": {
+      "system": "Sistema",
+      "user": "Você",
+      "cancel": "Cancelar",
+      "send": "Enviar",
+      "save": "Salvar",
+      "thinking": "Pensando",
+      "thoughts": "Pensamentos"
+    },
+    "actions": {
+      "delete": {
+        "confirm": "Tem certeza de que deseja excluir esta mensagem?"
+      }
+    },
+    "titles": {
+      "previous": "Anterior",
+      "next": "Próximo",
+      "regenerate": "Regenerar",
+      "copy": "Copiar",
+      "run": "Executar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "branchChat": "Ramificar chat",
+      "play": "Reproduzir",
+      "stop": "Parar",
+      "performance": "Desempenho"
+    },
+    "ariaLabels": {
+      "messageUserRole": "Mensagem do usuário",
+      "messageAssistantRole": "Mensagem do assistente",
+      "codeBlock": "Bloco de código",
+      "codeLanguage": "Linguagem do código",
+      "siblingLeafs": "Versão da mensagem {{current}} de {{total}}",
+      "switchToPrevious": "Mudar para a versão anterior da mensagem",
+      "switchToNext": "Mudar para a próxima versão da mensagem",
+      "regenerateResponse": "Regenerar resposta",
+      "showPerformanceMetric": "Mostrar métrica de desempenho",
+      "copyContent": "Copiar conteúdo",
+      "runCode": "Executar código",
+      "editMessage": "Editar mensagem",
+      "deleteMessage": "Excluir mensagem",
+      "branchChatAfterMessage": "Ramificar chat após esta mensagem",
+      "playMessage": "Reproduzir mensagem",
+      "stopMessage": "Parar mensagem",
+      "uploadFile": "Carregar arquivo",
+      "thoughtDisplay": "Alternar exibição do processo de pensamento",
+      "thoughtContent": "Conteúdo do processo de pensamento"
+    }
+  },
+  "chatInput": {
+    "placeholder": "Digite sua mensagem... (Shift+Enter para adicionar uma nova linha)",
+    "errors": {
+      "emptyMessage": "Por favor, insira uma mensagem"
+    },
+    "item": {
+      "clickToShow": "Clique para mostrar: {{name}}",
+      "extraContentName": "Conteúdo extra"
+    },
+    "previewDialog": {
+      "closeButton": "Fechar diálogo de visualização",
+      "audioNotSupported": "Seu navegador não suporta o elemento de áudio."
+    },
+    "ariaLabels": {
+      "chatInput": "Entrada de chat",
+      "uploadFile": "Carregar arquivo",
+      "send": "Enviar mensagem",
+      "fileItems": "Arquivos selecionados",
+      "removeButton": "Remover arquivo",
+      "documentIcon": "Ícone de documento",
+      "previewDialog": "Visualizar {{name}}"
+    }
+  },
+  "modals": {
+    "cancelBtnLabel": "Cancelar",
+    "confirmBtnLabel": "Confirmar",
+    "submitBtnLabel": "Enviar",
+    "okBtnLabel": "OK"
+  },
+  "dropdown": {
+    "chooseEntity": "Escolher {{entity}}",
+    "searchPlaceholder": "Buscar {{entity}}...",
+    "noOptions": "Nenhuma opção encontrada"
+  },
+  "fileUpload": {
+    "errors": {
+      "fileTooLarge": "O arquivo é muito grande. O tamanho máximo é de 500MB.",
+      "multimodalNotSupported": "Multimodal não é suportado por este servidor ou modelo.",
+      "videoNotSupported": "Arquivos de vídeo ainda não são suportados.",
+      "audioNotSupported": "Apenas arquivos de áudio mp3 e wav são suportados.",
+      "pdfMultimodalNotSupported": "Multimodal não é suportado, o PDF será convertido para texto em vez de imagem.",
+      "fileIsBinary": "O arquivo é binário. Por favor, carregue um arquivo de texto.",
+      "failedToReadFile": "Falha ao ler o arquivo.",
+      "failedToGetCanvasContext": "Falha ao obter o contexto 2D da tela.",
+      "failedToLoadSvg": "Falha ao carregar a imagem SVG. Certifique-se de que os dados SVG são válidos."
+    },
+    "notifications": {
+      "pdfConvertedToText": "O arquivo PDF foi convertido para texto. Você também pode convertê-lo para imagem, veja nas Configurações."
+    },
+    "errorProcessingFile": "Erro ao processar arquivo: {{message}}",
+    "errorConvertingSvg": "Erro ao converter SVG para PNG: {{message}}"
+  },
+  "codeRunner": {
+    "canvasPyInterpreter": {
+      "title": "Intérprete Python",
+      "output": {
+        "loading": "Carregando Pyodide...",
+        "running": "Executando..."
+      },
+      "buttons": {
+        "run": "Executar",
+        "stop": "Parar"
+      },
+      "links": {
+        "reportBug": "Reportar um bug"
+      }
+    }
+  },
+  "settings": {
+    "tabs": {
+      "general": "Geral",
+      "ui": "UI",
+      "voice": "Voz",
+      "conversations": "Conversas",
+      "presets": "Predefinições",
+      "importExport": "Importar/Exportar",
+      "advanced": "Avançado"
+    },
+    "sections": {
+      "inferenceProvider": "Provedor de Inferência",
+      "userInterface": "Interface do Usuário",
+      "textToSpeech": "Texto para Fala",
+      "chat": "Chat",
+      "performance": "Desempenho",
+      "reasoning": "Raciocínio",
+      "generation": "Geração",
+      "samplers": "Amostradores",
+      "penalties": "Penalidades",
+      "custom": "Personalizado",
+      "experimental": "Experimental"
+    },
+    "parameters": {
+      "language": {
+        "label": "Idioma",
+        "note": "Idioma de exibição da interface do usuário."
+      },
+      "provider": {
+        "label": "Provedor",
+        "note": "O provedor pode cobrar pelo uso."
+      },
+      "baseUrl": {
+        "label": "URL Base",
+        "note": "Defina a URL Base se estiver usando um servidor autônomo."
+      },
+      "apiKey": {
+        "label": "Chave API",
+        "note": "Defina a Chave API se estiver usando a opção --api-key para o servidor."
+      },
+      "model": {
+        "label": "Modelo",
+        "note": "Defina o modelo de inferência."
+      },
+      "systemMessage": {
+        "label": "Mensagem do Sistema (será desativada se deixada vazia)",
+        "note": "A mensagem inicial que define como o modelo deve se comportar. Você pode obter exemplos em <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Nome de Usuário",
+        "note": ""
+      },
+      "showRawUserMessage": {
+        "label": "Apresentar mensagens do utilizador em bruto",
+        "note": "O processamento de remarcação será desativado para as mensagens do utilizador."
+      },
+      "showRawAssistantMessage": {
+        "label": "Exibir mensagens do modelo em bruto",
+        "note": "O processamento de remarcação será desativado para mensagens de modelo."
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Colar: limitação",
+        "note": "Ao colar um texto longo, ele será convertido em um arquivo. Você pode controlar o comprimento do arquivo definindo o valor deste parâmetro. Defina 0 para desativar."
+      },
+      "pdfAsImage": {
+        "label": "Usar PDF como imagem em vez de texto",
+        "note": "Anexe o PDF como uma imagem em vez de texto. Suportado apenas com modelos multimodais com suporte a visão."
+      },
+      "showTokensPerSecond": {
+        "label": "Mostrar métricas de desempenho",
+        "note": "Ative para ver a velocidade de processamento, tempos, etc."
+      },
+      "showThoughtInProgress": {
+        "label": "Expandir seção de pensamento",
+        "note": "Expandir mensagem de pensamento ao gerar mensagens"
+      },
+      "excludeThoughtOnReq": {
+        "label": "Excluir mensagens de pensamento ao enviar",
+        "note": "Excluir mensagens de pensamento ao enviar solicitações para a API (recomendado)"
+      },
+      "overrideGenerationOptions": {
+        "label": "Sobrescrever Opções de Geração",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Controla a aleatoriedade do texto gerado, afetando a distribuição de probabilidade dos tokens de saída. Maior = mais aleatório, menor = mais focado."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Mantém apenas os k tokens superiores."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Limita os tokens àqueles que juntos têm uma probabilidade cumulativa de pelo menos p."
+      },
+      "min_p": {
+        "label": "",
+        "note": "Limita os tokens com base na probabilidade mínima para um token ser considerado, em relação à probabilidade do token mais provável."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "O número máximo de tokens por saída."
+      },
+      "overrideSamplersOptions": {
+        "label": "Substituir Opções de Amostradores",
+        "note": ""
+      },
+      "samplers": {
+        "label": "",
+        "note": "A ordem em que os amostradores são aplicados, de forma simplificada. O padrão é \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Adicional para o amostrador de temperatura. O valor adicionado ao intervalo de temperatura dinâmica, que ajusta as probabilidades pela entropia dos tokens."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Adicional para o amostrador de temperatura. Suaviza a redistribuição de probabilidade com base no token mais provável."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Ordena e limita os tokens com base na diferença entre a log-probabilidade e a entropia."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "O amostrador XTC corta os tokens superiores; este parâmetro controla a chance de cortar tokens. 0 desativa o XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "O amostrador XTC corta os tokens superiores; este parâmetro controla a probabilidade do token que é necessária para cortar esse token."
+      },
+      "overridePenaltyOptions": {
+        "label": "Substituir Opções de Penalidade",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Últimos n tokens a considerar para penalizar a repetição"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Controla a repetição de sequências de tokens no texto gerado"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Limita os tokens com base em se eles aparecem na saída ou não."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Limita os tokens com base na frequência com que eles aparecem na saída."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "A amostragem DRY reduz a repetição no texto gerado, mesmo em contextos longos. Este parâmetro define o multiplicador da amostragem DRY."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "A amostragem DRY reduz a repetição no texto gerado, mesmo em contextos longos. Este parâmetro define o valor base da amostragem DRY."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "A amostragem DRY reduz a repetição no texto gerado, mesmo em contextos longos. Este parâmetro define o comprimento permitido para a amostragem DRY."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "A amostragem DRY reduz a repetição no texto gerado, mesmo em contextos longos. Este parâmetro define a penalidade DRY para os últimos n tokens."
+      },
+      "custom": {
+        "label": "Configuração JSON Personalizada",
+        "note": "Para mais informações, consulte a <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">documentação do servidor</a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Ativar intérprete Python",
+        "note": "Este recurso usa <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, baixado de CDN. Para usar este recurso, peça ao LLM para gerar código Python dentro de um bloco de código Markdown. Você verá um botão \"Executar\" no bloco de código, perto do botão \"Copiar\"."
+      },
+      "ttsPitch": {
+        "label": "Tom",
+        "note": "O tom em que a fala será proferida."
+      },
+      "ttsRate": {
+        "label": "Taxa",
+        "note": "A velocidade em que a fala será proferida."
+      },
+      "ttsVoice": {
+        "label": "Voz",
+        "note": "A voz que será usada para proferir a fala."
+      },
+      "ttsVolume": {
+        "label": "Volume",
+        "note": "O volume em que a fala será proferida."
+      },
+      "experimental": {
+        "note": "<p>Não há garantia de que os recursos experimentais funcionem corretamente.</p><p>Se você encontrar algum problema, crie um <a class=\"underline\" href=\"https://github.com/olegshulyakov/llama.ui/issues/new?template=010-bug.yml\" target=\"_blank\" rel=\"noopener noreferrer\">relatório de bug</a> no Github. Por favor, especifique também <b>experimental</b> no título do relatório e inclua capturas de tela.</p><p>Alguns recursos podem exigir pacotes baixados de CDN, então precisam de conexão com a internet.</p>"
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Verificar",
+        "text": "Esta é uma demonstração da síntese de fala da Web."
+      }
+    },
+    "presetManager": {
+      "newPreset": "Salvar as configurações atuais como uma predefinição",
+      "savedPresets": "Predefinições existentes",
+      "noPresetFound": "Nenhuma predefinição encontrada ainda.",
+      "modals": {
+        "enterNewPresetName": "Insira um novo nome de predefinição",
+        "presetAlreadyExists": "A predefinição \"{{presetName}}\" já existe, sobrescrever?",
+        "enterNewName": "Insira um novo nome",
+        "loadPresetConfirm": "Carregar a predefinição \"{{presetName}}\"? As configurações atuais serão substituídas.",
+        "deletePresetConfirm": "Excluir a predefinição \"{{presetName}}\"?"
+      },
+      "buttons": {
+        "save": "Criar predefinição",
+        "load": "Carregar",
+        "more": "Mais",
+        "rename": "Renomear",
+        "delete": "Excluir"
+      },
+      "labels": {
+        "created": "Criado em:"
+      },
+      "ariaLabels": {
+        "save": "Criar nova predefinição",
+        "load": "Carregar predefinição",
+        "more": "Mostrar mais ações",
+        "rename": "Renomear predefinição",
+        "delete": "Excluir predefinição"
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Tema",
+        "note": "Escolha o tema de cor do aplicativo."
+      },
+      "syntaxTheme": {
+        "label": "Tema de Sintaxe",
+        "note": "Escolha o tema de cor para os blocos de código."
+      }
+    },
+    "importExport": {
+      "chatsSectionTitle": "Chats",
+      "exportBtnLabel": "Exportar",
+      "importBtnLabel": "Importar",
+      "technicalDemoSectionTitle": "Demonstração Técnica",
+      "importDemoConversationBtnLabel": "Importar conversa de demonstração"
+    },
+    "actionButtons": {
+      "fetchModels": "Buscar Modelos",
+      "saveBtnLabel": "Salvar",
+      "cancelBtnLabel": "Fechar",
+      "resetBtnLabel": "Redefinir"
+    },
+    "footer": {
+      "version": "Versão do aplicativo: {{version}}",
+      "storageNote": "As configurações são salvas no localStorage do navegador."
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "title": "🎉 Nova versão disponível",
+      "description": "Atualize para os recursos e correções mais recentes.",
+      "note": "Suas conversas serão salvas, mas não se esqueça de fazer um backup antes de atualizar.",
+      "submitBtnLabel": "Atualizar",
+      "cancelBtnLabel": "Depois"
+    },
+    "welcomePopup": {
+      "title": "👋 Bem-vindo",
+      "description": "Parece que você ainda não configurou os modelos. Vamos para as Configurações para configurar seu provedor de Inferência.",
+      "note": "",
+      "submitBtnLabel": "Abrir Configurações",
+      "cancelBtnLabel": "Pular"
+    },
+    "noModelsPopup": {
+      "title": "😔 Nenhum Modelo Encontrado",
+      "description": "Parece que você ainda não configurou os modelos ou há um problema com seu Provedor. Vamos para as Configurações para verificar.",
+      "note": "",
+      "submitBtnLabel": "Abrir Configurações",
+      "cancelBtnLabel": "Pular"
+    }
+  },
+  "state": {
+    "database": {
+      "import": {
+        "failed": "A importação do banco de dados falhou.",
+        "completed": "A importação do banco de dados foi concluída."
+      },
+      "export": {
+        "failed": "A exportação do banco de dados falhou.",
+        "completed": "A exportação do banco de dados foi concluída."
+      }
+    },
+    "preset": {
+      "saved": "A predefinição foi salva com sucesso.",
+      "removed": "A predefinição foi removida com sucesso."
+    },
+    "inference": {
+      "errors": {
+        "providerError": "Provedor de Inferência: {{message}}."
+      }
+    },
+    "chat": {
+      "errors": {
+        "conversationNotFound": "Conversa atual não encontrada",
+        "messagesNotFound": "Mensagens atuais não encontradas",
+        "unknownError": "Erro desconhecido",
+        "unknownErrorDuringGeneration": "Erro desconhecido durante a geração",
+        "cannotSaveMessage": "Não é possível salvar a mensagem.",
+        "failedToGetResponse": "Falha ao obter resposta da IA.",
+        "failedToBranchConversation": "Falha ao ramificar a conversa."
+      }
+    }
+  },
+  "samplePrompts": [
+    "Diga-me um fato divertido para hoje.",
+    "Conte-me uma piada.",
+    "Diga-me três fatos científicos interessantes.",
+    "Liste os planetas do nosso sistema solar.",
+    "Explique as regras do xadrez.",
+    "Quais são alguns bons iniciadores de conversa?",
+    "Dê 10 ideias de presentes para o melhor amigo.",
+    "Escreva uma mensagem de aniversário para meu amigo.",
+    "Sugira temas para uma festa de aniversário.",
+    "Dê-me ideias para uma noite de jogos.",
+    "Dê-me ideias para uma escapadela de fim de semana.",
+    "Dicas para minha primeira viagem solo.",
+    "Explique um conceito complexo de forma simples.",
+    "Corrija a gramática neste texto.",
+    "Resuma o seguinte texto.",
+    "Reescreva isso para ser mais formal/casual.",
+    "Ajude-me a escrever um e-mail profissional.",
+    "Crie um cronograma para o meu dia de trabalho.",
+    "Resuma estas anotações de reunião.",
+    "Dê-me ideias para uma atividade de team building."
+  ]
+}

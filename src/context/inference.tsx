@@ -3,19 +3,25 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useReducer,
   useRef,
-  useState,
 } from 'react';
 import toast from 'react-hot-toast';
-import InferenceApi from '../api/inference';
+import { useTranslation } from 'react-i18next';
+import { getInferenceProvider } from '../api/providers';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
-import {
-  Configuration,
-  InferenceApiModel,
-  LlamaCppServerProps,
-} from '../types';
+import { Configuration, InferenceApiModel, InferenceProvider } from '../types';
 import { deepEqual } from '../utils';
 import { useAppContext } from './app';
+
+// --- Action Types ---
+
+enum InferenceActionTypes {
+  SET_PROVIDER = 'SET_PROVIDER',
+  SET_MODELS = 'SET_MODELS',
+  SET_SELECTED_MODEL = 'SET_SELECTED_MODEL',
+  RESET_STATE = 'RESET_STATE',
+}
 
 // --- Type Definitions ---
 
@@ -24,9 +30,9 @@ type FetchOptions = {
 };
 
 interface InferenceContextValue {
-  api: InferenceApi;
+  provider?: InferenceProvider | null;
   models: InferenceApiModel[];
-  serverProps: LlamaCppServerProps;
+  selectedModel: InferenceApiModel | null;
 
   fetchModels: (
     config: Configuration,
@@ -34,20 +40,77 @@ interface InferenceContextValue {
   ) => Promise<InferenceApiModel[]>;
 }
 
+interface SetProviderAction {
+  type: InferenceActionTypes.SET_PROVIDER;
+  payload: InferenceProvider | null;
+}
+
+interface SetModelsAction {
+  type: InferenceActionTypes.SET_MODELS;
+  payload: InferenceApiModel[];
+}
+
+interface SetSelectedModelAction {
+  type: InferenceActionTypes.SET_SELECTED_MODEL;
+  payload: InferenceApiModel | null;
+}
+
+interface ResetStateAction {
+  type: InferenceActionTypes.RESET_STATE;
+}
+
+type InferenceAction =
+  | SetProviderAction
+  | SetModelsAction
+  | SetSelectedModelAction
+  | ResetStateAction;
+
+interface InferenceState {
+  provider: InferenceProvider | null;
+  models: InferenceApiModel[];
+  selectedModel: InferenceApiModel | null;
+}
+
 // --- Constants ---
 
 const noModels: InferenceApiModel[] = [];
-const noServerProps: LlamaCppServerProps = {
-  build_info: '',
-  model: '',
-  n_ctx: 0,
-  modalities: {
-    vision: false,
-    audio: false,
-  },
+
+const initialState: InferenceState = {
+  provider: null,
+  models: noModels,
+  selectedModel: null,
 };
 
-const InferenceContext = createContext<InferenceContextValue | null>(null);
+const inferenceReducer = (
+  state: InferenceState,
+  action: InferenceAction
+): InferenceState => {
+  switch (action.type) {
+    case InferenceActionTypes.SET_PROVIDER:
+      return {
+        ...state,
+        provider: action.payload,
+      };
+    case InferenceActionTypes.SET_MODELS:
+      return {
+        ...state,
+        models: action.payload,
+      };
+    case InferenceActionTypes.SET_SELECTED_MODEL:
+      return {
+        ...state,
+        selectedModel: action.payload,
+      };
+    case InferenceActionTypes.RESET_STATE:
+      return {
+        provider: null,
+        models: noModels,
+        selectedModel: null,
+      };
+    default:
+      return state;
+  }
+};
 
 // --- Helper Functions ---
 
@@ -62,101 +125,139 @@ function isProviderReady(config: Configuration) {
   );
 }
 
+const InferenceContext = createContext<InferenceContextValue | null>(null);
+
 export const InferenceContextProvider = ({
   children,
 }: {
   children: React.ReactElement;
 }) => {
-  const currentConfigRef = useRef<Configuration>(CONFIG_DEFAULT);
-  const [api, setApi] = useState<InferenceApi>(
-    InferenceApi.new(CONFIG_DEFAULT)
-  );
-  const [models, setModels] = useState<InferenceApiModel[]>(noModels);
-  const [serverProps, setServerProps] =
-    useState<LlamaCppServerProps>(noServerProps);
+  const { t } = useTranslation();
+
+  const currentConfigRef = useRef<Configuration | null>(null);
+
+  const [state, dispatch] = useReducer(inferenceReducer, initialState);
 
   // --- Main Functions ---
 
   const updateApi = useCallback((config: Configuration) => {
-    if (Object.is(CONFIG_DEFAULT, config)) return;
     console.debug('Update Inference API');
-    const newApi = InferenceApi.new(config);
-    setApi(newApi);
+    if (!isProviderReady(config)) {
+      dispatch({
+        type: InferenceActionTypes.SET_PROVIDER,
+        payload: null,
+      });
+      return;
+    }
+
+    const newProvider = getInferenceProvider(
+      config.provider,
+      config.baseUrl,
+      config.apiKey
+    );
+    dispatch({ type: InferenceActionTypes.SET_PROVIDER, payload: newProvider });
   }, []);
 
-  const syncServer = useCallback(
-    async (config: Configuration, options: FetchOptions = {}) => {
-      if (Object.is(CONFIG_DEFAULT, config) || !config.baseUrl) return;
-      console.debug('Synchronize models & props with server');
-      setModels(await fetchModels(config, options));
-      setServerProps(await fetchServerProperties(config, options));
+  const fetchModels = useCallback(
+    async (
+      config: Configuration,
+      options: FetchOptions = { silent: false }
+    ): Promise<InferenceApiModel[]> => {
+      if (!isProviderReady(config)) {
+        return noModels;
+      }
+
+      console.debug('Fetch models');
+      const newProvider = getInferenceProvider(
+        config.provider,
+        config.baseUrl,
+        config.apiKey
+      );
+      let newModels = noModels;
+      try {
+        newModels = await newProvider.getModels();
+      } catch (err) {
+        if (!options.silent) {
+          console.error('fetch models failed: ', err);
+          toast.error(
+            t('state.inference.errors.providerError', {
+              message: (err as Error).message,
+            })
+          );
+        }
+      }
+      return newModels;
     },
-    []
+    [t]
   );
 
-  const fetchModels = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<InferenceApiModel[]> => {
-    if (!isProviderReady(config)) {
-      return noModels;
-    }
-
-    console.debug('Fetch models');
-    const newApi = InferenceApi.new(config);
-    let newModels = noModels;
-    try {
-      newModels = await newApi.v1Models();
-    } catch (err) {
-      if (!options.silent) {
-        console.error('fetch models failed: ', err);
-        toast.error(`Inference Provider: ${(err as Error).message}.`);
+  const updateSelectedModel = useCallback(
+    (config: Configuration) => {
+      if (!!config.model && state.models.length > 0) {
+        const selectedModel =
+          state.models.find((m) => m.id === config.model) || null;
+        dispatch({
+          type: InferenceActionTypes.SET_SELECTED_MODEL,
+          payload: selectedModel,
+        });
       }
-    }
-    return newModels;
-  };
+    },
+    [state.models]
+  );
 
-  const fetchServerProperties = async (
-    config: Configuration,
-    options: FetchOptions = { silent: false }
-  ): Promise<LlamaCppServerProps> => {
-    if (config.provider !== 'llama-cpp' || !isProviderReady(config)) {
-      return noServerProps;
-    }
-
-    console.debug('Fetch server properties');
-    const newApi = InferenceApi.new(config);
-    let newProps = noServerProps;
-    try {
-      newProps = await newApi.getServerProps();
-    } catch (err) {
-      if (!options.silent) {
-        console.error('fetch llama.cpp props failed: ', err);
+  const loadModels = useCallback(
+    async (config: Configuration, options: FetchOptions = {}) => {
+      console.debug('Loading models');
+      if (!isProviderReady(config)) {
+        dispatch({
+          type: InferenceActionTypes.SET_MODELS,
+          payload: noModels,
+        });
+        return;
       }
-    }
-    return newProps;
-  };
+
+      const models = await fetchModels(config, options);
+      dispatch({ type: InferenceActionTypes.SET_MODELS, payload: models });
+
+      updateSelectedModel(config);
+    },
+    [fetchModels, updateSelectedModel]
+  );
+
+  const initialize = useCallback(
+    async (config: Configuration) => {
+      console.debug('Initializing inference');
+      const prevConfig = currentConfigRef.current;
+      if (!deepEqual(prevConfig, config)) {
+        updateApi(config);
+      }
+
+      if (Object.is(prevConfig, CONFIG_DEFAULT) && !!config.baseUrl) {
+        loadModels(config);
+      }
+
+      updateSelectedModel(config);
+
+      currentConfigRef.current = config;
+    },
+    [loadModels, updateApi, updateSelectedModel]
+  );
 
   // --- Initialization ---
 
   const { config } = useAppContext();
   useEffect(() => {
-    const prevConfig = currentConfigRef.current;
-    if (!deepEqual(currentConfigRef.current, config)) {
-      updateApi(config);
-    }
-    if (
-      prevConfig.baseUrl !== config.baseUrl ||
-      prevConfig.apiKey !== config.apiKey
-    ) {
-      syncServer(config);
-    }
-    currentConfigRef.current = config;
-  }, [syncServer, updateApi, config]);
+    initialize(config);
+  }, [initialize, config]);
 
   return (
     <InferenceContext.Provider
-      value={{ api, models, serverProps, fetchModels }}
+      value={{
+        provider: state.provider,
+        models: state.models,
+        selectedModel: state.selectedModel,
+        fetchModels,
+      }}
     >
       {children}
     </InferenceContext.Provider>

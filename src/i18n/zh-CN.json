@@ -1,0 +1,512 @@
+{
+  "welcomeScreen": {
+    "welcome": "你好,",
+    "welcomeNote": "我能为你提供什么帮助?"
+  },
+  "header": {
+    "title": {
+      "noChat": "新聊天",
+      "settings": "设置"
+    },
+    "buttons": {
+      "newConv": "新建",
+      "settings": "设置"
+    },
+    "ariaLabels": {
+      "newConv": "新建对话",
+      "settings": "打开设置菜单"
+    }
+  },
+  "footer": {
+    "ariaDesc": "免责声明",
+    "disclaimer": "此内容由人工智能生成，可能不准确。"
+  },
+  "sidebar": {
+    "groups": {
+      "Today": "今天",
+      "Yesterday": "昨天",
+      "Previous 7 Days": "过去7天",
+      "Previous 30 Days": "过去30天"
+    },
+    "buttons": {
+      "closeSideBar": "关闭侧边栏",
+      "more": "更多",
+      "rename": "重命名",
+      "download": "下载",
+      "delete": "删除"
+    },
+    "ariaLabels": {
+      "dropdown": "更多选项",
+      "select": "选择对话: {{name}}",
+      "more": "显示更多选项",
+      "rename": "重命名对话",
+      "download": "下载对话",
+      "delete": "删除对话"
+    },
+    "errors": {
+      "renameOnGenerate": "生成时无法重命名对话。",
+      "downloadOnGenerate": "生成时无法下载对话。",
+      "deleteOnGenerate": "生成时无法删除对话。"
+    },
+    "actions": {
+      "newName": "输入对话的新名称",
+      "deleteConfirm": "您确定要删除此对话吗？",
+      "deleteSuccess": "对话已删除。"
+    },
+    "storageNote": "对话保存在浏览器的 IndexedDB 中。"
+  },
+  "chatScreen": {
+    "labels": {
+      "system": "系统",
+      "user": "你",
+      "cancel": "取消",
+      "send": "发送",
+      "save": "保存",
+      "thinking": "思考中",
+      "thoughts": "想法"
+    },
+    "actions": {
+      "delete": {
+        "confirm": "您确定要删除此消息吗？"
+      }
+    },
+    "titles": {
+      "previous": "上一条",
+      "next": "下一条",
+      "regenerate": "重新生成",
+      "copy": "复制",
+      "run": "运行",
+      "edit": "编辑",
+      "delete": "删除",
+      "branchChat": "分支出聊天",
+      "play": "播放",
+      "stop": "停止",
+      "performance": "性能"
+    },
+    "ariaLabels": {
+      "messageUserRole": "来自用户的消息",
+      "messageAssistantRole": "来自助手的消息",
+      "codeBlock": "代码块",
+      "codeLanguage": "代码语言",
+      "siblingLeafs": "消息版本 {{current}} / {{total}}",
+      "switchToPrevious": "切换到上一条消息版本",
+      "switchToNext": "切换到下一条消息版本",
+      "regenerateResponse": "重新生成响应",
+      "showPerformanceMetric": "显示性能指标",
+      "copyContent": "复制内容",
+      "runCode": "运行代码",
+      "editMessage": "编辑消息",
+      "deleteMessage": "删除消息",
+      "branchChatAfterMessage": "在此消息后分支出聊天",
+      "playMessage": "播放消息",
+      "stopMessage": "停止消息",
+      "uploadFile": "上传文件",
+      "thoughtDisplay": "切换思维过程显示",
+      "thoughtContent": "思维过程内容"
+    }
+  },
+  "chatInput": {
+    "placeholder": "输入你的消息... (Shift+Enter换行)",
+    "errors": {
+      "emptyMessage": "请输入消息"
+    },
+    "item": {
+      "clickToShow": "点击显示: {{name}}",
+      "extraContentName": "额外内容"
+    },
+    "previewDialog": {
+      "closeButton": "关闭预览对话框",
+      "audioNotSupported": "您的浏览器不支持音频元素。"
+    },
+    "ariaLabels": {
+      "chatInput": "聊天输入",
+      "uploadFile": "上传文件",
+      "send": "发送消息",
+      "fileItems": "已选文件",
+      "removeButton": "移除文件",
+      "documentIcon": "文档图标",
+      "previewDialog": "预览 {{name}}"
+    }
+  },
+  "modals": {
+    "cancelBtnLabel": "取消",
+    "confirmBtnLabel": "确认",
+    "submitBtnLabel": "提交",
+    "okBtnLabel": "确定"
+  },
+  "dropdown": {
+    "chooseEntity": "选择 {{entity}}",
+    "searchPlaceholder": "搜索 {{entity}}...",
+    "noOptions": "未找到选项"
+  },
+  "fileUpload": {
+    "errors": {
+      "fileTooLarge": "文件太大。最大大小为500MB。",
+      "multimodalNotSupported": "此服务器或模型不支持多模态。",
+      "videoNotSupported": "视频文件尚不支持。",
+      "audioNotSupported": "仅支持 mp3 和 wav 音频文件。",
+      "pdfMultimodalNotSupported": "不支持多模态，PDF 将转换为文本而不是图像。",
+      "fileIsBinary": "文件为二进制。请上传文本文件。",
+      "failedToReadFile": "读取文件失败。",
+      "failedToGetCanvasContext": "获取 2D 画布上下文失败。",
+      "failedToLoadSvg": "加载 SVG 图像失败。请确保 SVG 数据有效。"
+    },
+    "notifications": {
+      "pdfConvertedToText": "PDF 文件已转换为文本。您也可以在设置中将其转换为图像。"
+    },
+    "errorProcessingFile": "处理文件出错: {{message}}",
+    "errorConvertingSvg": "SVG 转换为 PNG 出错: {{message}}"
+  },
+  "codeRunner": {
+    "canvasPyInterpreter": {
+      "title": "Python解释器",
+      "output": {
+        "loading": "正在加载 Pyodide...",
+        "running": "正在运行..."
+      },
+      "buttons": {
+        "run": "运行",
+        "stop": "停止"
+      },
+      "links": {
+        "reportBug": "报告错误"
+      }
+    }
+  },
+  "settings": {
+    "tabs": {
+      "general": "通用",
+      "ui": "用户界面",
+      "voice": "语音",
+      "conversations": "对话",
+      "presets": "预设",
+      "importExport": "导入/导出",
+      "advanced": "高级"
+    },
+    "sections": {
+      "inferenceProvider": "推理提供者",
+      "userInterface": "用户界面",
+      "textToSpeech": "文本转语音",
+      "chat": "聊天",
+      "performance": "性能",
+      "reasoning": "推理",
+      "generation": "生成",
+      "samplers": "采样器",
+      "penalties": "惩罚",
+      "custom": "自定义",
+      "experimental": "实验性"
+    },
+    "parameters": {
+      "language": {
+        "label": "语言",
+        "note": "用户界面显示语言。"
+      },
+      "provider": {
+        "label": "提供者",
+        "note": "提供者可能会收取使用费。"
+      },
+      "baseUrl": {
+        "label": "基本 URL",
+        "note": "如果您使用独立服务器，请设置基本 URL。"
+      },
+      "apiKey": {
+        "label": "API 密钥",
+        "note": "如果您使用服务器的 --api-key 选项，请设置 API 密钥。"
+      },
+      "model": {
+        "label": "模型",
+        "note": "设置推理模型。"
+      },
+      "systemMessage": {
+        "label": "系统消息（如果留空则禁用）",
+        "note": "定义模型行为的起始消息。您可以从<a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>获取示例。"
+      },
+      "initials": {
+        "label": "用户名",
+        "note": ""
+      },
+      "showRawUserMessage": {
+        "label": "原始显示用户消息",
+        "note": "将对用户消息禁用标记处理。"
+      },
+      "showRawAssistantMessage": {
+        "label": "原始显示模型消息",
+        "note": "将对模型消息禁用标记处理。"
+      },
+      "pasteLongTextToFileLen": {
+        "label": "粘贴：限制",
+        "note": "粘贴长文本时，它将被转换为文件。您可以通过设置此参数的值来控制文件长度。设置为0可禁用。"
+      },
+      "pdfAsImage": {
+        "label": "将 PDF 用作图像而不是文本",
+        "note": "将 PDF 作为图像而不是文本附加。仅支持具有视觉支持的多模态模型。"
+      },
+      "showTokensPerSecond": {
+        "label": "显示性能指标",
+        "note": "激活以查看处理速度、时间等。"
+      },
+      "showThoughtInProgress": {
+        "label": "展开思考部分",
+        "note": "生成消息时展开思考消息"
+      },
+      "excludeThoughtOnReq": {
+        "label": "提交时排除思考消息",
+        "note": "向API发送请求时排除思考消息（推荐）"
+      },
+      "overrideGenerationOptions": {
+        "label": "覆盖生成选项",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "通过影响输出令牌的概率分布来控制生成文本的随机性。值越高=越随机，值越低=越集中。"
+      },
+      "top_k": {
+        "label": "",
+        "note": "仅保留k个最顶部的令牌。"
+      },
+      "top_p": {
+        "label": "",
+        "note": "将令牌限制在累积概率总和至少为p的范围内。"
+      },
+      "min_p": {
+        "label": "",
+        "note": "根据令牌被考虑的最小概率限制令牌，相对于最可能令牌的概率。"
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "每次输出的最大令牌数。"
+      },
+      "overrideSamplersOptions": {
+        "label": "替换采样器选项",
+        "note": ""
+      },
+      "samplers": {
+        "label": "",
+        "note": "采样器的应用顺序，以简化方式表示。默认为“dkypmxt”：dry->top_k->typ_p->top_p->min_p->xtc->temperature"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "温度采样器的附加组件。添加到动态温度范围的值，通过令牌的熵调整概率。"
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "温度采样器的附加组件。根据最可能令牌平滑概率重新分配。"
+      },
+      "typical_p": {
+        "label": "",
+        "note": "根据对数概率和熵之间的差异对令牌进行排序和限制。"
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "XTC采样器会剪切顶部令牌；此参数控制剪切令牌的概率。0禁用XTC。"
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "XTC采样器会剪切顶部令牌；此参数控制剪切该令牌所需的令牌概率。"
+      },
+      "overridePenaltyOptions": {
+        "label": "替换惩罚选项",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "考虑惩罚重复的最后n个令牌"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "控制生成文本中令牌序列的重复"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "根据令牌是否出现在输出中来限制令牌。"
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "根据令牌在输出中出现的频率来限制令牌。"
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "DRY采样即使在长上下文中也能减少生成文本中的重复。此参数设置 DRY 采样的乘数。"
+      },
+      "dry_base": {
+        "label": "",
+        "note": "DRY采样即使在长上下文中也能减少生成文本中的重复。此参数设置 DRY 采样的基本值。"
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "DRY采样即使在长上下文中也能减少生成文本中的重复。此参数设置 DRY 采样的允许长度。"
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "DRY采样即使在长上下文中也能减少生成文本中的重复。此参数设置对最后n个令牌的 DRY 惩罚。"
+      },
+      "custom": {
+        "label": "自定义 JSON 配置",
+        "note": "欲了解更多信息，请参阅<a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">服务器文档</a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "启用 Python 解释器",
+        "note": "此功能使用从 CDN 下载的 <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>。要使用此功能，请要求 LLM 在 Markdown 代码块中生成 Python 代码。您将在代码块上看到一个“运行”按钮，位于“复制”按钮旁边。"
+      },
+      "ttsPitch": {
+        "label": "音高",
+        "note": "语音将被说出的音高。"
+      },
+      "ttsRate": {
+        "label": "语速",
+        "note": "语音将被说出的速度。"
+      },
+      "ttsVoice": {
+        "label": "声音",
+        "note": "将用于说出语音的声音。"
+      },
+      "ttsVolume": {
+        "label": "音量",
+        "note": "语音将被说出的音量。"
+      },
+      "experimental": {
+        "note": "<p>实验性功能不保证能正常工作。</p><p>如果您遇到任何问题，请在 Github 上创建一个<a class=\"underline\" href=\"https://github.com/olegshulyakov/llama.ui/issues/new?template=010-bug.yml\" target=\"_blank\" rel=\"noopener noreferrer\">错误报告</a>。请务必在报告标题中注明<b>experimental</b>并附上截图。</p><p>某些功能可能需要从 CDN 下载软件包，因此需要互联网连接。</p>"
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "检查",
+        "text": "这是 Web Speech Synthesis 的演示。"
+      }
+    },
+    "presetManager": {
+      "newPreset": "将当前设置保存为预设",
+      "savedPresets": "现有预设",
+      "noPresetFound": "暂无预设。",
+      "modals": {
+        "enterNewPresetName": "输入新的预设名称",
+        "presetAlreadyExists": "预设“{{presetName}}”已存在，是否覆盖？",
+        "enterNewName": "输入新的名称",
+        "loadPresetConfirm": "加载预设“{{presetName}}”吗？当前设置将被替换。",
+        "deletePresetConfirm": "删除预设“{{presetName}}”吗？"
+      },
+      "buttons": {
+        "save": "创建预设",
+        "load": "加载",
+        "more": "更多",
+        "rename": "重命名",
+        "delete": "删除"
+      },
+      "labels": {
+        "created": "创建时间:"
+      },
+      "ariaLabels": {
+        "save": "创建新预设",
+        "load": "加载预设",
+        "more": "显示更多操作",
+        "rename": "重命名预设",
+        "delete": "删除预设"
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "主题",
+        "note": "选择应用程序的颜色主题。"
+      },
+      "syntaxTheme": {
+        "label": "语法主题",
+        "note": "选择代码块的颜色主题。"
+      }
+    },
+    "importExport": {
+      "chatsSectionTitle": "聊天",
+      "exportBtnLabel": "导出",
+      "importBtnLabel": "导入",
+      "technicalDemoSectionTitle": "技术演示",
+      "importDemoConversationBtnLabel": "导入演示对话"
+    },
+    "actionButtons": {
+      "fetchModels": "获取模型",
+      "saveBtnLabel": "保存",
+      "cancelBtnLabel": "关闭",
+      "resetBtnLabel": "重置"
+    },
+    "footer": {
+      "version": "应用程序版本: {{version}}",
+      "storageNote": "设置保存在浏览器的 localStorage 中。"
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "title": "🎉 有新版本可用",
+      "description": "更新以获取最新功能和修复。",
+      "note": "您的对话将得到保存，但更新前请不要忘记备份。",
+      "submitBtnLabel": "更新",
+      "cancelBtnLabel": "稍后"
+    },
+    "welcomePopup": {
+      "title": "👋 欢迎",
+      "description": "看起来你还没有设置模型。让我们前往设置来配置你的推理提供者。",
+      "note": "",
+      "submitBtnLabel": "打开设置",
+      "cancelBtnLabel": "跳过"
+    },
+    "noModelsPopup": {
+      "title": "😔 未找到模型",
+      "description": "看起来你还没有设置模型，或者你的提供者有问题。让我们前往设置进行检查。",
+      "note": "",
+      "submitBtnLabel": "打开设置",
+      "cancelBtnLabel": "跳过"
+    }
+  },
+  "state": {
+    "database": {
+      "import": {
+        "failed": "数据库导入失败。",
+        "completed": "数据库导入完成。"
+      },
+      "export": {
+        "failed": "数据库导出失败。",
+        "completed": "数据库导出完成。"
+      }
+    },
+    "preset": {
+      "saved": "预设保存成功。",
+      "removed": "预设移除成功。"
+    },
+    "inference": {
+      "errors": {
+        "providerError": "推理提供者: {{message}}。"
+      }
+    },
+    "chat": {
+      "errors": {
+        "conversationNotFound": "未找到当前对话",
+        "messagesNotFound": "未找到当前消息",
+        "unknownError": "未知错误",
+        "unknownErrorDuringGeneration": "生成期间发生未知错误",
+        "cannotSaveMessage": "无法保存消息。",
+        "failedToGetResponse": "无法从AI获取响应。",
+        "failedToBranchConversation": "无法分支出对话。"
+      }
+    }
+  },
+  "samplePrompts": [
+    "告诉我一个今天的趣闻。",
+    "讲个笑话。",
+    "给我三个有趣的科学事实。",
+    "列出太阳系中的行星。",
+    "解释国际象棋的规则。",
+    "有什么好的开场白吗？",
+    "给我的好朋友10个礼物创意。",
+    "为我的朋友写一封生日祝福信。",
+    "为生日派对提出主题建议。",
+    "给我一些游戏之夜的创意。",
+    "给我一些周末出游的创意。",
+    "我第一次独自旅行的建议。",
+    "简单地解释一个复杂的概念。",
+    "修改这段文字的语法。",
+    "总结以下文字。",
+    "重写这段文字，使其更正式/更随意。",
+    "帮我写一封专业的电子邮件。",
+    "为我的工作日创建一个时间表。",
+    "总结这些会议记录。",
+    "给我一些团队建设活动的创意。"
+  ]
+}

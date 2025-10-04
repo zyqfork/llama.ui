@@ -1,9 +1,6 @@
-import {
-  DocumentTextIcon,
-  SpeakerWaveIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuFileText, LuVolume2, LuX } from 'react-icons/lu';
 import { MessageExtra } from '../types';
 import { classNames } from '../utils';
 
@@ -16,6 +13,7 @@ export default function ChatInputExtraContextItem({
   removeItem?: (index: number) => void;
   clickToShow?: boolean;
 }) {
+  const { t } = useTranslation();
   const [show, setShow] = useState(-1);
   const showingItem = show >= 0 ? items?.[show] : undefined;
 
@@ -25,7 +23,7 @@ export default function ChatInputExtraContextItem({
     <div
       className="flex flex-row gap-4 overflow-x-auto py-2 px-1 mb-1"
       role="group"
-      aria-description="Selected files"
+      aria-description={t('chatInput.ariaLabels.fileItems')}
     >
       {items.map((item, i) => (
         <div
@@ -34,18 +32,20 @@ export default function ChatInputExtraContextItem({
           onClick={() => clickToShow && setShow(i)}
           tabIndex={0}
           aria-description={
-            clickToShow ? `Click to show: ${item.name}` : undefined
+            clickToShow
+              ? t('chatInput.item.clickToShow', { name: item.name })
+              : undefined
           }
           role={clickToShow ? 'button' : 'menuitem'}
         >
           {removeItem && (
             <div className="indicator-item indicator-top">
               <button
-                aria-label="Remove file"
+                aria-label={t('chatInput.ariaLabels.removeButton')}
                 className="btn btn-neutral btn-sm w-4 h-4 p-0 rounded-full"
                 onClick={() => removeItem(i)}
               >
-                <XMarkIcon className="h-3 w-3" />
+                <LuX className="lucide h-3 w-3" />
               </button>
             </div>
           )}
@@ -68,17 +68,17 @@ export default function ChatInputExtraContextItem({
               <>
                 <div
                   className="w-14 h-14 flex items-center justify-center"
-                  aria-description="Document icon"
+                  aria-description={t('chatInput.ariaLabels.documentIcon')}
                 >
                   {item.type === 'audioFile' ? (
-                    <SpeakerWaveIcon className="h-8 w-8 text-gray-500" />
+                    <LuVolume2 className="lucide h-8 w-8 text-gray-500" />
                   ) : (
-                    <DocumentTextIcon className="h-8 w-8 text-gray-500" />
+                    <LuFileText className="lucide h-8 w-8 text-gray-500" />
                   )}
                 </div>
 
                 <div className="text-xs pr-4">
-                  <b>{item.name ?? 'Extra content'}</b>
+                  <b>{item.name ?? t('chatInput.item.extraContentName')}</b>
                 </div>
               </>
             )}
@@ -89,16 +89,18 @@ export default function ChatInputExtraContextItem({
       {showingItem && (
         <dialog
           className="modal modal-open"
-          aria-description={`Preview ${showingItem.name}`}
+          aria-description={t('chatInput.ariaLabels.previewDialog', {
+            name: showingItem.name,
+          })}
         >
           <div className="modal-box">
             <div className="flex justify-between items-center mb-4">
-              <b>{showingItem.name ?? 'Extra content'}</b>
+              <b>{showingItem.name ?? t('chatInput.item.extraContentName')}</b>
               <button
                 className="btn btn-ghost btn-sm"
-                aria-label="Close preview dialog"
+                aria-label={t('chatInput.previewDialog.closeButton')}
               >
-                <XMarkIcon className="h-5 w-5" onClick={() => setShow(-1)} />
+                <LuX className="lucide h-5 w-5" onClick={() => setShow(-1)} />
               </button>
             </div>
             {showingItem.type === 'imageFile' ? (
@@ -117,7 +119,7 @@ export default function ChatInputExtraContextItem({
                   type={showingItem.mimeType}
                   aria-description={`Audio file ${showingItem.name}`}
                 />
-                Your browser does not support the audio element.
+                {t('chatInput.previewDialog.audioNotSupported')}
               </audio>
             ) : (
               <div className="overflow-x-auto">

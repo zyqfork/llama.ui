@@ -1,7 +1,8 @@
-import { PlayIcon, StopIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuPlay, LuSquare } from 'react-icons/lu';
 import { useChatContext } from '../context/chat';
-import StorageUtils from '../database';
+import LocalStorage from '../database/localStorage';
 import { CanvasType } from '../types';
 import { OpenInNewTab, XCloseButton } from './common';
 
@@ -63,7 +64,7 @@ const startWorker = () => {
   }
 };
 
-if (StorageUtils.getConfig().pyIntepreterEnabled) {
+if (LocalStorage.getConfig().pyIntepreterEnabled) {
   startWorker();
 }
 
@@ -109,6 +110,7 @@ const runCodeInWorker = (
 };
 
 export default function CanvasPyInterpreter() {
+  const { t } = useTranslation();
   const { canvasData, setCanvasData } = useChatContext();
 
   const [code, setCode] = useState(canvasData?.content ?? ''); // copy to avoid direct mutation
@@ -120,9 +122,9 @@ export default function CanvasPyInterpreter() {
   const runCode = async (pycode: string) => {
     interruptFn?.();
     setRunning(true);
-    setOutput('Loading Pyodide...');
+    setOutput(t('codeRunner.canvasPyInterpreter.output.loading'));
     const { donePromise, interrupt } = runCodeInWorker(pycode, () => {
-      setOutput('Running...');
+      setOutput(t('codeRunner.canvasPyInterpreter.output.running'));
       setShowStopBtn(canInterrupt);
     });
     setInterruptFn(() => interrupt);
@@ -147,7 +149,9 @@ export default function CanvasPyInterpreter() {
     <div className="card bg-base-200 w-full h-full shadow-xl">
       <div className="card-body">
         <div className="flex justify-between items-center mb-4">
-          <span className="text-lg font-bold">Python Interpreter</span>
+          <span className="text-lg font-bold">
+            {t('codeRunner.canvasPyInterpreter.title')}
+          </span>
           <XCloseButton
             className="bg-base-100"
             onClick={() => setCanvasData(null)}
@@ -166,19 +170,21 @@ export default function CanvasPyInterpreter() {
                 onClick={() => runCode(code)}
                 disabled={running}
               >
-                <PlayIcon className="h-6 w-6" /> Run
+                <LuPlay className="lucide h-6 w-6" />{' '}
+                {t('codeRunner.canvasPyInterpreter.buttons.run')}
               </button>
               {showStopBtn && (
                 <button
                   className="btn btn-sm bg-base-100 ml-2"
                   onClick={() => interruptFn?.()}
                 >
-                  <StopIcon className="h-6 w-6" /> Stop
+                  <LuSquare className="lucide h-6 w-6" />{' '}
+                  {t('codeRunner.canvasPyInterpreter.buttons.stop')}
                 </button>
               )}
               <span className="grow text-right text-xs">
                 <OpenInNewTab href="https://github.com/ggerganov/llama.cpp/issues/11762">
-                  Report a bug
+                  {t('codeRunner.canvasPyInterpreter.links.reportBug')}
                 </OpenInNewTab>
               </span>
             </div>

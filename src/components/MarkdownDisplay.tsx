@@ -1,7 +1,8 @@
-import { DocumentDuplicateIcon, PlayIcon } from '@heroicons/react/24/outline';
 import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuCopy, LuPlay } from 'react-icons/lu';
 import Markdown, { ExtraProps } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -11,15 +12,11 @@ import remarkMath from 'remark-math';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { CanvasType } from '../types';
-import { classNames, copyStr } from '../utils';
+import { copyStr } from '../utils';
+import { IntlIconButton } from './common';
+import MermaidChart from './MermaidChart';
 
-export default memo(function MarkdownDisplay({
-  content,
-  isGenerating,
-}: {
-  content: string;
-  isGenerating?: boolean;
-}) {
+export default memo(function MarkdownDisplay({ content }: { content: string }) {
   const preprocessedContent = useMemo(
     () => preprocessLaTeX(content),
     [content]
@@ -31,11 +28,7 @@ export default memo(function MarkdownDisplay({
       components={{
         table: (props) => <CustomTable {...props} />,
         pre: (props) => (
-          <CustomPre
-            {...props}
-            isGenerating={isGenerating}
-            origContent={preprocessedContent}
-          />
+          <CustomPre {...props} origContent={preprocessedContent} />
         ),
         // note: do not use "pre", "p" or other basic html elements here, it will cause the node to re-render when the message is being generated (this should be a bug with react-markdown, not sure how to fix it)
       }}
@@ -60,136 +53,117 @@ const CustomTable: React.ElementType<
 const CustomPre: React.ElementType<
   React.ClassAttributes<HTMLPreElement> &
     React.HTMLAttributes<HTMLPreElement> &
-    ExtraProps & { origContent: string; isGenerating?: boolean }
-> = ({ className, children, node, origContent, isGenerating }) => {
-  const {
-    config: { pyIntepreterEnabled },
-  } = useAppContext();
-  const { setCanvasData } = useChatContext();
+    ExtraProps & { origContent: string }
+> = ({ className, children, node, origContent }) => {
+  const { t } = useTranslation();
 
-  const showActionButtons = useMemo(() => {
+  const { language, code } = useMemo(() => {
     const startOffset = node?.position?.start.offset;
     const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return false;
-    return true;
-  }, [node?.position]);
-
-  const codeLanguage = useMemo(() => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return '';
-
-    return (
-      origContent
-        .substring(startOffset, endOffset)
-        .match(/^```([^\n]+)\n/)?.[1] ?? ''
-    );
+    if (!startOffset || !endOffset) {
+      return {
+        language: '',
+        code: '',
+      };
+    }
+    return {
+      language:
+        origContent
+          .substring(startOffset, endOffset)
+          .match(/^```([^\n]+)\n/)?.[1] ?? '',
+      code: getCodeContent(origContent.substring(startOffset, endOffset)),
+    };
   }, [node?.position, origContent]);
 
-  const canRunCode = useMemo(
-    () =>
-      !isGenerating &&
-      pyIntepreterEnabled &&
-      codeLanguage.toLowerCase() === 'python',
-    [isGenerating, pyIntepreterEnabled, codeLanguage]
-  );
-
-  const handleCopy = () => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return;
-
-    copyStr(getCodeContent(origContent.substring(startOffset, endOffset)));
-  };
-  const handleRun = () => {
-    const startOffset = node?.position?.start.offset;
-    const endOffset = node?.position?.end.offset;
-    if (!startOffset || !endOffset) return;
-
-    setCanvasData({
-      type: CanvasType.PY_INTERPRETER,
-      content: getCodeContent(origContent.substring(startOffset, endOffset)),
-    });
-  };
+  if (!!language && !!code && language.toLowerCase() === 'mermaid') {
+    return <MermaidChart className="mermaid-diagram" code={code} />;
+  }
 
   return (
-    <div className="hljs" aria-label="Code block">
-      {showActionButtons && (
-        <div
-          className={classNames({
-            'hljs sticky h-0 z-[1] text-right p-0': true,
-            'display-none': !node?.position,
-          })}
-          aria-label="Button block"
-        >
-          {canRunCode && (
-            <RunCodeButton
-              className="btn btn-ghost w-8 h-8 p-0"
-              onRun={handleRun}
-            />
-          )}
-          <CopyButton
-            className="btn btn-ghost w-8 h-8 p-0"
-            onCopy={handleCopy}
-          />
-        </div>
-      )}
+    <div className="hljs" aria-label={t('chatScreen.ariaLabels.codeBlock')}>
+      <CodeBlockToolbar language={language} code={code} />
 
       <pre className={className} {...node?.properties}>
-        {codeLanguage && (
-          <div className="text-sm ml-2" aria-label="Code language">
-            {codeLanguage}
-          </div>
-        )}
-
+        <CodeLanguageDisplay language={language} />
         {children}
       </pre>
     </div>
   );
 };
 
-export const CopyButton = ({
-  className,
-  onCopy,
+function CodeBlockToolbar({
+  language,
+  code,
 }: {
-  className?: string;
-  onCopy: () => void;
-}) => {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      className={className}
-      onClick={() => {
-        onCopy();
-        setCopied(true);
-      }}
-      onMouseLeave={() => setCopied(false)}
-      title={copied ? 'Copied!' : 'Copy'}
-      aria-label={copied ? 'Content copied' : 'Copy content'}
-    >
-      <DocumentDuplicateIcon className="h-4 w-4" />
-    </button>
-  );
-};
+  language: string;
+  code: string;
+}) {
+  const { t } = useTranslation();
+  const {
+    config: { pyIntepreterEnabled },
+  } = useAppContext();
+  const { setCanvasData } = useChatContext();
 
-export const RunCodeButton = ({
-  className,
-  onRun,
-}: {
-  className?: string;
-  onRun: () => void;
-}) => {
-  return (
-    <button
-      className={className}
-      onClick={onRun}
-      title="Run code"
-      aria-label="Run the code"
-    >
-      <PlayIcon className="h-4 w-4" />
-    </button>
+  const canRunCode = useMemo(
+    () => pyIntepreterEnabled && language.toLowerCase() === 'python',
+    [pyIntepreterEnabled, language]
   );
-};
+
+  const handleCopy = useCallback(() => {
+    if (!code) return;
+    copyStr(code);
+  }, [code]);
+
+  const handleRun = useCallback(() => {
+    if (!code) return;
+
+    if (language.toLowerCase() === 'python') {
+      setCanvasData({
+        type: CanvasType.PY_INTERPRETER,
+        content: code,
+      });
+    }
+  }, [code, language, setCanvasData]);
+
+  if (!language || !code) return null;
+
+  return (
+    <div className="hljs sticky h-0 z-[1] text-right p-0">
+      {canRunCode && (
+        <IntlIconButton
+          className="btn btn-ghost w-8 h-8 p-0"
+          t={t}
+          titleKey="chatScreen.titles.run"
+          ariaLabelKey="chatScreen.ariaLabels.runCode"
+          icon={LuPlay}
+          onClick={handleRun}
+        />
+      )}
+      <IntlIconButton
+        className="btn btn-ghost w-8 h-8 p-0"
+        t={t}
+        titleKey="chatScreen.titles.copy"
+        ariaLabelKey="chatScreen.ariaLabels.copyContent"
+        icon={LuCopy}
+        onClick={handleCopy}
+      />
+    </div>
+  );
+}
+
+function CodeLanguageDisplay({ language }: { language: string }) {
+  const { t } = useTranslation();
+  if (!language) return null;
+
+  return (
+    <div
+      className="text-sm ml-2"
+      aria-label={t('chatScreen.ariaLabels.codeLanguage')}
+    >
+      {language}
+    </div>
+  );
+}
 
 /**
  * The part below is copied and adapted from:

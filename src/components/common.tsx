@@ -1,5 +1,15 @@
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ButtonHTMLAttributes,
+  FC,
+  memo,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 
@@ -51,6 +61,20 @@ export const OpenInNewTab = ({
   </a>
 );
 
+export const downloadAsFile = (blobParts: BlobPart[], fileName: string) => {
+  const blob = new Blob(blobParts, {
+    type: 'application/json',
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 /**
  * @deprecated Use `title` and `aria-label` props in button directly as utiliy classes.
  *
@@ -99,9 +123,39 @@ export function BtnWithTooltips({
   );
 }
 
+interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: FC<{ className?: string }>;
+  t: ReturnType<typeof useTranslation>['t'];
+  titleKey: string;
+  ariaLabelKey: string;
+}
+export const IntlIconButton = memo(function IntlIconButton({
+  className,
+  disabled,
+  onClick,
+  icon: Icon,
+  t,
+  titleKey,
+  ariaLabelKey,
+  ...props
+}: IconButtonProps) {
+  return (
+    <button
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+      title={t(titleKey)}
+      aria-label={t(ariaLabelKey)}
+      {...props}
+    >
+      <Icon className="lucide h-4 w-4" />
+    </button>
+  );
+});
+
 export interface DropdownOption {
   value: string | number;
-  label: string | React.ReactElement;
+  label: string | ReactNode;
 }
 export interface DropdownProps<T> {
   className?: string;
@@ -144,6 +198,7 @@ export function Dropdown<T extends DropdownOption>({
   isSelected,
   onSelect,
 }: DropdownProps<T>) {
+  const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDetailsElement>(null);
   const [filter, setFilter] = useState<string>('');
   const isDisabled = useMemo<boolean>(() => options.length < 2, [options]);
@@ -186,7 +241,7 @@ export function Dropdown<T extends DropdownOption>({
         <div
           className="grow truncate"
           title={entity}
-          aria-label={`Choose ${entity}`}
+          aria-label={t('dropdown.chooseEntity', { entity })}
         >
           {currentValue}
         </div>
@@ -201,12 +256,12 @@ export function Dropdown<T extends DropdownOption>({
           <summary
             className="grow truncate flex justify-between items-center cursor-pointer"
             title={entity}
-            aria-label={`Choose ${entity}`}
+            aria-label={t('dropdown.chooseEntity', { entity })}
             aria-haspopup="listbox"
           >
             {currentValue}
             {!hideChevron && (
-              <ChevronDownIcon className="inline h-5 w-5 ml-1" />
+              <LuChevronDown className="lucide inline h-5 w-5 ml-1" />
             )}
           </summary>
 
@@ -215,7 +270,7 @@ export function Dropdown<T extends DropdownOption>({
             {filterable && (
               <input
                 type="text"
-                placeholder={`Search ${entity}s...`}
+                placeholder={t('dropdown.searchPlaceholder', { entity })}
                 className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -224,7 +279,7 @@ export function Dropdown<T extends DropdownOption>({
             )}
 
             {filteredOptions.length === 0 && (
-              <div className="p-2 text-sm">No options found</div>
+              <div className="p-2 text-sm">{t('dropdown.noOptions')}</div>
             )}
 
             {filteredOptions.length > 0 && (
@@ -244,11 +299,7 @@ export function Dropdown<T extends DropdownOption>({
                         'btn-active': isSelected(option),
                       })}
                       onClick={handleSelect(option)}
-                      aria-label={
-                        isSelected(option)
-                          ? `${option.label} selected`
-                          : `${option.label} option`
-                      }
+                      aria-label={`${option.label} ${isSelected(option) ? 'selected' : 'option'}`}
                     >
                       {renderOption(option)}
                     </button>

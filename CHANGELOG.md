@@ -1,3 +1,264 @@
+## [2.36.0] - 2025-10-01
+
+### 🚀 Enhancements
+
+- _(chat)_ Add mermaid chart support to markdown display #103 (#212)
+
+## [2.35.0] - 2025-09-30
+
+### 🚀 Enhancements
+
+- _(ui)_ Add option to display raw messages #178 (#210)
+
+### 🚜 Refactor
+
+- _(database)_ Split storage utils into indexedDB and localStorage classes (#209)
+
+## [2.34.0] - 2025-09-29
+
+### 🛠 Fixes
+
+- _(inference)_ Model list may be not loaded after setting save (#207)
+
+## [2.33.0] - 2025-09-29
+
+### 🚜 Refactor
+
+- _(settings)_ Extract settings components to separate modules (#206)
+
+## [2.32.3] - 2025-09-29
+
+### 🚀 Enhancements
+
+- _(api)_ Add NVIDIA NIM provider support (#205)
+
+## [2.32.2] - 2025-09-29
+
+### 🛠 Fixes
+
+- _(api)_ Cache provider instance with correct cache key (#204)
+
+## [2.32.1] - 2025-09-29
+
+### 🛠 Fixes
+
+- Auto-scroll too sticky (#203)
+
+### 🚜 Refactor
+
+- _(useChatScroll)_ Enhance hook with configurable options and improve chat scrolling behavior (#203)
+- _(chat)_ Optimize pending message handling in ChatScreen (#203)
+- _(ChatMessage)_ Wrap ThinkingSection in memo for performance optimization (#203)
+
+## [2.32.0] - 2025-09-29
+
+### ⚡️ Performance
+
+- _(chat)_ Add throttling to pending messages for smoother UI updates (#201)
+
+## [2.31.0] - 2025-09-29
+
+### 🚜 Refactor
+
+- _(api)_ Replace SSE processing with native stream processing (#200)
+
+## [2.30.3] - 2025-09-29
+
+### 🛠 Fixes
+
+- Chat context selectedModel may not work
+
+## [2.30.2] - 2025-09-28
+
+### 🛠 Fixes
+
+- ChatInput send button missed (#199)
+
+## [2.30.1] - 2025-09-28
+
+### 🏗️ CI/CD
+
+- Fix GitHub Workflow permissions (#198)
+
+## [2.30.0] - 2025-09-28
+
+### 🏗️ CI/CD
+
+- Update GitHub Pages deployment workflows (#197)
+
+## [2.29.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- ChatScreen - model name can be displayed incorrectly (#196)
+
+### 🚜 Refactor
+
+- _(api)_ Consolidate chat parameters in BaseOpenAIProvider (#195)
+
+## [2.28.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(provider)_ Add Mistral provider (#194)
+
+## [2.27.0] - 2025-09-28
+
+### 🚜 Refactor
+
+- _(context)_ Replace useState with useReducer in core context providers (#186)
+
+## [2.26.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(inference)_ Re-init provider on null (#191)
+- _(api)_ Update provider cache key to include base URL (#192)
+
+## [2.25.1] - 2025-09-28
+
+### 🛠 Fixes
+
+- Decrease `pasteLongTextToFileLen` label size
+
+## [2.25.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- _(provider)_ Add Groq provider and extend CloudOpenAIProvider (#190)
+
+## [2.24.1] - 2025-09-28
+
+### 🛠 Fixes
+
+- Database import-export toast type on error (#189)
+
+## [2.24.0] - 2025-09-28
+
+### 🛠 Fixes
+
+- Memorize context functions (#185)
+- _(provider)_ Add Google provider and extend BaseOpenAIProvider (#188)
+
+### 🚜 Refactor
+
+- Sidebar extract components (#184)
+- API provider (#183)
+
+## [2.23.4] - 2025-09-27
+
+### 🛠 Fixes
+
+- Trigger inference sync when default baseUrl is preconfigured (#167)
+
+## [2.23.3] - 2025-09-26
+
+### 🛠 Fixes
+
+- Code display issue (#182)
+
+## [2.23.2] - 2025-09-26
+
+### 🚜 Refactor
+
+- _(common)_ Add downloadAsFile helper and streamline download logic (#181)
+
+## [2.23.1] - 2025-09-26
+
+### 🛠 Fixes
+
+- Adjust icons (#180)
+
+## [2.23.0] - 2025-09-26
+
+### 🚀 Enhancements
+
+- _(deps)_ Replace @heroicons/react with react-icons (#177)
+
+## [2.22.5] - 2025-09-25
+
+### 🛠 Fixes
+
+- Sidebar - today label missed (#174)
+
+## [2.22.4] - 2025-09-25
+
+### 🎨 User Interface
+
+- i18n - Full UI translation (#172)
+
+## [2.22.3] - 2025-09-23
+
+### 🛠 Fixes
+
+- i18n - Update document lang (#173)
+
+## [2.22.2] - 2025-09-22
+
+### 🛠 Fixes
+
+- New Version toast miss icon (#171)
+
+## [2.22.1] - 2025-09-22
+
+### 🛠 Fixes
+
+- LLM translation (#170)
+
+## [2.22.0] - 2025-09-22
+
+### 🚀 Enhancements
+
+- Internationalization (#169)
+
+## [2.21.5] - 2025-09-21
+
+### 🛠 Fixes
+
+- Welcome page - sample prompts flicker during inference chunks #162 (#164)
+
+## [2.21.4] - 2025-09-19
+
+### 🛠 Fixes
+
+- Settings - Load Preset on click without click Save (#158)
+
+## [2.21.3] - 2025-09-18
+
+### 🛠 Fixes
+
+- Toast does not open settings (#157)
+
+## [2.21.2] - 2025-09-18
+
+### 🎨 Styling
+
+- Fix mobile padding (#156)
+
+## [2.21.1] - 2025-09-18
+
+### 🛠 Fixes
+
+- Remove vscode logic (#155)
+
+## [2.20.3] - 2025-09-17
+
+### 🛠 Fixes
+
+- Imported Presets are not shown #146 (#153)
+
+## [2.20.2] - 2025-09-17
+
+### 🛠 Fixes
+
+- Cannot reopen Settings after switching from Settings to Chat #150 (#152)
+
+## [2.20.1] - 2025-09-17
+
+### 🚀 Enhancements
+
+- Favicon update (#151)
+
 ## [2.20.0] - 2025-09-15
 
 ### 🚀 Enhancements

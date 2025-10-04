@@ -1,0 +1,512 @@
+{
+  "welcomeScreen": {
+    "welcome": "Hallo,",
+    "welcomeNote": "wie kann ich Ihnen helfen?"
+  },
+  "header": {
+    "title": {
+      "noChat": "Neuer Chat",
+      "settings": "Einstellungen"
+    },
+    "buttons": {
+      "newConv": "Neu",
+      "settings": "Einstellungen"
+    },
+    "ariaLabels": {
+      "newConv": "Neue Unterhaltung",
+      "settings": "Einstellungen öffnen"
+    }
+  },
+  "footer": {
+    "ariaDesc": "Haftungsausschluss",
+    "disclaimer": "Der Inhalt wird von einer KI generiert. Er kann ungenau sein."
+  },
+  "sidebar": {
+    "groups": {
+      "Today": "Heute",
+      "Yesterday": "Gestern",
+      "Previous 7 Days": "Letzte 7 Tage",
+      "Previous 30 Days": "Letzte 30 Tage"
+    },
+    "buttons": {
+      "closeSideBar": "Seitenleiste schließen",
+      "more": "Mehr",
+      "rename": "Umbenennen",
+      "download": "Herunterladen",
+      "delete": "Löschen"
+    },
+    "ariaLabels": {
+      "dropdown": "Weitere Optionen",
+      "select": "Unterhaltung auswählen: {{name}}",
+      "more": "Weitere Optionen anzeigen",
+      "rename": "Unterhaltung umbenennen",
+      "download": "Unterhaltung herunterladen",
+      "delete": "Unterhaltung löschen"
+    },
+    "errors": {
+      "renameOnGenerate": "Unterhaltung kann nicht umbenannt werden, während sie generiert wird.",
+      "downloadOnGenerate": "Unterhaltung kann nicht heruntergeladen werden, während sie generiert wird.",
+      "deleteOnGenerate": "Unterhaltung kann nicht gelöscht werden, während sie generiert wird."
+    },
+    "actions": {
+      "newName": "Neuen Namen für die Unterhaltung eingeben",
+      "deleteConfirm": "Sind Sie sicher, dass Sie diese Unterhaltung löschen möchten?",
+      "deleteSuccess": "Unterhaltung gelöscht."
+    },
+    "storageNote": "Unterhaltungen werden in der IndexedDB des Browsers gespeichert."
+  },
+  "chatScreen": {
+    "labels": {
+      "system": "System",
+      "user": "Sie",
+      "cancel": "Abbrechen",
+      "send": "Senden",
+      "save": "Speichern",
+      "thinking": "Denkt nach",
+      "thoughts": "Gedanken"
+    },
+    "actions": {
+      "delete": {
+        "confirm": "Sind Sie sicher, dass Sie diese Nachricht löschen möchten?"
+      }
+    },
+    "titles": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "regenerate": "Neu generieren",
+      "copy": "Kopieren",
+      "run": "Ausführen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "branchChat": "Chat verzweigen",
+      "play": "Wiedergabe",
+      "stop": "Stopp",
+      "performance": "Leistung"
+    },
+    "ariaLabels": {
+      "messageUserRole": "Nachricht vom Benutzer",
+      "messageAssistantRole": "Nachricht vom Assistenten",
+      "codeBlock": "Codeblock",
+      "codeLanguage": "Codesprache",
+      "siblingLeafs": "Nachrichtenversion {{current}} von {{total}}",
+      "switchToPrevious": "Zur vorherigen Nachrichtenversion wechseln",
+      "switchToNext": "Zur nächsten Nachrichtenversion wechseln",
+      "regenerateResponse": "Antwort neu generieren",
+      "showPerformanceMetric": "Leistungsmessung anzeigen",
+      "copyContent": "Inhalt kopieren",
+      "runCode": "Code ausführen",
+      "editMessage": "Nachricht bearbeiten",
+      "deleteMessage": "Nachricht löschen",
+      "branchChatAfterMessage": "Chat nach dieser Nachricht verzweigen",
+      "playMessage": "Nachricht abspielen",
+      "stopMessage": "Nachricht stoppen",
+      "uploadFile": "Datei hochladen",
+      "thoughtDisplay": "Anzeige des Denkprozesses umschalten",
+      "thoughtContent": "Inhalt des Denkprozesses"
+    }
+  },
+  "chatInput": {
+    "placeholder": "Nachricht eingeben... (Umschalt+Eingabetaste für eine neue Zeile)",
+    "errors": {
+      "emptyMessage": "Bitte geben Sie eine Nachricht ein"
+    },
+    "item": {
+      "clickToShow": "Klicken zum Anzeigen: {{name}}",
+      "extraContentName": "Zusätzlicher Inhalt"
+    },
+    "previewDialog": {
+      "closeButton": "Vorschau-Dialog schließen",
+      "audioNotSupported": "Ihr Browser unterstützt das Audio-Element nicht."
+    },
+    "ariaLabels": {
+      "chatInput": "Chat-Eingabe",
+      "uploadFile": "Datei hochladen",
+      "send": "Nachricht senden",
+      "fileItems": "Ausgewählte Dateien",
+      "removeButton": "Datei entfernen",
+      "documentIcon": "Dokument-Symbol",
+      "previewDialog": "Vorschau {{name}}"
+    }
+  },
+  "modals": {
+    "cancelBtnLabel": "Abbrechen",
+    "confirmBtnLabel": "Bestätigen",
+    "submitBtnLabel": "Senden",
+    "okBtnLabel": "OK"
+  },
+  "dropdown": {
+    "chooseEntity": "{{entity}} auswählen",
+    "searchPlaceholder": "{{entity}}s suchen...",
+    "noOptions": "Keine Optionen gefunden"
+  },
+  "fileUpload": {
+    "errors": {
+      "fileTooLarge": "Datei ist zu groß. Die maximale Größe beträgt 500 MB.",
+      "multimodalNotSupported": "Multimodal wird von diesem Server oder Modell nicht unterstützt.",
+      "videoNotSupported": "Videodateien werden noch nicht unterstützt.",
+      "audioNotSupported": "Es werden nur mp3- und wav-Audiodateien unterstützt.",
+      "pdfMultimodalNotSupported": "Multimodal wird nicht unterstützt, PDF wird in Text anstelle von Bild konvertiert.",
+      "fileIsBinary": "Datei ist binär. Bitte laden Sie eine Textdatei hoch.",
+      "failedToReadFile": "Fehler beim Lesen der Datei.",
+      "failedToGetCanvasContext": "Fehler beim Abrufen des 2D-Canvas-Kontexts.",
+      "failedToLoadSvg": "Fehler beim Laden des SVG-Bildes. Stellen Sie sicher, dass die SVG-Daten gültig sind."
+    },
+    "notifications": {
+      "pdfConvertedToText": "PDF-Datei in Text konvertiert. Sie können sie auch in ein Bild konvertieren, siehe Einstellungen."
+    },
+    "errorProcessingFile": "Fehler bei der Dateiverarbeitung: {{message}}",
+    "errorConvertingSvg": "Fehler beim Konvertieren von SVG in PNG: {{message}}"
+  },
+  "codeRunner": {
+    "canvasPyInterpreter": {
+      "title": "Python-Interpreter",
+      "output": {
+        "loading": "Pyodide wird geladen...",
+        "running": "Wird ausgeführt..."
+      },
+      "buttons": {
+        "run": "Ausführen",
+        "stop": "Stopp"
+      },
+      "links": {
+        "reportBug": "Einen Fehler melden"
+      }
+    }
+  },
+  "settings": {
+    "tabs": {
+      "general": "Allgemein",
+      "ui": "Benutzeroberfläche",
+      "voice": "Sprache",
+      "conversations": "Unterhaltungen",
+      "presets": "Voreinstellungen",
+      "importExport": "Import/Export",
+      "advanced": "Erweitert"
+    },
+    "sections": {
+      "inferenceProvider": "Inferenz-Anbieter",
+      "userInterface": "Benutzeroberfläche",
+      "textToSpeech": "Text-to-Speech",
+      "chat": "Chat",
+      "performance": "Leistung",
+      "reasoning": "Argumentation",
+      "generation": "Generierung",
+      "samplers": "Sampler",
+      "penalties": "Strafen",
+      "custom": "Benutzerdefiniert",
+      "experimental": "Experimentell"
+    },
+    "parameters": {
+      "language": {
+        "label": "Sprache",
+        "note": "Sprache der Benutzeroberfläche."
+      },
+      "provider": {
+        "label": "Anbieter",
+        "note": "Der Anbieter kann Gebühren für die Nutzung erheben."
+      },
+      "baseUrl": {
+        "label": "Basis-URL",
+        "note": "Legen Sie die Basis-URL fest, wenn Sie einen eigenständigen Server verwenden."
+      },
+      "apiKey": {
+        "label": "API-Schlüssel",
+        "note": "Legen Sie den API-Schlüssel fest, wenn Sie die Option --api-key für den Server verwenden."
+      },
+      "model": {
+        "label": "Modell",
+        "note": "Legen Sie das Inferenzmodell fest."
+      },
+      "systemMessage": {
+        "label": "Systemnachricht (wird deaktiviert, wenn leer gelassen)",
+        "note": "Die Startnachricht, die festlegt, wie sich das Modell verhalten soll. Beispiele finden Sie unter <a class=\"underline\" href=\"https://prompts.chat/\" target=\"_blank\" rel=\"noopener noreferrer\">Awesome ChatGPT Prompts</a>"
+      },
+      "initials": {
+        "label": "Benutzername",
+        "note": ""
+      },
+      "showRawUserMessage": {
+        "label": "Benutzermeldungen roh anzeigen",
+        "note": "Die Markdown-Verarbeitung wird für Benutzernachrichten deaktiviert."
+      },
+      "showRawAssistantMessage": {
+        "label": "Modellnachrichten roh anzeigen",
+        "note": "Die Markdown-Verarbeitung wird für Modellnachrichten deaktiviert."
+      },
+      "pasteLongTextToFileLen": {
+        "label": "Einfügen: Einschränkung",
+        "note": "Beim Einfügen eines langen Textes wird dieser in eine Datei umgewandelt. Sie können die Dateilänge durch diesen Parameter steuern. Setzen Sie ihn auf 0, um dies zu deaktivieren."
+      },
+      "pdfAsImage": {
+        "label": "PDF als Bild anstelle von Text verwenden",
+        "note": "Das PDF als Bild anstelle von Text anhängen. Nur mit multimodalen Modellen mit Visionsunterstützung möglich."
+      },
+      "showTokensPerSecond": {
+        "label": "Leistungsmesswerte anzeigen",
+        "note": "Aktivieren, um die Verarbeitungsgeschwindigkeit, Zeiten usw. zu sehen."
+      },
+      "showThoughtInProgress": {
+        "label": "Abschnitt 'Denken' erweitern",
+        "note": "Nachricht 'Denken' erweitern, wenn Nachrichten generiert werden."
+      },
+      "excludeThoughtOnReq": {
+        "label": "Nachrichten 'Denken' bei der Übermittlung ausschließen",
+        "note": "Nachrichten 'Denken' beim Senden von Anfragen an die API ausschließen (empfohlen)."
+      },
+      "overrideGenerationOptions": {
+        "label": "Generierungsoptionen überschreiben",
+        "note": ""
+      },
+      "temperature": {
+        "label": "",
+        "note": "Steuert die Zufälligkeit des generierten Textes, indem die Wahrscheinlichkeitsverteilung der Ausgabetoken beeinflusst wird. Höher = zufälliger, niedriger = fokussierter."
+      },
+      "top_k": {
+        "label": "",
+        "note": "Behält nur die k besten Token bei."
+      },
+      "top_p": {
+        "label": "",
+        "note": "Begrenzt Token auf diejenigen, die zusammen eine kumulative Wahrscheinlichkeit von mindestens p haben."
+      },
+      "min_p": {
+        "label": "",
+        "note": "Begrenzt Token basierend auf der Mindestwahrscheinlichkeit, die ein Token haben muss, um berücksichtigt zu werden, relativ zur Wahrscheinlichkeit des wahrscheinlichsten Tokens."
+      },
+      "max_tokens": {
+        "label": "",
+        "note": "Die maximale Anzahl von Token pro Ausgabe."
+      },
+      "overrideSamplersOptions": {
+        "label": "Sampler-Optionen ersetzen",
+        "note": ""
+      },
+      "samplers": {
+        "label": "",
+        "note": "Die Reihenfolge, in der die Sampler angewendet werden, auf vereinfachte Weise. Standard ist \"dkypmxt\": dry->top_k->typ_p->top_p->min_p->xtc->temperature"
+      },
+      "dynatemp_range": {
+        "label": "",
+        "note": "Add-on für den Temperatur-Sampler. Der hinzugefügte Wert zum Bereich der dynamischen Temperatur, der die Wahrscheinlichkeiten durch die Entropie der Token anpasst."
+      },
+      "dynatemp_exponent": {
+        "label": "",
+        "note": "Add-on für den Temperatur-Sampler. Glättet die Wahrscheinlichkeitsneuzuordnung basierend auf dem wahrscheinlichsten Token."
+      },
+      "typical_p": {
+        "label": "",
+        "note": "Sortiert und begrenzt Token basierend auf dem Unterschied zwischen Log-Wahrscheinlichkeit und Entropie."
+      },
+      "xtc_probability": {
+        "label": "",
+        "note": "Der XTC-Sampler schneidet Top-Token aus; dieser Parameter steuert die Wahrscheinlichkeit, dass überhaupt Token ausgeschnitten werden. 0 deaktiviert XTC."
+      },
+      "xtc_threshold": {
+        "label": "",
+        "note": "Der XTC-Sampler schneidet Top-Token aus; dieser Parameter steuert die Token-Wahrscheinlichkeit, die erforderlich ist, um dieses Token auszuschneiden."
+      },
+      "overridePenaltyOptions": {
+        "label": "Strafoptionen ersetzen",
+        "note": ""
+      },
+      "repeat_last_n": {
+        "label": "",
+        "note": "Letzte n Token, die für die Wiederholungsstrafe berücksichtigt werden sollen"
+      },
+      "repeat_penalty": {
+        "label": "",
+        "note": "Steuert die Wiederholung von Token-Sequenzen im generierten Text"
+      },
+      "presence_penalty": {
+        "label": "",
+        "note": "Begrenzt Token basierend darauf, ob sie in der Ausgabe erscheinen oder nicht."
+      },
+      "frequency_penalty": {
+        "label": "",
+        "note": "Begrenzt Token basierend darauf, wie oft sie in der Ausgabe erscheinen."
+      },
+      "dry_multiplier": {
+        "label": "",
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, auch über lange Kontexte hinweg. Dieser Parameter legt den DRY-Sampling-Multiplikator fest."
+      },
+      "dry_base": {
+        "label": "",
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, auch über lange Kontexte hinweg. Dieser Parameter legt den DRY-Sampling-Basiswert fest."
+      },
+      "dry_allowed_length": {
+        "label": "",
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, auch über lange Kontexte hinweg. Dieser Parameter legt die erlaubte Länge für DRY-Sampling fest."
+      },
+      "dry_penalty_last_n": {
+        "label": "",
+        "note": "DRY-Sampling reduziert Wiederholungen im generierten Text, auch über lange Kontexte hinweg. Dieser Parameter legt die DRY-Strafe für die letzten n Token fest."
+      },
+      "custom": {
+        "label": "Benutzerdefinierte JSON-Konfiguration",
+        "note": "Weitere Informationen finden Sie in der <a class=\"underline\" href=\"https://github.com/ggerganov/llama.cpp/blob/master/tools/server/README.md\" target=\"_blank\" rel=\"noopener noreferrer\">Serverdokumentation</a>"
+      },
+      "pyIntepreterEnabled": {
+        "label": "Python-Interpreter aktivieren",
+        "note": "Diese Funktion verwendet <a class=\"underline\" href=\"https://pyodide.org\" target=\"_blank\" rel=\"noopener noreferrer\">pyodide</a>, das von einem CDN heruntergeladen wird. Um diese Funktion zu nutzen, bitten Sie das LLM, Python-Code innerhalb eines Markdown-Codeblocks zu generieren. Sie sehen dann eine Schaltfläche \"Ausführen\" auf dem Codeblock, in der Nähe der Schaltfläche \"Kopieren\"."
+      },
+      "ttsPitch": {
+        "label": "Tonhöhe",
+        "note": "Die Tonhöhe, mit der die Äußerung gesprochen wird."
+      },
+      "ttsRate": {
+        "label": "Geschwindigkeit",
+        "note": "Die Geschwindigkeit, mit der die Äußerung gesprochen wird."
+      },
+      "ttsVoice": {
+        "label": "Stimme",
+        "note": "Die Stimme, die zum Sprechen der Äußerung verwendet wird."
+      },
+      "ttsVolume": {
+        "label": "Lautstärke",
+        "note": "Die Lautstärke, mit der die Äußerung gesprochen wird."
+      },
+      "experimental": {
+        "note": "<p>Experimentelle Funktionen funktionieren möglicherweise nicht korrekt.</p><p>Wenn Sie auf Probleme stoßen, erstellen Sie einen <a class=\"underline\" href=\"https://github.com/olegshulyakov/llama.ui/issues/new?template=010-bug.yml\" target=\"_blank\" rel=\"noopener noreferrer\">Fehlerbericht</a> auf Github. Bitte geben Sie im Titel des Berichts auch <b>experimentell</b> an und fügen Sie Screenshots bei.</p><p>Einige Funktionen erfordern Pakete, die von einem CDN heruntergeladen werden, daher benötigen sie eine Internetverbindung.</p>"
+      }
+    },
+    "textToSpeech": {
+      "check": {
+        "label": "Überprüfen",
+        "text": "Dies ist eine Demo der Web Speech Synthesis."
+      }
+    },
+    "presetManager": {
+      "newPreset": "Aktuelle Einstellungen als Voreinstellung speichern",
+      "savedPresets": "Vorhandene Voreinstellungen",
+      "noPresetFound": "Noch keine Voreinstellungen.",
+      "modals": {
+        "enterNewPresetName": "Neuen Voreinstellungsnamen eingeben",
+        "presetAlreadyExists": "Voreinstellung \"{{presetName}}\" existiert bereits, überschreiben?",
+        "enterNewName": "Neuen Namen eingeben",
+        "loadPresetConfirm": "Voreinstellung \"{{presetName}}\" laden? Aktuelle Einstellungen werden ersetzt.",
+        "deletePresetConfirm": "Voreinstellung \"{{presetName}}\" löschen?"
+      },
+      "buttons": {
+        "save": "Voreinstellung erstellen",
+        "load": "Laden",
+        "more": "Mehr",
+        "rename": "Umbenennen",
+        "delete": "Löschen"
+      },
+      "labels": {
+        "created": "Erstellt:"
+      },
+      "ariaLabels": {
+        "save": "Neue Voreinstellung erstellen",
+        "load": "Voreinstellung laden",
+        "more": "Weitere Aktionen anzeigen",
+        "rename": "Voreinstellung umbenennen",
+        "delete": "Voreinstellung löschen"
+      }
+    },
+    "themeManager": {
+      "dataTheme": {
+        "label": "Theme",
+        "note": "Wählen Sie das Farb-Theme der Anwendung."
+      },
+      "syntaxTheme": {
+        "label": "Syntax-Theme",
+        "note": "Wählen Sie das Farb-Theme für die Codeblöcke."
+      }
+    },
+    "importExport": {
+      "chatsSectionTitle": "Chats",
+      "exportBtnLabel": "Exportieren",
+      "importBtnLabel": "Importieren",
+      "technicalDemoSectionTitle": "Technische Demo",
+      "importDemoConversationBtnLabel": "Demo-Unterhaltung importieren"
+    },
+    "actionButtons": {
+      "fetchModels": "Modelle abrufen",
+      "saveBtnLabel": "Speichern",
+      "cancelBtnLabel": "Schließen",
+      "resetBtnLabel": "Zurücksetzen"
+    },
+    "footer": {
+      "version": "Anwendungsversion: {{version}}",
+      "storageNote": "Einstellungen werden im localStorage des Browsers gespeichert."
+    }
+  },
+  "toast": {
+    "newVersion": {
+      "title": "🎉 Neue Version verfügbar",
+      "description": "Aktualisieren Sie, um die neuesten Funktionen und Korrekturen zu erhalten.",
+      "note": "Ihre Unterhaltungen werden gespeichert, aber vergessen Sie nicht, vor der Aktualisierung ein Backup zu erstellen.",
+      "submitBtnLabel": "Aktualisieren",
+      "cancelBtnLabel": "Später"
+    },
+    "welcomePopup": {
+      "title": "👋 Willkommen",
+      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet. Gehen Sie zu den Einstellungen, um Ihren Inferenz-Anbieter zu konfigurieren.",
+      "note": "",
+      "submitBtnLabel": "Einstellungen öffnen",
+      "cancelBtnLabel": "Überspringen"
+    },
+    "noModelsPopup": {
+      "title": "😔 Keine Modelle gefunden",
+      "description": "Es sieht so aus, als hätten Sie die Modelle noch nicht eingerichtet oder es gibt ein Problem mit Ihrem Anbieter. Gehen Sie zu den Einstellungen, um dies zu überprüfen.",
+      "note": "",
+      "submitBtnLabel": "Einstellungen öffnen",
+      "cancelBtnLabel": "Überspringen"
+    }
+  },
+  "state": {
+    "database": {
+      "import": {
+        "failed": "Datenbank-Import fehlgeschlagen.",
+        "completed": "Datenbank-Import abgeschlossen."
+      },
+      "export": {
+        "failed": "Datenbank-Export fehlgeschlagen.",
+        "completed": "Datenbank-Export abgeschlossen."
+      }
+    },
+    "preset": {
+      "saved": "Voreinstellung erfolgreich gespeichert.",
+      "removed": "Voreinstellung erfolgreich entfernt."
+    },
+    "inference": {
+      "errors": {
+        "providerError": "Inferenz-Anbieter: {{message}}."
+      }
+    },
+    "chat": {
+      "errors": {
+        "conversationNotFound": "Aktuelle Unterhaltung nicht gefunden",
+        "messagesNotFound": "Aktuelle Nachrichten nicht gefunden",
+        "unknownError": "Unbekannter Fehler",
+        "unknownErrorDuringGeneration": "Unbekannter Fehler während der Generierung",
+        "cannotSaveMessage": "Nachricht kann nicht gespeichert werden.",
+        "failedToGetResponse": "Fehler beim Abrufen der Antwort von der KI.",
+        "failedToBranchConversation": "Fehler beim Verzweigen der Unterhaltung."
+      }
+    }
+  },
+  "samplePrompts": [
+    "Erzählen Sie mir eine lustige Tatsache für heute.",
+    "Erzählen Sie mir einen Witz.",
+    "Nennen Sie mir drei interessante Fakten aus der Wissenschaft.",
+    "Listen Sie die Planeten in unserem Sonnensystem auf.",
+    "Erklären Sie die Schachregeln.",
+    "Was sind gute Gesprächsstarter?",
+    "Nennen Sie 10 Geschenkideen für den besten Freund.",
+    "Schreiben Sie eine Geburtstagsnachricht für meinen Freund.",
+    "Schlagen Sie Themen für eine Geburtstagsparty vor.",
+    "Geben Sie mir Ideen für einen Spieleabend.",
+    "Geben Sie mir Ideen für einen Wochenendausflug.",
+    "Tipps für meine erste Solo-Reise.",
+    "Erklären Sie ein komplexes Konzept auf einfache Weise.",
+    "Korrigieren Sie die Grammatik in diesem Text.",
+    "Fassen Sie den folgenden Text zusammen.",
+    "Schreiben Sie dies um, um es formeller/lässiger zu gestalten.",
+    "Helfen Sie mir, eine professionelle E-Mail zu schreiben.",
+    "Erstellen Sie einen Zeitplan für meinen Arbeitstag.",
+    "Fassen Sie diese Besprechungsnotizen zusammen.",
+    "Geben Sie mir Ideen für eine Teambuilding-Aktivität."
+  ]
+}

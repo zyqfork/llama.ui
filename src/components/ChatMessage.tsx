@@ -1,23 +1,31 @@
+import { Fragment, memo, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import {
-  ArrowPathIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CubeTransparentIcon,
-  ExclamationCircleIcon,
-  PaperClipIcon,
-  PencilSquareIcon,
-  ShareIcon,
-  SpeakerWaveIcon,
-  SpeakerXMarkIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline';
-import { useMemo, useState } from 'react';
+  LuAtom,
+  LuBrain,
+  LuChevronLeft,
+  LuChevronRight,
+  LuCopy,
+  LuGauge,
+  LuGitMerge,
+  LuPaperclip,
+  LuRefreshCw,
+  LuSquarePen,
+  LuTrash2,
+  LuVolume2,
+  LuVolumeX,
+} from 'react-icons/lu';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
-import StorageUtils from '../database';
-import { useChatExtraContext } from '../hooks/useChatExtraContext';
-import * as lang from '../lang/en.json';
-import { Message, MessageExtra, PendingMessage } from '../types';
+import { useModals } from '../context/modal';
+import IndexedDB from '../database/indexedDB';
+import { useFileUpload } from '../hooks/useFileUpload';
+import {
+  Message,
+  MessageDisplay,
+  MessageExtra,
+  PendingMessage,
+} from '../types';
 import {
   classNames,
   copyStr,
@@ -25,9 +33,9 @@ import {
   timeFormatter,
 } from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
+import { IntlIconButton } from './common';
 import { DropzoneArea } from './DropzoneArea';
-import MarkdownDisplay, { CopyButton } from './MarkdownDisplay';
-import { useModals } from './ModalProvider';
+import MarkdownDisplay from './MarkdownDisplay';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
@@ -38,30 +46,34 @@ interface SplitMessage {
   reasoning_content?: string;
 }
 
-export default function ChatMessage({
-  msg,
-  siblingLeafNodeIds,
-  siblingCurrIdx,
-  id,
-  onRegenerateMessage,
-  onEditUserMessage,
-  onEditAssistantMessage,
-  onChangeSibling,
-  isPending,
-}: {
-  msg: Message | PendingMessage;
-  siblingLeafNodeIds: Message['id'][];
-  siblingCurrIdx: number;
-  id?: string;
+interface ChatMessageProps {
+  message: MessageDisplay;
   onRegenerateMessage(msg: Message): void;
   onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
   onEditAssistantMessage(msg: Message, content: string): void;
   onChangeSibling(sibling: Message['id']): void;
-  isPending?: boolean;
-}) {
+}
+export default memo(function ChatMessage({
+  message,
+  onRegenerateMessage,
+  onEditUserMessage,
+  onEditAssistantMessage,
+  onChangeSibling,
+}: ChatMessageProps) {
+  const { msg, siblingCurrIdx, siblingLeafNodeIds, isPending } = message;
+
+  const { t } = useTranslation();
+  const { showConfirm } = useModals();
   const {
-    config: { initials, showTokensPerSecond },
+    config: {
+      initials,
+      showTokensPerSecond,
+      showRawUserMessage,
+      showRawAssistantMessage,
+    },
   } = useAppContext();
+  const { branchMessage } = useChatContext();
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const timings = useMemo(
     () =>
@@ -69,9 +81,13 @@ export default function ChatMessage({
         ? {
             ...msg.timings,
             prompt_per_second:
-              (msg.timings.prompt_n / msg.timings.prompt_ms) * 1000,
+              !msg.timings.prompt_n || !msg.timings.prompt_ms
+                ? undefined
+                : (msg.timings.prompt_n / msg.timings.prompt_ms) * 1000,
             predicted_per_second:
-              (msg.timings.predicted_n / msg.timings.predicted_ms) * 1000,
+              !msg.timings.predicted_n || !msg.timings.predicted_ms
+                ? undefined
+                : (msg.timings.predicted_n / msg.timings.predicted_ms) * 1000,
           }
         : null,
     [msg.timings]
@@ -105,9 +121,19 @@ export default function ChatMessage({
     }),
     [msg.role]
   );
+  const renderAsMarkdown = useMemo(() => {
+    if (isUser && !showRawUserMessage) return true;
+    if (isAssistant && !showRawAssistantMessage) return true;
+    if (!isUser && !isAssistant) return true;
+    return false;
+  }, [isAssistant, isUser, showRawAssistantMessage, showRawUserMessage]);
   const showActionButtons = useMemo(
-    () => !isEditing && (isUser || (isAssistant && !isPending)),
-    [isEditing, isPending, isUser, isAssistant]
+    () => !isEditing && !isPending,
+    [isEditing, isPending]
+  );
+  const isThinking = useMemo(
+    () => !!isPending && !content,
+    [content, isPending]
   );
 
   const handleCopy = () => {
@@ -117,9 +143,14 @@ export default function ChatMessage({
   return (
     <div
       className="group"
-      id={id}
       role="group"
-      aria-description={`Message from ${msg.role}`}
+      aria-description={
+        isUser
+          ? t('chatScreen.ariaLabels.messageUserRole')
+          : isAssistant
+            ? t('chatScreen.ariaLabels.messageAssistantRole')
+            : undefined
+      }
     >
       <div
         className={classNames({
@@ -143,7 +174,7 @@ export default function ChatMessage({
           <div className="mb-1 text-sm">
             {isUser && (
               <span className="font-bold mr-1">
-                {initials || lang.chatMessage.userLabel}
+                {initials || <Trans i18nKey="chatScreen.labels.user" />}
               </span>
             )}
             {isAssistant && msg.model && (
@@ -168,21 +199,19 @@ export default function ChatMessage({
           {!isEditing && (!!content || !!reasoning_content) && (
             <div dir="auto" tabIndex={0}>
               {!!reasoning_content && (
-                <ThoughtProcess
-                  isThinking={!!isPending && !content}
+                <ThinkingSection
+                  isThinking={isThinking}
                   content={reasoning_content}
                 />
               )}
 
-              {!!content && (
-                <MarkdownDisplay content={content} isGenerating={!!isPending} />
-              )}
+              {!!content &&
+                (renderAsMarkdown ? (
+                  <MarkdownDisplay content={content} />
+                ) : (
+                  <div className="whitespace-pre-wrap">{content}</div>
+                ))}
             </div>
-          )}
-
-          {/* show loading dots for pending message */}
-          {!isEditing && isPending && (
-            <span className="loading loading-dots loading-md"></span>
           )}
         </div>
       </div>
@@ -200,29 +229,33 @@ export default function ChatMessage({
             <div
               className="flex gap-1 items-center opacity-60 text-sm"
               role="navigation"
-              aria-description={`Message version ${siblingCurrIdx + 1} of ${siblingLeafNodeIds.length}`}
+              aria-description={t('chatScreen.ariaLabels.siblingLeafs', {
+                current: siblingCurrIdx + 1,
+                total: siblingLeafNodeIds.length,
+              })}
             >
-              <button
+              <IntlIconButton
                 className="btn btn-ghost w-6 h-8 p-0"
                 onClick={() => prevSibling && onChangeSibling(prevSibling)}
                 disabled={!prevSibling}
-                title="Previous message version"
-                aria-label="Switch to the previous message version"
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </button>
+                icon={LuChevronLeft}
+                t={t}
+                titleKey="chatScreen.titles.previous"
+                ariaLabelKey="chatScreen.ariaLabels.switchToPrevious"
+              />
               <span>
                 {siblingCurrIdx + 1} / {siblingLeafNodeIds.length}
               </span>
-              <button
+
+              <IntlIconButton
                 className="btn btn-ghost w-6 h-8 p-0"
                 onClick={() => nextSibling && onChangeSibling(nextSibling)}
                 disabled={!nextSibling}
-                title="Next message version"
-                aria-label="Switch to the next message version"
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </button>
+                icon={LuChevronRight}
+                t={t}
+                titleKey="chatScreen.titles.next"
+                ariaLabelKey="chatScreen.ariaLabels.switchToNext"
+              />
             </div>
           )}
 
@@ -236,98 +269,146 @@ export default function ChatMessage({
                 }
               }}
               disabled={!msg.content}
-              title="Regenerate response"
-              aria-label="Regenerate the response"
+              title={t('chatScreen.titles.regenerate')}
+              aria-label={t('chatScreen.ariaLabels.regenerateResponse')}
             >
-              <ArrowPathIcon className="h-4 w-4" />
+              <LuRefreshCw className="lucide h-4 w-4" />
             </button>
           )}
 
           {/* render timings if enabled */}
-          {isAssistant && timings && showTokensPerSecond && (
+          {timings && showTokensPerSecond && (
             <button
               className="btn btn-ghost w-8 h-8 p-0"
-              title="Performance"
-              aria-label="Show performance metric"
+              title={t('chatScreen.titles.performance')}
+              aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >
               <div className="dropdown dropdown-hover dropdown-top">
-                <ExclamationCircleIcon className="h-4 w-4" />
+                <LuGauge className="lucide h-4 w-4" />
 
                 <div
                   tabIndex={0}
                   className="dropdown-content rounded-box bg-base-100 z-10 w-48 px-4 py-2 shadow mt-4 text-sm text-left"
                 >
-                  <b>Prompt Processing</b>
-                  <ul className="list-inside list-disc">
-                    <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
-                    <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
-                    <li>Speed: {timings.prompt_per_second.toFixed(1)} t/s</li>
-                  </ul>
-                  <br />
-                  <b>Generation</b>
-                  <ul className="list-inside list-disc">
-                    <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
-                    <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
-                    <li>
-                      Speed: {timings.predicted_per_second.toFixed(1)} t/s
-                    </li>
-                  </ul>
+                  {(timings.prompt_n || timings.prompt_ms) && (
+                    <>
+                      <b>Prompt Processing</b>
+                      <ul className="list-inside list-disc">
+                        {timings.prompt_n && (
+                          <li>Tokens: {timings.prompt_n.toFixed(0)}</li>
+                        )}
+                        {timings.prompt_ms && (
+                          <li>Time: {timings.prompt_ms.toFixed(0)} ms</li>
+                        )}
+                        {timings.prompt_per_second && (
+                          <li>
+                            Speed: {timings.prompt_per_second.toFixed(1)} t/s
+                          </li>
+                        )}
+                      </ul>
+                      <br />
+                    </>
+                  )}
+                  {(timings.predicted_n || timings.predicted_ms) && (
+                    <>
+                      <b>Generation</b>
+                      <ul className="list-inside list-disc">
+                        {timings.predicted_n && (
+                          <li>Tokens: {timings.predicted_n.toFixed(0)}</li>
+                        )}
+                        {timings.predicted_ms && (
+                          <li>Time: {timings.predicted_ms.toFixed(0)} ms</li>
+                        )}
+                        {timings.predicted_per_second && (
+                          <li>
+                            Speed: {timings.predicted_per_second.toFixed(1)} t/s
+                          </li>
+                        )}
+                      </ul>
+                    </>
+                  )}
                 </div>
               </div>
             </button>
           )}
 
           {/* edit message */}
-          <button
+          <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
             onClick={() => setIsEditing(msg.content !== null)}
             disabled={!msg.content}
-            title="Edit message"
-            aria-label="Edit the message"
-          >
-            <PencilSquareIcon className="h-4 w-4" />
-          </button>
-
-          <CopyButton
-            className="btn btn-ghost w-8 h-8 p-0"
-            onCopy={handleCopy}
+            icon={LuSquarePen}
+            t={t}
+            titleKey="chatScreen.titles.edit"
+            ariaLabelKey="chatScreen.ariaLabels.editMessage"
           />
 
+          {/* copy message */}
+          <IntlIconButton
+            className="btn btn-ghost w-8 h-8 p-0"
+            onClick={handleCopy}
+            icon={LuCopy}
+            t={t}
+            titleKey="chatScreen.titles.copy"
+            ariaLabelKey="chatScreen.ariaLabels.copyContent"
+          />
+
+          {/* play message */}
           <PlayButton
             className="btn btn-ghost w-8 h-8 p-0"
+            disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || !content}
             text={content ?? ''}
           />
 
-          <DeleteButton
+          {/* delete message */}
+          <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
-            msg={msg as Message}
+            onClick={async () => {
+              if (await showConfirm(t('chatScreen.actions.delete.confirm'))) {
+                await IndexedDB.deleteMessage(msg);
+              }
+            }}
+            disabled={!msg.content}
+            icon={LuTrash2}
+            t={t}
+            titleKey="chatScreen.titles.delete"
+            ariaLabelKey="chatScreen.ariaLabels.deleteMessage"
           />
 
-          <BranchButton
+          {/* branch message */}
+          <IntlIconButton
             className="btn btn-ghost w-8 h-8 p-0"
-            msg={msg as Message}
+            onClick={async () => await branchMessage(msg as Message)}
+            disabled={!msg.content}
+            t={t}
+            titleKey="chatScreen.titles.branchChat"
+            ariaLabelKey="chatScreen.ariaLabels.branchChatAfterMessage"
+            icon={LuGitMerge}
           />
         </div>
       )}
     </div>
   );
-}
+});
 
+interface EditMessageProps {
+  msg: Message | PendingMessage;
+  setIsEditing(flag: boolean): void;
+  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
+  onEditAssistantMessage(msg: Message, content: string): void;
+}
 function EditMessage({
   msg,
   setIsEditing,
   onEditUserMessage,
   onEditAssistantMessage,
-}: {
-  msg: Message | PendingMessage;
-  setIsEditing(flag: boolean): void;
-  onEditUserMessage(msg: Message, content: string, extra: MessageExtra[]): void;
-  onEditAssistantMessage(msg: Message, content: string): void;
-}) {
+}: EditMessageProps) {
+  const { t } = useTranslation();
+
   const [editingContent, setEditingContent] = useState<string>(
     msg.content || ''
   );
-  const extraContext = useChatExtraContext(msg.extra);
+  const extraContext = useFileUpload(msg.extra);
 
   return (
     <DropzoneArea
@@ -348,11 +429,11 @@ function EditMessage({
             <label
               htmlFor={`file-upload-${msg.id}`}
               className="btn w-8 h-8 mt-1 p-0 rounded-full"
-              aria-label="Upload file"
+              aria-label={t('chatScreen.ariaLabels.uploadFile')}
               tabIndex={0}
               role="button"
             >
-              <PaperClipIcon className="h-5 w-5" />
+              <LuPaperclip className="lucide h-5 w-5" />
             </label>
             <div className="grow" />
           </>
@@ -362,7 +443,7 @@ function EditMessage({
           className="btn btn-ghost mr-2"
           onClick={() => setIsEditing(false)}
         >
-          Cancel
+          <Trans i18nKey="chatScreen.labels.cancel" />
         </button>
 
         {msg.role === 'user' && (
@@ -378,7 +459,7 @@ function EditMessage({
             }}
             disabled={!editingContent}
           >
-            Send
+            <Trans i18nKey="chatScreen.labels.send" />
           </button>
         )}
 
@@ -391,7 +472,7 @@ function EditMessage({
             }}
             disabled={!editingContent}
           >
-            Save
+            <Trans i18nKey="chatScreen.labels.save" />
           </button>
         )}
       </div>
@@ -399,20 +480,25 @@ function EditMessage({
   );
 }
 
-function ThoughtProcess({
-  isThinking,
-  content,
-}: {
+interface ThinkingSectionProps {
   isThinking: boolean;
   content: string;
-}) {
+}
+const ThinkingSection = memo(function ThinkingSection({
+  isThinking,
+  content,
+}: ThinkingSectionProps) {
+  const { t } = useTranslation();
   const {
-    config: { showThoughtInProgress },
+    config: { showThoughtInProgress, showRawAssistantMessage },
   } = useAppContext();
+
+  if (!content) return null;
+
   return (
     <div
       role="button"
-      aria-label="Toggle thought process display"
+      aria-label={t('chatScreen.ariaLabels.thoughtDisplay')}
       tabIndex={0}
       className="collapse bg-none"
     >
@@ -421,14 +507,14 @@ function ThoughtProcess({
         <div className="btn border-0 rounded-xl">
           {isThinking && (
             <>
-              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0 animate-spin" />
-              Thinking
+              <LuAtom className="lucide h-6 w-6 mr-1 p-0 animate-spin" />
+              <Trans i18nKey="chatScreen.labels.thinking" />
             </>
           )}
           {!isThinking && (
             <>
-              <CubeTransparentIcon className="h-6 w-6 mr-1 p-0" />
-              Thoughts
+              <LuBrain className="lucide h-6 w-6 mr-1 p-0" />
+              <Trans i18nKey="chatScreen.labels.thoughts" />
             </>
           )}
         </div>
@@ -436,23 +522,31 @@ function ThoughtProcess({
       <div
         className="collapse-content text-base-content/70 text-sm p-1"
         tabIndex={0}
-        aria-description="Thought process content"
+        aria-description={t('chatScreen.ariaLabels.thoughtContent')}
       >
         <div className="border-l-2 border-base-content/20 pl-4 mb-4">
-          <MarkdownDisplay content={content} />
+          {showRawAssistantMessage ? (
+            <div className="whitespace-pre-wrap">{content}</div>
+          ) : (
+            <MarkdownDisplay content={content} />
+          )}
         </div>
       </div>
     </div>
   );
-}
+});
 
-const PlayButton = ({
-  className,
-  text,
-}: {
+interface PlayButtonProps {
   className?: string;
+  disabled?: boolean;
   text: string;
-}) => {
+}
+const PlayButton = memo(function PlayButton({
+  className,
+  disabled,
+  text,
+}: PlayButtonProps) {
+  const { t } = useTranslation();
   const {
     config: { ttsVoice, ttsPitch, ttsRate, ttsVolume },
   } = useAppContext();
@@ -465,63 +559,31 @@ const PlayButton = ({
       volume={ttsVolume}
     >
       {({ isPlaying, play, stop }) => (
-        <button
-          className={className}
-          onClick={() => (!isPlaying ? play() : stop())}
-          disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || text === ''}
-          title={!isPlaying ? 'Play' : 'Stop'}
-          aria-label="Play message"
-        >
-          {!isPlaying && <SpeakerWaveIcon className="h-4 w-4" />}
-          {isPlaying && <SpeakerXMarkIcon className="h-4 w-4" />}
-        </button>
+        <Fragment>
+          {!isPlaying && (
+            <IntlIconButton
+              className={className}
+              onClick={play}
+              disabled={disabled}
+              t={t}
+              titleKey="chatScreen.titles.play"
+              ariaLabelKey="chatScreen.ariaLabels.playMessage"
+              icon={LuVolume2}
+            />
+          )}
+          {isPlaying && (
+            <IntlIconButton
+              className={className}
+              onClick={stop}
+              disabled={disabled}
+              t={t}
+              titleKey="chatScreen.titles.stop"
+              ariaLabelKey="chatScreen.ariaLabels.stopMessage"
+              icon={LuVolumeX}
+            />
+          )}
+        </Fragment>
       )}
     </TextToSpeech>
   );
-};
-
-const DeleteButton = ({
-  className,
-  msg,
-}: {
-  className?: string;
-  msg: Message;
-}) => {
-  const { showConfirm } = useModals();
-  return (
-    <button
-      className={className}
-      onClick={async () => {
-        if (await showConfirm('Are you sure to delete this message?')) {
-          await StorageUtils.deleteMessage(msg);
-        }
-      }}
-      disabled={!msg.content}
-      title="Delete"
-      aria-label="Delete this message"
-    >
-      <TrashIcon className="h-4 w-4" />
-    </button>
-  );
-};
-
-const BranchButton = ({
-  className,
-  msg,
-}: {
-  className?: string;
-  msg: Message;
-}) => {
-  const { branchMessage } = useChatContext();
-  return (
-    <button
-      className={className}
-      onClick={async () => await branchMessage(msg)}
-      disabled={!msg.content}
-      title="Branch chat after this message"
-      aria-label="Branch chat after this message"
-    >
-      <ShareIcon className="h-4 w-4 rotate-299" />
-    </button>
-  );
-};
+});

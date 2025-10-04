@@ -1,16 +1,17 @@
 import { FC, useCallback, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import {
   BrowserRouter,
   Navigate,
   Outlet,
   Route,
   Routes,
+  useNavigate,
   useParams,
 } from 'react-router';
 import { Footer } from './components/Footer';
 import Header from './components/Header';
-import { ModalProvider } from './components/ModalProvider';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
 import { AppContextProvider, useAppContext } from './context/app';
@@ -19,9 +20,9 @@ import {
   InferenceContextProvider,
   useInferenceContext,
 } from './context/inference';
+import { ModalProvider } from './context/modal';
 import { useDebouncedCallback } from './hooks/useDebouncedCallback';
 import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
-import * as lang from './lang/en.json';
 import ChatScreen from './pages/ChatScreen';
 import Settings from './pages/Settings';
 import WelcomeScreen from './pages/WelcomeScreen';
@@ -57,7 +58,9 @@ const App: FC = () => {
 };
 
 const AppLayout: FC = () => {
-  const { config, showSettings, setShowSettings } = useAppContext();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { config, showSettings } = useAppContext();
   const { models } = useInferenceContext();
   const { isNewVersion, handleUpdate } = usePWAUpdatePrompt();
 
@@ -67,20 +70,19 @@ const AppLayout: FC = () => {
       if (Array.isArray(models) && models.length > 0) return;
 
       toast(
-        (t) => {
+        (toast) => {
           const isInitialSetup = config.baseUrl === '';
-          const popupConfig = isInitialSetup
-            ? lang.welcomePopup
-            : lang.noModelsPopup;
+          const popupConfig = isInitialSetup ? 'welcomePopup' : 'noModelsPopup';
 
           return (
             <ToastPopup
-              t={t}
-              onSubmit={() => setShowSettings(true)}
-              title={popupConfig.title}
-              description={popupConfig.description}
-              submitBtn={popupConfig.submitBtnLabel}
-              cancelBtn={popupConfig.cancelBtnLabel}
+              t={toast}
+              onSubmit={() => navigate('/settings')}
+              title={t(`toast.${popupConfig}.title`)}
+              description={t(`toast.${popupConfig}.description`)}
+              note={t(`toast.${popupConfig}.note`)}
+              submitBtn={t(`toast.${popupConfig}.submitBtnLabel`)}
+              cancelBtn={t(`toast.${popupConfig}.cancelBtnLabel`)}
             />
           );
         },
@@ -91,7 +93,7 @@ const AppLayout: FC = () => {
         }
       );
     },
-    [config.baseUrl, setShowSettings]
+    [t, config.baseUrl, navigate]
   );
 
   const delayedNoModels = useDebouncedCallback(
@@ -103,26 +105,25 @@ const AppLayout: FC = () => {
   useEffect(() => {
     if (isNewVersion) {
       toast(
-        (t) => (
+        (toast) => (
           <ToastPopup
-            t={t}
+            t={toast}
             onSubmit={handleUpdate}
-            title={lang.newVersion.title}
-            description={lang.newVersion.description}
-            note={lang.newVersion.note}
-            submitBtn={lang.newVersion.submitBtnLabel}
-            cancelBtn={lang.newVersion.cancelBtnLabel}
+            title={t('toast.newVersion.title')}
+            description={t('toast.newVersion.description')}
+            note={t('toast.newVersion.note')}
+            submitBtn={t('toast.newVersion.submitBtnLabel')}
+            cancelBtn={t('toast.newVersion.cancelBtnLabel')}
           />
         ),
         {
           id: TOAST_IDS.PWA_UPDATE,
           duration: Infinity,
           position: 'top-center',
-          icon: lang.newVersion.icon,
         }
       );
     }
-  }, [isNewVersion, handleUpdate]);
+  }, [t, isNewVersion, handleUpdate]);
 
   // Handle model checking
   useEffect(() => {
@@ -132,7 +133,7 @@ const AppLayout: FC = () => {
   return (
     <>
       <Sidebar />
-      <div className="drawer-content flex flex-col w-full h-screen px-2 bg-base-300">
+      <div className="drawer-content flex flex-col w-full h-screen px-1 md:px-2 bg-base-300">
         <Header />
         <main
           className="grow flex flex-col overflow-auto bg-base-100 rounded-xl"

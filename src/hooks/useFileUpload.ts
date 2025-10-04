@@ -3,35 +3,63 @@ import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../context/app';
 import { useInferenceContext } from '../context/inference';
 import { MessageExtra } from '../types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
 
-// This file handles uploading extra context items (a.k.a files)
-// It allows processing these kinds of files:
-// - image files (converted to base64)
-// - audio files (converted to base64)
-// - text files (including code files)
-// - pdf (converted to text)
+/**
+ * This file handles uploading extra context items (a.k.a files)
+ * It allows processing these kinds of files:
+ * - image files (converted to base64)
+ * - audio files (converted to base64)
+ * - text files (including code files)
+ * - pdf (converted to text)
+ */
 
-// Interface describing the API returned by the hook
-export interface ChatExtraContextApi {
-  items?: MessageExtra[]; // undefined if empty, similar to Message['extra']
+/**
+ * Interface describing the API returned by the useFileUpload hook
+ */
+export interface FileUploadApi {
+  /** Array of uploaded files/items, undefined if empty */
+  items?: MessageExtra[];
+
+  /** Adds new items to the upload list */
   addItems: (items: MessageExtra[]) => void;
+
+  /** Removes an item at the specified index */
   removeItem: (idx: number) => void;
+
+  /** Clears all items from the upload list */
   clearItems: () => void;
-  onFileAdded: (files: File[]) => void; // used by "upload" button
+
+  /** Handles file uploads and processes them based on type */
+  onFileAdded: (files: File[]) => void;
 }
 
-export function useChatExtraContext(
+/**
+ * Custom React hook for handling file uploads and processing various file types
+ *
+ * @remarks
+ * This hook supports processing of:
+ * - Image files (converted to base64)
+ * - Audio files (converted to base64)
+ * - Text files (including code files)
+ * - PDF files (converted to text or images based on configuration)
+ *
+ * @param initialItems - Initial array of MessageExtra items to pre-populate the hook
+ * @returns FileUploadApi object with methods and state for file upload management
+ */
+export function useFileUpload(
   initialItems: MessageExtra[] = []
-): ChatExtraContextApi {
+): FileUploadApi {
+  const { t } = useTranslation();
   const {
     config: { pdfAsImage },
   } = useAppContext();
-  const { serverProps } = useInferenceContext();
+  const { selectedModel } = useInferenceContext();
   const [items, setItems] = useState<MessageExtra[]>(initialItems);
 
   const addItems = (newItems: MessageExtra[]) => {
@@ -46,7 +74,7 @@ export function useChatExtraContext(
     setItems([]);
   };
 
-  const isSupportVision = serverProps?.modalities?.vision;
+  const isSupportVision = selectedModel?.modalities?.includes('image');
 
   const onFileAdded = async (files: File[]) => {
     try {
@@ -56,20 +84,20 @@ export function useChatExtraContext(
         // this limit is only to prevent accidental uploads of huge files
         // it can potentially crashes the browser because we read the file as base64
         if (file.size > 500 * 1024 * 1024) {
-          toast.error('File is too large. Maximum size is 500MB.');
+          toast.error(t('fileUpload.errors.fileTooLarge'));
           break;
         }
 
         if (mimeType.startsWith('image/')) {
           if (!isSupportVision) {
-            toast.error('Multimodal is not supported by this server or model.');
+            toast.error(t('fileUpload.errors.multimodalNotSupported'));
             break;
           }
 
-          let base64Url = await getFileAsBase64(file);
+          let base64Url = await getFileAsBase64(file, true, t);
           if (mimeType === 'image/svg+xml') {
             // Convert SVG to PNG
-            base64Url = await svgBase64UrlToPngDataURL(base64Url);
+            base64Url = await svgBase64UrlToPngDataURL(base64Url, t);
           }
           addItems([
             {
@@ -79,16 +107,16 @@ export function useChatExtraContext(
             },
           ]);
         } else if (mimeType.startsWith('video/')) {
-          toast.error('Video files are not supported yet.');
+          toast.error(t('fileUpload.errors.videoNotSupported'));
           break;
         } else if (mimeType.startsWith('audio/')) {
           if (!/mpeg|wav/.test(mimeType)) {
-            toast.error('Only mp3 and wav audio files are supported.');
+            toast.error(t('fileUpload.errors.audioNotSupported'));
             break;
           }
 
           // plain base64, not a data URL
-          const base64Data = await getFileAsBase64(file, false);
+          const base64Data = await getFileAsBase64(file, false, t);
           addItems([
             {
               type: 'audioFile',
@@ -99,15 +127,13 @@ export function useChatExtraContext(
           ]);
         } else if (mimeType.startsWith('application/pdf')) {
           if (pdfAsImage && !isSupportVision) {
-            toast(
-              'Multimodal is not supported, PDF will be converted to text instead of image.'
-            );
+            toast(t('fileUpload.errors.pdfMultimodalNotSupported'));
             break;
           }
 
           if (pdfAsImage && isSupportVision) {
             // Convert PDF to images
-            const base64Urls = await convertPDFToImage(file);
+            const base64Urls = await convertPDFToImage(file, t);
             addItems(
               base64Urls.map((base64Url) => ({
                 type: 'imageFile',
@@ -117,7 +143,7 @@ export function useChatExtraContext(
             );
           } else {
             // Convert PDF to text
-            const content = await convertPDFToText(file);
+            const content = await convertPDFToText(file, t);
             addItems([
               {
                 type: 'textFile',
@@ -126,9 +152,7 @@ export function useChatExtraContext(
               },
             ]);
             if (isSupportVision) {
-              toast.success(
-                'PDF file converted to text. You can also convert it to image, see in Settings.'
-              );
+              toast.success(t('fileUpload.notifications.pdfConvertedToText'));
             }
           }
           break;
@@ -140,7 +164,7 @@ export function useChatExtraContext(
             if (event.target?.result) {
               const content = event.target.result as string;
               if (!isLikelyNotBinary(content)) {
-                toast.error('File is binary. Please upload a text file.');
+                toast.error(t('fileUpload.errors.fileIsBinary'));
                 return;
               }
               addItems([
@@ -157,7 +181,9 @@ export function useChatExtraContext(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = `Error processing file: ${message}`;
+      const errorMessage = t('fileUpload.errorProcessingFile', {
+        message,
+      });
       toast.error(errorMessage);
     }
   };
@@ -171,7 +197,19 @@ export function useChatExtraContext(
   };
 }
 
-async function getFileAsBase64(file: File, outputUrl = true): Promise<string> {
+/**
+ * Reads a file and returns it as a base64 string or data URL
+ *
+ * @param file - The file to read
+ * @param outputUrl - Whether to output as data URL (true) or plain base64 (false)
+ * @param t - Translation function
+ * @returns Promise resolving to the base64 string or data URL
+ */
+async function getFileAsBase64(
+  file: File,
+  outputUrl = true,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -183,29 +221,49 @@ async function getFileAsBase64(file: File, outputUrl = true): Promise<string> {
         }
         resolve(result);
       } else {
-        reject(new Error('Failed to read file.'));
+        reject(new Error(t('fileUpload.errors.failedToReadFile')));
       }
     };
     reader.readAsDataURL(file);
   });
 }
 
-async function getFileAsBuffer(file: File): Promise<ArrayBuffer> {
+/**
+ * Reads a file and returns it as an ArrayBuffer
+ *
+ * @param file - The file to read
+ * @param t - Translation function
+ * @returns Promise resolving to the ArrayBuffer
+ */
+async function getFileAsBuffer(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
         resolve(event.target.result as ArrayBuffer);
       } else {
-        reject(new Error('Failed to read file.'));
+        reject(new Error(t('fileUpload.errors.failedToReadFile')));
       }
     };
     reader.readAsArrayBuffer(file);
   });
 }
 
-async function convertPDFToText(file: File): Promise<string> {
-  const buffer = await getFileAsBuffer(file);
+/**
+ * Converts a PDF file to text content
+ *
+ * @param file - The PDF file to convert
+ * @param t - Translation function
+ * @returns Promise resolving to the extracted text content
+ */
+async function convertPDFToText(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
+  const buffer = await getFileAsBuffer(file, t);
   const pdf = await pdfjs.getDocument(buffer).promise;
   const numPages = pdf.numPages;
   const textContentPromises: Promise<TextContent>[] = [];
@@ -221,9 +279,18 @@ async function convertPDFToText(file: File): Promise<string> {
   return textItems.join('\n');
 }
 
-// returns list of base64 images
-async function convertPDFToImage(file: File): Promise<string[]> {
-  const buffer = await getFileAsBuffer(file);
+/**
+ * Converts a PDF file to an array of base64 image data URLs
+ *
+ * @param file - The PDF file to convert
+ * @param t - Translation function
+ * @returns Promise resolving to an array of base64 image data URLs
+ */
+async function convertPDFToImage(
+  file: File,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string[]> {
+  const buffer = await getFileAsBuffer(file, t);
   const doc = await pdfjs.getDocument(buffer).promise;
   const pages: Promise<string>[] = [];
 
@@ -235,7 +302,7 @@ async function convertPDFToImage(file: File): Promise<string[]> {
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     if (!ctx) {
-      throw new Error('Failed to get 2D context from canvas');
+      throw new Error(t('fileUpload.errors.failedToGetCanvasContext'));
     }
     const task = page.render({ canvasContext: ctx, viewport: viewport });
     pages.push(
@@ -248,10 +315,18 @@ async function convertPDFToImage(file: File): Promise<string[]> {
   return await Promise.all(pages);
 }
 
-// WARN: vibe code below
-// This code is a heuristic to determine if a string is likely not binary.
-// It is necessary because input file can have various mime types which we don't have time to investigate.
-// For example, a python file can be text/plain, application/x-python, etc.
+/**
+ * Heuristic function to determine if a string is likely not binary
+ *
+ * @remarks
+ * This is a heuristic approach to detect binary files by checking for:
+ * - Unicode Replacement Characters (U+FFFD)
+ * - Null bytes (U+0000)
+ * - C0 Control Characters (excluding common text controls)
+ *
+ * @param str - The string to check
+ * @returns Boolean indicating if the string is likely not binary
+ */
 function isLikelyNotBinary(str: string): boolean {
   const options = {
     prefixLength: 1024 * 10, // Check the first 10KB of the string
@@ -323,9 +398,17 @@ function isLikelyNotBinary(str: string): boolean {
   return ratio <= options.suspiciousCharThresholdRatio;
 }
 
-// WARN: vibe code below
-// Converts a Base64URL encoded SVG string to a PNG Data URL using browser Canvas API.
-function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
+/**
+ * Converts a Base64URL encoded SVG string to a PNG Data URL using browser Canvas API
+ *
+ * @param base64UrlSvg - Base64 encoded SVG data URL
+ * @param t - Translation function
+ * @returns Promise resolving to PNG data URL
+ */
+function svgBase64UrlToPngDataURL(
+  base64UrlSvg: string,
+  t: ReturnType<typeof useTranslation>['t']
+): Promise<string> {
   const backgroundColor = 'white'; // Default background color for PNG
 
   return new Promise((resolve, reject) => {
@@ -337,7 +420,7 @@ function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
         const ctx = canvas.getContext('2d');
 
         if (!ctx) {
-          reject(new Error('Failed to get 2D canvas context.'));
+          reject(new Error(t('fileUpload.errors.failedToGetCanvasContext')));
           return;
         }
 
@@ -360,16 +443,16 @@ function svgBase64UrlToPngDataURL(base64UrlSvg: string): Promise<string> {
       };
 
       img.onerror = () => {
-        reject(
-          new Error('Failed to load SVG image. Ensure the SVG data is valid.')
-        );
+        reject(new Error(t('fileUpload.errors.failedToLoadSvg')));
       };
 
       // Load SVG string into an Image element
       img.src = base64UrlSvg;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const errorMessage = `Error converting SVG to PNG: ${message}`;
+      const errorMessage = t('fileUpload.errorConvertingSvg', {
+        message,
+      });
       toast.error(errorMessage);
       reject(new Error(errorMessage));
     }

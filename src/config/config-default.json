@@ -5,6 +5,8 @@
   "model": "",
   "systemMessage": "",
   "initials": "You",
+  "showRawUserMessage": false,
+  "showRawAssistantMessage": false,
   "pasteLongTextToFileLen": 10000,
   "pdfAsImage": false,
   "showTokensPerSecond": false,

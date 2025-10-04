@@ -1,45 +1,51 @@
-import {
-  ArrowDownTrayIcon,
-  EllipsisVerticalIcon,
-  PencilIcon,
-  PencilSquareIcon,
-  TrashIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  LuDownload,
+  LuEllipsisVertical,
+  LuPencil,
+  LuSquarePen,
+  LuTrash,
+  LuX,
+} from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
-import StorageUtils from '../database';
+import { useModals } from '../context/modal';
+import IndexedDB from '../database/indexedDB';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
-import { useModals } from './ModalProvider';
+import { downloadAsFile } from './common';
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
-  const { viewingChat, isGenerating } = useChatContext();
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const currConv = useMemo(() => viewingChat?.conv ?? null, [viewingChat]);
 
   useEffect(() => {
     const handleConversationChange = async () => {
-      setConversations(await StorageUtils.getAllConversations());
+      setConversations(await IndexedDB.getAllConversations());
     };
-    StorageUtils.onConversationChanged(handleConversationChange);
+    IndexedDB.onConversationChanged(handleConversationChange);
     handleConversationChange();
     return () => {
-      StorageUtils.offConversationChanged(handleConversationChange);
+      IndexedDB.offConversationChanged(handleConversationChange);
     };
   }, []);
-  const { showConfirm, showPrompt } = useModals();
 
   const groupedConv = useMemo(
-    () => groupConversationsByDate(conversations),
-    [conversations]
+    () => groupConversationsByDate(conversations, i18n.language),
+    [i18n.language, conversations]
   );
+
+  const handleSelect = useCallback(() => {
+    const toggle = toggleDrawerRef.current;
+    if (toggle != null) {
+      toggle.click();
+    }
+  }, []);
 
   return (
     <>
@@ -64,11 +70,12 @@ export default function Sidebar() {
             <label
               htmlFor="toggle-drawer"
               className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
-              aria-label="Close sidebar"
+              title={t('sidebar.buttons.closeSideBar')}
+              aria-label={t('sidebar.buttons.closeSideBar')}
               role="button"
               tabIndex={0}
             >
-              <XMarkIcon className="w-5 h-5" />
+              <LuX className="lucide w-5 h-5" />
             </label>
 
             <label
@@ -84,105 +91,27 @@ export default function Sidebar() {
             <button
               className="btn btn-ghost w-8 h-8 p-0 rounded-full"
               onClick={() => navigate('/')}
-              aria-label="New conversation"
+              title={t('header.buttons.newConv')}
+              aria-label={t('header.ariaLabels.newConv')}
             >
-              <PencilSquareIcon className="w-5 h-5" />
+              <LuSquarePen className="lucide w-5 h-5" />
             </button>
           </div>
 
           {/* scrollable conversation list */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-            {groupedConv.map((group, i) => (
-              <div key={i} role="group">
-                {/* group name (by date) */}
-                {group.title ? (
-                  // we use btn class here to make sure that the padding/margin are aligned with the other items
-                  <b
-                    className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
-                    role="note"
-                    aria-description={group.title}
-                    tabIndex={0}
-                  >
-                    {group.title}
-                  </b>
-                ) : (
-                  <div className="h-2" />
-                )}
-
-                {group.conversations.map((conv) => (
-                  <ConversationItem
-                    key={conv.id}
-                    conv={conv}
-                    isCurrConv={currConv?.id === conv.id}
-                    onSelect={() => {
-                      const toggle = toggleDrawerRef.current;
-                      if (toggle != null) {
-                        toggle.click();
-                      }
-                      navigate(`/chat/${conv.id}`);
-                    }}
-                    onDelete={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(
-                          'Cannot delete conversation while generating'
-                        );
-                        return;
-                      }
-                      if (
-                        await showConfirm(
-                          'Are you sure to delete this conversation?'
-                        )
-                      ) {
-                        toast.success('Conversation deleted');
-                        StorageUtils.deleteConversation(conv.id);
-                        navigate('/');
-                      }
-                    }}
-                    onDownload={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(
-                          'Cannot download conversation while generating'
-                        );
-                        return;
-                      }
-                      const data = await StorageUtils.exportDB(conv.id);
-                      const conversationJson = JSON.stringify(data, null, 2);
-                      const blob = new Blob([conversationJson], {
-                        type: 'application/json',
-                      });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `conversation_${conv.id}.json`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
-                    }}
-                    onRename={async () => {
-                      if (isGenerating(conv.id)) {
-                        toast.error(
-                          'Cannot rename conversation while generating'
-                        );
-                        return;
-                      }
-                      const newName = await showPrompt(
-                        'Enter new name for the conversation',
-                        conv.name
-                      );
-                      if (newName && newName.trim().length > 0) {
-                        StorageUtils.updateConversationName(conv.id, newName);
-                      }
-                    }}
-                  />
-                ))}
-              </div>
+            {groupedConv.map((group) => (
+              <ConversationGroup
+                key={group.title}
+                group={group}
+                onItemSelect={handleSelect}
+              />
             ))}
           </div>
 
           {/* Footer always at the bottom */}
           <div className="text-center text-xs opacity-75 mx-4 pt-4">
-            Conversations are saved to browser's IndexedDB
+            <Trans i18nKey="sidebar.storageNote" />
           </div>
         </div>
       </div>
@@ -190,90 +119,182 @@ export default function Sidebar() {
   );
 }
 
-function ConversationItem({
-  conv,
-  isCurrConv,
-  onSelect,
-  onDelete,
-  onDownload,
-  onRename,
-}: {
-  conv: Conversation;
-  isCurrConv: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
-  onDownload: () => void;
-  onRename: () => void;
-}) {
-  return (
-    <div
-      role="menuitem"
-      tabIndex={0}
-      aria-label={conv.name}
-      className={classNames({
-        'group flex flex-row btn btn-ghost h-9 justify-start items-center font-normal px-2 xl:pr-0': true,
-        'btn-soft': isCurrConv,
-      })}
-    >
-      <button
-        key={conv.id}
-        className="w-full overflow-hidden truncate text-start"
-        onClick={onSelect}
-        title={conv.name}
-        dir="auto"
-        type="button"
-        aria-label={`Select conversation: ${conv.name}`}
-      >
-        {conv.name}
-      </button>
+const ConversationGroup = memo(
+  ({
+    group,
+    onItemSelect,
+  }: {
+    group: GroupedConversations;
+    onItemSelect: () => void;
+  }) => {
+    const { t } = useTranslation();
 
-      <div tabIndex={0} className="dropdown dropdown-end h-5">
-        <button
-          // on mobile, we always show the ellipsis icon
-          // on desktop, we only show it when the user hovers over the conversation item
-          // we use opacity instead of hidden to avoid layout shift
-          className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
-          onClick={() => {}}
-          title="More"
-          aria-label="Show more options"
+    return (
+      <div role="group">
+        {/* group name (by date) */}
+        {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
+        <b
+          className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
+          role="note"
+          aria-description={t(`sidebar.groups.${group.title}`, {
+            defaultValue: group.title,
+          })}
+          tabIndex={0}
         >
-          <EllipsisVerticalIcon className="w-5 h-5" />
-        </button>
-        {/* dropdown menu */}
-        <ul
-          aria-label="More options"
-          role="menu"
-          tabIndex={-1}
-          className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
-        >
-          <li role="menuitem" tabIndex={0} onClick={onRename}>
-            <button type="button" aria-label="Rename conversation">
-              <PencilIcon className="w-4 h-4" />
-              Rename
-            </button>
-          </li>
-          <li role="menuitem" tabIndex={0} onClick={onDownload}>
-            <button type="button" aria-label="Download conversation">
-              <ArrowDownTrayIcon className="w-4 h-4" />
-              Download
-            </button>
-          </li>
-          <li
-            role="menuitem"
-            tabIndex={0}
-            className="text-error"
-            onClick={onDelete}
-          >
-            <button type="button" aria-label="Delete conversation">
-              <TrashIcon className="w-4 h-4" />
-              Delete
-            </button>
-          </li>
-        </ul>
+          <Trans
+            i18nKey={`sidebar.groups.${group.title}`}
+            defaults={group.title}
+          />
+        </b>
+
+        {group.conversations.map((conv) => (
+          <ConversationItem key={conv.id} conv={conv} onSelect={onItemSelect} />
+        ))}
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+const ConversationItem = memo(
+  ({ conv, onSelect }: { conv: Conversation; onSelect: () => void }) => {
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    const { viewingChat, isGenerating } = useChatContext();
+    const { showConfirm, showPrompt } = useModals();
+
+    const isCurrent = useMemo(
+      () => viewingChat?.conv?.id === conv.id,
+      [conv.id, viewingChat?.conv?.id]
+    );
+
+    const isPending = useMemo(
+      () => isGenerating(conv.id),
+      [conv.id, isGenerating]
+    );
+
+    const handleSelect = () => {
+      onSelect();
+      navigate(`/chat/${conv.id}`);
+    };
+
+    const handleRename = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.renameOnGenerate'));
+        return;
+      }
+      const newName = await showPrompt(t('sidebar.actions.newName'), conv.name);
+      if (newName && newName.trim().length > 0) {
+        IndexedDB.updateConversationName(conv.id, newName);
+      }
+    };
+
+    const handleDownload = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.downloadOnGenerate'));
+        return;
+      }
+      return IndexedDB.exportDB(conv.id).then((data) =>
+        downloadAsFile(
+          [JSON.stringify(data, null, 2)],
+          `conversation_${conv.id}.json`
+        )
+      );
+    };
+
+    const handleDelete = async () => {
+      if (isPending) {
+        toast.error(t('sidebar.errors.deleteOnGenerate'));
+        return;
+      }
+      if (await showConfirm(t('sidebar.actions.deleteConfirm'))) {
+        toast.success(t('sidebar.actions.deleteSuccess'));
+        IndexedDB.deleteConversation(conv.id);
+        navigate('/');
+      }
+    };
+
+    return (
+      <div
+        role="menuitem"
+        tabIndex={0}
+        aria-label={conv.name}
+        className={classNames({
+          'group flex flex-row btn btn-ghost h-9 justify-start items-center font-normal px-2 xl:pr-0': true,
+          'btn-soft': isCurrent,
+        })}
+      >
+        <button
+          key={conv.id}
+          className="w-full overflow-hidden truncate text-start"
+          onClick={handleSelect}
+          dir="auto"
+          type="button"
+          title={conv.name}
+          aria-label={t('sidebar.ariaLabels.select', { name: conv.name })}
+        >
+          {conv.name}
+        </button>
+
+        <div tabIndex={0} className="dropdown dropdown-end h-5">
+          <button
+            // on mobile, we always show the ellipsis icon
+            // on desktop, we only show it when the user hovers over the conversation item
+            // we use opacity instead of hidden to avoid layout shift
+            className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
+            onClick={() => {}}
+            title={t('sidebar.buttons.more')}
+            aria-label={t('sidebar.ariaLabels.more')}
+          >
+            <LuEllipsisVertical className="lucide w-5 h-5" />
+          </button>
+          {/* dropdown menu */}
+          <ul
+            aria-label={t('sidebar.ariaLabels.dropdown')}
+            role="menu"
+            tabIndex={-1}
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
+          >
+            <li role="menuitem" tabIndex={0} onClick={handleRename}>
+              <button
+                type="button"
+                title={t('sidebar.buttons.rename')}
+                aria-label={t('sidebar.ariaLabels.rename')}
+              >
+                <LuPencil className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.rename" />
+              </button>
+            </li>
+            <li role="menuitem" tabIndex={0} onClick={handleDownload}>
+              <button
+                type="button"
+                title={t('sidebar.buttons.download')}
+                aria-label={t('sidebar.ariaLabels.download')}
+              >
+                <LuDownload className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.download" />
+              </button>
+            </li>
+            <li
+              role="menuitem"
+              tabIndex={0}
+              className="text-error"
+              onClick={handleDelete}
+            >
+              <button
+                type="button"
+                title={t('sidebar.buttons.delete')}
+                aria-label={t('sidebar.ariaLabels.delete')}
+              >
+                <LuTrash className="lucide w-4 h-4" />
+                <Trans i18nKey="sidebar.buttons.delete" />
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+);
 
 // WARN: vibe code below
 
@@ -288,7 +309,8 @@ export interface GroupedConversations {
 // - "Previous 30 Days"
 // - "Month Year" (e.g., "April 2023")
 export function groupConversationsByDate(
-  conversations: Conversation[]
+  conversations: Conversation[],
+  language: string = 'default'
 ): GroupedConversations[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Start of today
@@ -328,7 +350,7 @@ export function groupConversationsByDate(
     } else if (convDate >= thirtyDaysAgo) {
       groups['Previous 30 Days'].push(conv);
     } else {
-      const monthName = convDate.toLocaleString('default', { month: 'long' });
+      const monthName = convDate.toLocaleString(language, { month: 'long' });
       const year = convDate.getFullYear();
       const monthYearKey = `${monthName} ${year}`;
       if (!monthlyGroups[monthYearKey]) {
@@ -342,7 +364,7 @@ export function groupConversationsByDate(
 
   if (groups['Today'].length > 0) {
     result.push({
-      title: undefined, // no title for Today
+      title: 'Today',
       conversations: groups['Today'],
     });
   }
