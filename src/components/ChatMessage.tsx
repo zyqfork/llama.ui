@@ -1,4 +1,4 @@
-import { Fragment, memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   LuAtom,
@@ -20,6 +20,10 @@ import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
 import IndexedDB from '../database/indexedDB';
 import { useFileUpload } from '../hooks/useFileUpload';
+import TextToSpeech, {
+  getSpeechSynthesisVoiceByName,
+  IS_SPEECH_SYNTHESIS_SUPPORTED,
+} from '../hooks/useTextToSpeech';
 import {
   Message,
   MessageDisplay,
@@ -36,10 +40,6 @@ import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { IntlIconButton } from './common';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
-import TextToSpeech, {
-  getSpeechSynthesisVoiceByName,
-  IS_SPEECH_SYNTHESIS_SUPPORTED,
-} from './TextToSpeech';
 
 interface SplitMessage {
   content: PendingMessage['content'];
@@ -559,7 +559,7 @@ const PlayButton = memo(function PlayButton({
       volume={ttsVolume}
     >
       {({ isPlaying, play, stop }) => (
-        <Fragment>
+        <>
           {!isPlaying && (
             <IntlIconButton
               className={className}
@@ -582,7 +582,7 @@ const PlayButton = memo(function PlayButton({
               icon={LuVolumeX}
             />
           )}
-        </Fragment>
+        </>
       )}
     </TextToSpeech>
   );

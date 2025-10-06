@@ -13,13 +13,13 @@ import { useNavigate } from 'react-router';
 import { useChatContext } from '../context/chat';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
-import { MessageExtra } from '../types';
-import { classNames, cleanCurrentUrl } from '../utils';
-import { DropzoneArea } from './DropzoneArea';
 import SpeechToText, {
   IS_SPEECH_RECOGNITION_SUPPORTED,
   SpeechRecordCallback,
-} from './SpeechToText';
+} from '../hooks/useSpeechToText';
+import { MessageExtra } from '../types';
+import { classNames, cleanCurrentUrl } from '../utils';
+import { DropzoneArea } from './DropzoneArea';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.

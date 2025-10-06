@@ -1,6 +1,5 @@
 import {
   forwardRef,
-  Fragment,
   ReactNode,
   useCallback,
   useEffect,
@@ -161,7 +160,7 @@ const SpeechToText = forwardRef<
 
   useImperativeHandle(ref, () => speechToText, [speechToText]);
 
-  return <Fragment>{children(speechToText)}</Fragment>;
+  return <>{children(speechToText)}</>;
 });
 
 export default SpeechToText;

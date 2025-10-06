@@ -1,6 +1,5 @@
 import {
   forwardRef,
-  Fragment,
   ReactNode,
   useCallback,
   useEffect,
@@ -178,7 +177,7 @@ const TextToSpeech = forwardRef<
     [isPlaying, play, stop]
   );
 
-  return <Fragment>{children({ isPlaying, play, stop })}</Fragment>;
+  return <>{children({ isPlaying, play, stop })}</>;
 });
 
 export default TextToSpeech;

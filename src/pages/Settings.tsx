@@ -41,17 +41,17 @@ import {
 import { ImportExportComponent } from '../components/settings/ImportExportComponent';
 import { PresetManager } from '../components/settings/PresetManager';
 import { ThemeController } from '../components/settings/ThemeController';
-import TextToSpeech, {
-  getSpeechSynthesisVoiceByName,
-  getSpeechSynthesisVoices,
-  IS_SPEECH_SYNTHESIS_SUPPORTED,
-} from '../components/TextToSpeech';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
 import { useModals } from '../context/modal';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import TextToSpeech, {
+  getSpeechSynthesisVoiceByName,
+  getSpeechSynthesisVoices,
+  IS_SPEECH_SYNTHESIS_SUPPORTED,
+} from '../hooks/useTextToSpeech';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import {
   Configuration,
