@@ -91,7 +91,7 @@ export default function Sidebar() {
             {/* new conversation button */}
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-rounded"
               onClick={() => navigate('/')}
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}
@@ -248,7 +248,7 @@ const ConversationItem = memo(
             // on mobile, we always show the ellipsis icon
             // on desktop, we only show it when the user hovers over the conversation item
             // we use opacity instead of hidden to avoid layout shift
-            className="h-auto w-auto opacity-100 xl:opacity-20 group-hover:opacity-100 border-none rounded-md"
+            className="h-auto w-auto opacity-100 xl:opacity-20 group-hover:opacity-100 border-none"
             variant="ghost"
             size="icon"
             onClick={() => {}}

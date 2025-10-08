@@ -155,7 +155,7 @@ export const ChatInput = memo(
                 <Button
                   className="xl:hidden"
                   variant="ghost"
-                  size="icon"
+                  size="icon-rounded"
                   title={t('header.title.settings')}
                   aria-label={t('header.ariaLabels.settings')}
                   onClick={() => navigate('/settings')}
@@ -173,7 +173,7 @@ export const ChatInput = memo(
                           <Button
                             className="mr-2"
                             variant="ghost"
-                            size="icon"
+                            size="icon-rounded"
                             onClick={startRecording}
                             title="Record"
                             aria-label="Start Recording"
@@ -185,7 +185,7 @@ export const ChatInput = memo(
                           <Button
                             className="mr-2"
                             variant="ghost"
-                            size="icon"
+                            size="icon-rounded"
                             onClick={stopRecording}
                             title="Stop"
                             aria-label="Stop Recording"
@@ -199,7 +199,11 @@ export const ChatInput = memo(
                 )}
 
                 {isPending && (
-                  <Button variant="neutral" size="icon" onClick={handleStop}>
+                  <Button
+                    variant="neutral"
+                    size="icon-rounded"
+                    onClick={handleStop}
+                  >
                     <LuSquare className="lucide h-4 w-4" fill="currentColor" />
                   </Button>
                 )}
@@ -207,7 +211,7 @@ export const ChatInput = memo(
                 {!isPending && (
                   <Button
                     variant="neutral"
-                    size="icon"
+                    size="icon-rounded"
                     onClick={sendNewMessage}
                     aria-label={t('chatInput.ariaLabels.send')}
                   >

@@ -265,7 +265,7 @@ export default memo(function ChatMessage({
           {isAssistant && (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-rounded"
               onClick={() => {
                 if (msg.content !== null) {
                   onRegenerateMessage(msg as Message);
@@ -283,7 +283,7 @@ export default memo(function ChatMessage({
           {timings && showTokensPerSecond && (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-rounded"
               title={t('chatScreen.titles.performance')}
               aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >

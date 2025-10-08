@@ -155,7 +155,6 @@ export default function CanvasPyInterpreter() {
             {t('codeRunner.canvasPyInterpreter.title')}
           </span>
           <Button
-            className="rounded-md"
             variant="ghost"
             size="icon"
             title={t('codeRunner.buttons.close')}
