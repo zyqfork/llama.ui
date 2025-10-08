@@ -40,6 +40,7 @@ import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { IntlIconButton } from './common';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
+import { Textarea } from './ui/textarea';
 
 interface SplitMessage {
   content: PendingMessage['content'];
@@ -416,12 +417,12 @@ function EditMessage({
       extraContext={extraContext}
       disabled={msg.role !== 'user'}
     >
-      <textarea
-        dir="auto"
-        className="textarea textarea-bordered bg-base-100 text-base-content max-w-2xl w-[calc(90vw-8em)] h-24"
+      <Textarea
+        className="max-w-2xl w-[calc(90vw-8em)]"
+        size="full"
         value={editingContent}
         onChange={(e) => setEditingContent(e.target.value)}
-      ></textarea>
+      />
 
       <div className="flex flex-row mt-2">
         {msg.role === 'user' && (

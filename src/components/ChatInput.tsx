@@ -20,6 +20,7 @@ import SpeechToText, {
 import { MessageExtra } from '../types';
 import { classNames, cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
+import { Textarea } from './ui/textarea';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.
@@ -112,10 +113,12 @@ export const ChatInput = memo(
           disabled={isPending}
         >
           <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-sm md:shadow-md p-2">
-            <textarea
+            <Textarea
               // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
               // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
-              className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
+              className="text-base p-0 px-2"
+              variant="transparent"
+              size="full"
               placeholder={t('chatInput.placeholder')}
               ref={textarea.ref}
               onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
@@ -127,11 +130,10 @@ export const ChatInput = memo(
                 }
               }}
               id="msg-input"
-              dir="auto"
               // Set a base height of 2 rows for mobile views
               // On lg+ screens, the hook will calculate and set the initial height anyway
               rows={2}
-            ></textarea>
+            />
 
             {/* buttons area */}
             <div className="flex items-center justify-between mt-2">

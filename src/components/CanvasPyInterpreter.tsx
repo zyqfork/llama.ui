@@ -5,6 +5,7 @@ import { useChatContext } from '../context/chat';
 import LocalStorage from '../database/localStorage';
 import { CanvasType } from '../types';
 import { OpenInNewTab, XCloseButton } from './common';
+import { Textarea } from './ui/textarea';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 
@@ -158,12 +159,13 @@ export default function CanvasPyInterpreter() {
           />
         </div>
         <div className="grid grid-rows-3 gap-4 h-full">
-          <textarea
-            className="textarea textarea-bordered w-full h-full font-mono"
+          <Textarea
+            className="h-full font-mono"
+            size="full"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-          ></textarea>
-          <div className="font-mono flex flex-col row-span-2">
+          />
+          <div className="flex flex-col row-span-2">
             <div className="flex items-center mb-2">
               <button
                 className="btn btn-sm bg-base-100"
@@ -188,11 +190,12 @@ export default function CanvasPyInterpreter() {
                 </OpenInNewTab>
               </span>
             </div>
-            <textarea
-              className="textarea textarea-bordered h-full dark-color"
+            <Textarea
+              className="h-full font-mono dark-color"
+              size="full"
               value={output}
               readOnly
-            ></textarea>
+            />
           </div>
         </div>
       </div>

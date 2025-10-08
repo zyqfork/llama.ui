@@ -4,6 +4,7 @@ import { CONFIG_DEFAULT } from '../../config';
 import { DropdownOption, SettingFieldInput } from '../../types/settings';
 import { classNames, normalizeUrl } from '../../utils';
 import { Dropdown } from '../common';
+import { Textarea } from '../ui/textarea';
 
 interface BaseInputProps {
   field: SettingFieldInput;
@@ -48,8 +49,8 @@ export function SettingsModalLongInput({
       {({ label, note }) => (
         <label className="form-control flex flex-col justify-center max-w-80 mb-3">
           <div className="text-sm opacity-60 mb-1">{label}</div>
-          <textarea
-            className="textarea textarea-bordered h-24"
+          <Textarea
+            size="default"
             placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
             value={value}
             onChange={(e) => onChange(e.target.value)}
