@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuPlay, LuSquare } from 'react-icons/lu';
+import { LuPlay, LuSquare, LuX } from 'react-icons/lu';
 import { useChatContext } from '../context/chat';
 import LocalStorage from '../database/localStorage';
 import { CanvasType } from '../types';
-import { OpenInNewTab, XCloseButton } from './common';
+import { OpenInNewTab } from './common';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
@@ -148,16 +148,21 @@ export default function CanvasPyInterpreter() {
   }
 
   return (
-    <div className="card bg-base-200 w-full h-full shadow-xl">
+    <div className="card bg-base-300 w-full h-full shadow-xl">
       <div className="card-body">
         <div className="flex justify-between items-center mb-4">
           <span className="text-lg font-bold">
             {t('codeRunner.canvasPyInterpreter.title')}
           </span>
-          <XCloseButton
-            className="bg-base-100"
+          <Button
+            className="rounded-md"
+            variant="ghost"
+            size="icon"
+            title={t('codeRunner.buttons.close')}
             onClick={() => setCanvasData(null)}
-          />
+          >
+            <LuX className="lucide w-5 h-5" />
+          </Button>
         </div>
         <div className="grid grid-rows-3 gap-4 h-full">
           <Textarea
@@ -170,26 +175,27 @@ export default function CanvasPyInterpreter() {
             <div className="flex items-center mb-2">
               <Button
                 size="small"
-                className="bg-base-100"
+                title={t('codeRunner.buttons.run')}
                 onClick={() => runCode(code)}
                 disabled={running}
               >
-                <LuPlay className="lucide h-6 w-6" />{' '}
-                {t('codeRunner.canvasPyInterpreter.buttons.run')}
+                <LuPlay className="lucide h-5 w-5 mr-1" />
+                {t('codeRunner.buttons.run')}
               </Button>
               {showStopBtn && (
                 <Button
                   size="small"
                   className="bg-base-100 ml-2"
+                  title={t('codeRunner.buttons.stop')}
                   onClick={() => interruptFn?.()}
                 >
-                  <LuSquare className="lucide h-6 w-6" />{' '}
-                  {t('codeRunner.canvasPyInterpreter.buttons.stop')}
+                  <LuSquare className="lucide h-5 w-5 mr-1" />
+                  {t('codeRunner.buttons.stop')}
                 </Button>
               )}
               <span className="grow text-right text-xs">
                 <OpenInNewTab href="https://github.com/ggerganov/llama.cpp/issues/11762">
-                  {t('codeRunner.canvasPyInterpreter.links.reportBug')}
+                  {t('codeRunner.links.reportBug')}
                 </OpenInNewTab>
               </span>
             </div>
