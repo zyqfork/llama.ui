@@ -10,6 +10,7 @@ import {
 } from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
+import { Button } from '../components/ui/button';
 import { useChatContext } from '../context/chat';
 import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
 import { useFileUpload } from '../hooks/useFileUpload';
@@ -151,14 +152,16 @@ export const ChatInput = memo(
                   <LuPaperclip className="lucide h-5 w-5" />
                 </label>
 
-                <button
-                  className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
+                <Button
+                  className="xl:hidden"
+                  variant="ghost"
+                  size="icon"
                   title={t('header.title.settings')}
                   aria-label={t('header.ariaLabels.settings')}
                   onClick={() => navigate('/settings')}
                 >
                   <TbAdjustmentsHorizontal className="lucide h-5 w-5" />
-                </button>
+                </Button>
               </div>
 
               <div className="flex items-center">
@@ -167,24 +170,28 @@ export const ChatInput = memo(
                     {({ isRecording, startRecording, stopRecording }) => (
                       <>
                         {!isRecording && (
-                          <button
-                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                          <Button
+                            className="mr-2"
+                            variant="ghost"
+                            size="icon"
                             onClick={startRecording}
                             title="Record"
                             aria-label="Start Recording"
                           >
                             <LuMic className="h-5 w-5" />
-                          </button>
+                          </Button>
                         )}
                         {isRecording && (
-                          <button
-                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                          <Button
+                            className="mr-2"
+                            variant="ghost"
+                            size="icon"
                             onClick={stopRecording}
                             title="Stop"
                             aria-label="Stop Recording"
                           >
                             <LuCircleStop className="h-5 w-5" />
-                          </button>
+                          </Button>
                         )}
                       </>
                     )}
@@ -192,22 +199,20 @@ export const ChatInput = memo(
                 )}
 
                 {isPending && (
-                  <button
-                    className="btn btn-neutral w-8 h-8 p-0 rounded-full"
-                    onClick={handleStop}
-                  >
+                  <Button variant="neutral" size="icon" onClick={handleStop}>
                     <LuSquare className="lucide h-4 w-4" fill="currentColor" />
-                  </button>
+                  </Button>
                 )}
 
                 {!isPending && (
-                  <button
-                    className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  <Button
+                    variant="neutral"
+                    size="icon"
                     onClick={sendNewMessage}
                     aria-label={t('chatInput.ariaLabels.send')}
                   >
                     <LuArrowUp className="lucide h-5 w-5" />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

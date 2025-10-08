@@ -5,6 +5,7 @@ import { DelimeterComponent, SettingsSectionLabel } from '.';
 import { useAppContext } from '../../context/app';
 import { normalizeUrl } from '../../utils';
 import { downloadAsFile } from '../common';
+import { Button } from '../ui/button';
 
 export function ImportExportComponent({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
@@ -42,10 +43,10 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
       </SettingsSectionLabel>
 
       <div className="grid grid-cols-[repeat(2,max-content)] gap-2">
-        <button className="btn" onClick={onExport}>
+        <Button onClick={onExport}>
           <TbDatabaseExport className="lucide w-4 h-4 mr-1 inline" />
           {t('settings.importExport.exportBtnLabel')}
-        </button>
+        </Button>
 
         <input
           id="file-import"
@@ -73,9 +74,9 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
         {t('settings.importExport.technicalDemoSectionTitle')}
       </SettingsSectionLabel>
 
-      <button className="btn" onClick={debugImportDemoConv}>
+      <Button onClick={debugImportDemoConv}>
         {t('settings.importExport.importDemoConversationBtnLabel')}
-      </button>
+      </Button>
     </>
   );
 }

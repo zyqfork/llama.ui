@@ -15,6 +15,7 @@ import {
   LuVolume2,
   LuVolumeX,
 } from 'react-icons/lu';
+import { Button } from '../components/ui/button';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
@@ -262,8 +263,9 @@ export default memo(function ChatMessage({
 
           {/* re-generate assistant message */}
           {isAssistant && (
-            <button
-              className="btn btn-ghost w-8 h-8 p-0"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => {
                 if (msg.content !== null) {
                   onRegenerateMessage(msg as Message);
@@ -274,13 +276,14 @@ export default memo(function ChatMessage({
               aria-label={t('chatScreen.ariaLabels.regenerateResponse')}
             >
               <LuRefreshCw className="lucide h-4 w-4" />
-            </button>
+            </Button>
           )}
 
           {/* render timings if enabled */}
           {timings && showTokensPerSecond && (
-            <button
-              className="btn btn-ghost w-8 h-8 p-0"
+            <Button
+              variant="ghost"
+              size="icon"
               title={t('chatScreen.titles.performance')}
               aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >
@@ -330,7 +333,7 @@ export default memo(function ChatMessage({
                   )}
                 </div>
               </div>
-            </button>
+            </Button>
           )}
 
           {/* edit message */}
@@ -440,16 +443,16 @@ function EditMessage({
           </>
         )}
 
-        <button
-          className="btn btn-ghost mr-2"
+        <Button
+          variant="ghost"
+          className="mr-2"
           onClick={() => setIsEditing(false)}
         >
           <Trans i18nKey="chatScreen.labels.cancel" />
-        </button>
+        </Button>
 
         {msg.role === 'user' && (
-          <button
-            className="btn"
+          <Button
             onClick={() => {
               setIsEditing(false);
               onEditUserMessage(
@@ -461,12 +464,11 @@ function EditMessage({
             disabled={!editingContent}
           >
             <Trans i18nKey="chatScreen.labels.send" />
-          </button>
+          </Button>
         )}
 
         {msg.role === 'assistant' && (
-          <button
-            className="btn"
+          <Button
             onClick={() => {
               setIsEditing(false);
               onEditAssistantMessage(msg as Message, editingContent);
@@ -474,7 +476,7 @@ function EditMessage({
             disabled={!editingContent}
           >
             <Trans i18nKey="chatScreen.labels.save" />
-          </button>
+          </Button>
         )}
       </div>
     </DropzoneArea>

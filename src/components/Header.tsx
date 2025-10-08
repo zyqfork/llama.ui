@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCog, LuMenu, LuSquarePen } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
+import { Button } from '../components/ui/button';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
@@ -58,14 +59,15 @@ export default function Header() {
         </label>
 
         {/* new conversation button */}
-        <button
-          className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => navigate('/')}
           title={t('header.buttons.newConv')}
           aria-label={t('header.ariaLabels.newConv')}
         >
           <LuSquarePen className="lucide w-5 h-5" />
-        </button>
+        </Button>
       </section>
 
       {showSettings && (
@@ -116,15 +118,17 @@ export default function Header() {
 
           {/* action buttons (top right) */}
           <div className="flex items-center">
-            <button
-              className="btn btn-ghost w-8 h-8 p-0 rounded-full max-xl:hidden"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="max-xl:hidden"
               title={t('header.buttons.settings')}
               aria-label={t('header.ariaLabels.settings')}
               onClick={() => navigate('/settings')}
             >
               {/* settings button */}
               <LuCog className="lucide w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </section>
       )}

@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ChatInput } from '../components/ChatInput';
+import { Button } from '../components/ui/button';
 import { useAppContext } from '../context/app';
 import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
 import IndexedDB from '../database/indexedDB';
@@ -60,15 +61,15 @@ export default function WelcomeScreen() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-5/6 sm:max-w-3/4 mt-8">
           {samplePrompts.map((text) => (
-            <button
+            <Button
               key={text}
-              className="btn h-auto bg-base-200 font-medium rounded-xl p-2"
+              className="h-auto bg-base-200 font-medium rounded-xl p-2"
               onClick={() => {
                 navigate(`/chat?q=${encodeURIComponent(text)}`, {});
               }}
             >
               {text}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

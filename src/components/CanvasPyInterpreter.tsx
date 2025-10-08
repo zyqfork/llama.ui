@@ -5,6 +5,7 @@ import { useChatContext } from '../context/chat';
 import LocalStorage from '../database/localStorage';
 import { CanvasType } from '../types';
 import { OpenInNewTab, XCloseButton } from './common';
+import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
@@ -167,22 +168,24 @@ export default function CanvasPyInterpreter() {
           />
           <div className="flex flex-col row-span-2">
             <div className="flex items-center mb-2">
-              <button
-                className="btn btn-sm bg-base-100"
+              <Button
+                size="small"
+                className="bg-base-100"
                 onClick={() => runCode(code)}
                 disabled={running}
               >
                 <LuPlay className="lucide h-6 w-6" />{' '}
                 {t('codeRunner.canvasPyInterpreter.buttons.run')}
-              </button>
+              </Button>
               {showStopBtn && (
-                <button
-                  className="btn btn-sm bg-base-100 ml-2"
+                <Button
+                  size="small"
+                  className="bg-base-100 ml-2"
                   onClick={() => interruptFn?.()}
                 >
                   <LuSquare className="lucide h-6 w-6" />{' '}
                   {t('codeRunner.canvasPyInterpreter.buttons.stop')}
-                </button>
+                </Button>
               )}
               <span className="grow text-right text-xs">
                 <OpenInNewTab href="https://github.com/ggerganov/llama.cpp/issues/11762">

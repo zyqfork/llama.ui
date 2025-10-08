@@ -10,6 +10,7 @@ import {
   LuX,
 } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
+import { Button } from '../components/ui/button';
 import { useChatContext } from '../context/chat';
 import { useModals } from '../context/modal';
 import IndexedDB from '../database/indexedDB';
@@ -88,14 +89,15 @@ export default function Sidebar() {
             </label>
 
             {/* new conversation button */}
-            <button
-              className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate('/')}
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}
             >
               <LuSquarePen className="lucide w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           {/* scrollable conversation list */}
@@ -147,9 +149,15 @@ const ConversationGroup = memo(
           />
         </b>
 
-        {group.conversations.map((conv) => (
-          <ConversationItem key={conv.id} conv={conv} onSelect={onItemSelect} />
-        ))}
+        <ul>
+          {group.conversations.map((conv) => (
+            <ConversationItem
+              key={conv.id}
+              conv={conv}
+              onSelect={onItemSelect}
+            />
+          ))}
+        </ul>
       </div>
     );
   }
@@ -214,7 +222,7 @@ const ConversationItem = memo(
     };
 
     return (
-      <div
+      <li
         role="menuitem"
         tabIndex={0}
         aria-label={conv.name}
@@ -224,29 +232,31 @@ const ConversationItem = memo(
         })}
       >
         <button
+          type="button"
           key={conv.id}
           className="w-full overflow-hidden truncate text-start"
           onClick={handleSelect}
           dir="auto"
-          type="button"
           title={conv.name}
           aria-label={t('sidebar.ariaLabels.select', { name: conv.name })}
         >
           {conv.name}
         </button>
 
-        <div tabIndex={0} className="dropdown dropdown-end h-5">
-          <button
+        <div tabIndex={0} className="dropdown dropdown-end">
+          <Button
             // on mobile, we always show the ellipsis icon
             // on desktop, we only show it when the user hovers over the conversation item
             // we use opacity instead of hidden to avoid layout shift
-            className="cursor-pointer opacity-100 xl:opacity-20 group-hover:opacity-100"
+            className="h-auto w-auto opacity-100 xl:opacity-20 group-hover:opacity-100 border-none rounded-md"
+            variant="ghost"
+            size="icon"
             onClick={() => {}}
             title={t('sidebar.buttons.more')}
             aria-label={t('sidebar.ariaLabels.more')}
           >
             <LuEllipsisVertical className="lucide w-5 h-5" />
-          </button>
+          </Button>
           {/* dropdown menu */}
           <ul
             aria-label={t('sidebar.ariaLabels.dropdown')}
@@ -255,24 +265,26 @@ const ConversationItem = memo(
             className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
           >
             <li role="menuitem" tabIndex={0} onClick={handleRename}>
-              <button
-                type="button"
+              <Button
+                variant="menu-item"
+                size="small"
                 title={t('sidebar.buttons.rename')}
                 aria-label={t('sidebar.ariaLabels.rename')}
               >
                 <LuPencil className="lucide w-4 h-4" />
                 <Trans i18nKey="sidebar.buttons.rename" />
-              </button>
+              </Button>
             </li>
             <li role="menuitem" tabIndex={0} onClick={handleDownload}>
-              <button
-                type="button"
+              <Button
+                variant="menu-item"
+                size="small"
                 title={t('sidebar.buttons.download')}
                 aria-label={t('sidebar.ariaLabels.download')}
               >
                 <LuDownload className="lucide w-4 h-4" />
                 <Trans i18nKey="sidebar.buttons.download" />
-              </button>
+              </Button>
             </li>
             <li
               role="menuitem"
@@ -280,18 +292,19 @@ const ConversationItem = memo(
               className="text-error"
               onClick={handleDelete}
             >
-              <button
-                type="button"
+              <Button
+                variant="menu-item"
+                size="small"
                 title={t('sidebar.buttons.delete')}
                 aria-label={t('sidebar.ariaLabels.delete')}
               >
                 <LuTrash className="lucide w-4 h-4" />
                 <Trans i18nKey="sidebar.buttons.delete" />
-              </button>
+              </Button>
             </li>
           </ul>
         </div>
-      </div>
+      </li>
     );
   }
 );

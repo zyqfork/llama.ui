@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
 import { classNames } from '../utils';
+import { Button } from './ui/button';
 
 /**
  * A close button (X icon) with a default Tailwind CSS styling.
@@ -20,7 +21,7 @@ export const XCloseButton: React.ElementType<
   React.ClassAttributes<HTMLButtonElement> &
     React.HTMLAttributes<HTMLButtonElement>
 > = ({ className, ...props }) => (
-  <button className={`btn btn-square btn-sm ${className ?? ''}`} {...props}>
+  <Button size="small" className={`btn-square ${className ?? ''}`} {...props}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="h-6 w-6"
@@ -35,7 +36,7 @@ export const XCloseButton: React.ElementType<
         d="M6 18L18 6M6 6l12 12"
       />
     </svg>
-  </button>
+  </Button>
 );
 
 /**
@@ -111,14 +112,14 @@ export function BtnWithTooltips({
       role="button"
       onClick={onClick}
     >
-      <button
+      <Button
         className={`${className ?? ''} flex items-center justify-center`}
         disabled={disabled}
         onMouseLeave={onMouseLeave}
         aria-hidden={true}
       >
         {children}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -140,7 +141,7 @@ export const IntlIconButton = memo(function IntlIconButton({
   ...props
 }: IconButtonProps) {
   return (
-    <button
+    <Button
       className={className}
       onClick={onClick}
       disabled={disabled}
@@ -149,7 +150,7 @@ export const IntlIconButton = memo(function IntlIconButton({
       {...props}
     >
       <Icon className="lucide h-4 w-4" />
-    </button>
+    </Button>
   );
 });
 
@@ -292,17 +293,18 @@ export function Dropdown<T extends DropdownOption>({
               >
                 {filteredOptions.map((option) => (
                   <li key={option.value}>
-                    <button
+                    <Button
                       className={classNames({
-                        'btn btn-ghost w-full flex gap-2 justify-start font-normal px-2': true,
+                        'w-full flex gap-2 justify-start font-normal px-2': true,
                         'btn-sm': optionsSize === 'small',
                         'btn-active': isSelected(option),
                       })}
+                      variant="ghost"
                       onClick={handleSelect(option)}
                       aria-label={`${option.label} ${isSelected(option) ? 'selected' : 'option'}`}
                     >
                       {renderOption(option)}
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>

@@ -11,6 +11,7 @@ import { CONFIG_DEFAULT } from '../../config';
 import { useModals } from '../../context/modal';
 import { Configuration, ConfigurationPreset } from '../../types';
 import { dateFormatter } from '../../utils';
+import { Button } from '../ui/button';
 
 export function PresetManager({
   config,
@@ -95,15 +96,16 @@ export function PresetManager({
         <Trans i18nKey="settings.presetManager.newPreset" />
       </SettingsSectionLabel>
 
-      <button
-        className="btn btn-neutral max-w-80 mb-4"
+      <Button
+        variant="neutral"
+        className="max-w-80 mb-4"
         onClick={handleSavePreset}
         title={t('settings.presetManager.buttons.save')}
         aria-label={t('settings.presetManager.ariaLabels.save')}
       >
         <LuSave className="lucide w-5 h-5" />
         <Trans i18nKey="settings.presetManager.buttons.save" />
-      </button>
+      </Button>
 
       {/* List of saved presets */}
       <SettingsSectionLabel>
@@ -132,24 +134,26 @@ export function PresetManager({
                   </div>
 
                   <div className="min-w-18 grid grid-cols-2 gap-2">
-                    <button
-                      className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleLoadPreset(preset)}
                       title={t('settings.presetManager.buttons.load')}
                       aria-label={t('settings.presetManager.ariaLabels.load')}
                     >
                       <LuCirclePlay className="w-5 h-5" />
-                    </button>
+                    </Button>
 
                     {/* dropdown */}
                     <div tabIndex={0} className="dropdown dropdown-end">
-                      <button
-                        className="btn btn-ghost w-8 h-8 p-0 rounded-full"
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         title={t('settings.presetManager.buttons.more')}
                         aria-label={t('settings.presetManager.ariaLabels.more')}
                       >
                         <LuEllipsisVertical className="w-5 h-5" />
-                      </button>
+                      </Button>
 
                       {/* dropdown menu */}
                       <ul
@@ -159,8 +163,8 @@ export function PresetManager({
                         className="dropdown-content menu rounded-box bg-base-100 max-w-60 p-2 shadow-2xl"
                       >
                         <li role="menuitem" tabIndex={0}>
-                          <button
-                            type="button"
+                          <Button
+                            variant="menu-item"
                             onClick={() => handleRenamePreset(preset)}
                             title={t('settings.presetManager.buttons.rename')}
                             aria-label={t(
@@ -169,11 +173,11 @@ export function PresetManager({
                           >
                             <LuPencil className="lucide w-4 h-4 mr-1 inline" />
                             {t('settings.presetManager.buttons.rename')}
-                          </button>
+                          </Button>
                         </li>
                         <li role="menuitem" tabIndex={0} className="text-error">
-                          <button
-                            type="button"
+                          <Button
+                            variant="menu-item"
                             onClick={() => handleDeletePreset(preset)}
                             title={t('settings.presetManager.buttons.delete')}
                             aria-label={t(
@@ -182,7 +186,7 @@ export function PresetManager({
                           >
                             <LuTrash className="lucide w-4 h-4 mr-1 inline" />
                             {t('settings.presetManager.buttons.delete')}
-                          </button>
+                          </Button>
                         </li>
                       </ul>
                     </div>

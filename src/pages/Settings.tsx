@@ -41,6 +41,7 @@ import {
 import { ImportExportComponent } from '../components/settings/ImportExportComponent';
 import { PresetManager } from '../components/settings/PresetManager';
 import { ThemeController } from '../components/settings/ThemeController';
+import { Button } from '../components/ui/button';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
 import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
@@ -274,8 +275,7 @@ function getSettingTabsConfiguration(
               volume={config.ttsVolume}
             >
               {({ isPlaying, play, stop }) => (
-                <button
-                  className="btn"
+                <Button
                   onClick={() => (!isPlaying ? play() : stop())}
                   disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED}
                   title="Play test message"
@@ -284,7 +284,7 @@ function getSettingTabsConfiguration(
                   {!isPlaying && <LuVolume2 className={ICON_CLASSNAME} />}
                   {isPlaying && <LuVolumeX className={ICON_CLASSNAME} />}
                   {t('settings.textToSpeech.check.label')}
-                </button>
+                </Button>
               )}
             </TextToSpeech>
           ),
@@ -683,9 +683,8 @@ export default function Settings() {
             return <ThemeController key={key} />;
           case 'fetch-models':
             return (
-              <button
+              <Button
                 key={key}
-                className="btn"
                 onClick={() =>
                   fetchModels(localConfig).then((models) =>
                     setLocalModels(models)
@@ -694,7 +693,7 @@ export default function Settings() {
               >
                 <LuRefreshCw className={ICON_CLASSNAME} />
                 <Trans i18nKey="settings.actionButtons.fetchModels" />
-              </button>
+              </Button>
             );
           default:
             if (field.component === 'delimeter') {
@@ -744,17 +743,18 @@ export default function Settings() {
           tabIndex={0}
         >
           {settingTabs.map((tab, idx) => (
-            <button
+            <Button
               key={idx}
+              variant="ghost"
               className={classNames({
-                'btn btn-ghost justify-start font-normal w-44 mb-1': true,
+                'justify-start font-normal w-44 mb-1': true,
                 'btn-active': tabIdx === idx,
               })}
               onClick={() => setTabIdx(idx)}
               dir="auto"
             >
               {tab.title}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -795,18 +795,15 @@ export default function Settings() {
 
       <div className="sticky bottom-4 flex gap-2 max-md:justify-center mt-4">
         <div className="hidden md:block w-54 h-10" />
-        <button
-          className="btn btn-neutral"
-          onClick={() => handleSave(localConfig)}
-        >
+        <Button variant="neutral" onClick={() => handleSave(localConfig)}>
           <Trans i18nKey="settings.actionButtons.saveBtnLabel" />
-        </button>
-        <button className="btn" onClick={onClose}>
+        </Button>
+        <Button onClick={onClose}>
           <Trans i18nKey="settings.actionButtons.cancelBtnLabel" />
-        </button>
-        <button className="btn" onClick={resetConfig}>
+        </Button>
+        <Button onClick={resetConfig}>
           <Trans i18nKey="settings.actionButtons.resetBtnLabel" />
-        </button>
+        </Button>
       </div>
     </div>
   );
