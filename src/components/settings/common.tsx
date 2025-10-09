@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CONFIG_DEFAULT } from '../../config';
 import { DropdownOption, SettingFieldInput } from '../../types/settings';
-import { classNames, normalizeUrl } from '../../utils';
+import { normalizeUrl } from '../../utils';
 import { Dropdown } from '../common';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
@@ -258,11 +258,9 @@ export function SettingsModalDropdown({
       {({ label, note }) => (
         <div className="form-control flex flex-col justify-center mb-3">
           <div className="font-bold mb-1 md:hidden">{label}</div>
-          <label
-            className={classNames({
-              'input input-bordered join-item grow flex items-center gap-2 mb-1': true,
-              'bg-base-200': disabled,
-            })}
+          <Label
+            className={disabled ? 'bg-base-200' : ''}
+            variant="input-bordered"
           >
             <div className="font-bold hidden md:block">{label}</div>
 
@@ -277,7 +275,7 @@ export function SettingsModalDropdown({
               isSelected={(option) => value === option.value}
               onSelect={(option) => onChange(option.value)}
             />
-          </label>
+          </Label>
 
           {note && (
             <div
