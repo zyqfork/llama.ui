@@ -6,6 +6,7 @@ import { useAppContext } from '../../context/app';
 import { normalizeUrl } from '../../utils';
 import { downloadAsFile } from '../common';
 import { Button } from '../ui/button';
+import { Label } from '../ui/label';
 
 export function ImportExportComponent({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
@@ -55,16 +56,16 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
           onInput={onImport}
           hidden
         />
-        <label
+        <Label
+          variant="btn"
           htmlFor="file-import"
-          className="btn"
           aria-label={t('settings.importExport.importBtnLabel')}
           tabIndex={0}
           role="button"
         >
           <TbDatabaseImport className="lucide w-4 h-4 mr-1 inline" />
           {t('settings.importExport.importBtnLabel')}
-        </label>
+        </Label>
       </div>
 
       <DelimeterComponent />

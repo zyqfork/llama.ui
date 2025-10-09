@@ -7,6 +7,7 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { useInferenceContext } from '../context/inference';
 import { Dropdown } from './common';
+import { Label } from './ui/label';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -40,13 +41,14 @@ export default function Header() {
     <header className="flex flex-col gap-2 justify-center max-md:pb-2 md:py-2 sticky top-0 z-10">
       <section className="flex flex-row items-center xl:hidden">
         {/* open sidebar button */}
-        <label htmlFor="toggle-drawer" className="btn btn-ghost w-8 h-8 p-0">
+        <Label variant="btn-ghost" size="icon" htmlFor="toggle-drawer">
           <LuMenu className="lucide h-5 w-5" />
-        </label>
+        </Label>
 
         {/* spacer */}
-        <label
-          className="grow font-medium truncate text-center cursor-pointer px-4"
+        <Label
+          variant="fake-btn"
+          className="grow font-medium truncate px-4"
           aria-label={title}
           role="button"
           onClick={() => {
@@ -56,7 +58,7 @@ export default function Header() {
           }}
         >
           {title}
-        </label>
+        </Label>
 
         {/* new conversation button */}
         <Button
@@ -72,12 +74,12 @@ export default function Header() {
 
       {showSettings && (
         <section className="flex items-center max-xl:hidden">
-          <label
+          <Label
             className="font-medium truncate text-center px-4"
             aria-label={title}
           >
             {title}
-          </label>
+          </Label>
         </section>
       )}
 

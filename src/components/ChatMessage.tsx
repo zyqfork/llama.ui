@@ -40,6 +40,7 @@ import {
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
+import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
 interface SplitMessage {
@@ -436,15 +437,16 @@ function EditMessage({
       <div className="flex flex-row mt-2">
         {msg.role === 'user' && (
           <>
-            <label
+            <Label
+              variant="btn-ghost"
+              size="icon-rounded"
               htmlFor={`file-upload-${msg.id}`}
-              className="btn w-8 h-8 mt-1 p-0 rounded-full"
               aria-label={t('chatScreen.ariaLabels.uploadFile')}
               tabIndex={0}
               role="button"
             >
               <LuPaperclip className="lucide h-5 w-5" />
-            </label>
+            </Label>
             <div className="grow" />
           </>
         )}

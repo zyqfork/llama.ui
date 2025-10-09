@@ -4,6 +4,7 @@ import { CONFIG_DEFAULT } from '../../config';
 import { DropdownOption, SettingFieldInput } from '../../types/settings';
 import { classNames, normalizeUrl } from '../../utils';
 import { Dropdown } from '../common';
+import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 
 interface BaseInputProps {
@@ -47,7 +48,7 @@ export function SettingsModalLongInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <label className="form-control flex flex-col justify-center max-w-80 mb-3">
+        <Label variant="form-control" className="max-w-80">
           <div className="text-sm opacity-60 mb-1">{label}</div>
           <Textarea
             size="default"
@@ -62,7 +63,7 @@ export function SettingsModalLongInput({
               dangerouslySetInnerHTML={{ __html: note }}
             />
           )}
-        </label>
+        </Label>
       )}
     </LabeledField>
   );
@@ -76,11 +77,11 @@ export function SettingsModalShortInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <label className="form-control flex flex-col justify-center mb-3">
+        <Label variant="form-control">
           <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
             {label}
           </div>
-          <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+          <Label variant="input-bordered">
             <div
               tabIndex={0}
               role="button"
@@ -96,14 +97,14 @@ export function SettingsModalShortInput({
               onChange={(e) => onChange(e.target.value)}
               disabled={field.disabled}
             />
-          </label>
+          </Label>
           {note && (
             <div
               className="text-xs opacity-75 max-w-80"
               dangerouslySetInnerHTML={{ __html: note }}
             />
           )}
-        </label>
+        </Label>
       )}
     </LabeledField>
   );
@@ -135,11 +136,11 @@ export function SettingsModalRangeInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <label className="form-control flex flex-col justify-center mb-3">
+        <Label variant="form-control">
           <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
             {label}
           </div>
-          <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+          <Label variant="input-bordered">
             <div
               tabIndex={0}
               role="button"
@@ -164,14 +165,14 @@ export function SettingsModalRangeInput({
                 ))}
               </div>
             </div>
-          </label>
+          </Label>
           {note && (
             <div
               className="text-xs opacity-75 max-w-80"
               dangerouslySetInnerHTML={{ __html: note }}
             />
           )}
-        </label>
+        </Label>
       )}
     </LabeledField>
   );
@@ -185,7 +186,7 @@ export function SettingsModalCheckbox({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <label className="form-control flex flex-col justify-center mb-3">
+        <Label variant="form-control">
           <div className="flex flex-row items-center mb-1">
             <input
               type="checkbox"
@@ -202,7 +203,7 @@ export function SettingsModalCheckbox({
               dangerouslySetInnerHTML={{ __html: note }}
             />
           )}
-        </label>
+        </Label>
       )}
     </LabeledField>
   );

@@ -17,6 +17,7 @@ import IndexedDB from '../database/indexedDB';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
 import { downloadAsFile } from './common';
+import { Label } from './ui/label';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -67,26 +68,29 @@ export default function Sidebar() {
         <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0">
           <div className="flex flex-row items-center justify-between xl:py-2">
             {/* close sidebar button */}
-            <label className="w-8 h-8 p-0 max-xl:hidden"></label>
-            <label
+            <Label size="icon" className="max-xl:hidden" />
+            <Label
+              className="xl:hidden"
+              variant="btn-ghost"
+              size="icon-rounded"
               htmlFor="toggle-drawer"
-              className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
+              role="button"
               title={t('sidebar.buttons.closeSideBar')}
               aria-label={t('sidebar.buttons.closeSideBar')}
-              role="button"
               tabIndex={0}
             >
               <LuX className="lucide w-5 h-5" />
-            </label>
+            </Label>
 
-            <label
-              className="font-bold tracking-wider leading-8 text-center cursor-pointer"
+            <Label
+              variant="fake-btn"
+              className="font-bold tracking-wider leading-8"
               aria-label={import.meta.env.VITE_APP_NAME}
               role="button"
               onClick={() => navigate('/')}
             >
               {import.meta.env.VITE_APP_NAME}
-            </label>
+            </Label>
 
             {/* new conversation button */}
             <Button
@@ -135,8 +139,10 @@ const ConversationGroup = memo(
       <div role="group">
         {/* group name (by date) */}
         {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
-        <b
-          className="btn btn-ghost btn-xs bg-none btn-disabled block text-xs text-base-content text-start px-2 mb-0 mt-6 font-bold opacity-75"
+        <Label
+          className="px-2 mb-0 mt-6 opacity-75"
+          variant="group-title"
+          size="xs"
           role="note"
           aria-description={t(`sidebar.groups.${group.title}`, {
             defaultValue: group.title,
@@ -147,7 +153,7 @@ const ConversationGroup = memo(
             i18nKey={`sidebar.groups.${group.title}`}
             defaults={group.title}
           />
-        </b>
+        </Label>
 
         <ul>
           {group.conversations.map((conv) => (

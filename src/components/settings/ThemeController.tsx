@@ -3,6 +3,7 @@ import { Trans } from 'react-i18next';
 import { SYNTAX_THEMES, THEMES } from '../../config';
 import { useAppContext } from '../../context/app';
 import { Dropdown, DropdownOption } from '../common';
+import { Label } from '../ui/label';
 
 export function ThemeController() {
   const dataThemes = ['auto', ...THEMES].map((theme) => ({
@@ -57,7 +58,7 @@ export function ThemeController() {
         <div className="font-bold mb-1 md:hidden">
           <Trans i18nKey="settings.themeManager.dataTheme.label" />
         </div>
-        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+        <Label variant="input-bordered">
           <div className="font-bold hidden md:block">
             <Trans i18nKey="settings.themeManager.dataTheme.label" />
           </div>
@@ -71,7 +72,7 @@ export function ThemeController() {
             isSelected={(option) => currentTheme === option.value}
             onSelect={(option) => switchTheme(option.value)}
           />
-        </label>
+        </Label>
         <div className="text-xs opacity-75 max-w-80">
           <Trans i18nKey="settings.themeManager.dataTheme.note" />
         </div>
@@ -82,7 +83,7 @@ export function ThemeController() {
         <div className="font-bold mb-1 md:hidden">
           <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
         </div>
-        <label className="input input-bordered join-item grow flex items-center gap-2 mb-1">
+        <Label variant="input-bordered">
           <div className="font-bold hidden md:block">
             <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
           </div>
@@ -96,7 +97,7 @@ export function ThemeController() {
             isSelected={(option) => currentSyntaxTheme === option.value}
             onSelect={(option) => switchSyntaxTheme(option.value)}
           />
-        </label>
+        </Label>
         <div className="text-xs opacity-75 max-w-80">
           <Trans i18nKey="settings.themeManager.syntaxTheme.note" />
         </div>

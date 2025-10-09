@@ -19,8 +19,9 @@ import SpeechToText, {
   SpeechRecordCallback,
 } from '../hooks/useSpeechToText';
 import { MessageExtra } from '../types';
-import { classNames, cleanCurrentUrl } from '../utils';
+import { cleanCurrentUrl } from '../utils';
 import { DropzoneArea } from './DropzoneArea';
+import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
 /**
@@ -139,18 +140,17 @@ export const ChatInput = memo(
             {/* buttons area */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex gap-2 items-center">
-                <label
+                <Label
+                  className={isPending ? 'btn-disabled' : ''}
+                  variant="btn-ghost"
+                  size="icon-rounded"
                   htmlFor="new-message-file-upload"
-                  className={classNames({
-                    'btn btn-ghost w-8 h-8 p-0 rounded-full': true,
-                    'btn-disabled': isPending,
-                  })}
                   aria-label={t('chatInput.ariaLabels.uploadFile')}
                   tabIndex={0}
                   role="button"
                 >
                   <LuPaperclip className="lucide h-5 w-5" />
-                </label>
+                </Label>
 
                 <Button
                   className="xl:hidden"
