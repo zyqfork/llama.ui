@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import {
   LuAtom,
   LuBrain,
+  LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
   LuCopy,
@@ -503,6 +504,7 @@ const ThinkingSection = memo(function ThinkingSection({
   const {
     config: { showThoughtInProgress, showRawAssistantMessage },
   } = useAppContext();
+  const [show, setShow] = useState<boolean>(showThoughtInProgress);
 
   if (!content) return null;
 
@@ -511,38 +513,41 @@ const ThinkingSection = memo(function ThinkingSection({
       role="button"
       aria-label={t('chatScreen.ariaLabels.thoughtDisplay')}
       tabIndex={0}
-      className="collapse bg-none"
     >
-      <input type="checkbox" defaultChecked={showThoughtInProgress} />
-      <div className="collapse-title px-0 py-2">
-        <div className="btn border-0 rounded-xl">
-          {isThinking && (
-            <>
-              <LuAtom className="lucide h-6 w-6 mr-1 p-0 animate-spin" />
-              <Trans i18nKey="chatScreen.labels.thinking" />
-            </>
-          )}
-          {!isThinking && (
-            <>
-              <LuBrain className="lucide h-6 w-6 mr-1 p-0" />
-              <Trans i18nKey="chatScreen.labels.thoughts" />
-            </>
-          )}
-        </div>
-      </div>
-      <div
-        className="collapse-content text-base-content/70 text-sm p-1"
-        tabIndex={0}
-        aria-description={t('chatScreen.ariaLabels.thoughtContent')}
+      <Button
+        className="border-0 rounded-xl my-2 p-2 px-4"
+        onClick={() => setShow(!show)}
       >
-        <div className="border-l-2 border-base-content/20 pl-4 mb-4">
-          {showRawAssistantMessage ? (
-            <div className="whitespace-pre-wrap">{content}</div>
-          ) : (
-            <MarkdownDisplay content={content} />
-          )}
+        {isThinking && (
+          <>
+            <LuAtom className="lucide h-5 w-5 mr-1 p-0 animate-spin" />
+            <Trans i18nKey="chatScreen.labels.thinking" />
+          </>
+        )}
+        {!isThinking && (
+          <>
+            <LuBrain className="lucide h-5 w-5 mr-1 p-0" />
+            <Trans i18nKey="chatScreen.labels.thoughts" />
+          </>
+        )}
+        {!show && <LuChevronRight className="lucide h-5 w-5 ml-1" />}
+        {show && <LuChevronDown className="lucide h-5 w-5 ml-1" />}
+      </Button>
+
+      {show && (
+        <div
+          className="text-base-content/70 text-sm p-1"
+          aria-description={t('chatScreen.ariaLabels.thoughtContent')}
+        >
+          <div className="border-l-2 border-base-content/20 pl-4 mb-4">
+            {showRawAssistantMessage ? (
+              <div className="whitespace-pre-wrap">{content}</div>
+            ) : (
+              <MarkdownDisplay content={content} />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });
