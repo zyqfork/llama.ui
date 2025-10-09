@@ -13,8 +13,8 @@ import { useAppContext } from '../context/app';
 import { useChatContext } from '../context/chat';
 import { CanvasType } from '../types';
 import { copyStr } from '../utils';
-import { IntlIconButton } from './common';
 import MermaidChart from './MermaidChart';
+import { Button } from './ui/button';
 
 export default memo(function MarkdownDisplay({ content }: { content: string }) {
   const preprocessedContent = useMemo(
@@ -130,23 +130,25 @@ function CodeBlockToolbar({
   return (
     <div className="hljs sticky h-0 z-[1] text-right p-0">
       {canRunCode && (
-        <IntlIconButton
-          className="btn btn-ghost w-8 h-8 p-0"
-          t={t}
-          titleKey="chatScreen.titles.run"
-          ariaLabelKey="chatScreen.ariaLabels.runCode"
-          icon={LuPlay}
+        <Button
+          variant="ghost"
+          size="icon"
+          title={t('chatScreen.titles.run')}
+          aria-label={t('chatScreen.ariaLabels.runCode')}
           onClick={handleRun}
-        />
+        >
+          <LuPlay className="lucide h-4 w-4" />
+        </Button>
       )}
-      <IntlIconButton
-        className="btn btn-ghost w-8 h-8 p-0"
-        t={t}
-        titleKey="chatScreen.titles.copy"
-        ariaLabelKey="chatScreen.ariaLabels.copyContent"
-        icon={LuCopy}
+      <Button
+        variant="ghost"
+        size="icon"
+        title={t('chatScreen.titles.copy')}
+        aria-label={t('chatScreen.ariaLabels.copyContent')}
         onClick={handleCopy}
-      />
+      >
+        <LuCopy className="lucide h-4 w-4" />
+      </Button>
     </div>
   );
 }

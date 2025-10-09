@@ -38,7 +38,6 @@ import {
   timeFormatter,
 } from '../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
-import { IntlIconButton } from './common';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
 import { Textarea } from './ui/textarea';
@@ -236,28 +235,32 @@ export default memo(function ChatMessage({
                 total: siblingLeafNodeIds.length,
               })}
             >
-              <IntlIconButton
-                className="btn btn-ghost w-6 h-8 p-0"
+              <Button
+                className="w-6"
+                variant="ghost"
+                size="icon"
                 onClick={() => prevSibling && onChangeSibling(prevSibling)}
                 disabled={!prevSibling}
-                icon={LuChevronLeft}
-                t={t}
-                titleKey="chatScreen.titles.previous"
-                ariaLabelKey="chatScreen.ariaLabels.switchToPrevious"
-              />
+                title={t('chatScreen.titles.previous')}
+                aria-label={t('chatScreen.ariaLabels.switchToPrevious')}
+              >
+                <LuChevronLeft className="lucide h-4 w-4" />
+              </Button>
               <span>
                 {siblingCurrIdx + 1} / {siblingLeafNodeIds.length}
               </span>
 
-              <IntlIconButton
-                className="btn btn-ghost w-6 h-8 p-0"
+              <Button
+                className="w-6"
+                variant="ghost"
+                size="icon"
                 onClick={() => nextSibling && onChangeSibling(nextSibling)}
                 disabled={!nextSibling}
-                icon={LuChevronRight}
-                t={t}
-                titleKey="chatScreen.titles.next"
-                ariaLabelKey="chatScreen.ariaLabels.switchToNext"
-              />
+                title={t('chatScreen.titles.next')}
+                aria-label={t('chatScreen.ariaLabels.switchToNext')}
+              >
+                <LuChevronRight className="lucide h-4 w-4" />
+              </Button>
             </div>
           )}
 
@@ -265,7 +268,7 @@ export default memo(function ChatMessage({
           {isAssistant && (
             <Button
               variant="ghost"
-              size="icon-rounded"
+              size="icon"
               onClick={() => {
                 if (msg.content !== null) {
                   onRegenerateMessage(msg as Message);
@@ -283,7 +286,7 @@ export default memo(function ChatMessage({
           {timings && showTokensPerSecond && (
             <Button
               variant="ghost"
-              size="icon-rounded"
+              size="icon"
               title={t('chatScreen.titles.performance')}
               aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >
@@ -337,58 +340,61 @@ export default memo(function ChatMessage({
           )}
 
           {/* edit message */}
-          <IntlIconButton
-            className="btn btn-ghost w-8 h-8 p-0"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsEditing(msg.content !== null)}
             disabled={!msg.content}
-            icon={LuSquarePen}
-            t={t}
-            titleKey="chatScreen.titles.edit"
-            ariaLabelKey="chatScreen.ariaLabels.editMessage"
-          />
+            title={t('chatScreen.titles.edit')}
+            aria-label={t('chatScreen.ariaLabels.editMessage')}
+          >
+            <LuSquarePen className="lucide h-4 w-4" />
+          </Button>
 
           {/* copy message */}
-          <IntlIconButton
-            className="btn btn-ghost w-8 h-8 p-0"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleCopy}
-            icon={LuCopy}
-            t={t}
-            titleKey="chatScreen.titles.copy"
-            ariaLabelKey="chatScreen.ariaLabels.copyContent"
-          />
+            title={t('chatScreen.titles.copy')}
+            aria-label={t('chatScreen.ariaLabels.copyContent')}
+          >
+            <LuCopy className="lucide h-4 w-4" />
+          </Button>
 
           {/* play message */}
           <PlayButton
-            className="btn btn-ghost w-8 h-8 p-0"
             disabled={!IS_SPEECH_SYNTHESIS_SUPPORTED || !content}
             text={content ?? ''}
           />
 
           {/* delete message */}
-          <IntlIconButton
-            className="btn btn-ghost w-8 h-8 p-0"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={async () => {
               if (await showConfirm(t('chatScreen.actions.delete.confirm'))) {
                 await IndexedDB.deleteMessage(msg);
               }
             }}
             disabled={!msg.content}
-            icon={LuTrash2}
-            t={t}
-            titleKey="chatScreen.titles.delete"
-            ariaLabelKey="chatScreen.ariaLabels.deleteMessage"
-          />
+            title={t('chatScreen.titles.delete')}
+            aria-label={t('chatScreen.ariaLabels.deleteMessage')}
+          >
+            <LuTrash2 className="lucide h-4 w-4" />
+          </Button>
 
           {/* branch message */}
-          <IntlIconButton
-            className="btn btn-ghost w-8 h-8 p-0"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={async () => await branchMessage(msg as Message)}
             disabled={!msg.content}
-            t={t}
-            titleKey="chatScreen.titles.branchChat"
-            ariaLabelKey="chatScreen.ariaLabels.branchChatAfterMessage"
-            icon={LuGitMerge}
-          />
+            title={t('chatScreen.titles.branchChat')}
+            aria-label={t('chatScreen.ariaLabels.branchChatAfterMessage')}
+          >
+            <LuGitMerge className="lucide h-4 w-4" />
+          </Button>
         </div>
       )}
     </div>
@@ -564,26 +570,30 @@ const PlayButton = memo(function PlayButton({
       {({ isPlaying, play, stop }) => (
         <>
           {!isPlaying && (
-            <IntlIconButton
+            <Button
               className={className}
+              variant="ghost"
+              size="icon"
               onClick={play}
               disabled={disabled}
-              t={t}
-              titleKey="chatScreen.titles.play"
-              ariaLabelKey="chatScreen.ariaLabels.playMessage"
-              icon={LuVolume2}
-            />
+              title={t('chatScreen.titles.play')}
+              aria-label={t('chatScreen.ariaLabels.playMessage')}
+            >
+              <LuVolume2 className="lucide h-4 w-4" />
+            </Button>
           )}
           {isPlaying && (
-            <IntlIconButton
+            <Button
               className={className}
+              variant="ghost"
+              size="icon"
               onClick={stop}
               disabled={disabled}
-              t={t}
-              titleKey="chatScreen.titles.stop"
-              ariaLabelKey="chatScreen.ariaLabels.stopMessage"
-              icon={LuVolumeX}
-            />
+              title={t('chatScreen.titles.stop')}
+              aria-label={t('chatScreen.ariaLabels.stopMessage')}
+            >
+              <LuVolumeX className="lucide h-4 w-4" />
+            </Button>
           )}
         </>
       )}

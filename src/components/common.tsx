@@ -1,13 +1,4 @@
-import {
-  ButtonHTMLAttributes,
-  FC,
-  memo,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
@@ -98,36 +89,6 @@ export function BtnWithTooltips({
     </div>
   );
 }
-
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: FC<{ className?: string }>;
-  t: ReturnType<typeof useTranslation>['t'];
-  titleKey: string;
-  ariaLabelKey: string;
-}
-export const IntlIconButton = memo(function IntlIconButton({
-  className,
-  disabled,
-  onClick,
-  icon: Icon,
-  t,
-  titleKey,
-  ariaLabelKey,
-  ...props
-}: IconButtonProps) {
-  return (
-    <Button
-      className={className}
-      onClick={onClick}
-      disabled={disabled}
-      title={t(titleKey)}
-      aria-label={t(ariaLabelKey)}
-      {...props}
-    >
-      <Icon className="lucide h-4 w-4" />
-    </Button>
-  );
-});
 
 export interface DropdownOption {
   value: string | number;
