@@ -1,3 +1,8 @@
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@radix-ui/react-collapsible';
 import { memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -504,20 +509,17 @@ const ThinkingSection = memo(function ThinkingSection({
   const {
     config: { showThoughtInProgress, showRawAssistantMessage },
   } = useAppContext();
-  const [show, setShow] = useState<boolean>(showThoughtInProgress);
+  const [open, setOpen] = useState<boolean>(showThoughtInProgress);
 
   if (!content) return null;
 
   return (
-    <div
-      role="button"
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
       aria-label={t('chatScreen.ariaLabels.thoughtDisplay')}
-      tabIndex={0}
     >
-      <Button
-        className="border-0 rounded-xl my-2 p-2 px-4"
-        onClick={() => setShow(!show)}
-      >
+      <CollapsibleTrigger className="btn border-0 rounded-xl my-2 p-2 px-4">
         {isThinking && (
           <>
             <LuAtom className="lucide h-5 w-5 mr-1 p-0 animate-spin" />
@@ -530,25 +532,23 @@ const ThinkingSection = memo(function ThinkingSection({
             <Trans i18nKey="chatScreen.labels.thoughts" />
           </>
         )}
-        {!show && <LuChevronRight className="lucide h-5 w-5 ml-1" />}
-        {show && <LuChevronDown className="lucide h-5 w-5 ml-1" />}
-      </Button>
+        {!open && <LuChevronRight className="lucide h-5 w-5 ml-1" />}
+        {open && <LuChevronDown className="lucide h-5 w-5 ml-1" />}
+      </CollapsibleTrigger>
 
-      {show && (
-        <div
-          className="text-base-content/70 text-sm p-1"
-          aria-description={t('chatScreen.ariaLabels.thoughtContent')}
-        >
-          <div className="border-l-2 border-base-content/20 pl-4 mb-4">
-            {showRawAssistantMessage ? (
-              <div className="whitespace-pre-wrap">{content}</div>
-            ) : (
-              <MarkdownDisplay content={content} />
-            )}
-          </div>
+      <CollapsibleContent
+        className="text-base-content/70 text-sm p-1"
+        aria-description={t('chatScreen.ariaLabels.thoughtContent')}
+      >
+        <div className="border-l-2 border-base-content/20 pl-4 mb-4">
+          {showRawAssistantMessage ? (
+            <div className="whitespace-pre-wrap">{content}</div>
+          ) : (
+            <MarkdownDisplay content={content} />
+          )}
         </div>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 });
 
