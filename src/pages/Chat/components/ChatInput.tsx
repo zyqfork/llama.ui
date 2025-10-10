@@ -1,24 +1,21 @@
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import {
-  LuArrowUp,
-  LuCircleStop,
-  LuMic,
-  LuPaperclip,
-  LuSquare,
-} from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
-import { useChatContext } from '../context/chat';
-import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
-import { useFileUpload } from '../hooks/useFileUpload';
+import { Button, Icon, Label, Textarea } from '../../../components';
+import {
+  ChatTextareaApi,
+  useChatTextarea,
+} from '../../../hooks/useChatTextarea';
+import { useFileUpload } from '../../../hooks/useFileUpload';
 import SpeechToText, {
   IS_SPEECH_RECOGNITION_SUPPORTED,
   SpeechRecordCallback,
-} from '../hooks/useSpeechToText';
-import { MessageExtra } from '../types';
-import { classNames, cleanCurrentUrl } from '../utils';
+} from '../../../hooks/useSpeechToText';
+import { useChatContext } from '../../../store/chat';
+import { MessageExtra } from '../../../types';
+import { cleanCurrentUrl } from '../../../utils';
 import { DropzoneArea } from './DropzoneArea';
 
 /**
@@ -112,10 +109,12 @@ export const ChatInput = memo(
           disabled={isPending}
         >
           <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-sm md:shadow-md p-2">
-            <textarea
+            <Textarea
               // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
               // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
-              className="w-full focus:outline-none px-2 border-none focus:ring-0 resize-none"
+              className="text-base p-0 px-2"
+              variant="transparent"
+              size="full"
               placeholder={t('chatInput.placeholder')}
               ref={textarea.ref}
               onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
@@ -127,36 +126,36 @@ export const ChatInput = memo(
                 }
               }}
               id="msg-input"
-              dir="auto"
               // Set a base height of 2 rows for mobile views
               // On lg+ screens, the hook will calculate and set the initial height anyway
               rows={2}
-            ></textarea>
+            />
 
             {/* buttons area */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex gap-2 items-center">
-                <label
+                <Label
+                  className={isPending ? 'btn-disabled' : ''}
+                  variant="btn-ghost"
+                  size="icon-rounded"
                   htmlFor="new-message-file-upload"
-                  className={classNames({
-                    'btn btn-ghost w-8 h-8 p-0 rounded-full': true,
-                    'btn-disabled': isPending,
-                  })}
                   aria-label={t('chatInput.ariaLabels.uploadFile')}
                   tabIndex={0}
                   role="button"
                 >
-                  <LuPaperclip className="lucide h-5 w-5" />
-                </label>
+                  <Icon icon="LuPaperclip" size="md" />
+                </Label>
 
-                <button
-                  className="btn btn-ghost w-8 h-8 p-0 rounded-full xl:hidden"
+                <Button
+                  className="xl:hidden"
+                  variant="ghost"
+                  size="icon-rounded"
                   title={t('header.title.settings')}
                   aria-label={t('header.ariaLabels.settings')}
                   onClick={() => navigate('/settings')}
                 >
                   <TbAdjustmentsHorizontal className="lucide h-5 w-5" />
-                </button>
+                </Button>
               </div>
 
               <div className="flex items-center">
@@ -165,24 +164,28 @@ export const ChatInput = memo(
                     {({ isRecording, startRecording, stopRecording }) => (
                       <>
                         {!isRecording && (
-                          <button
-                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                          <Button
+                            className="mr-2"
+                            variant="ghost"
+                            size="icon-rounded"
                             onClick={startRecording}
                             title="Record"
                             aria-label="Start Recording"
                           >
-                            <LuMic className="h-5 w-5" />
-                          </button>
+                            <Icon icon="LuMic" size="md" />
+                          </Button>
                         )}
                         {isRecording && (
-                          <button
-                            className="btn btn-ghost w-8 h-8 p-0 rounded-full mr-2"
+                          <Button
+                            className="mr-2"
+                            variant="ghost"
+                            size="icon-rounded"
                             onClick={stopRecording}
                             title="Stop"
                             aria-label="Stop Recording"
                           >
-                            <LuCircleStop className="h-5 w-5" />
-                          </button>
+                            <Icon icon="LuCircleStop" size="md" />
+                          </Button>
                         )}
                       </>
                     )}
@@ -190,22 +193,24 @@ export const ChatInput = memo(
                 )}
 
                 {isPending && (
-                  <button
-                    className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  <Button
+                    variant="neutral"
+                    size="icon-rounded"
                     onClick={handleStop}
                   >
-                    <LuSquare className="lucide h-4 w-4" fill="currentColor" />
-                  </button>
+                    <Icon icon="LuSquare" size="sm" variant="current" />
+                  </Button>
                 )}
 
                 {!isPending && (
-                  <button
-                    className="btn btn-neutral w-8 h-8 p-0 rounded-full"
+                  <Button
+                    variant="neutral"
+                    size="icon-rounded"
                     onClick={sendNewMessage}
                     aria-label={t('chatInput.ariaLabels.send')}
                   >
-                    <LuArrowUp className="lucide h-5 w-5" />
-                  </button>
+                    <Icon icon="LuArrowUp" size="md" />
+                  </Button>
                 )}
               </div>
             </div>

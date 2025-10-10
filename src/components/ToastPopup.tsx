@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import toast, { Toast } from 'react-hot-toast';
+import { Button } from './Button';
 
 /**
  * A toast popup component that displays confirmation messages with action buttons.
@@ -49,21 +50,19 @@ export const ToastPopup: FC<{
       </p>
     )}
     <div className="flex justify-center gap-2 mt-1">
-      <button
+      <Button
         onClick={() => {
           toast.dismiss(t.id);
           onSubmit();
         }}
-        className="btn btn-neutral btn-sm"
+        variant="neutral"
+        size="small"
       >
         {submitBtn}
-      </button>
-      <button
-        onClick={() => toast.dismiss(t.id)}
-        className="btn btn-ghost btn-sm"
-      >
+      </Button>
+      <Button onClick={() => toast.dismiss(t.id)} variant="ghost" size="small">
         {cancelBtn}
-      </button>
+      </Button>
     </div>
   </div>
 );

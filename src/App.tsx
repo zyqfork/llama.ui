@@ -14,18 +14,18 @@ import { Footer } from './components/Footer';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import { ToastPopup } from './components/ToastPopup';
-import { AppContextProvider, useAppContext } from './context/app';
-import { ChatContextProvider } from './context/chat';
+import { useDebouncedCallback } from './hooks/useDebouncedCallback';
+import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
+import ChatPage from './pages/Chat';
+import SettingsPage from './pages/Settings';
+import WelcomePage from './pages/Welcome';
+import { AppContextProvider, useAppContext } from './store/app';
+import { ChatContextProvider } from './store/chat';
 import {
   InferenceContextProvider,
   useInferenceContext,
-} from './context/inference';
-import { ModalProvider } from './context/modal';
-import { useDebouncedCallback } from './hooks/useDebouncedCallback';
-import { usePWAUpdatePrompt } from './hooks/usePWAUpdatePrompt';
-import ChatScreen from './pages/ChatScreen';
-import Settings from './pages/Settings';
-import WelcomeScreen from './pages/WelcomeScreen';
+} from './store/inference';
+import { ModalProvider } from './store/modal';
 
 const DEBOUNCE_DELAY = 5000;
 const TOAST_IDS = {
@@ -44,8 +44,8 @@ const App: FC = () => {
                 <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/chat/:convId" element={<Chat />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="*" element={<WelcomeScreen />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="*" element={<WelcomePage />} />
                   </Route>
                 </Routes>
               </ChatContextProvider>
@@ -151,7 +151,7 @@ const AppLayout: FC = () => {
 const Chat: FC = () => {
   const { convId } = useParams();
   if (!convId) return <Navigate to="/" replace />;
-  return <ChatScreen currConvId={convId} />;
+  return <ChatPage currConvId={convId} />;
 };
 
 export default App;
