@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuPlay, LuSquare, LuX } from 'react-icons/lu';
-import { Button, Textarea } from '../../../components';
+import { Button, Icon, Textarea } from '../../../components';
 import LocalStorage from '../../../database/localStorage';
 import { useChatContext } from '../../../store/chat';
 import { CanvasType } from '../../../types';
@@ -159,7 +158,7 @@ export default function CanvasPyInterpreter() {
             title={t('codeRunner.buttons.close')}
             onClick={() => setCanvasData(null)}
           >
-            <LuX className="lucide w-5 h-5" />
+            <Icon icon="LuX" size="md" />
           </Button>
         </div>
         <div className="grid grid-rows-3 gap-4 h-full">
@@ -177,7 +176,7 @@ export default function CanvasPyInterpreter() {
                 onClick={() => runCode(code)}
                 disabled={running}
               >
-                <LuPlay className="lucide h-5 w-5 mr-1" />
+                <Icon icon="LuPlay" variant="leftside" size="md" />
                 {t('codeRunner.buttons.run')}
               </Button>
               {showStopBtn && (
@@ -187,7 +186,7 @@ export default function CanvasPyInterpreter() {
                   title={t('codeRunner.buttons.stop')}
                   onClick={() => interruptFn?.()}
                 >
-                  <LuSquare className="lucide h-5 w-5 mr-1" />
+                  <Icon icon="LuSquare" variant="leftside" size="md" />
                   {t('codeRunner.buttons.stop')}
                 </Button>
               )}

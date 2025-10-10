@@ -1,16 +1,9 @@
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import {
-  LuArrowUp,
-  LuCircleStop,
-  LuMic,
-  LuPaperclip,
-  LuSquare,
-} from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
-import { Button, Label, Textarea } from '../../../components';
+import { Button, Icon, Label, Textarea } from '../../../components';
 import {
   ChatTextareaApi,
   useChatTextarea,
@@ -150,7 +143,7 @@ export const ChatInput = memo(
                   tabIndex={0}
                   role="button"
                 >
-                  <LuPaperclip className="lucide h-5 w-5" />
+                  <Icon icon="LuPaperclip" size="md" />
                 </Label>
 
                 <Button
@@ -179,7 +172,7 @@ export const ChatInput = memo(
                             title="Record"
                             aria-label="Start Recording"
                           >
-                            <LuMic className="h-5 w-5" />
+                            <Icon icon="LuMic" size="md" />
                           </Button>
                         )}
                         {isRecording && (
@@ -191,7 +184,7 @@ export const ChatInput = memo(
                             title="Stop"
                             aria-label="Stop Recording"
                           >
-                            <LuCircleStop className="h-5 w-5" />
+                            <Icon icon="LuCircleStop" size="md" />
                           </Button>
                         )}
                       </>
@@ -205,7 +198,7 @@ export const ChatInput = memo(
                     size="icon-rounded"
                     onClick={handleStop}
                   >
-                    <LuSquare className="lucide h-4 w-4" fill="currentColor" />
+                    <Icon icon="LuSquare" size="sm" variant="current" />
                   </Button>
                 )}
 
@@ -216,7 +209,7 @@ export const ChatInput = memo(
                     onClick={sendNewMessage}
                     aria-label={t('chatInput.ariaLabels.send')}
                   >
-                    <LuArrowUp className="lucide h-5 w-5" />
+                    <Icon icon="LuArrowUp" size="md" />
                   </Button>
                 )}
               </div>

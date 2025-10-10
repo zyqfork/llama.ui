@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { LuEye, LuMessageCircleMore } from 'react-icons/lu';
 import { TbDatabaseExport, TbDatabaseImport } from 'react-icons/tb';
 import { DelimeterComponent, SettingsSectionLabel } from '.';
-import { Button, Label } from '../../../components';
+import { Button, Icon, Label } from '../../../components';
 import { useAppContext } from '../../../store/app';
 import { normalizeUrl } from '../../../utils';
 import { downloadAsFile } from '../../../utils/downloadAsFile';
@@ -38,7 +37,7 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
   return (
     <>
       <SettingsSectionLabel>
-        <LuMessageCircleMore className="lucide w-4 h-4 mr-1 inline" />
+        <Icon icon="LuMessageCircleMore" size="sm" variant="leftside" />
         {t('settings.importExport.chatsSectionTitle')}
       </SettingsSectionLabel>
 
@@ -70,7 +69,7 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
       <DelimeterComponent />
 
       <SettingsSectionLabel>
-        <LuEye className="lucide w-4 h-4 mr-1 inline" />
+        <Icon icon="LuEye" size="sm" variant="leftside" />
         {t('settings.importExport.technicalDemoSectionTitle')}
       </SettingsSectionLabel>
 

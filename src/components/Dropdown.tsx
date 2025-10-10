@@ -1,9 +1,9 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 import { Button } from './Button';
+import { Icon } from './Icon';
 
 export interface DropdownOption {
   value: string | number;
@@ -113,7 +113,7 @@ export function Dropdown<T extends DropdownOption>({
           >
             {currentValue}
             {!hideChevron && (
-              <LuChevronDown className="lucide inline h-5 w-5 ml-1" />
+              <Icon icon="LuChevronDown" variant="rightside" size="md" />
             )}
           </summary>
 

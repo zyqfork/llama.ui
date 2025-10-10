@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCog, LuMenu, LuSquarePen } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { useAppContext } from '../store/app';
 import { useChatContext } from '../store/chat';
 import { useInferenceContext } from '../store/inference';
 import { Button } from './Button';
 import { Dropdown } from './Dropdown';
+import { Icon } from './Icon';
 import { Label } from './Label';
 
 export default function Header() {
@@ -42,7 +42,7 @@ export default function Header() {
       <section className="flex flex-row items-center xl:hidden">
         {/* open sidebar button */}
         <Label variant="btn-ghost" size="icon" htmlFor="toggle-drawer">
-          <LuMenu className="lucide h-5 w-5" />
+          <Icon icon="LuMenu" size="md" />
         </Label>
 
         {/* spacer */}
@@ -68,7 +68,7 @@ export default function Header() {
           title={t('header.buttons.newConv')}
           aria-label={t('header.ariaLabels.newConv')}
         >
-          <LuSquarePen className="lucide w-5 h-5" />
+          <Icon icon="LuSquarePen" size="md" />
         </Button>
       </section>
 
@@ -129,7 +129,7 @@ export default function Header() {
               onClick={() => navigate('/settings')}
             >
               {/* settings button */}
-              <LuCog className="lucide w-5 h-5" />
+              <Icon icon="LuCog" size="md" />
             </Button>
           </div>
         </section>

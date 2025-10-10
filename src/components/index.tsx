@@ -2,6 +2,7 @@ export * from './Button';
 export * from './Dropdown';
 export * from './Footer';
 export * from './Header';
+export * from './Icon';
 export * from './Label';
 export * from './Sidebar';
 export * from './Textarea';

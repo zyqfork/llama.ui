@@ -1,14 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
-import {
-  LuDownload,
-  LuEllipsisVertical,
-  LuPencil,
-  LuSquarePen,
-  LuTrash,
-  LuX,
-} from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import IndexedDB from '../database/indexedDB';
 import { useChatContext } from '../store/chat';
@@ -17,6 +9,7 @@ import { Conversation } from '../types';
 import { classNames } from '../utils';
 import { downloadAsFile } from '../utils/downloadAsFile';
 import { Button } from './Button';
+import { Icon } from './Icon';
 import { Label } from './Label';
 
 export default function Sidebar() {
@@ -79,7 +72,7 @@ export default function Sidebar() {
               aria-label={t('sidebar.buttons.closeSideBar')}
               tabIndex={0}
             >
-              <LuX className="lucide w-5 h-5" />
+              <Icon icon="LuX" size="md" />
             </Label>
 
             <Label
@@ -100,7 +93,7 @@ export default function Sidebar() {
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}
             >
-              <LuSquarePen className="lucide w-5 h-5" />
+              <Icon icon="LuSquarePen" size="md" />
             </Button>
           </div>
 
@@ -261,7 +254,7 @@ const ConversationItem = memo(
             title={t('sidebar.buttons.more')}
             aria-label={t('sidebar.ariaLabels.more')}
           >
-            <LuEllipsisVertical className="lucide w-5 h-5" />
+            <Icon icon="LuEllipsisVertical" size="md" />
           </Button>
           {/* dropdown menu */}
           <ul
@@ -277,7 +270,7 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.rename')}
                 aria-label={t('sidebar.ariaLabels.rename')}
               >
-                <LuPencil className="lucide w-4 h-4" />
+                <Icon icon="LuPencil" size="sm" />
                 <Trans i18nKey="sidebar.buttons.rename" />
               </Button>
             </li>
@@ -288,7 +281,7 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.download')}
                 aria-label={t('sidebar.ariaLabels.download')}
               >
-                <LuDownload className="lucide w-4 h-4" />
+                <Icon icon="LuDownload" size="sm" />
                 <Trans i18nKey="sidebar.buttons.download" />
               </Button>
             </li>
@@ -304,7 +297,7 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.delete')}
                 aria-label={t('sidebar.ariaLabels.delete')}
               >
-                <LuTrash className="lucide w-4 h-4" />
+                <Icon icon="LuTrash" size="sm" />
                 <Trans i18nKey="sidebar.buttons.delete" />
               </Button>
             </li>

@@ -6,29 +6,8 @@ import React, {
   useState,
 } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import {
-  LuAudioLines,
-  LuBookmark,
-  LuBrain,
-  LuCog,
-  LuCpu,
-  LuDatabase,
-  LuFilter,
-  LuFlaskConical,
-  LuGrid2X2Plus,
-  LuHand,
-  LuMessageCircleMore,
-  LuMessagesSquare,
-  LuMonitor,
-  LuRefreshCw,
-  LuRocket,
-  LuSettings,
-  LuSpeech,
-  LuVolume2,
-  LuVolumeX,
-} from 'react-icons/lu';
 import { useNavigate } from 'react-router';
-import { Button, Dropdown } from '../../components';
+import { Button, Dropdown, Icon } from '../../components';
 import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../../config';
 import { useDebouncedCallback } from '../../hooks/useDebouncedCallback';
 import TextToSpeech, {
@@ -74,7 +53,6 @@ import {
 } from './components';
 
 // --- Constants ---
-const ICON_CLASSNAME = 'lucide w-4 h-4 mr-1 inline';
 const DELIMITER: SettingFieldCustom = {
   type: SettingInputType.CUSTOM,
   key: 'custom',
@@ -137,7 +115,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuSettings className={ICON_CLASSNAME} />
+          <Icon icon="LuSettings" size="sm" variant="leftside" />
           {t('settings.tabs.general')}
         </>
       ),
@@ -183,14 +161,14 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuMonitor className={ICON_CLASSNAME} />
+          <Icon icon="LuMonitor" size="sm" variant="leftside" />
           {t('settings.tabs.ui')}
         </>
       ),
       fields: [
         toSection(
           t('settings.sections.userInterface'),
-          <LuMonitor className={ICON_CLASSNAME} />
+          <Icon icon="LuMonitor" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.SHORT_INPUT, 'initials'),
         {
@@ -212,7 +190,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuAudioLines className={ICON_CLASSNAME} />
+          <Icon icon="LuAudioLines" size="sm" variant="leftside" />
           {t('settings.tabs.voice')}
         </>
       ),
@@ -220,7 +198,7 @@ function getSettingTabsConfiguration(
         /* Text to Speech */
         toSection(
           t('settings.sections.textToSpeech'),
-          <LuSpeech className={ICON_CLASSNAME} />
+          <Icon icon="LuSpeech" size="sm" variant="leftside" />
         ),
         toDropdown(
           'ttsVoice',
@@ -280,8 +258,12 @@ function getSettingTabsConfiguration(
                   title="Play test message"
                   aria-label="Play test message"
                 >
-                  {!isPlaying && <LuVolume2 className={ICON_CLASSNAME} />}
-                  {isPlaying && <LuVolumeX className={ICON_CLASSNAME} />}
+                  {!isPlaying && (
+                    <Icon icon="LuVolume2" size="sm" variant="leftside" />
+                  )}
+                  {isPlaying && (
+                    <Icon icon="LuVolumeX" size="sm" variant="leftside" />
+                  )}
                   {t('settings.textToSpeech.check.label')}
                 </Button>
               )}
@@ -295,14 +277,14 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuMessagesSquare className={ICON_CLASSNAME} />
+          <Icon icon="LuMessagesSquare" size="sm" variant="leftside" />
           {t('settings.tabs.conversations')}
         </>
       ),
       fields: [
         toSection(
           t('settings.sections.chat'),
-          <LuMessageCircleMore className={ICON_CLASSNAME} />
+          <Icon icon="LuMessageCircleMore" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.SHORT_INPUT, 'pasteLongTextToFileLen'),
         toInput(SettingInputType.CHECKBOX, 'pdfAsImage'),
@@ -311,7 +293,7 @@ function getSettingTabsConfiguration(
         DELIMITER,
         toSection(
           t('settings.sections.performance'),
-          <LuRocket className={ICON_CLASSNAME} />
+          <Icon icon="LuRocket" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.CHECKBOX, 'showTokensPerSecond'),
 
@@ -319,7 +301,7 @@ function getSettingTabsConfiguration(
         DELIMITER,
         toSection(
           t('settings.sections.reasoning'),
-          <LuBrain className={ICON_CLASSNAME} />
+          <Icon icon="LuBrain" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.CHECKBOX, 'showThoughtInProgress'),
         toInput(SettingInputType.CHECKBOX, 'excludeThoughtOnReq'),
@@ -330,7 +312,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuBookmark className={ICON_CLASSNAME} />
+          <Icon icon="LuBookmark" size="sm" variant="leftside" />
           {t('settings.tabs.presets')}
         </>
       ),
@@ -347,7 +329,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuDatabase className={ICON_CLASSNAME} />
+          <Icon icon="LuDatabase" size="sm" variant="leftside" />
           {t('settings.tabs.importExport')}
         </>
       ),
@@ -364,7 +346,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuGrid2X2Plus className={ICON_CLASSNAME} />
+          <Icon icon="LuGrid2X2Plus" size="sm" variant="leftside" />
           {t('settings.tabs.advanced')}
         </>
       ),
@@ -372,7 +354,7 @@ function getSettingTabsConfiguration(
         /* Generation */
         toSection(
           t('settings.sections.generation'),
-          <LuCog className={ICON_CLASSNAME} />
+          <Icon icon="LuCog" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.CHECKBOX, 'overrideGenerationOptions'),
         ...['temperature', 'top_k', 'top_p', 'min_p', 'max_tokens'].map((key) =>
@@ -387,7 +369,7 @@ function getSettingTabsConfiguration(
         DELIMITER,
         toSection(
           t('settings.sections.samplers'),
-          <LuFilter className={ICON_CLASSNAME} />
+          <Icon icon="LuFilter" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.CHECKBOX, 'overrideSamplersOptions'),
         ...[
@@ -409,7 +391,7 @@ function getSettingTabsConfiguration(
         DELIMITER,
         toSection(
           t('settings.sections.penalties'),
-          <LuHand className={ICON_CLASSNAME} />
+          <Icon icon="LuHand" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.CHECKBOX, 'overridePenaltyOptions'),
         ...[
@@ -433,7 +415,7 @@ function getSettingTabsConfiguration(
         DELIMITER,
         toSection(
           t('settings.sections.custom'),
-          <LuCpu className={ICON_CLASSNAME} />
+          <Icon icon="LuCpu" size="sm" variant="leftside" />
         ),
         toInput(SettingInputType.LONG_INPUT, 'custom'),
       ],
@@ -443,7 +425,7 @@ function getSettingTabsConfiguration(
     {
       title: (
         <>
-          <LuFlaskConical className={ICON_CLASSNAME} />
+          <Icon icon="LuFlaskConical" size="sm" variant="leftside" />
           <Trans i18nKey="settings.sections.experimental" />
         </>
       ),
@@ -690,7 +672,7 @@ export default function Settings() {
                   )
                 }
               >
-                <LuRefreshCw className={ICON_CLASSNAME} />
+                <Icon icon="LuRefreshCw" size="sm" variant="leftside" />
                 <Trans i18nKey="settings.actionButtons.fetchModels" />
               </Button>
             );

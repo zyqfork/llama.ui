@@ -5,23 +5,7 @@ import {
 } from '@radix-ui/react-collapsible';
 import { memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import {
-  LuAtom,
-  LuBrain,
-  LuChevronDown,
-  LuChevronLeft,
-  LuChevronRight,
-  LuCopy,
-  LuGauge,
-  LuGitMerge,
-  LuPaperclip,
-  LuRefreshCw,
-  LuSquarePen,
-  LuTrash2,
-  LuVolume2,
-  LuVolumeX,
-} from 'react-icons/lu';
-import { Button, Label, Textarea } from '../../../components';
+import { Button, Icon, Label, Textarea } from '../../../components';
 import IndexedDB from '../../../database/indexedDB';
 import { useFileUpload } from '../../../hooks/useFileUpload';
 import TextToSpeech, {
@@ -249,7 +233,7 @@ export default memo(function ChatMessage({
                 title={t('chatScreen.titles.previous')}
                 aria-label={t('chatScreen.ariaLabels.switchToPrevious')}
               >
-                <LuChevronLeft className="lucide h-4 w-4" />
+                <Icon icon="LuChevronLeft" size="sm" />
               </Button>
               <span>
                 {siblingCurrIdx + 1} / {siblingLeafNodeIds.length}
@@ -264,7 +248,7 @@ export default memo(function ChatMessage({
                 title={t('chatScreen.titles.next')}
                 aria-label={t('chatScreen.ariaLabels.switchToNext')}
               >
-                <LuChevronRight className="lucide h-4 w-4" />
+                <Icon icon="LuChevronRight" size="sm" />
               </Button>
             </div>
           )}
@@ -283,7 +267,7 @@ export default memo(function ChatMessage({
               title={t('chatScreen.titles.regenerate')}
               aria-label={t('chatScreen.ariaLabels.regenerateResponse')}
             >
-              <LuRefreshCw className="lucide h-4 w-4" />
+              <Icon icon="LuRefreshCw" size="sm" />
             </Button>
           )}
 
@@ -296,7 +280,7 @@ export default memo(function ChatMessage({
               aria-label={t('chatScreen.ariaLabels.showPerformanceMetric')}
             >
               <div className="dropdown dropdown-hover dropdown-top">
-                <LuGauge className="lucide h-4 w-4" />
+                <Icon icon="LuGauge" size="sm" />
 
                 <div
                   tabIndex={0}
@@ -353,7 +337,7 @@ export default memo(function ChatMessage({
             title={t('chatScreen.titles.edit')}
             aria-label={t('chatScreen.ariaLabels.editMessage')}
           >
-            <LuSquarePen className="lucide h-4 w-4" />
+            <Icon icon="LuSquarePen" size="sm" />
           </Button>
 
           {/* copy message */}
@@ -364,7 +348,7 @@ export default memo(function ChatMessage({
             title={t('chatScreen.titles.copy')}
             aria-label={t('chatScreen.ariaLabels.copyContent')}
           >
-            <LuCopy className="lucide h-4 w-4" />
+            <Icon icon="LuCopy" size="sm" />
           </Button>
 
           {/* play message */}
@@ -386,7 +370,7 @@ export default memo(function ChatMessage({
             title={t('chatScreen.titles.delete')}
             aria-label={t('chatScreen.ariaLabels.deleteMessage')}
           >
-            <LuTrash2 className="lucide h-4 w-4" />
+            <Icon icon="LuTrash2" size="sm" />
           </Button>
 
           {/* branch message */}
@@ -398,7 +382,7 @@ export default memo(function ChatMessage({
             title={t('chatScreen.titles.branchChat')}
             aria-label={t('chatScreen.ariaLabels.branchChatAfterMessage')}
           >
-            <LuGitMerge className="lucide h-4 w-4" />
+            <Icon icon="LuGitMerge" size="sm" />
           </Button>
         </div>
       )}
@@ -449,7 +433,7 @@ function EditMessage({
               tabIndex={0}
               role="button"
             >
-              <LuPaperclip className="lucide h-5 w-5" />
+              <Icon icon="LuPaperclip" size="md" />
             </Label>
             <div className="grow" />
           </>
@@ -520,18 +504,23 @@ const ThinkingSection = memo(function ThinkingSection({
       <CollapsibleTrigger className="btn border-0 rounded-xl my-2 p-2 px-4">
         {isThinking && (
           <>
-            <LuAtom className="lucide h-5 w-5 mr-1 p-0 animate-spin" />
+            <Icon
+              icon="LuAtom"
+              size="md"
+              variant="leftside"
+              className="animate-spin"
+            />
             <Trans i18nKey="chatScreen.labels.thinking" />
           </>
         )}
         {!isThinking && (
           <>
-            <LuBrain className="lucide h-5 w-5 mr-1 p-0" />
+            <Icon icon="LuBrain" size="md" variant="leftside" />
             <Trans i18nKey="chatScreen.labels.thoughts" />
           </>
         )}
-        {!open && <LuChevronRight className="lucide h-5 w-5 ml-1" />}
-        {open && <LuChevronDown className="lucide h-5 w-5 ml-1" />}
+        {!open && <Icon icon="LuChevronRight" size="md" variant="rightside" />}
+        {open && <Icon icon="LuChevronDown" size="md" variant="rightside" />}
       </CollapsibleTrigger>
 
       <CollapsibleContent
@@ -584,7 +573,7 @@ const PlayButton = memo(function PlayButton({
               title={t('chatScreen.titles.play')}
               aria-label={t('chatScreen.ariaLabels.playMessage')}
             >
-              <LuVolume2 className="lucide h-4 w-4" />
+              <Icon icon="LuVolume2" size="sm" />
             </Button>
           )}
           {isPlaying && (
@@ -597,7 +586,7 @@ const PlayButton = memo(function PlayButton({
               title={t('chatScreen.titles.stop')}
               aria-label={t('chatScreen.ariaLabels.stopMessage')}
             >
-              <LuVolumeX className="lucide h-4 w-4" />
+              <Icon icon="LuVolumeX" size="sm" />
             </Button>
           )}
         </>

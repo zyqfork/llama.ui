@@ -2,14 +2,13 @@ import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCopy, LuPlay } from 'react-icons/lu';
 import Markdown, { ExtraProps } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { Button } from '../../../components';
+import { Button, Icon } from '../../../components';
 import { useAppContext } from '../../../store/app';
 import { useChatContext } from '../../../store/chat';
 import { CanvasType } from '../../../types';
@@ -137,7 +136,7 @@ function CodeBlockToolbar({
           aria-label={t('chatScreen.ariaLabels.runCode')}
           onClick={handleRun}
         >
-          <LuPlay className="lucide h-4 w-4" />
+          <Icon icon="LuPlay" size="sm" />
         </Button>
       )}
       <Button
@@ -147,7 +146,7 @@ function CodeBlockToolbar({
         aria-label={t('chatScreen.ariaLabels.copyContent')}
         onClick={handleCopy}
       >
-        <LuCopy className="lucide h-4 w-4" />
+        <Icon icon="LuCopy" size="sm" />
       </Button>
     </div>
   );
