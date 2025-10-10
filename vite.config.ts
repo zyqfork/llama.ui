@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const vendors = ['highlight.js', 'react-icons', 'pdfjs-dist', 'katex'];
+const vendors = ['highlight', 'katex', 'pdfjs', 'radix-ui', 'react-icons'];
 
 export default defineConfig({
   plugins: [
@@ -143,7 +143,7 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('node_modules')) {
             const name = id.split('node_modules/')[1].split('/')[0];
-            return vendors.includes(name) ? name : 'vendor';
+            return vendors.find((vendor) => name.includes(vendor)) || 'vendor';
           }
         },
       },
