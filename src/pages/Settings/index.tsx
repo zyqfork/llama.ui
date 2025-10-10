@@ -28,39 +28,26 @@ import {
   LuVolumeX,
 } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
-import { Dropdown } from '../components/common';
-import {
-  DelimeterComponent,
-  SettingsModalCheckbox,
-  SettingsModalDropdown,
-  SettingsModalLongInput,
-  SettingsModalRangeInput,
-  SettingsModalShortInput,
-  SettingsSectionLabel,
-} from '../components/settings';
-import { ImportExportComponent } from '../components/settings/ImportExportComponent';
-import { PresetManager } from '../components/settings/PresetManager';
-import { ThemeController } from '../components/settings/ThemeController';
-import { Button } from '../components/ui/button';
-import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../config';
-import { useAppContext } from '../context/app';
-import { useChatContext } from '../context/chat';
-import { useInferenceContext } from '../context/inference';
-import { useModals } from '../context/modal';
-import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import { Button, Dropdown } from '../../components';
+import { CONFIG_DEFAULT, INFERENCE_PROVIDERS } from '../../config';
+import { useDebouncedCallback } from '../../hooks/useDebouncedCallback';
 import TextToSpeech, {
   getSpeechSynthesisVoiceByName,
   getSpeechSynthesisVoices,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
-} from '../hooks/useTextToSpeech';
-import { SUPPORTED_LANGUAGES } from '../i18n';
+} from '../../hooks/useTextToSpeech';
+import { SUPPORTED_LANGUAGES } from '../../i18n';
+import { useAppContext } from '../../store/app';
+import { useChatContext } from '../../store/chat';
+import { useInferenceContext } from '../../store/inference';
+import { useModals } from '../../store/modal';
 import {
   Configuration,
   ConfigurationKey,
   InferenceApiModel,
   InferenceProvidersKey,
   ProviderOption,
-} from '../types';
+} from '../../types';
 import {
   DropdownOption,
   SettingField,
@@ -71,8 +58,20 @@ import {
   SettingInputType,
   SettingSection,
   SettingTab,
-} from '../types/settings';
-import { classNames, isBoolean, isNumeric, isString } from '../utils';
+} from '../../types/settings';
+import { classNames, isBoolean, isNumeric, isString } from '../../utils';
+import {
+  DelimeterComponent,
+  ImportExportComponent,
+  PresetManager,
+  SettingsModalCheckbox,
+  SettingsModalDropdown,
+  SettingsModalLongInput,
+  SettingsModalRangeInput,
+  SettingsModalShortInput,
+  SettingsSectionLabel,
+  ThemeController,
+} from './components';
 
 // --- Constants ---
 const ICON_CLASSNAME = 'lucide w-4 h-4 mr-1 inline';

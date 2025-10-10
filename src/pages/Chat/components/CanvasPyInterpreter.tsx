@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPlay, LuSquare, LuX } from 'react-icons/lu';
-import { useChatContext } from '../context/chat';
-import LocalStorage from '../database/localStorage';
-import { CanvasType } from '../types';
-import { OpenInNewTab } from './common';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
+import { Button, Textarea } from '../../../components';
+import LocalStorage from '../../../database/localStorage';
+import { useChatContext } from '../../../store/chat';
+import { CanvasType } from '../../../types';
+import { OpenInNewTab } from './OpenInNewTab';
 
 const canInterrupt = typeof SharedArrayBuffer === 'function';
 

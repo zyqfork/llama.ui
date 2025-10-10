@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { ChatInput } from '../components/ChatInput';
-import { Button } from '../components/ui/button';
-import { useAppContext } from '../context/app';
-import { CallbackGeneratedChunk, useChatContext } from '../context/chat';
-import IndexedDB from '../database/indexedDB';
-import { MessageExtra } from '../types';
-import { getUniqueRandomElements } from '../utils';
+import { Button } from '../../components';
+import IndexedDB from '../../database/indexedDB';
+import { useAppContext } from '../../store/app';
+import { CallbackGeneratedChunk, useChatContext } from '../../store/chat';
+import { MessageExtra } from '../../types';
+import { getUniqueRandomElements } from '../../utils';
+import { ChatInput } from '../Chat/components/ChatInput';
 
 const SAMPLE_PROMPTS_COUNT = 4;
 

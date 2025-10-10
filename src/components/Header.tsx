@@ -2,12 +2,12 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCog, LuMenu, LuSquarePen } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/ui/button';
-import { useAppContext } from '../context/app';
-import { useChatContext } from '../context/chat';
-import { useInferenceContext } from '../context/inference';
-import { Dropdown } from './common';
-import { Label } from './ui/label';
+import { useAppContext } from '../store/app';
+import { useChatContext } from '../store/chat';
+import { useInferenceContext } from '../store/inference';
+import { Button } from './Button';
+import { Dropdown } from './Dropdown';
+import { Label } from './Label';
 
 export default function Header() {
   const navigate = useNavigate();

@@ -10,14 +10,14 @@ import {
   LuX,
 } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/ui/button';
-import { useChatContext } from '../context/chat';
-import { useModals } from '../context/modal';
 import IndexedDB from '../database/indexedDB';
+import { useChatContext } from '../store/chat';
+import { useModals } from '../store/modal';
 import { Conversation } from '../types';
 import { classNames } from '../utils';
-import { downloadAsFile } from './common';
-import { Label } from './ui/label';
+import { downloadAsFile } from '../utils/downloadAsFile';
+import { Button } from './Button';
+import { Label } from './Label';
 
 export default function Sidebar() {
   const navigate = useNavigate();

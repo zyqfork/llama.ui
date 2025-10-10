@@ -10,19 +10,20 @@ import {
 } from 'react-icons/lu';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/ui/button';
-import { useChatContext } from '../context/chat';
-import { ChatTextareaApi, useChatTextarea } from '../hooks/useChatTextarea';
-import { useFileUpload } from '../hooks/useFileUpload';
+import { Button, Label, Textarea } from '../../../components';
+import {
+  ChatTextareaApi,
+  useChatTextarea,
+} from '../../../hooks/useChatTextarea';
+import { useFileUpload } from '../../../hooks/useFileUpload';
 import SpeechToText, {
   IS_SPEECH_RECOGNITION_SUPPORTED,
   SpeechRecordCallback,
-} from '../hooks/useSpeechToText';
-import { MessageExtra } from '../types';
-import { cleanCurrentUrl } from '../utils';
+} from '../../../hooks/useSpeechToText';
+import { useChatContext } from '../../../store/chat';
+import { MessageExtra } from '../../../types';
+import { cleanCurrentUrl } from '../../../utils';
 import { DropzoneArea } from './DropzoneArea';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
 
 /**
  * If the current URL contains "?m=...", prefill the message input with the value.

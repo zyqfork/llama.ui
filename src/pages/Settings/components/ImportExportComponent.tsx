@@ -2,11 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { LuEye, LuMessageCircleMore } from 'react-icons/lu';
 import { TbDatabaseExport, TbDatabaseImport } from 'react-icons/tb';
 import { DelimeterComponent, SettingsSectionLabel } from '.';
-import { useAppContext } from '../../context/app';
-import { normalizeUrl } from '../../utils';
-import { downloadAsFile } from '../common';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
+import { Button, Label } from '../../../components';
+import { useAppContext } from '../../../store/app';
+import { normalizeUrl } from '../../../utils';
+import { downloadAsFile } from '../../../utils/downloadAsFile';
 
 export function ImportExportComponent({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();

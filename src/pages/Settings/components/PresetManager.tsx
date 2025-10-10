@@ -7,11 +7,11 @@ import {
   LuTrash,
 } from 'react-icons/lu';
 import { SettingsSectionLabel } from '.';
-import { CONFIG_DEFAULT } from '../../config';
-import { useModals } from '../../context/modal';
-import { Configuration, ConfigurationPreset } from '../../types';
-import { dateFormatter } from '../../utils';
-import { Button } from '../ui/button';
+import { Button } from '../../../components';
+import { CONFIG_DEFAULT } from '../../../config';
+import { useModals } from '../../../store/modal';
+import { Configuration, ConfigurationPreset } from '../../../types';
+import { dateFormatter } from '../../../utils';
 
 export function PresetManager({
   config,

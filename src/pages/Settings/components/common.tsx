@@ -1,11 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CONFIG_DEFAULT } from '../../config';
-import { DropdownOption, SettingFieldInput } from '../../types/settings';
-import { normalizeUrl } from '../../utils';
-import { Dropdown } from '../common';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
+import { Dropdown, Label, Textarea } from '../../../components';
+import { CONFIG_DEFAULT } from '../../../config';
+import { DropdownOption, SettingFieldInput } from '../../../types/settings';
+import { normalizeUrl } from '../../../utils';
 
 interface BaseInputProps {
   field: SettingFieldInput;

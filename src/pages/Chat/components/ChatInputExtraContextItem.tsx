@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuFileText, LuVolume2, LuX } from 'react-icons/lu';
-import { MessageExtra } from '../types';
-import { classNames } from '../utils';
-import { Button } from './ui/button';
+import { Button } from '../../../components';
+import { MessageExtra } from '../../../types';
+import { classNames } from '../../../utils';
 
 export default function ChatInputExtraContextItem({
   items,

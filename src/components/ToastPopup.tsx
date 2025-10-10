@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import toast, { Toast } from 'react-hot-toast';
-import { Button } from './ui/button';
+import { Button } from './Button';
 
 /**
  * A toast popup component that displays confirmation messages with action buttons.

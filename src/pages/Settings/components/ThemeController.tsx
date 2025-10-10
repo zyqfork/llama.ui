@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { Trans } from 'react-i18next';
-import { SYNTAX_THEMES, THEMES } from '../../config';
-import { useAppContext } from '../../context/app';
-import { Dropdown, DropdownOption } from '../common';
-import { Label } from '../ui/label';
+import { Dropdown, DropdownOption, Label } from '../../../components';
+import { SYNTAX_THEMES, THEMES } from '../../../config';
+import { useAppContext } from '../../../store/app';
 
 export function ThemeController() {
   const dataThemes = ['auto', ...THEMES].map((theme) => ({

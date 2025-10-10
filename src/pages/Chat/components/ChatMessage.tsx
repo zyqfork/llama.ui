@@ -21,33 +21,31 @@ import {
   LuVolume2,
   LuVolumeX,
 } from 'react-icons/lu';
-import { Button } from '../components/ui/button';
-import { useAppContext } from '../context/app';
-import { useChatContext } from '../context/chat';
-import { useModals } from '../context/modal';
-import IndexedDB from '../database/indexedDB';
-import { useFileUpload } from '../hooks/useFileUpload';
+import { Button, Label, Textarea } from '../../../components';
+import IndexedDB from '../../../database/indexedDB';
+import { useFileUpload } from '../../../hooks/useFileUpload';
 import TextToSpeech, {
-  getSpeechSynthesisVoiceByName,
   IS_SPEECH_SYNTHESIS_SUPPORTED,
-} from '../hooks/useTextToSpeech';
+  getSpeechSynthesisVoiceByName,
+} from '../../../hooks/useTextToSpeech';
+import { useAppContext } from '../../../store/app';
+import { useChatContext } from '../../../store/chat';
+import { useModals } from '../../../store/modal';
 import {
   Message,
   MessageDisplay,
   MessageExtra,
   PendingMessage,
-} from '../types';
+} from '../../../types';
 import {
   classNames,
   copyStr,
   splitMessageContent,
   timeFormatter,
-} from '../utils';
+} from '../../../utils';
 import ChatInputExtraContextItem from './ChatInputExtraContextItem';
 import { DropzoneArea } from './DropzoneArea';
 import MarkdownDisplay from './MarkdownDisplay';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
 
 interface SplitMessage {
   content: PendingMessage['content'];

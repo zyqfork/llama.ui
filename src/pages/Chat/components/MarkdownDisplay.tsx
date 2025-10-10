@@ -9,12 +9,12 @@ import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { useAppContext } from '../context/app';
-import { useChatContext } from '../context/chat';
-import { CanvasType } from '../types';
-import { copyStr } from '../utils';
+import { Button } from '../../../components';
+import { useAppContext } from '../../../store/app';
+import { useChatContext } from '../../../store/chat';
+import { CanvasType } from '../../../types';
+import { copyStr } from '../../../utils';
 import MermaidChart from './MermaidChart';
-import { Button } from './ui/button';
 
 export default memo(function MarkdownDisplay({ content }: { content: string }) {
   const preprocessedContent = useMemo(

@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { Trans } from 'react-i18next';
-import { Button } from '../components/ui/button';
+import { Button } from '../components';
 
 enum ModalActionType {
   SHOW_MODAL = 'SHOW_MODAL',
