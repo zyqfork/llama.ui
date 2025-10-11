@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import toast, { Toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Button } from './Button';
 
 /**
@@ -33,14 +33,22 @@ import { Button } from './Button';
  * ```
  */
 export const ToastPopup: FC<{
-  t: Toast;
+  toastId: string;
   title: string;
   description: string;
   note?: string;
   submitBtn: string;
   cancelBtn: string;
   onSubmit: () => Promise<void> | void;
-}> = ({ t, title, description, note, submitBtn, cancelBtn, onSubmit }) => (
+}> = ({
+  toastId,
+  title,
+  description,
+  note,
+  submitBtn,
+  cancelBtn,
+  onSubmit,
+}) => (
   <div className="flex flex-col gap-2">
     <p className="font-medium">{title}</p>
     <p className="text-sm">{description}</p>
@@ -52,7 +60,7 @@ export const ToastPopup: FC<{
     <div className="flex justify-center gap-2 mt-1">
       <Button
         onClick={() => {
-          toast.dismiss(t.id);
+          toast.dismiss(toastId);
           onSubmit();
         }}
         variant="neutral"
@@ -60,7 +68,11 @@ export const ToastPopup: FC<{
       >
         {submitBtn}
       </Button>
-      <Button onClick={() => toast.dismiss(t.id)} variant="ghost" size="small">
+      <Button
+        onClick={() => toast.dismiss(toastId)}
+        variant="ghost"
+        size="small"
+      >
         {cancelBtn}
       </Button>
     </div>
