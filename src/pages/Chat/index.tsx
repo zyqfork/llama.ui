@@ -191,7 +191,7 @@ export default function ChatScreen({
           {/* chat messages */}
           <div
             className={classNames({
-              'flex flex-col w-full xl:max-w-[900px] mx-auto': true,
+              'flex flex-col w-full xl:max-w-4xl mx-auto': true,
               'hidden xl:flex': hasCanvas, // adapted for mobile
               flex: !hasCanvas,
             })}
