@@ -1,3 +1,36 @@
+## [2.38.0] - 2025-10-12
+
+### 🚀 Enhancements
+
+- UI components (#217)
+- _(components)_ Add AutoSizingTextArea component (#219)
+
+### 🛠 Fixes
+
+- _(inference)_ Update condition for loading models (#221)
+
+### 🎨 Styling
+
+- _(chat)_ Expand ChatInput on focus (#220)
+
+### 🚜 Refactor
+
+- _(ui)_ Replace button elements with Button component
+- _(common)_ Replace IntlIconButton with Button component
+- _(ui)_ Replace label elements with custom Label component
+- _(chat)_ Replace collapse component with custom button in ChatMessage
+- Migrate project structure
+- _(components)_ Introduce Icon component to replace direct react-icons usage
+- _(vite.config)_ Update vendor chunk splitting logic
+- _(chat)_ Move prefilled message logic to custom hook (#218)
+- _(app)_ Simplify App component and extract toast logic to custom hooks
+
+## [2.37.0] - 2025-10-06
+
+### 🚀 Enhancements
+
+- Speech to Text #66 (#127)
+
 ## [2.36.0] - 2025-10-01
 
 ### 🚀 Enhancements
