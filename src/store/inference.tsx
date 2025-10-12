@@ -232,7 +232,7 @@ export const InferenceContextProvider = ({
         updateApi(config);
       }
 
-      if (Object.is(prevConfig, CONFIG_DEFAULT) && !!config.baseUrl) {
+      if (Object.is(prevConfig, CONFIG_DEFAULT) || !!config.baseUrl) {
         loadModels(config);
       }
 
