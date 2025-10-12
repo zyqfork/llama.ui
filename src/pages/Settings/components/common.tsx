@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dropdown, Label, Textarea } from '../../../components';
+import { Dropdown, Label, TextArea } from '../../../components';
 import { CONFIG_DEFAULT } from '../../../config';
 import { DropdownOption, SettingFieldInput } from '../../../types/settings';
 import { normalizeUrl } from '../../../utils';
@@ -48,7 +48,7 @@ export function SettingsModalLongInput({
       {({ label, note }) => (
         <Label variant="form-control" className="max-w-80">
           <div className="text-sm opacity-60 mb-1">{label}</div>
-          <Textarea
+          <TextArea
             size="default"
             placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
             value={value}

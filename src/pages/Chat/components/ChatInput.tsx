@@ -1,13 +1,17 @@
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import {
+  ChangeEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import { useNavigate } from 'react-router';
-import { Button, Icon, Label, Textarea } from '../../../components';
-import {
-  ChatTextareaApi,
-  useChatTextarea,
-} from '../../../hooks/useChatTextarea';
+import { AutoSizingTextArea, Button, Icon, Label } from '../../../components';
 import { useFileUpload } from '../../../hooks/useFileUpload';
 import SpeechToText, {
   IS_SPEECH_RECOGNITION_SUPPORTED,
@@ -28,13 +32,22 @@ export const ChatInput = memo(
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { prefilledContent, isPrefilledSend } = usePrefilledMessage();
-    const textarea: ChatTextareaApi = useChatTextarea(prefilledContent);
     const extraContext = useFileUpload();
     const { isGenerating, stopGenerating } = useChatContext();
+
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const [textAreaValue, setTextAreaValue] = useState('');
 
     const isPending = useMemo(
       () => (!convId ? false : isGenerating(convId)),
       [convId, isGenerating]
+    );
+
+    const handleChange = useCallback(
+      (event: ChangeEvent<HTMLTextAreaElement>) => {
+        setTextAreaValue(event.target.value);
+      },
+      []
     );
 
     const handleStop = useCallback(() => {
@@ -42,40 +55,38 @@ export const ChatInput = memo(
       stopGenerating(convId);
     }, [convId, stopGenerating]);
 
-    const handleRecord: SpeechRecordCallback = useCallback(
-      (text: string) => textarea.setValue(text),
-      [textarea]
-    );
+    const handleRecord: SpeechRecordCallback = useCallback((text: string) => {
+      setTextAreaValue(text);
+    }, []);
 
     const sendNewMessage = async () => {
-      const lastInpMsg = textarea.value();
+      const lastInpMsg = textAreaValue;
       if (lastInpMsg.trim().length === 0) {
         toast.error(t('chatInput.errors.emptyMessage'));
         return;
       }
 
-      textarea.setValue('');
+      setTextAreaValue('');
       if (!(await onSend(lastInpMsg, extraContext.items))) {
         // restore the input message if failed
-        textarea.setValue(lastInpMsg);
+        setTextAreaValue(lastInpMsg);
       }
       // OK
       extraContext.clearItems();
     };
 
-    // for vscode context
-    textarea.refOnSubmit.current = sendNewMessage;
-
     useEffect(() => {
+      if (!textAreaRef.current) return;
+
       // set textarea with prefilled value
       if (prefilledContent) {
-        textarea.setValue(prefilledContent);
+        setTextAreaValue(prefilledContent);
       }
 
       // send the prefilled message if needed
       // otherwise, focus on the input
       if (isPrefilledSend) sendNewMessage();
-      else textarea.focus();
+      else textAreaRef.current.focus();
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPrefilledSend, prefilledContent]);
@@ -91,15 +102,16 @@ export const ChatInput = memo(
           disabled={isPending}
         >
           <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-sm md:shadow-md p-2">
-            <Textarea
+            <AutoSizingTextArea
               // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
               // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
               className="text-base p-0 px-2"
               variant="transparent"
               size="full"
               placeholder={t('chatInput.placeholder')}
-              ref={textarea.ref}
-              onInput={textarea.onInput} // Hook's input handler (will only resize height on lg+ screens)
+              ref={textAreaRef}
+              value={textAreaValue}
+              onChange={handleChange}
               onKeyDown={(e) => {
                 if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                 if (e.key === 'Enter' && !e.shiftKey) {

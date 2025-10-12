@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Textarea } from '../../../components';
+import { Button, Icon, TextArea } from '../../../components';
 import LocalStorage from '../../../database/localStorage';
 import { useChatContext } from '../../../store/chat';
 import { CanvasType } from '../../../types';
@@ -162,7 +162,7 @@ export default function CanvasPyInterpreter() {
           </Button>
         </div>
         <div className="grid grid-rows-3 gap-4 h-full">
-          <Textarea
+          <TextArea
             className="h-full font-mono"
             size="full"
             value={code}
@@ -196,7 +196,7 @@ export default function CanvasPyInterpreter() {
                 </OpenInNewTab>
               </span>
             </div>
-            <Textarea
+            <TextArea
               className="h-full font-mono dark-color"
               size="full"
               value={output}
