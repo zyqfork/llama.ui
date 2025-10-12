@@ -5,7 +5,7 @@ import {
 } from '@radix-ui/react-collapsible';
 import { memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Button, Icon, Label, Textarea } from '../../../components';
+import { AutoSizingTextArea, Button, Icon, Label } from '../../../components';
 import IndexedDB from '../../../database/indexedDB';
 import { useFileUpload } from '../../../hooks/useFileUpload';
 import TextToSpeech, {
@@ -415,7 +415,7 @@ function EditMessage({
       extraContext={extraContext}
       disabled={msg.role !== 'user'}
     >
-      <Textarea
+      <AutoSizingTextArea
         className="max-w-2xl w-[calc(90vw-8em)]"
         size="full"
         value={editingContent}
