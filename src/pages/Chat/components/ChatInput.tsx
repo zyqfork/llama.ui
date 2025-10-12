@@ -93,7 +93,7 @@ export const ChatInput = memo(
 
     return (
       <div
-        className="shrink-0 w-full lg:max-w-[900px] bg-base-100 mx-auto p-1 md:p-2"
+        className="group shrink-0 w-full md:max-w-md focus-within:md:max-w-2xl lg:max-w-lg focus-within:lg:max-w-3xl xl:max-w-3xl focus-within:xl:max-w-4xl bg-base-100 mx-auto p-1 md:p-2"
         aria-label={t('chatInput.ariaLabels.chatInput')}
       >
         <DropzoneArea
@@ -101,11 +101,14 @@ export const ChatInput = memo(
           extraContext={extraContext}
           disabled={isPending}
         >
-          <div className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 rounded-lg shadow-sm md:shadow-md p-2">
+          <div
+            className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 outline-0 focus-within:outline-1 rounded-lg shadow-sm md:shadow-md p-2"
+            tabIndex={0}
+          >
             <AutoSizingTextArea
               // Default (mobile): Enable vertical resize, overflow auto for scrolling if needed
               // Large screens (lg:): Disable manual resize, apply max-height for autosize limit
-              className="text-base p-0 px-2"
+              className="text-base p-0 px-2 max-md:min-h-12"
               variant="transparent"
               size="full"
               placeholder={t('chatInput.placeholder')}
@@ -119,14 +122,11 @@ export const ChatInput = memo(
                   sendNewMessage();
                 }
               }}
-              id="msg-input"
-              // Set a base height of 2 rows for mobile views
-              // On lg+ screens, the hook will calculate and set the initial height anyway
-              rows={2}
+              rows={1}
             />
 
             {/* buttons area */}
-            <div className="flex items-center justify-between mt-2">
+            <div className="hidden group-focus-within:flex items-center justify-between mt-2">
               <div className="flex gap-2 items-center">
                 <Label
                   className={isPending ? 'btn-disabled' : ''}

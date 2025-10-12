@@ -18,7 +18,7 @@ const variants = cva('textarea min-h-auto resize-none', {
       default: 'focus:outline-1 focus:outline-offset-0',
       code: 'font-mono',
       transparent:
-        'bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0',
+        'bg-transparent border-none outline-0 ring-0 focus:outline-0 focus:ring-0',
     },
     size: {
       default: 'h-24',

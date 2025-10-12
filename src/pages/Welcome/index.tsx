@@ -50,7 +50,7 @@ export default function WelcomeScreen() {
   );
 
   return (
-    <div className="flex flex-col h-full w-full xl:max-w-[900px] mx-auto">
+    <div className="flex flex-col h-full w-full xl:max-w-4xl mx-auto">
       <div className="grow flex flex-col items-center justify-center px-2 transition-[300ms]">
         <h1 className="text-4xl font-medium">
           <Trans i18nKey="welcomeScreen.welcome" />
