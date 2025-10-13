@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { TbDatabaseExport, TbDatabaseImport } from 'react-icons/tb';
 import { DelimeterComponent, SettingsSectionLabel } from '.';
-import { Button, Icon, Label } from '../../../components';
+import { Button, Icon, Input, Label } from '../../../components';
 import { useAppContext } from '../../../store/app';
 import { normalizeUrl } from '../../../utils';
 import { downloadAsFile } from '../../../utils/downloadAsFile';
@@ -47,9 +47,9 @@ export function ImportExportComponent({ onClose }: { onClose: () => void }) {
           {t('settings.importExport.exportBtnLabel')}
         </Button>
 
-        <input
+        <Input
           id="file-import"
-          type="file"
+          variant="file"
           accept=".json"
           onInput={onImport}
           hidden
