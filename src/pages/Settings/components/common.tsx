@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dropdown, Label, TextArea } from '../../../components';
+import { Dropdown, Input, Label, TextArea } from '../../../components';
 import { CONFIG_DEFAULT } from '../../../config';
 import { DropdownOption, SettingFieldInput } from '../../../types/settings';
 import { normalizeUrl } from '../../../utils';
@@ -87,8 +87,7 @@ export function SettingsModalShortInput({
             >
               {label}
             </div>
-            <input
-              type="text"
+            <Input
               className="grow"
               placeholder={`Default: ${CONFIG_DEFAULT[field.key] || 'none'}`}
               value={value}
@@ -147,9 +146,9 @@ export function SettingsModalRangeInput({
               {label}
             </div>
             <div className="grow px-2">
-              <input
-                type="range"
-                className="range range-xs [--range-fill:0]"
+              <Input
+                className="range-xs [--range-fill:0]"
+                variant="range"
                 min={min}
                 max={max}
                 step={step}
@@ -186,9 +185,8 @@ export function SettingsModalCheckbox({
       {({ label, note }) => (
         <Label variant="form-control">
           <div className="flex flex-row items-center mb-1">
-            <input
-              type="checkbox"
-              className="toggle"
+            <Input
+              variant="toggle"
               checked={value}
               onChange={(e) => onChange(e.target.checked)}
               disabled={field.disabled}

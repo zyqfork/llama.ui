@@ -1,5 +1,6 @@
 import { ClipboardEvent, useState } from 'react';
 import Dropzone from 'react-dropzone';
+import { Input } from '../../../components';
 import { FileUploadApi } from '../../../hooks/useFileUpload';
 import { useAppContext } from '../../../store/app';
 import { classNames } from '../../../utils';
@@ -73,9 +74,9 @@ export function DropzoneArea({
           }}
           {...getRootProps()}
         >
-          <input
+          <Input
             id={inputId}
-            type="file"
+            variant="file"
             disabled={disabled}
             {...getInputProps()}
             hidden

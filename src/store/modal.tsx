@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { Trans } from 'react-i18next';
-import { Button } from '../components';
+import { Button, Input } from '../components';
 
 enum ModalActionType {
   SHOW_MODAL = 'SHOW_MODAL',
@@ -184,9 +184,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         <dialog className="modal modal-open z-[1100]">
           <div className="modal-box">
             <h3 className="font-bold text-lg">{state.prompt.message}</h3>
-            <input
-              type="text"
-              className="input input-bordered w-full mt-2"
+            <Input
+              className="w-full mt-2"
+              variant="bordered"
               defaultValue={state.prompt.defaultValue}
               ref={inputRef}
               onKeyDown={(e) => {

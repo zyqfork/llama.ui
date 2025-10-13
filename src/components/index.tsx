@@ -3,6 +3,7 @@ export * from './Dropdown';
 export * from './Footer';
 export * from './Header';
 export * from './Icon';
+export * from './Input';
 export * from './Label';
 export * from './Sidebar';
 export * from './Textarea';

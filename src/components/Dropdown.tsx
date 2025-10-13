@@ -4,6 +4,7 @@ import { isDev } from '../config';
 import { classNames } from '../utils';
 import { Button } from './Button';
 import { Icon } from './Icon';
+import { Input } from './Input';
 
 export interface DropdownOption {
   value: string | number;
@@ -120,10 +121,10 @@ export function Dropdown<T extends DropdownOption>({
           {/* dropdown content */}
           <div className="dropdown-content rounded-box bg-base-100 max-w-60 p-2 shadow-2xl">
             {filterable && (
-              <input
-                type="text"
+              <Input
+                className="input-sm w-full focus:outline-base-content/30 p-2 mb-2"
+                variant="input"
                 placeholder={t('dropdown.searchPlaceholder', { entity })}
-                className="input input-sm w-full focus:outline-base-content/30 p-2 mb-2"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 autoFocus
