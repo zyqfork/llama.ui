@@ -1,4 +1,11 @@
 import { Trans, useTranslation } from 'react-i18next';
+import {
+  LuCirclePlay,
+  LuEllipsisVertical,
+  LuPencil,
+  LuSave,
+  LuTrash,
+} from 'react-icons/lu';
 import { SettingsSectionLabel } from '.';
 import { Button, Icon } from '../../../components';
 import { CONFIG_DEFAULT } from '../../../config';
@@ -96,7 +103,9 @@ export function PresetManager({
         title={t('settings.presetManager.buttons.save')}
         aria-label={t('settings.presetManager.ariaLabels.save')}
       >
-        <Icon icon="LuSave" size="md" />
+        <Icon size="md">
+          <LuSave />
+        </Icon>
         <Trans i18nKey="settings.presetManager.buttons.save" />
       </Button>
 
@@ -134,7 +143,9 @@ export function PresetManager({
                       title={t('settings.presetManager.buttons.load')}
                       aria-label={t('settings.presetManager.ariaLabels.load')}
                     >
-                      <Icon icon="LuCirclePlay" size="md" />
+                      <Icon size="md">
+                        <LuCirclePlay />
+                      </Icon>
                     </Button>
 
                     {/* dropdown */}
@@ -145,7 +156,9 @@ export function PresetManager({
                         title={t('settings.presetManager.buttons.more')}
                         aria-label={t('settings.presetManager.ariaLabels.more')}
                       >
-                        <Icon icon="LuEllipsisVertical" size="md" />
+                        <Icon size="md">
+                          <LuEllipsisVertical />
+                        </Icon>
                       </Button>
 
                       {/* dropdown menu */}
@@ -164,11 +177,9 @@ export function PresetManager({
                               'settings.presetManager.ariaLabels.rename'
                             )}
                           >
-                            <Icon
-                              icon="LuPencil"
-                              size="sm"
-                              variant="leftside"
-                            />
+                            <Icon size="sm" variant="leftside">
+                              <LuPencil />
+                            </Icon>
                             {t('settings.presetManager.buttons.rename')}
                           </Button>
                         </li>
@@ -181,7 +192,9 @@ export function PresetManager({
                               'settings.presetManager.ariaLabels.delete'
                             )}
                           >
-                            <Icon icon="LuTrash" size="sm" variant="leftside" />
+                            <Icon size="sm" variant="leftside">
+                              <LuTrash />
+                            </Icon>
                             {t('settings.presetManager.buttons.delete')}
                           </Button>
                         </li>

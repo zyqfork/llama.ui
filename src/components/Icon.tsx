@@ -1,10 +1,7 @@
 import { cva, VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { IconBaseProps } from 'react-icons';
-import * as LucideIcons from 'react-icons/lu';
 import { cn } from '../utils';
-
-type IconNames = keyof Omit<typeof LucideIcons, 'IconContext'>;
 
 const iconVariants = cva('', {
   variants: {
@@ -34,36 +31,28 @@ type IconProps = Omit<IconBaseProps, 'size'> &
   VariantProps<typeof iconVariants> &
   React.SVGAttributes<SVGSVGElement> & {
     className?: string;
-    icon: IconNames;
+    children: React.ReactElement<IconBaseProps>;
   };
 
 const Icon = React.forwardRef<SVGSVGElement, IconProps>(
-  ({ className, library = 'lucide', variant, size, icon, ...props }, ref) => {
-    let SelectedIcon: React.ElementType;
-
-    switch (library) {
-      case 'lucide':
-        SelectedIcon = LucideIcons[icon];
-        break;
-      default:
-        throw new Error(`Library "${library}" not found in icons`);
+  ({ className, variant, size, children, ...props }, ref) => {
+    if (!children) {
+      throw new Error('Icon component requires a child icon element');
     }
 
-    if (!SelectedIcon) {
-      throw new Error(`Icon "${icon}" not found in Lucide icons`);
-    }
+    const iconElement = React.cloneElement(children, {
+      className: cn(
+        iconVariants({ variant, size, className }),
+        children.props.className
+      ),
+      ref,
+      ...props,
+    });
 
-    return (
-      <SelectedIcon
-        ref={ref}
-        className={cn(iconVariants({ library, variant, size, className }))}
-        {...props}
-      />
-    );
+    return iconElement;
   }
 );
 
 Icon.displayName = 'Icon';
 
-export default Icon;
 export { Icon };

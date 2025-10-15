@@ -1,6 +1,15 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
+import {
+  LuDownload,
+  LuEllipsisVertical,
+  LuPencil,
+  LuSearch,
+  LuSquarePen,
+  LuTrash,
+  LuX,
+} from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import IndexedDB from '../database/indexedDB';
 import useFilter from '../hooks/useFilter';
@@ -82,7 +91,9 @@ export default function Sidebar() {
               aria-label={t('sidebar.buttons.closeSideBar')}
               tabIndex={0}
             >
-              <Icon icon="LuX" size="md" />
+              <Icon size="md">
+                <LuX />
+              </Icon>
             </Label>
 
             <Label
@@ -103,7 +114,9 @@ export default function Sidebar() {
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}
             >
-              <Icon icon="LuSquarePen" size="md" />
+              <Icon size="md">
+                <LuSquarePen />
+              </Icon>
             </Button>
           </div>
 
@@ -113,7 +126,9 @@ export default function Sidebar() {
               variant="input-bordered"
               className="h-8 inset-shadow-sm my-1.5 px-1.5"
             >
-              <Icon icon="LuSearch" size="md" />
+              <Icon size="md">
+                <LuSearch />
+              </Icon>
               <Input
                 className="input-sm grow"
                 name="Search"
@@ -137,7 +152,9 @@ export default function Sidebar() {
                   title={t('header.buttons.clear')}
                   aria-label={t('header.ariaLabels.clear')}
                 >
-                  <Icon icon="LuX" size="md" />
+                  <Icon size="md">
+                    <LuX />
+                  </Icon>
                 </Button>
               )}
             </Label>
@@ -313,7 +330,9 @@ const ConversationItem = memo(
             title={t('sidebar.buttons.more')}
             aria-label={t('sidebar.ariaLabels.more')}
           >
-            <Icon icon="LuEllipsisVertical" size="md" />
+            <Icon size="md">
+              <LuEllipsisVertical />
+            </Icon>
           </Button>
           {/* dropdown menu */}
           <ul
@@ -329,7 +348,9 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.rename')}
                 aria-label={t('sidebar.ariaLabels.rename')}
               >
-                <Icon icon="LuPencil" size="sm" />
+                <Icon size="sm">
+                  <LuPencil />
+                </Icon>
                 <Trans i18nKey="sidebar.buttons.rename" />
               </Button>
             </li>
@@ -340,7 +361,9 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.download')}
                 aria-label={t('sidebar.ariaLabels.download')}
               >
-                <Icon icon="LuDownload" size="sm" />
+                <Icon size="sm">
+                  <LuDownload />
+                </Icon>
                 <Trans i18nKey="sidebar.buttons.download" />
               </Button>
             </li>
@@ -356,7 +379,9 @@ const ConversationItem = memo(
                 title={t('sidebar.buttons.delete')}
                 aria-label={t('sidebar.ariaLabels.delete')}
               >
-                <Icon icon="LuTrash" size="sm" />
+                <Icon size="sm">
+                  <LuTrash />
+                </Icon>
                 <Trans i18nKey="sidebar.buttons.delete" />
               </Button>
             </li>
