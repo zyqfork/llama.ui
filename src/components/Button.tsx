@@ -17,6 +17,7 @@ const variants = cva('btn', {
       icon: 'w-8 h-8 p-0',
       'icon-rounded': 'w-8 h-8 p-0 rounded-full',
       'icon-small': 'btn-sm w-4 h-4 p-0 rounded-full',
+      'icon-md': 'btn-sm w-5 h-5 p-0 rounded-full',
     },
   },
   defaultVariants: {

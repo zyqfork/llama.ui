@@ -33,7 +33,8 @@
       "more": "More",
       "rename": "Rename",
       "download": "Download",
-      "delete": "Delete"
+      "delete": "Delete",
+      "clear": "Clear"
     },
     "ariaLabels": {
       "dropdown": "More options",
@@ -41,7 +42,8 @@
       "more": "Show more options",
       "rename": "Rename conversation",
       "download": "Download conversation",
-      "delete": "Delete conversation"
+      "delete": "Delete conversation",
+      "clear": "Clear search"
     },
     "errors": {
       "renameOnGenerate": "Cannot rename conversation while generating.",
@@ -53,6 +55,7 @@
       "deleteConfirm": "Are you sure to delete this conversation?",
       "deleteSuccess": "Conversation deleted."
     },
+    "searchPlaceHolder": "Search",
     "storageNote": "Conversations are saved to browser's IndexedDB."
   },
   "chatScreen": {

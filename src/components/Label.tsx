@@ -12,7 +12,7 @@ const variants = cva('', {
       'btn-ghost': 'btn btn-ghost',
       'form-control': 'form-control flex flex-col justify-center mb-3',
       'input-bordered':
-        'input input-bordered join-item grow flex items-center gap-2 mb-1',
+        'input input-bordered join-item grow flex items-center gap-2 mb-1 focus-within:outline-1 focus-within:outline-offset-0',
     },
     size: {
       default: '',

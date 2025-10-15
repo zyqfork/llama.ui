@@ -26,6 +26,7 @@ const iconVariants = cva('', {
   },
   defaultVariants: {
     library: 'lucide',
+    size: 'sm',
   },
 });
 
