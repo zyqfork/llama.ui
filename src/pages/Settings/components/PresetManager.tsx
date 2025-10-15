@@ -129,7 +129,7 @@ export function PresetManager({
                   <div className="min-w-18 grid grid-cols-2 gap-2">
                     <Button
                       variant="ghost"
-                      size="icon-rounded"
+                      size="icon-xl"
                       onClick={() => handleLoadPreset(preset)}
                       title={t('settings.presetManager.buttons.load')}
                       aria-label={t('settings.presetManager.ariaLabels.load')}

@@ -75,7 +75,7 @@ export default function Sidebar() {
             <Label
               className="xl:hidden"
               variant="btn-ghost"
-              size="icon-rounded"
+              size="icon-xl"
               htmlFor="toggle-drawer"
               role="button"
               title={t('sidebar.buttons.closeSideBar')}
@@ -98,7 +98,7 @@ export default function Sidebar() {
             {/* new conversation button */}
             <Button
               variant="ghost"
-              size="icon-rounded"
+              size="icon-xl"
               onClick={() => navigate('/')}
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}

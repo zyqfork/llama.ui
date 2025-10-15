@@ -427,7 +427,7 @@ function EditMessage({
           <>
             <Label
               variant="btn-ghost"
-              size="icon-rounded"
+              size="icon-xl"
               htmlFor={`file-upload-${msg.id}`}
               aria-label={t('chatScreen.ariaLabels.uploadFile')}
               tabIndex={0}

@@ -43,7 +43,7 @@ export default function ChatInputExtraContextItem({
               <Button
                 aria-label={t('chatInput.ariaLabels.removeButton')}
                 variant="neutral"
-                size="icon-small"
+                size="icon-sm"
                 onClick={() => removeItem(i)}
               >
                 <Icon icon="LuX" size="xs" />

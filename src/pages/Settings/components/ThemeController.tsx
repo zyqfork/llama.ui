@@ -57,7 +57,7 @@ export function ThemeController() {
         <div className="font-bold mb-1 md:hidden">
           <Trans i18nKey="settings.themeManager.dataTheme.label" />
         </div>
-        <Label variant="input-bordered">
+        <Label className="mb-1" variant="input-bordered">
           <div className="font-bold hidden md:block">
             <Trans i18nKey="settings.themeManager.dataTheme.label" />
           </div>
@@ -82,7 +82,7 @@ export function ThemeController() {
         <div className="font-bold mb-1 md:hidden">
           <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
         </div>
-        <Label variant="input-bordered">
+        <Label className="mb-1" variant="input-bordered">
           <div className="font-bold hidden md:block">
             <Trans i18nKey="settings.themeManager.syntaxTheme.label" />
           </div>
