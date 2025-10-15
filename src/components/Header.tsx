@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCog, LuMenu, LuSquarePen } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { useAppContext } from '../store/app';
 import { useChatContext } from '../store/chat';
@@ -42,7 +43,9 @@ export default function Header() {
       <section className="flex flex-row items-center xl:hidden">
         {/* open sidebar button */}
         <Label variant="btn-ghost" size="icon" htmlFor="toggle-drawer">
-          <Icon icon="LuMenu" size="md" />
+          <Icon size="md">
+            <LuMenu />
+          </Icon>
         </Label>
 
         {/* spacer */}
@@ -68,7 +71,9 @@ export default function Header() {
           title={t('header.buttons.newConv')}
           aria-label={t('header.ariaLabels.newConv')}
         >
-          <Icon icon="LuSquarePen" size="md" />
+          <Icon size="md">
+            <LuSquarePen />
+          </Icon>
         </Button>
       </section>
 
@@ -129,7 +134,9 @@ export default function Header() {
               onClick={() => navigate('/settings')}
             >
               {/* settings button */}
-              <Icon icon="LuCog" size="md" />
+              <Icon size="md">
+                <LuCog />
+              </Icon>
             </Button>
           </div>
         </section>

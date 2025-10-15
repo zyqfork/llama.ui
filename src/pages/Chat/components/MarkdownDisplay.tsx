@@ -2,6 +2,7 @@ import 'katex/dist/katex.min.css';
 import { all as languages } from 'lowlight';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCopy, LuPlay } from 'react-icons/lu';
 import Markdown, { ExtraProps } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -136,7 +137,9 @@ function CodeBlockToolbar({
           aria-label={t('chatScreen.ariaLabels.runCode')}
           onClick={handleRun}
         >
-          <Icon icon="LuPlay" size="sm" />
+          <Icon size="sm">
+            <LuPlay />
+          </Icon>
         </Button>
       )}
       <Button
@@ -146,7 +149,9 @@ function CodeBlockToolbar({
         aria-label={t('chatScreen.ariaLabels.copyContent')}
         onClick={handleCopy}
       >
-        <Icon icon="LuCopy" size="sm" />
+        <Icon size="sm">
+          <LuCopy />
+        </Icon>
       </Button>
     </div>
   );

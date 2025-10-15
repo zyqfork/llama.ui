@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuChevronDown } from 'react-icons/lu';
 import { isDev } from '../config';
 import { classNames } from '../utils';
 import { Button } from './Button';
@@ -114,7 +115,9 @@ export function Dropdown<T extends DropdownOption>({
           >
             {currentValue}
             {!hideChevron && (
-              <Icon icon="LuChevronDown" variant="rightside" size="md" />
+              <Icon variant="rightside" size="md">
+                <LuChevronDown />
+              </Icon>
             )}
           </summary>
 

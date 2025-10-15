@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuFileText, LuVolume2, LuX } from 'react-icons/lu';
 import { Button, Icon } from '../../../components';
 import { MessageExtra } from '../../../types';
 import { classNames } from '../../../utils';
@@ -46,7 +47,9 @@ export default function ChatInputExtraContextItem({
                 size="icon-sm"
                 onClick={() => removeItem(i)}
               >
-                <Icon icon="LuX" size="xs" />
+                <Icon size="xs">
+                  <LuX />
+                </Icon>
               </Button>
             </div>
           )}
@@ -72,17 +75,13 @@ export default function ChatInputExtraContextItem({
                   aria-description={t('chatInput.ariaLabels.documentIcon')}
                 >
                   {item.type === 'audioFile' ? (
-                    <Icon
-                      icon="LuVolume2"
-                      size="xl"
-                      className="text-gray-500"
-                    />
+                    <Icon size="xl" className="text-gray-500">
+                      <LuVolume2 />
+                    </Icon>
                   ) : (
-                    <Icon
-                      icon="LuFileText"
-                      size="xl"
-                      className="text-gray-500"
-                    />
+                    <Icon size="xl" className="text-gray-500">
+                      <LuFileText />
+                    </Icon>
                   )}
                 </div>
 
@@ -110,7 +109,9 @@ export default function ChatInputExtraContextItem({
                 size="small"
                 aria-label={t('chatInput.previewDialog.closeButton')}
               >
-                <Icon icon="LuX" size="md" onClick={() => setShow(-1)} />
+                <Icon size="md" onClick={() => setShow(-1)}>
+                  <LuX />
+                </Icon>
               </Button>
             </div>
             {showingItem.type === 'imageFile' ? (
