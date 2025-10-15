@@ -46,7 +46,7 @@ export function SettingsModalLongInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <Label variant="form-control" className="max-w-80">
+        <Label variant="form-control" className="max-w-80 mb-3">
           <div className="text-sm opacity-60 mb-1">{label}</div>
           <TextArea
             size="default"
@@ -75,11 +75,11 @@ export function SettingsModalShortInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <Label variant="form-control">
+        <Label variant="form-control" className="mb-3">
           <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
             {label}
           </div>
-          <Label variant="input-bordered">
+          <Label variant="input-bordered" className="mb-1">
             <div
               tabIndex={0}
               role="button"
@@ -133,11 +133,11 @@ export function SettingsModalRangeInput({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <Label variant="form-control">
+        <Label variant="form-control" className="mb-3">
           <div tabIndex={0} role="button" className="font-bold mb-1 md:hidden">
             {label}
           </div>
-          <Label variant="input-bordered">
+          <Label variant="input-bordered" className="mb-1">
             <div
               tabIndex={0}
               role="button"
@@ -183,7 +183,7 @@ export function SettingsModalCheckbox({
   return (
     <LabeledField configKey={field.translateKey || field.key}>
       {({ label, note }) => (
-        <Label variant="form-control">
+        <Label variant="form-control" className="mb-3">
           <div className="flex flex-row items-center mb-1">
             <Input
               variant="toggle"

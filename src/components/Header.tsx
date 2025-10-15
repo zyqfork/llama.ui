@@ -63,7 +63,7 @@ export default function Header() {
         {/* new conversation button */}
         <Button
           variant="ghost"
-          size="icon-rounded"
+          size="icon-xl"
           onClick={() => navigate('/')}
           title={t('header.buttons.newConv')}
           aria-label={t('header.ariaLabels.newConv')}
@@ -122,7 +122,7 @@ export default function Header() {
           <div className="flex items-center">
             <Button
               variant="ghost"
-              size="icon-rounded"
+              size="icon-xl"
               className="max-xl:hidden"
               title={t('header.buttons.settings')}
               aria-label={t('header.ariaLabels.settings')}

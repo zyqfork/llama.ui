@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import IndexedDB from '../database/indexedDB';
+import useFilter from '../hooks/useFilter';
 import { useChatContext } from '../store/chat';
 import { useModals } from '../store/modal';
 import { Conversation } from '../types';
@@ -10,6 +11,7 @@ import { classNames } from '../utils';
 import { downloadAsFile } from '../utils/downloadAsFile';
 import { Button } from './Button';
 import { Icon } from './Icon';
+import { Input } from './Input';
 import { Label } from './Label';
 
 export default function Sidebar() {
@@ -18,6 +20,14 @@ export default function Sidebar() {
   const toggleDrawerRef = useRef<HTMLInputElement>(null);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  const {
+    filteredData: filteredConversations,
+    setFilter,
+    resetFilter,
+    searchTerm,
+    isFiltered,
+  } = useFilter(conversations);
 
   useEffect(() => {
     const handleConversationChange = async () => {
@@ -44,7 +54,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <input
+      <Input
         id="toggle-drawer"
         type="checkbox"
         className="drawer-toggle"
@@ -58,14 +68,14 @@ export default function Sidebar() {
         aria-label="Sidebar"
         tabIndex={0}
       >
-        <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0">
+        <div className="flex flex-col bg-base-300 h-full min-h-0 max-w-full w-96 xl:w-72 pb-4 px-4 xl:pl-2 xl:pr-0 shadow-xl/50">
           <div className="flex flex-row items-center justify-between xl:py-2">
             {/* close sidebar button */}
             <Label size="icon" className="max-xl:hidden" />
             <Label
               className="xl:hidden"
               variant="btn-ghost"
-              size="icon-rounded"
+              size="icon-xl"
               htmlFor="toggle-drawer"
               role="button"
               title={t('sidebar.buttons.closeSideBar')}
@@ -88,7 +98,7 @@ export default function Sidebar() {
             {/* new conversation button */}
             <Button
               variant="ghost"
-              size="icon-rounded"
+              size="icon-xl"
               onClick={() => navigate('/')}
               title={t('header.buttons.newConv')}
               aria-label={t('header.ariaLabels.newConv')}
@@ -97,15 +107,59 @@ export default function Sidebar() {
             </Button>
           </div>
 
+          {/* search conversation */}
+          <div className="flex max-xl:mt-2 xl:px-2">
+            <Label className="px-1.5" variant="input-bordered">
+              <Icon icon="LuSearch" size="md" />
+              <Input
+                className="input-sm grow"
+                name="Search"
+                placeholder={t('sidebar.searchPlaceHolder')}
+                value={searchTerm}
+                onChange={(e) => setFilter(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                  if (e.key === 'Escape' && !e.shiftKey) {
+                    e.preventDefault();
+                    resetFilter();
+                  }
+                }}
+                autoFocus
+              />
+              {isFiltered && (
+                <Button
+                  variant="ghost"
+                  size="icon-md"
+                  onClick={resetFilter}
+                  title={t('header.buttons.clear')}
+                  aria-label={t('header.ariaLabels.clear')}
+                >
+                  <Icon icon="LuX" size="md" />
+                </Button>
+              )}
+            </Label>
+          </div>
+
           {/* scrollable conversation list */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-            {groupedConv.map((group) => (
-              <ConversationGroup
-                key={group.title}
-                group={group}
-                onItemSelect={handleSelect}
-              />
-            ))}
+            {!isFiltered &&
+              groupedConv.map((group, idx) => (
+                <ConversationGroup
+                  className={idx > 0 ? 'mt-6' : 'mt-3'}
+                  key={group.title}
+                  group={group}
+                  onItemSelect={handleSelect}
+                />
+              ))}
+
+            {isFiltered &&
+              filteredConversations.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  conv={conv}
+                  onSelect={handleSelect}
+                />
+              ))}
           </div>
 
           {/* Footer always at the bottom */}
@@ -120,20 +174,22 @@ export default function Sidebar() {
 
 const ConversationGroup = memo(
   ({
+    className,
     group,
     onItemSelect,
   }: {
+    className?: string;
     group: GroupedConversations;
     onItemSelect: () => void;
   }) => {
     const { t } = useTranslation();
 
     return (
-      <div role="group">
+      <div role="group" className={className}>
         {/* group name (by date) */}
         {/* we use btn class here to make sure that the padding/margin are aligned with the other items */}
         <Label
-          className="px-2 mb-0 mt-6 opacity-75"
+          className="px-2 opacity-75"
           variant="group-title"
           size="xs"
           role="note"

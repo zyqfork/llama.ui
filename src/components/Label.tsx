@@ -2,7 +2,7 @@ import { cva, VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { cn } from '../utils';
 
-const variants = cva('', {
+const LabelVariants = cva('', {
   variants: {
     variant: {
       default: '',
@@ -10,15 +10,15 @@ const variants = cva('', {
       'fake-btn': 'text-center cursor-pointer',
       btn: 'btn',
       'btn-ghost': 'btn btn-ghost',
-      'form-control': 'form-control flex flex-col justify-center mb-3',
+      'form-control': 'form-control flex flex-col justify-center',
       'input-bordered':
-        'input input-bordered join-item grow flex items-center gap-2 mb-1',
+        'input input-bordered join-item grow flex items-center gap-2 focus-within:outline-1 focus-within:outline-offset-0',
     },
     size: {
       default: '',
       xs: 'text-xs',
       icon: 'w-8 h-8 p-0',
-      'icon-rounded': 'w-8 h-8 p-0 rounded-full',
+      'icon-xl': 'w-8 h-8 p-0 rounded-full',
     },
   },
   defaultVariants: {
@@ -28,12 +28,12 @@ const variants = cva('', {
 });
 
 export type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement> &
-  VariantProps<typeof variants>;
+  VariantProps<typeof LabelVariants>;
 
 const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, variant, size, ...props }, ref) => (
     <label
-      className={cn(variants({ variant, size, className }))}
+      className={cn(LabelVariants({ variant, size, className }))}
       ref={ref}
       {...props}
     />

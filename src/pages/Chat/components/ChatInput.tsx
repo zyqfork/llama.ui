@@ -131,7 +131,7 @@ export const ChatInput = memo(
                 <Label
                   className={isPending ? 'btn-disabled' : ''}
                   variant="btn-ghost"
-                  size="icon-rounded"
+                  size="icon-xl"
                   htmlFor="new-message-file-upload"
                   aria-label={t('chatInput.ariaLabels.uploadFile')}
                   tabIndex={0}
@@ -143,7 +143,7 @@ export const ChatInput = memo(
                 <Button
                   className="xl:hidden"
                   variant="ghost"
-                  size="icon-rounded"
+                  size="icon-xl"
                   title={t('header.title.settings')}
                   aria-label={t('header.ariaLabels.settings')}
                   onClick={() => navigate('/settings')}
@@ -161,7 +161,7 @@ export const ChatInput = memo(
                           <Button
                             className="mr-2"
                             variant="ghost"
-                            size="icon-rounded"
+                            size="icon-xl"
                             onClick={startRecording}
                             title="Record"
                             aria-label="Start Recording"
@@ -173,7 +173,7 @@ export const ChatInput = memo(
                           <Button
                             className="mr-2"
                             variant="ghost"
-                            size="icon-rounded"
+                            size="icon-xl"
                             onClick={stopRecording}
                             title="Stop"
                             aria-label="Stop Recording"
@@ -187,11 +187,7 @@ export const ChatInput = memo(
                 )}
 
                 {isPending && (
-                  <Button
-                    variant="neutral"
-                    size="icon-rounded"
-                    onClick={handleStop}
-                  >
+                  <Button variant="neutral" size="icon-xl" onClick={handleStop}>
                     <Icon icon="LuSquare" size="sm" variant="current" />
                   </Button>
                 )}
@@ -199,7 +195,7 @@ export const ChatInput = memo(
                 {!isPending && (
                   <Button
                     variant="neutral"
-                    size="icon-rounded"
+                    size="icon-xl"
                     onClick={sendNewMessage}
                     aria-label={t('chatInput.ariaLabels.send')}
                   >

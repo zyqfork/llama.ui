@@ -2,7 +2,7 @@ import { cva, VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { cn } from '../utils';
 
-const variants = cva('btn', {
+const ButtonVariants = cva('btn', {
   variants: {
     variant: {
       default: '',
@@ -15,8 +15,9 @@ const variants = cva('btn', {
       default: '',
       small: 'btn-sm',
       icon: 'w-8 h-8 p-0',
-      'icon-rounded': 'w-8 h-8 p-0 rounded-full',
-      'icon-small': 'btn-sm w-4 h-4 p-0 rounded-full',
+      'icon-sm': 'btn-sm w-4 h-4 p-0 rounded-full',
+      'icon-md': 'btn-sm w-5 h-5 p-0 rounded-full',
+      'icon-xl': 'w-8 h-8 p-0 rounded-full',
     },
   },
   defaultVariants: {
@@ -26,13 +27,13 @@ const variants = cva('btn', {
 });
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
-  VariantProps<typeof variants>;
+  VariantProps<typeof ButtonVariants>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => (
     <button
       type="button"
-      className={cn(variants({ variant, size, className }))}
+      className={cn(ButtonVariants({ variant, size, className }))}
       ref={ref}
       dir="auto"
       {...props}
