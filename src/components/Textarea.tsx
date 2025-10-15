@@ -15,7 +15,7 @@ import { cn, throttle } from '../utils';
 const variants = cva('textarea min-h-auto resize-none', {
   variants: {
     variant: {
-      default: 'focus:outline-1 focus:outline-offset-0',
+      bordered: 'focus:outline-1 focus:outline-offset-0 inset-shadow-xs',
       code: 'font-mono',
       transparent:
         'bg-transparent border-none outline-0 ring-0 focus:outline-0 focus:ring-0',
@@ -26,7 +26,7 @@ const variants = cva('textarea min-h-auto resize-none', {
     },
   },
   defaultVariants: {
-    variant: 'default',
+    variant: 'bordered',
     size: 'default',
   },
 });

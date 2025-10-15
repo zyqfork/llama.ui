@@ -12,7 +12,7 @@ const LabelVariants = cva('', {
       'btn-ghost': 'btn btn-ghost',
       'form-control': 'form-control flex flex-col justify-center',
       'input-bordered':
-        'input input-bordered join-item grow flex items-center gap-2 focus-within:outline-1 focus-within:outline-offset-0',
+        'input input-bordered join-item grow flex items-center gap-2 focus-within:outline-1 focus-within:outline-offset-0 inset-shadow-xs',
     },
     size: {
       default: '',
