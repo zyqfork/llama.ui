@@ -1,3 +1,18 @@
+## [2.38.1] - 2025-10-15
+
+### 🚀 Enhancements
+
+- _(sidebar)_ Add conversation search functionality (#223)
+
+### 🎨 Styling
+
+- _(chat)_ Update styling for main content and chat input (#224)
+
+### 🚜 Refactor
+
+- _(Input)_ Replace native input with custom Input component (#222)
+- _(icon)_ Migrate to direct icon component usage (#225)
+
 ## [2.38.0] - 2025-10-12
 
 ### 🚀 Enhancements
