@@ -109,7 +109,10 @@ export default function Sidebar() {
 
           {/* search conversation */}
           <div className="flex max-xl:mt-2 xl:px-2">
-            <Label className="px-1.5" variant="input-bordered">
+            <Label
+              variant="input-bordered"
+              className="h-8 inset-shadow-sm my-1.5 px-1.5"
+            >
               <Icon icon="LuSearch" size="md" />
               <Input
                 className="input-sm grow"

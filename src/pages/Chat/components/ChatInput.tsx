@@ -102,7 +102,7 @@ export const ChatInput = memo(
           disabled={isPending}
         >
           <div
-            className="bg-base-200 flex flex-col lg:border-1 lg:border-base-content/30 outline-0 focus-within:outline-1 rounded-lg shadow-sm md:shadow-md p-2"
+            className="bg-base-200 flex flex-col outline-0 focus-within:outline-1 rounded-lg shadow-sm xl:shadow-md p-2"
             tabIndex={0}
           >
             <AutoSizingTextArea
