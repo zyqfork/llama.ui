@@ -1,3 +1,14 @@
+## [2.38.2] - 2025-10-16
+
+### 🎨 Styling
+
+- _(App)_ Add dark mode border color support (#226)
+- _(chat)_ Update icon and styling in ChatMessage component (#226)
+
+### 🚜 Refactor
+
+- _(i18n)_ [**breaking**] Replace 'thoughts' with 'reasoning' in all language files (#226)
+
 ## [2.38.1] - 2025-10-15
 
 ### 🚀 Enhancements
