@@ -7,7 +7,7 @@ import { memo, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   LuAtom,
-  LuBrain,
+  LuBot,
   LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
@@ -535,7 +535,7 @@ const ThinkingSection = memo(function ThinkingSection({
       onOpenChange={setOpen}
       aria-label={t('chatScreen.ariaLabels.thoughtDisplay')}
     >
-      <CollapsibleTrigger className="btn border-0 rounded-xl my-2 p-2 px-4">
+      <CollapsibleTrigger className="btn border-0 rounded-lg my-2 p-2 px-4">
         {isThinking && (
           <>
             <Icon size="md" variant="leftside" className="animate-spin">
@@ -547,7 +547,7 @@ const ThinkingSection = memo(function ThinkingSection({
         {!isThinking && (
           <>
             <Icon size="md" variant="leftside">
-              <LuBrain />
+              <LuBot />
             </Icon>
             <Trans i18nKey="chatScreen.labels.reasoning" />
           </>
