@@ -549,7 +549,7 @@ const ThinkingSection = memo(function ThinkingSection({
             <Icon size="md" variant="leftside">
               <LuBrain />
             </Icon>
-            <Trans i18nKey="chatScreen.labels.thoughts" />
+            <Trans i18nKey="chatScreen.labels.reasoning" />
           </>
         )}
         {!open && (
