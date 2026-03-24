@@ -1,8 +1,8 @@
 import { isDev } from '../../config';
 import { InferenceApiModel, Modality } from '../../types';
-import { normalizeUrl } from '../../utils';
-import { noResponse } from '../utils';
-import { SelfHostedOpenAIProvider } from './BaseOpenAIProvider';
+import { normalizeUrl } from '../../utils/url-helpers';
+import { noResponse } from '../response-utils';
+import { SelfHostedOpenAIProvider } from './SelfHostedOpenAIProvider';
 
 /**
  * Interface representing server properties from a Llama.cpp server instance.

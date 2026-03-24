@@ -3,10 +3,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Button } from '../../components';
 import IndexedDB from '../../database/indexedDB';
+import { CallbackGeneratedChunk } from '../../hooks/useInference';
 import { useAppContext } from '../../store/app';
-import { CallbackGeneratedChunk, useChatContext } from '../../store/chat';
+import { useChatContext } from '../../store/chat';
 import { MessageExtra } from '../../types';
-import { getUniqueRandomElements } from '../../utils';
+import { getUniqueRandomElements } from '../../utils/array-helpers';
 import { ChatInput } from '../Chat/components/ChatInput';
 
 const SAMPLE_PROMPTS_COUNT = 4;

@@ -7,8 +7,9 @@ import {
   ModelProvider,
   SSEChatCompletionMessage,
 } from '../../types';
-import { normalizeUrl } from '../../utils';
-import { noResponse, processSSEStream } from '../utils';
+import { normalizeUrl } from '../../utils/url-helpers';
+import { noResponse } from '../response-utils';
+import { processSSEStream } from '../sse-parser';
 
 /**
  * Base implementation for OpenAI-compatible API providers.
@@ -415,63 +416,5 @@ export class BaseOpenAIProvider
    */
   getApiKey(): string {
     return this.apiKey;
-  }
-}
-
-/**
- * A provider implementation for Self-Hosted OpenAI instances.
- *
- * This class extends {@link BaseOpenAIProvider} and defines a shorter
- * token expiration threshold suitable for self-hosted environments,
- * where tokens may be refreshed more frequently due to local infrastructure
- * or security policies.
- *
- * @remarks
- * The expiration threshold is set to **60 seconds** (60,000 milliseconds),
- * reflecting the typical short-lived token validity in self-hosted deployments.
- */
-export class SelfHostedOpenAIProvider extends BaseOpenAIProvider {
-  /**
-   * Determines whether the current API token has expired based on the last update time.
-   *
-   * For self-hosted providers, the token is considered expired if more than
-   * 60 seconds have passed since the last update.
-   *
-   * @returns `true` if the token has expired; otherwise, `false`.
-   * @inheritdoc
-   */
-  protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 60 * 1000;
-  }
-}
-
-/**
- * A provider implementation for Cloud-based OpenAI services (e.g., OpenAI API).
- *
- * This class extends {@link BaseOpenAIProvider} and defines a longer
- * token expiration threshold appropriate for cloud-based APIs,
- * where token refresh cycles are typically longer and less frequent.
- *
- * @remarks
- * The expiration threshold is set to **15 minutes** (900,000 milliseconds),
- * aligning with standard token lifetimes in OpenAI's cloud API offerings.
- */
-export class CloudOpenAIProvider extends BaseOpenAIProvider {
-  /**
-   * Determines whether the current API token has expired based on the last update time.
-   *
-   * For cloud providers, the token is considered expired if more than
-   * 15 minutes have passed since the last update.
-   *
-   * @returns `true` if the token has expired; otherwise, `false`.
-   * @inheritdoc
-   */
-  protected isExpired(): boolean {
-    return Date.now() - this.lastUpdated > 15 * 60 * 1000;
-  }
-
-  /** @inheritdoc */
-  protected isAllowCustomOptions(): boolean {
-    return false;
   }
 }
